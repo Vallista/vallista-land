@@ -5,6 +5,7 @@ vallista의 모든 레포에 쓰이는 디자인 시스템, 프로젝트 레포�
 ## installation
 
 ```shell
+$ npm install -g lerna
 $ yarn
 ```
 
@@ -43,3 +44,8 @@ $ lerna add {모듈명} --scope={패키지명}
 > react-app-rewired 쓰는 이유
 >
 > 참고: https://stackoverflow.com/questions/65893787/create-react-app-with-typescript-and-npm-link-enums-causing-module-parse-failed
+
+## Rule
+
+1. todo -> in progress -> review -> PR (origin to upstream) -> done
+2. conventional commit rule로 https://www.conventionalcommits.org/en/v1.0.0/ 커밋메시지 작성
