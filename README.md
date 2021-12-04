@@ -32,3 +32,14 @@ $ yarn add {모듈명} {dev인 경우 --dev} --ignore-workspace-root-check
 ```shell
 $ lerna add {모듈명} --scope={패키지명}
 ```
+
+## 기술스택
+
+- react
+- typescript
+- lerna + yarn workspace
+- react-app-rewired
+
+> react-app-rewired 쓰는 이유
+>
+> 참고: https://stackoverflow.com/questions/65893787/create-react-app-with-typescript-and-npm-link-enums-causing-module-parse-failed
