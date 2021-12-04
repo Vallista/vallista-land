@@ -1,0 +1,42 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": false
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "typescript.preferences.importModuleSpecifier": "shortest",
+
+  "[javascript]": {
+    // "editor.formatOnSave": false,
+    // "editor.codeActionsOnSave": {
+    //   "source.fixAll.eslint": true
+    // }
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true
+    // "editor.codeActionsOnSave": {
+    //   "source.fixAll.eslint": true
+    // }
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+    // "editor.codeActionsOnSave": {
+    //   "source.fixAll.eslint": true
+    // }
+  },
+  "stylelint.enable": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.words": ["IAPI", "IGCS", "afid", "adid", "ABTEST", "typesafe", "samesite"],
+  "editor.snippetSuggestions": "none",
+  "editor.suggest.showWords": false,
+  "prettier.singleQuote": true,
+  "prettier.semi": false,
+  "prettier.jsxSingleQuote": true,
+  "prettier.tabWidth": 2,
+  "prettier.bracketSpacing": true,
+  "prettier.printWidth": 120,
+  "prettier.useTabs": false,
+  "prettier.trailingComma": "none",
+  "prettier.endOfLine": "auto"
+}
