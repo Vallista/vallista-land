@@ -49,3 +49,9 @@ $ lerna add {모듈명} --scope={패키지명}
 
 1. todo -> in progress -> review -> PR (origin to upstream) -> done
 2. conventional commit rule로 https://www.conventionalcommits.org/en/v1.0.0/ 커밋메시지 작성
+
+## 개발 방법
+
+1. core > components > 해당 컴포넌트 제작
+2. core > components > index.ts 에 등록
+3. blog > src 에서 테스트
