@@ -1,4 +1,4 @@
-import { AvailablePickedColor } from '../ThemeProvider'
+import { AvailablePickedColor } from '../ThemeProvider/type'
 
 export interface TextProps {
   as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'small' | 'span' | 'div' | 'label' | 'string'

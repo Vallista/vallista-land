@@ -1,4 +1,4 @@
-import { Colors } from '../ThemeProvider'
+import { Colors } from '../ThemeProvider/type'
 import { ReturningUseText, TextProps } from './type'
 
 const initProps: Partial<TextProps> = {
