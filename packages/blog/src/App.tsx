@@ -1,10 +1,12 @@
+import { Colors, Text, ThemeProvider } from 'core'
 import { VFC } from 'react'
 import './App.css'
-import { Text, ThemeProvider } from 'core'
 
 const App: VFC = () => (
   <ThemeProvider>
-    <Text>홈!</Text>
+    <Text size={32} color={Colors.HIGHLIGHT.PINK} weight={600}>
+      홈!
+    </Text>
   </ThemeProvider>
 )
 
