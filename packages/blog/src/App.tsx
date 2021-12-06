@@ -1,11 +1,11 @@
 import { VFC } from 'react'
 import './App.css'
-import { HelloWorld } from 'core/src/test'
+import { HelloWorld, ThemeProvider } from 'core'
 
 const App: VFC = () => (
-  <div>
+  <ThemeProvider>
     홈! <HelloWorld />
-  </div>
+  </ThemeProvider>
 )
 
 export default App
