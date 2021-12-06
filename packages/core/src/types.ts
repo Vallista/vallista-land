@@ -1,5 +1,5 @@
 import '@emotion/react'
-import { BaseTheme } from 'src/components/ThemeProvider'
+import type { BaseTheme } from './components/ThemeProvider'
 
 declare module '@emotion/react' {
   // eslint-disable-next-line

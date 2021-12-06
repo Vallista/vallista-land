@@ -1,10 +1,10 @@
 import { VFC } from 'react'
 import './App.css'
-import { HelloWorld, ThemeProvider } from 'core'
+import { Text, ThemeProvider } from 'core'
 
 const App: VFC = () => (
   <ThemeProvider>
-    홈! <HelloWorld />
+    <Text>홈!</Text>
   </ThemeProvider>
 )
 

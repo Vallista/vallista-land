@@ -66,9 +66,18 @@ export const Layers = {
   CONCEAL: 9999
 } as const
 
+export type ColorType = typeof Colors
+export type LayerType = typeof Layers
+
+export type AvailablePickedColor = ColorType extends { [key: string]: infer T }
+  ? T extends { [key: string]: infer K }
+    ? K
+    : never
+  : never
+
 export interface BaseTheme {
-  colors: typeof Colors
-  layers: typeof Layers
+  colors: ColorType
+  layers: LayerType
 }
 
 const baseTheme: BaseTheme = {
