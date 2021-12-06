@@ -75,8 +75,8 @@ export const Layers = {
   STANDARD: 0,
   /** 앞 배경 */
   FOREGROUND: 100,
-  /** 대화상자 */
-  DIALOG: 1000,
+  /** 모달 */
+  MODAL: 1000,
   /** 로딩 */
   LOADING: 2000,
   /** 스넥바 */
