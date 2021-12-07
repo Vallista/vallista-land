@@ -24,16 +24,14 @@ export const Spinner: FC<Partial<SpinnerProps>> = (props) => {
 
   return (
     <SpinnerWrapper size={size}>
-      <div>
-        {[...Array(12)].map((_, index) => {
-          return <SpinnerStick key={index} index={index} />
-        })}
-      </div>
+      {[...Array(12)].map((_, index) => {
+        return <SpinnerStick key={`spinner-stick-${index}`} index={index} />
+      })}
     </SpinnerWrapper>
   )
 }
 
-const SpinnerAnimation = keyframes`
+const SpinnerStickAnimation = keyframes`
   from {
     opacity: 1;
   }
@@ -43,24 +41,19 @@ const SpinnerAnimation = keyframes`
 `
 
 const SpinnerWrapper = styled.div<ReturningUseSpinner>`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   ${(props) => css`
-    width: ${`${props.size ?? 20}px`};
-    height: ${`${props.size ?? 20}px`};
+    width: ${`${props.size}px`};
+    height: ${`${props.size}px`};
   `}
-  & > div {
-    position: relative;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-  }
 `
 
 const SpinnerStick = styled.div<{ index: number }>`
-  animation: ${SpinnerAnimation} 1.2s linear infinite;
+  animation: ${SpinnerStickAnimation} 1.2s linear infinite;
   position: absolute;
-  top: -3.9%;
-  left: -10%;
   width: 24%;
   height: 8%;
   border-radius: 5px;
