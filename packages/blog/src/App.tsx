@@ -1,4 +1,4 @@
-import { Colors, Text, ThemeProvider } from 'core'
+import { Colors, Text, Spinner, ThemeProvider } from 'core'
 import { VFC } from 'react'
 import './App.css'
 
@@ -7,6 +7,8 @@ const App: VFC = () => (
     <Text size={32} color={Colors.HIGHLIGHT.PINK} weight={600}>
       홈!
     </Text>
+    <Spinner />
+    <Spinner size={50} />
   </ThemeProvider>
 )
 
