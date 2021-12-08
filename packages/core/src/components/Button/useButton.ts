@@ -11,8 +11,8 @@ const initProps: Partial<ButtonProps> = {
 
 export function useButton<T extends Partial<ButtonProps>>(props: T): ReturningUseButton<T> {
   const theme = useTheme()
-  const color = props.color || 'primary'
-  const variant = props.variant || 'default'
+  const color = props.color ?? 'primary'
+  const variant = props.variant ?? 'default'
   const colorSets = createColorSets(variant, theme, color)
   return {
     ...initProps,

@@ -19,7 +19,6 @@ import { useButton } from './useButton'
  * <Button type={Colors.HIGHLIGHT.PINK} size="small" variant="shadow" disabled>Hello World!</Button>
  * ```
  */
-// export const Button: FC<Partial<ButtonProps> & Partial<Pick<ButtonProps, 'normal' | 'hover' | 'active'>>> = (props) => {
 export const Button: FC<Partial<ButtonProps>> = (props) => {
   const { children, prefix, suffix, disabled, loading, onClick, ...otherProps } = useButton(props)
   return (
@@ -32,13 +31,13 @@ export const Button: FC<Partial<ButtonProps>> = (props) => {
 }
 
 const Element = styled.button<ReturningUseButton>`
-  transition-property: border-color, background, color, transform, box-shadow;
-  transition-duration: 0.15s;
-  transition-timing-function: ease;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition-property: border-color, background, color, transform, box-shadow;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
   max-width: 100%;
   padding: 0 12px;
   cursor: default;
