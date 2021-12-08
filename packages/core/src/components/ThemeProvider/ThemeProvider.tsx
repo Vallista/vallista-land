@@ -2,16 +2,18 @@ import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
 import styled from '@emotion/styled'
 import React, { FC, VFC } from 'react'
 
-import { BaseThemeMapper, Colors, Layers } from './type'
+import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
 
 const Themes: BaseThemeMapper = {
   DEFAULT: {
     colors: Colors,
-    layers: Layers
+    layers: Layers,
+    shadows: Shadows
   },
   DARK: {
     colors: Colors,
-    layers: Layers
+    layers: Layers,
+    shadows: Shadows
   }
 }
 

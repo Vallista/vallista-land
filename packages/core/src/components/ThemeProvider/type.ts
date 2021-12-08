@@ -85,8 +85,18 @@ export const Layers = {
   CONCEAL: 9999
 } as const
 
+export const Shadows = {
+  SMALLEST: '0 2px 4px rgba(0,0,0,0.1)',
+  EXTRA_SMALL: '0 4px 8px rgba(0,0,0,0.12)',
+  SMALL: '0 5px 10px rgba(0,0,0,0.12)',
+  MEDIUM: '0 8px 30px rgba(0,0,0,0.12)',
+  LARGE: '0 30px 60px rgba(0,0,0,0.12)',
+  HOVER: '0 30px 60px rgba(0,0,0,0.12)'
+} as const
+
 export type ColorType = typeof Colors
 export type LayerType = typeof Layers
+export type ShadowType = typeof Shadows
 
 /** 사용가능한 컬러 (ColorType에서 최종 color 값들만 추출) */
 export type AvailablePickedColor = ColorType extends { [key: string]: infer T }
@@ -99,6 +109,7 @@ export type AvailablePickedColor = ColorType extends { [key: string]: infer T }
 export interface BaseTheme {
   colors: ColorType
   layers: LayerType
+  shadows: ShadowType
 }
 
 export type BaseThemeMapper = Record<'DEFAULT' | 'DARK', BaseTheme>
