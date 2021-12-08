@@ -1,5 +1,6 @@
-import { Colors } from '../ThemeProvider'
-import { ReturningUseButton, ButtonProps, colorVariantSets } from './type'
+import { useTheme } from '@emotion/react'
+
+import { ReturningUseButton, ButtonProps, createColorSets } from './type'
 
 const initProps: Partial<ButtonProps> = {
   shape: 'square',
@@ -9,13 +10,15 @@ const initProps: Partial<ButtonProps> = {
 }
 
 export function useButton<T extends Partial<ButtonProps>>(props: T): ReturningUseButton<T> {
+  const theme = useTheme()
   const color = props.color || 'primary'
   const variant = props.variant || 'default'
+  const colorSets = createColorSets(variant, theme, color)
   return {
     ...initProps,
     ...props,
-    normal: colorVariantSets[variant][color].normal,
-    hover: colorVariantSets[variant][color].hover,
-    active: colorVariantSets[variant][color].active
+    normal: colorSets.normal,
+    hover: colorSets.hover,
+    active: colorSets.active
   }
 }

@@ -1,396 +1,419 @@
+import { Theme } from '@emotion/react'
 import React from 'react'
 
-import { Colors } from '../ThemeProvider/type'
+type ButtonColor = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'alert' | 'violet'
+interface ButtonStateColor {
+  foreground: string
+  background: string
+  border: string
+}
+export interface ButtonStateColors {
+  normal: ButtonStateColor
+  hover: ButtonStateColor
+  active: ButtonStateColor
+}
+interface ButtonColorSets {
+  [key: string]: ButtonStateColors
+}
+type ButtonColorSet = (theme: Theme) => ButtonColorSets
+type ButtonVariant = 'ghost' | 'shadow' | 'default'
 
-export interface ButtonProps {
+export interface ButtonProps extends ButtonStateColors {
   width: number
   align: 'grow' | 'start'
-  variant: 'ghost' | 'shadow' | 'default'
+  variant: ButtonVariant
   shape: 'square' | 'circle'
   size: 'small' | 'medium' | 'large'
+  type: 'submit' | 'reset' | 'button'
   prefix: React.ReactNode
   suffix: React.ReactNode
-  color: 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'alert' | 'violet'
-  normal: { foreground: string; background: string; border: string }
-  hover: { foreground: string; background: string; border: string }
-  active: { foreground: string; background: string; border: string }
+  color: ButtonColor
   loading: boolean
   disabled: boolean
+  block: boolean
   onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
 }
 
-export type ReturningUseButton<T extends Partial<ButtonProps> = Partial<ButtonProps>> = T & {
-  // Element: React.ElementType
-}
+export type ReturningUseButton<T extends Partial<ButtonProps> = Partial<ButtonProps>> = T & ButtonStateColors
 
-const defaultVariantColorSets = {
-  primary: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.PRIMARY.FOREGROUND,
-      border: Colors.PRIMARY.FOREGROUND
+const defaultVariantColorSets: ButtonColorSet = (theme) => {
+  return {
+    primary: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.PRIMARY.FOREGROUND,
+        border: theme.colors.PRIMARY.FOREGROUND
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.PRIMARY.FOREGROUND
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.PRIMARY.FOREGROUND
+      }
     },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.PRIMARY.FOREGROUND
+    secondary: {
+      normal: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.PRIMARY.ACCENT_2
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.PRIMARY.FOREGROUND
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.PRIMARY.FOREGROUND
+      }
     },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.PRIMARY.FOREGROUND
-    }
-  },
-  secondary: {
-    normal: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.PRIMARY.ACCENT_2
+    success: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.SUCCESS.DEFAULT,
+        border: theme.colors.SUCCESS.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.SUCCESS.DEFAULT,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.SUCCESS.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.SUCCESS.DEFAULT,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.SUCCESS.DEFAULT
+      }
     },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.PRIMARY.FOREGROUND
+    error: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.ERROR.DEFAULT,
+        border: theme.colors.ERROR.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.ERROR.DEFAULT,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.ERROR.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.ERROR.DEFAULT,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.ERROR.DEFAULT
+      }
     },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.PRIMARY.FOREGROUND
-    }
-  },
-  success: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.SUCCESS.DEFAULT,
-      border: Colors.SUCCESS.DEFAULT
+    warning: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.WARNING.DEFAULT,
+        border: theme.colors.WARNING.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.WARNING.DEFAULT,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.WARNING.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.WARNING.DEFAULT,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.WARNING.DEFAULT
+      }
     },
-    hover: {
-      foreground: Colors.SUCCESS.DEFAULT,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.SUCCESS.DEFAULT
+    alert: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.HIGHLIGHT.PINK,
+        border: theme.colors.HIGHLIGHT.PINK
+      },
+      hover: {
+        foreground: theme.colors.HIGHLIGHT.PINK,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.HIGHLIGHT.PINK
+      },
+      active: {
+        foreground: theme.colors.HIGHLIGHT.PINK,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.HIGHLIGHT.PINK
+      }
     },
-    active: {
-      foreground: Colors.SUCCESS.DEFAULT,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.SUCCESS.DEFAULT
-    }
-  },
-  error: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.ERROR.DEFAULT,
-      border: Colors.ERROR.DEFAULT
-    },
-    hover: {
-      foreground: Colors.ERROR.DEFAULT,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.ERROR.DEFAULT
-    },
-    active: {
-      foreground: Colors.ERROR.DEFAULT,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.ERROR.DEFAULT
-    }
-  },
-  warning: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.WARNING.DEFAULT,
-      border: Colors.WARNING.DEFAULT
-    },
-    hover: {
-      foreground: Colors.WARNING.DEFAULT,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.WARNING.DEFAULT
-    },
-    active: {
-      foreground: Colors.WARNING.DEFAULT,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.WARNING.DEFAULT
-    }
-  },
-  alert: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.HIGHLIGHT.PINK,
-      border: Colors.HIGHLIGHT.PINK
-    },
-    hover: {
-      foreground: Colors.HIGHLIGHT.PINK,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.HIGHLIGHT.PINK
-    },
-    active: {
-      foreground: Colors.HIGHLIGHT.PINK,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.HIGHLIGHT.PINK
-    }
-  },
-  violet: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.VIOLET.DEFAULT,
-      border: Colors.VIOLET.DEFAULT
-    },
-    hover: {
-      foreground: Colors.VIOLET.DEFAULT,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.VIOLET.DEFAULT
-    },
-    active: {
-      foreground: Colors.VIOLET.DEFAULT,
-      background: Colors.PRIMARY.ACCENT_2,
-      border: Colors.VIOLET.DEFAULT
+    violet: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.VIOLET.DEFAULT,
+        border: theme.colors.VIOLET.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.VIOLET.DEFAULT,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.VIOLET.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.VIOLET.DEFAULT,
+        background: theme.colors.PRIMARY.ACCENT_2,
+        border: theme.colors.VIOLET.DEFAULT
+      }
     }
   }
 }
 
-const shadowVariantColorSets = {
-  primary: {
-    normal: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.PRIMARY.FOREGROUND,
-      border: Colors.PRIMARY.FOREGROUND
+const shadowVariantColorSets: ButtonColorSet = (theme) => {
+  return {
+    primary: {
+      normal: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.PRIMARY.FOREGROUND,
+        border: theme.colors.PRIMARY.FOREGROUND
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.PRIMARY.FOREGROUND,
+        border: theme.colors.PRIMARY.FOREGROUND
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.BACKGROUND,
+        background: theme.colors.PRIMARY.FOREGROUND,
+        border: theme.colors.PRIMARY.FOREGROUND
+      }
     },
-    hover: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.PRIMARY.FOREGROUND,
-      border: Colors.PRIMARY.FOREGROUND
+    secondary: {
+      normal: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.PRIMARY.BACKGROUND
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.PRIMARY.BACKGROUND
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: theme.colors.PRIMARY.BACKGROUND,
+        border: theme.colors.PRIMARY.BACKGROUND
+      }
     },
-    active: {
-      foreground: Colors.PRIMARY.BACKGROUND,
-      background: Colors.PRIMARY.FOREGROUND,
-      border: Colors.PRIMARY.FOREGROUND
-    }
-  },
-  secondary: {
-    normal: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.PRIMARY.BACKGROUND
+    success: {
+      normal: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.SUCCESS.DEFAULT,
+        border: theme.colors.SUCCESS.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.SUCCESS.DEFAULT,
+        border: theme.colors.SUCCESS.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.SUCCESS.DEFAULT,
+        border: theme.colors.SUCCESS.DEFAULT
+      }
     },
-    hover: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.PRIMARY.BACKGROUND
+    error: {
+      normal: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.ERROR.DEFAULT,
+        border: theme.colors.ERROR.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.ERROR.DEFAULT,
+        border: theme.colors.ERROR.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.ERROR.DEFAULT,
+        border: theme.colors.ERROR.DEFAULT
+      }
     },
-    active: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: Colors.PRIMARY.BACKGROUND,
-      border: Colors.PRIMARY.BACKGROUND
-    }
-  },
-  success: {
-    normal: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.SUCCESS.DEFAULT,
-      border: Colors.SUCCESS.DEFAULT
+    warning: {
+      normal: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.WARNING.DEFAULT,
+        border: theme.colors.WARNING.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.WARNING.DEFAULT,
+        border: theme.colors.WARNING.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.WARNING.DEFAULT,
+        border: theme.colors.WARNING.DEFAULT
+      }
     },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.SUCCESS.DEFAULT,
-      border: Colors.SUCCESS.DEFAULT
+    alert: {
+      normal: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.HIGHLIGHT.PINK,
+        border: theme.colors.HIGHLIGHT.PINK
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.HIGHLIGHT.PINK,
+        border: theme.colors.HIGHLIGHT.PINK
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.HIGHLIGHT.PINK,
+        border: theme.colors.HIGHLIGHT.PINK
+      }
     },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.SUCCESS.DEFAULT,
-      border: Colors.SUCCESS.DEFAULT
-    }
-  },
-  error: {
-    normal: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.ERROR.DEFAULT,
-      border: Colors.ERROR.DEFAULT
-    },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.ERROR.DEFAULT,
-      border: Colors.ERROR.DEFAULT
-    },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.ERROR.DEFAULT,
-      border: Colors.ERROR.DEFAULT
-    }
-  },
-  warning: {
-    normal: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.WARNING.DEFAULT,
-      border: Colors.WARNING.DEFAULT
-    },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.WARNING.DEFAULT,
-      border: Colors.WARNING.DEFAULT
-    },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.WARNING.DEFAULT,
-      border: Colors.WARNING.DEFAULT
-    }
-  },
-  alert: {
-    normal: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.HIGHLIGHT.PINK,
-      border: Colors.HIGHLIGHT.PINK
-    },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.HIGHLIGHT.PINK,
-      border: Colors.HIGHLIGHT.PINK
-    },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.HIGHLIGHT.PINK,
-      border: Colors.HIGHLIGHT.PINK
-    }
-  },
-  violet: {
-    normal: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.VIOLET.DEFAULT,
-      border: Colors.VIOLET.DEFAULT
-    },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.VIOLET.DEFAULT,
-      border: Colors.VIOLET.DEFAULT
-    },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.VIOLET.DEFAULT,
-      border: Colors.VIOLET.DEFAULT
-    }
-  }
-}
-
-const ghostVariantColorSets = {
-  primary: {
-    normal: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.PRIMARY.ACCENT_4,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.PRIMARY.FOREGROUND,
-      background: Colors.PRIMARY.ACCENT_4,
-      border: 'transparent'
-    }
-  },
-  secondary: {
-    normal: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: Colors.PRIMARY.ACCENT_4,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.PRIMARY.ACCENT_5,
-      background: Colors.PRIMARY.ACCENT_4,
-      border: 'transparent'
-    }
-  },
-  success: {
-    normal: {
-      foreground: Colors.SUCCESS.DEFAULT,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.SUCCESS.DEFAULT,
-      background: Colors.SUCCESS.DEFAULT,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.SUCCESS.DEFAULT,
-      background: Colors.SUCCESS.DEFAULT,
-      border: 'transparent'
-    }
-  },
-  error: {
-    normal: {
-      foreground: Colors.ERROR.DEFAULT,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.ERROR.DEFAULT,
-      background: Colors.ERROR.DEFAULT,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.ERROR.DEFAULT,
-      background: Colors.ERROR.DEFAULT,
-      border: 'transparent'
-    }
-  },
-  warning: {
-    normal: {
-      foreground: Colors.WARNING.DEFAULT,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.WARNING.DEFAULT,
-      background: Colors.WARNING.DEFAULT,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.WARNING.DEFAULT,
-      background: Colors.WARNING.DEFAULT,
-      border: 'transparent'
-    }
-  },
-  alert: {
-    normal: {
-      foreground: Colors.HIGHLIGHT.PINK,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.HIGHLIGHT.PINK,
-      background: Colors.HIGHLIGHT.PINK,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.HIGHLIGHT.PINK,
-      background: Colors.HIGHLIGHT.PINK,
-      border: 'transparent'
-    }
-  },
-  violet: {
-    normal: {
-      foreground: Colors.VIOLET.DEFAULT,
-      background: 'none',
-      border: 'transparent'
-    },
-    hover: {
-      foreground: Colors.VIOLET.DEFAULT,
-      background: Colors.VIOLET.DEFAULT,
-      border: 'transparent'
-    },
-    active: {
-      foreground: Colors.VIOLET.DEFAULT,
-      background: Colors.VIOLET.DEFAULT,
-      border: 'transparent'
+    violet: {
+      normal: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.VIOLET.DEFAULT,
+        border: theme.colors.VIOLET.DEFAULT
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.VIOLET.DEFAULT,
+        border: theme.colors.VIOLET.DEFAULT
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.VIOLET.DEFAULT,
+        border: theme.colors.VIOLET.DEFAULT
+      }
     }
   }
 }
 
-export const colorVariantSets = {
+const ghostVariantColorSets: ButtonColorSet = (theme) => {
+  return {
+    primary: {
+      normal: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.PRIMARY.ACCENT_4,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.FOREGROUND,
+        background: theme.colors.PRIMARY.ACCENT_4,
+        border: 'transparent'
+      }
+    },
+    secondary: {
+      normal: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: theme.colors.PRIMARY.ACCENT_4,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.PRIMARY.ACCENT_5,
+        background: theme.colors.PRIMARY.ACCENT_4,
+        border: 'transparent'
+      }
+    },
+    success: {
+      normal: {
+        foreground: theme.colors.SUCCESS.DEFAULT,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.SUCCESS.DEFAULT,
+        background: theme.colors.SUCCESS.DEFAULT,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.SUCCESS.DEFAULT,
+        background: theme.colors.SUCCESS.DEFAULT,
+        border: 'transparent'
+      }
+    },
+    error: {
+      normal: {
+        foreground: theme.colors.ERROR.DEFAULT,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.ERROR.DEFAULT,
+        background: theme.colors.ERROR.DEFAULT,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.ERROR.DEFAULT,
+        background: theme.colors.ERROR.DEFAULT,
+        border: 'transparent'
+      }
+    },
+    warning: {
+      normal: {
+        foreground: theme.colors.WARNING.DEFAULT,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.WARNING.DEFAULT,
+        background: theme.colors.WARNING.DEFAULT,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.WARNING.DEFAULT,
+        background: theme.colors.WARNING.DEFAULT,
+        border: 'transparent'
+      }
+    },
+    alert: {
+      normal: {
+        foreground: theme.colors.HIGHLIGHT.PINK,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.HIGHLIGHT.PINK,
+        background: theme.colors.HIGHLIGHT.PINK,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.HIGHLIGHT.PINK,
+        background: theme.colors.HIGHLIGHT.PINK,
+        border: 'transparent'
+      }
+    },
+    violet: {
+      normal: {
+        foreground: theme.colors.VIOLET.DEFAULT,
+        background: 'none',
+        border: 'transparent'
+      },
+      hover: {
+        foreground: theme.colors.VIOLET.DEFAULT,
+        background: theme.colors.VIOLET.DEFAULT,
+        border: 'transparent'
+      },
+      active: {
+        foreground: theme.colors.VIOLET.DEFAULT,
+        background: theme.colors.VIOLET.DEFAULT,
+        border: 'transparent'
+      }
+    }
+  }
+}
+
+const colorVariantSets = {
   default: defaultVariantColorSets,
   ghost: ghostVariantColorSets,
   shadow: shadowVariantColorSets
+}
+
+export const createColorSets = (variant: ButtonVariant, theme: Theme, color: ButtonColor): ButtonStateColors => {
+  return colorVariantSets[variant](theme)[color]
 }

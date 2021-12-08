@@ -3,8 +3,7 @@ import styled from '@emotion/styled'
 import React, { FC } from 'react'
 
 import { Spinner } from '../Spinner'
-import { Colors } from '../ThemeProvider/type'
-import { ButtonProps, ReturningUseButton } from './type'
+import { ButtonProps, ReturningUseButton, ButtonStateColors } from './type'
 import { useButton } from './useButton'
 
 /**
@@ -20,11 +19,11 @@ import { useButton } from './useButton'
  * <Button type={Colors.HIGHLIGHT.PINK} size="small" variant="shadow" disabled>Hello World!</Button>
  * ```
  */
+// export const Button: FC<Partial<ButtonProps> & Partial<Pick<ButtonProps, 'normal' | 'hover' | 'active'>>> = (props) => {
 export const Button: FC<Partial<ButtonProps>> = (props) => {
   const { children, prefix, suffix, disabled, loading, onClick, ...otherProps } = useButton(props)
-
   return (
-    <Element type='submit' disabled={disabled || loading} {...otherProps} onClick={onClick}>
+    <Element disabled={disabled || loading} {...otherProps} onClick={onClick}>
       {(prefix || loading) && <Accessory isPrefix>{loading ? <Spinner /> : prefix}</Accessory>}
       <Content {...otherProps}>{children}</Content>
       {suffix && <Accessory>{suffix}</Accessory>}
@@ -40,6 +39,7 @@ const Element = styled.button<ReturningUseButton>`
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 100%;
   padding: 0 12px;
   cursor: default;
 
@@ -48,71 +48,105 @@ const Element = styled.button<ReturningUseButton>`
     css`
       border-radius: ${props.shape === 'square' ? '5px' : '100%'};
     `}
-    ${props.shape &&
+    ${props.width &&
     css`
-      width: ${props.width ? `${props.width}px` : undefined};
-    `}
+      width: ${props.width}px;
+    `};
+    ${props.block &&
+    css`
+      width: 100%;
+    `};
     ${props.size &&
     css`
       height: ${props.size === 'small' ? '32px' : props.size === 'medium' ? '40px' : '48px'};
     `}
-    box-shadow: ${props.variant === 'shadow' ? '0 5px 10px rgba(0,0,0,0.12)' : undefined};
-    color: ${props.normal?.foreground};
-    border: 1px solid ${props.normal?.border};
-    background: ${props.normal?.background};
-    background-image: ${props.variant === 'ghost'
-      ? 'linear-gradient(to right, hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0.8))'
-      : undefined};
+    ${props.variant === 'ghost' &&
+    css`
+      background-image: linear-gradient(to right, hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0.8));
+    `};
+    ${props.variant === 'shadow' &&
+    css`
+      box-shadow: ${props.theme.shadows.SMALL};
+    `}
+    color: ${props.normal.foreground};
+    border: 1px solid ${props.normal.border};
+    background: ${props.normal.background};
   `}
 
   &:hover:enabled {
     ${(props) => css`
-      color: ${props.hover?.foreground};
-      background: ${props.hover?.background};
-      border: 1px solid ${props.hover?.border};
-      transform: ${props.variant === 'shadow' ? 'translateY(-2px)' : undefined};
-      box-shadow: ${props.variant === 'shadow' ? '0 8px 30px rgba(0,0,0,0.12)' : undefined};
-      background-image: ${props.variant === 'ghost'
-        ? 'linear-gradient(to right, hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0.8))'
-        : undefined};
+      color: ${props.hover.foreground};
+      background: ${props.hover.background};
+      border: 1px solid ${props.hover.border};
+      ${props.variant === 'shadow' &&
+      css`
+        transform: translateY(-2px);
+      `};
+      ${props.variant === 'shadow' &&
+      css`
+        box-shadow: ${props.theme.shadows.MEDIUM};
+      `};
+      ${props.variant === 'ghost' &&
+      css`
+        background-image: linear-gradient(to right, hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0.8));
+      `}
     `}
   }
 
   &:active:enabled {
     ${(props) => css`
-      color: ${props.active?.foreground};
-      background: ${props.active?.background};
-      border: 1px solid ${props.active?.border};
-      transform: ${props.variant === 'shadow' ? 'none' : undefined};
-      box-shadow: ${props.variant === 'shadow' ? '0 5px 10px rgba(0,0,0,0.12)' : undefined};
-      background-image: ${props.variant === 'ghost'
-        ? 'linear-gradient(to right, hsla(0, 0%, 100%, 0.7), hsla(0, 0%, 100%, 0.7))'
-        : undefined};
+      color: ${props.active.foreground};
+      background: ${props.active.background};
+      border: 1px solid ${props.active.border};
+      ${props.variant === 'shadow' &&
+      css`
+        transform: none;
+      `};
+      ${props.variant === 'shadow' &&
+      css`
+        box-shadow: ${props.theme.shadows.SMALL};
+      `};
+      ${props.variant === 'ghost' &&
+      css`
+        background-image: linear-gradient(to right, hsla(0, 0%, 100%, 0.7), hsla(0, 0%, 100%, 0.7));
+      `};
     `}
   }
 
   &:disabled {
     cursor: not-allowed;
-    color: ${Colors.PRIMARY.ACCENT_3};
-    border-color: ${Colors.PRIMARY.ACCENT_2};
-    background: ${Colors.PRIMARY.ACCENT_1};
+    color: ${({ theme }) => theme.colors.PRIMARY.ACCENT_3};
+    border-color: ${({ theme }) => theme.colors.PRIMARY.ACCENT_2};
+    background: ${({ theme }) => theme.colors.PRIMARY.ACCENT_1};
   }
 `
 
-const Content = styled.span<ReturningUseButton>`
+const Content = styled.span<Pick<ReturningUseButton, 'align'>>`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
   ${(props) => css`
-    margin-right: ${props.align === 'grow' || props.align === 'start' ? 'auto' : undefined};
-    margin-left: ${props.align === 'grow' ? 'auto' : undefined};
+    ${(props.align === 'grow' || props.align === 'start') &&
+    css`
+      margin-right: auto;
+    `};
+    ${props.align === 'grow' &&
+    css`
+      margin-left: auto;
+    `};
   `}
 `
 
 const Accessory = styled.span<{ isPrefix?: boolean }>`
   ${(props) => css`
-    margin-right: ${props.isPrefix ? '8px' : undefined};
-    margin-left: ${props.isPrefix ? undefined : '8px'};
+    ${props.isPrefix &&
+    css`
+      margin-right: 8px;
+    `};
+    ${!props.isPrefix &&
+    css`
+      margin-left: 8px;
+    `};
   `}
 `
