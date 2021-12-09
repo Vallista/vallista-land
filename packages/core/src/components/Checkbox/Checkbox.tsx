@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import React, { FC, useRef } from 'react'
+import React, { FC } from 'react'
 
 import { CheckboxProps, ReturningUseCheckbox } from './type'
 import { useCheckbox } from './useCheckbox'
@@ -21,135 +21,111 @@ import { useCheckbox } from './useCheckbox'
  * ```
  */
 export const Checkbox: FC<Partial<CheckboxProps>> = (props) => {
-  const elementProps = useCheckbox(props)
-  const ref = useRef<HTMLInputElement>(null)
-
-  const {
-    fullWidth,
-    style,
-    label,
-    checked,
-    disabled,
-    isFocus,
-    isHover,
-    marker,
-    children,
-    onInputChange,
-    onFocus,
-    onBlur,
-    onMouseEnter,
-    onMouseLeave,
-    onCheckboxClick
-  } = elementProps
+  const { label, marker, children, onChange, ...otherProps } = useCheckbox(props)
 
   return (
-    <Label
-      fullWidth={fullWidth}
-      label={label}
-      disabled={disabled}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      style={style}
-      onClick={() => onCheckboxClick(ref)}
-    >
-      {label && <LabelText>{label}</LabelText>}
-      <Input
-        ref={ref}
-        type={'checkbox'}
-        checked={checked}
-        disabled={disabled}
-        onChange={onInputChange}
-        onFocus={onFocus}
-        onBlur={onBlur}
-      />
-      <Box checked={checked} isFocus={isFocus} isHover={isHover} disabled={disabled} label={label}>
-        <svg viewBox={'0 0 20 20'} width={16} height={16} fill={'none'}>
-          {marker === 'checked' && <CheckMarker d={'M14 7L8.5 12.5L6 10'}></CheckMarker>}
-          {marker === 'indeterminate' && <IndeterminateMarker x1={5} y1={10} x2={15} y2={10}></IndeterminateMarker>}
-        </svg>
-      </Box>
-      {children && <Content>{children}</Content>}
+    <Label label={label} onChange={onChange} {...otherProps}>
+      {label && <Caption>{label}</Caption>}
+      <Input type='checkbox' {...otherProps} />
+      {label && (
+        <Container>
+          <Box {...otherProps}>
+            <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
+              {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
+              {marker === 'indeterminate' && <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>}
+            </svg>
+          </Box>
+          {children && <Content>{children}</Content>}
+        </Container>
+      )}
+      {!label && (
+        <>
+          <Box {...otherProps}>
+            <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
+              {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
+              {marker === 'indeterminate' && <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>}
+            </svg>
+          </Box>
+          {children && <Content>{children}</Content>}
+        </>
+      )}
     </Label>
   )
 }
 
 const Label = styled.label<Pick<ReturningUseCheckbox, 'fullWidth' | 'disabled' | 'label'>>`
-  font-size: 0.875rem;
+  font-size: 1em;
+  display: flex;
 
-  ${({ label }) => css`
+  ${({ fullWidth, disabled, label, theme }) => css`
+    ${label &&
+    css`
+      flex-direction: column;
+    `}
+
     ${!label &&
     css`
-      align-items: flex-start;
-      flex-direction: column;
-      display: inline-flex;
+      flex-direction: row;
     `}
-  `}
 
-  ${({ fullWidth }) => css`
+    ${!disabled &&
+    css`
+      &:hover > div {
+        border-color: ${theme.colors.PRIMARY.FOREGROUND};
+      }
+    `}
+
     ${fullWidth &&
     css`
       width: 100%;
     `}
-  `}
 
-  ${({ disabled, theme }) => css`
     ${disabled &&
     css`
-      cursor: not-allowed;
       color: ${theme.colors.PRIMARY.ACCENT_3};
+      cursor: not-allowed;
     `}
   `}
 `
 
-const LabelText = styled.div`
-  cursor: text;
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  max-width: 100%;
+const Caption = styled.span`
   color: ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
+  font-size: 0.98em;
+  font-weight: 500;
+  display: flex;
+  max-width: 100%;
   margin-bottom: 8px;
+  cursor: text;
 `
 
 const Input = styled.input`
   position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  ${({ theme }) => css`
+    &:focus ~ div {
+      box-shadow: 0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND}, 0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
+    }
+  `}
 `
 
-const Box = styled.span<Pick<ReturningUseCheckbox, 'checked' | 'isFocus' | 'isHover' | 'disabled' | 'label'>>`
+const Box = styled.div<Pick<ReturningUseCheckbox, 'checked' | 'disabled' | 'indeterminate'>>`
+  width: 1em;
+  height: 1em;
   border: 1px solid ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
   border-radius: 3px;
-  width: 1rem;
-  height: 1rem;
-  position: relative;
   transition: border-color 0.15s ease;
-  transform: rotate(0.000001deg);
 
-  ${({ label }) => css`
-    ${label &&
-    css`
-      display: inline-flex;
-    `}
-  `}
-
-  ${({ disabled, theme }) => css`
+  ${({ checked, indeterminate, disabled, theme }) => css`
     ${disabled &&
     css`
       background-color: ${theme.colors.PRIMARY.ACCENT_1};
       border-color: ${theme.colors.PRIMARY.ACCENT_3};
     `}
-  `}
 
-  ${({ checked, disabled, theme }) => css`
     ${checked &&
+    !indeterminate &&
     css`
       background-color: ${theme.colors.PRIMARY.FOREGROUND};
       border-color: ${theme.colors.PRIMARY.FOREGROUND};
@@ -161,24 +137,17 @@ const Box = styled.span<Pick<ReturningUseCheckbox, 'checked' | 'isFocus' | 'isHo
       `}
     `}
   `}
+`
 
-  ${({ isFocus, theme }) => css`
-    ${isFocus &&
-    css`
-      box-shadow: 0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND}, 0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
-    `}
-  `}
-
-  ${({ isHover, theme }) => css`
-    ${isHover &&
-    css`
-      border-color: ${theme.colors.PRIMARY.FOREGROUND};
-    `}
-  `}
+const Container = styled.span`
+  display: flex;
+  flex-direction: row;
 `
 
 const Content = styled.span`
+  display: flex;
   margin-left: 8px;
+  align-items: flex-end;
 `
 
 const CheckMarker = styled.path`

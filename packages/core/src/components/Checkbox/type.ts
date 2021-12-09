@@ -1,4 +1,4 @@
-import { ChangeEvent, CSSProperties, ReactNode, RefObject } from 'react'
+import { CSSProperties, ReactNode } from 'react'
 
 export interface CheckboxProps {
   checked: boolean
@@ -8,18 +8,10 @@ export interface CheckboxProps {
   label: string
   children: ReactNode
   style: CSSProperties
-  onChange(event: React.ChangeEvent<HTMLInputElement>): void
+  onChange: () => void
 }
 
 export type CheckboxMarkerType = 'none' | 'checked' | 'indeterminate'
 export type ReturningUseCheckbox<T extends Partial<CheckboxProps> = Partial<CheckboxProps>> = T & {
   marker: CheckboxMarkerType
-  isFocus: boolean
-  isHover: boolean
-  onInputChange(event: ChangeEvent<HTMLInputElement>): void
-  onCheckboxClick(inputRef: RefObject<HTMLInputElement>): void
-  onFocus(): void
-  onBlur(): void
-  onMouseEnter(): void
-  onMouseLeave(): void
 }
