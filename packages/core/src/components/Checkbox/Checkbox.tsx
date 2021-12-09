@@ -15,7 +15,9 @@ import { useCheckbox } from './useCheckbox'
  * @param {CheckboxProps} {@link CheckboxProps} 기본적인 Checkbox 요소
  *
  * @example ```tsx
- * <Checkbox checked={checked} onChange={onChange}>Checkbox</Checkbox>
+ * const [checked, setChecked] = useState(false)
+ * <Checkbox checked={checked} onChange={() => setChecked(!checked)}>CheckBox</Checkbox>
+
  * ```
  */
 export const Checkbox: FC<Partial<CheckboxProps>> = (props) => {
