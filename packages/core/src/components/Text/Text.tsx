@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import React, { FC } from 'react'
+import { FC } from 'react'
 
 import { TextProps, ReturningUseText } from './type'
 import { useText } from './useText'
@@ -26,29 +26,25 @@ export const Text: FC<Partial<TextProps>> = (props) => {
 }
 
 const Element = styled.p<ReturningUseText>`
-  ${(props) => css`
-    color: ${props.color || 'inherit'};
-    font-size: ${props.size}px;
+  ${({ size, lineHeight, color, weight, align, wrap }) => css`
+    color: ${color || 'inherit'};
+    font-size: ${size}px;
+    line-height: ${lineHeight || 1.5};
+    
     ${
-      props.lineHeight &&
+      weight &&
       css`
-        line-height: ${props.lineHeight};
-      `
-    };
-    ${
-      props.weight &&
-      css`
-        font-weight: ${props.weight};
+        font-weight: ${weight};
       `
     };};
     ${
-      props.align &&
+      align &&
       css`
-        text-align: ${props.align};
+        text-align: ${align};
       `
     };
     ${
-      !props.wrap &&
+      !wrap &&
       css`
         white-space: nowrap;
       `
