@@ -133,7 +133,7 @@ const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>
   `};
 `
 
-const Wrapper = styled.div<{ animationState: ModalAnimationState }>`
+const Wrapper = styled.div`
   width: 420px;
   height: auto;
   border-radius: 8px;
@@ -145,21 +145,10 @@ const Wrapper = styled.div<{ animationState: ModalAnimationState }>`
     width: 100%;
   }
 
-  ${({ theme, animationState }) => css`
+  ${({ theme }) => css`
     box-shadow: ${theme.shadows.LARGE};
     background-color: ${theme.colors.PRIMARY.BACKGROUND};
     color: ${theme.colors.PRIMARY.FOREGROUND};
-    /* 
-    ${!isAnimationIdle(animationState) &&
-    css`
-      top: 0;
-      left: 0;
-
-      @media (max-width: 600px) {
-        bottom: 0;
-        left: 0;
-      }
-    `} */
   `};
 `
 
