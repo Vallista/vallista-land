@@ -6,13 +6,12 @@ import ButtonPlayground from './pages/ButtonPlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
 import ModalPlayground from './pages/ModalPlayground'
 import SpinnerPlayground from './pages/SpinnerPlayground'
-import './App.css'
 
 const App: VFC = () => {
   return (
     <ThemeProvider>
-      <Card title='Spinner'>
-        <SpinnerPlayground />
+      <Card title='Container'>
+        <ContainerPlayground />
       </Card>
       <Card title='Button'>
         <ButtonPlayground />
@@ -20,8 +19,8 @@ const App: VFC = () => {
       <Card title='Modal'>
         <ModalPlayground />
       </Card>
-      <Card title='Container'>
-        <ContainerPlayground />
+      <Card title='Spinner'>
+        <SpinnerPlayground />
       </Card>
     </ThemeProvider>
   )
