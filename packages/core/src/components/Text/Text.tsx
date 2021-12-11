@@ -27,7 +27,7 @@ export const Text: FC<Partial<TextProps>> = (props) => {
 
 const Element = styled.p<ReturningUseText>`
   ${(props) => css`
-    color: ${props.color};
+    color: ${props.color || 'inherit'};
     font-size: ${props.size}px;
     ${
       props.lineHeight &&

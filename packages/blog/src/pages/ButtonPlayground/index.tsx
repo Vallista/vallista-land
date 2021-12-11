@@ -1,11 +1,11 @@
 import styled from '@emotion/styled'
-import { Button } from 'core'
+import { Button, Container } from 'core'
 import { VFC } from 'react'
 
 const ButtonPlayground: VFC = () => {
   return (
-    <>
-      <TemporaryContainer>
+    <Container>
+      <Container row>
         <Button size='small'>small + color</Button>
         <Button size='small' color='warning'>
           small + color
@@ -25,8 +25,8 @@ const ButtonPlayground: VFC = () => {
         <Button size='small' color='secondary'>
           small + color
         </Button>
-      </TemporaryContainer>
-      <TemporaryContainer>
+      </Container>
+      <Container row>
         <Button variant='shadow'>medium + color + shadow</Button>
         <Button variant='shadow' color='warning'>
           medium + color + shadow
@@ -46,8 +46,8 @@ const ButtonPlayground: VFC = () => {
         <Button variant='shadow' color='secondary'>
           medium + color + shadow
         </Button>
-      </TemporaryContainer>
-      <TemporaryContainer>
+      </Container>
+      <Container row>
         <Button size='large' variant='ghost'>
           large + color + ghost
         </Button>
@@ -69,8 +69,8 @@ const ButtonPlayground: VFC = () => {
         <Button size='large' variant='ghost' color='secondary'>
           large + color + ghost
         </Button>
-      </TemporaryContainer>
-      <TemporaryContainer>
+      </Container>
+      <Container row>
         <Button size='small' color='warning' variant='shadow' disabled>
           small + color + shadow + disabled
         </Button>
@@ -78,18 +78,9 @@ const ButtonPlayground: VFC = () => {
           medium + color + ghost + loading
         </Button>
         <Button width={210}>고정 크기 지정도 가능 넘어갈시 잘림</Button>
-      </TemporaryContainer>
-    </>
+      </Container>
+    </Container>
   )
 }
-
-// 김덕원: 겹쳐서 컴포넌트 확인하기가 힘들어가지고 추가했슴다..
-const TemporaryContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  margin: 32px 0;
-  padding: 0 8px;
-`
 
 export default ButtonPlayground
