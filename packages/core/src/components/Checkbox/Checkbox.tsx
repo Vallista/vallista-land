@@ -24,32 +24,38 @@ export const Checkbox: FC<Partial<CheckboxProps>> = (props) => {
   const { label, marker, children, onChange, ...otherProps } = useCheckbox(props)
 
   return (
-    <Label label={label} onChange={onChange} {...otherProps}>
-      {label && <Caption>{label}</Caption>}
-      <Input type='checkbox' {...otherProps} />
-      {label && (
-        <Container>
-          <Box {...otherProps}>
-            <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
-              {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
-              {marker === 'indeterminate' && <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>}
-            </svg>
-          </Box>
-          {children && <Content>{children}</Content>}
-        </Container>
-      )}
-      {!label && (
-        <>
-          <Box {...otherProps}>
-            <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
-              {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
-              {marker === 'indeterminate' && <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>}
-            </svg>
-          </Box>
-          {children && <Content>{children}</Content>}
-        </>
-      )}
-    </Label>
+    <div>
+      <Label label={label} onChange={onChange} {...otherProps}>
+        {label && <Caption>{label}</Caption>}
+        <Input type='checkbox' {...otherProps} />
+        {label && (
+          <Container>
+            <Box {...otherProps}>
+              <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
+                {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
+                {marker === 'indeterminate' && (
+                  <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>
+                )}
+              </svg>
+            </Box>
+            {children && <Content>{children}</Content>}
+          </Container>
+        )}
+        {!label && (
+          <>
+            <Box {...otherProps}>
+              <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
+                {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
+                {marker === 'indeterminate' && (
+                  <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>
+                )}
+              </svg>
+            </Box>
+            {children && <Content>{children}</Content>}
+          </>
+        )}
+      </Label>
+    </div>
   )
 }
 

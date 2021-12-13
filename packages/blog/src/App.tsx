@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import { ThemeProvider } from 'core'
+import CheckboxPlayground from 'pages/CheckboxPlayground'
 import { VFC } from 'react'
 
 import { Card } from './components/Card'
