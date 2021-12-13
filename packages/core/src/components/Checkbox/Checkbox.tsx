@@ -100,9 +100,10 @@ const Caption = styled.span`
 
 const Input = styled.input`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: -9999;
+  left: -9999;
   opacity: 0;
+  z-index: 9999;
   ${({ theme }) => css`
     &:focus ~ div {
       box-shadow: 0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND}, 0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
