@@ -3,6 +3,15 @@ import { FC } from 'react'
 
 import { useModalContext } from '../context'
 
+/**
+ * # Modal.Title
+ *
+ * 모달의 타이틀 영역입니다.
+ *
+ * @example ```tsx
+ * <Modal.Title>This is a modal</Modal.Title>
+ * ```
+ */
 const Title: FC = (props) => {
   const { children } = useModalContext(props)
 

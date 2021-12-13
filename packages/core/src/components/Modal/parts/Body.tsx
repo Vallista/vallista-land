@@ -3,6 +3,15 @@ import { FC } from 'react'
 
 import { useModalContext } from '../context'
 
+/**
+ * # Modal.Body
+ *
+ * 모달의 바디 영역입니다.
+ *
+ * @example ```tsx
+ * <Modal.Body>This is a modal</Modal.Body>
+ * ```
+ */
 const Body: FC = (props) => {
   const { children } = useModalContext(props)
 

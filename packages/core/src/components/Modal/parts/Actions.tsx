@@ -3,6 +3,15 @@ import { FC } from 'react'
 
 import { useModalContext } from '../context'
 
+/**
+ * # Modal.Actions
+ *
+ * 모달의 버튼 액션 그룹 영역입니다.
+ *
+ * @example ```tsx
+ * <Modal.Actions>This is a modal</Modal.Actions>
+ * ```
+ */
 const Actions: FC = (props) => {
   const { children } = useModalContext(props)
 

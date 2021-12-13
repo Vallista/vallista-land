@@ -10,6 +10,17 @@ interface ActionProps {
   onClick: (() => void) | (() => Promise<void>)
 }
 
+/**
+ * # Modal.Action
+ *
+ * 모달의 버튼 영역입니다. Actions 하위로 배치해주세요.
+ *
+ * @prop {ActionProps} {@link ActionProps} 기본 버튼 액션
+ *
+ * @example ```tsx
+ * <Modal.Action onClick={() => void 0}>Button</Modal.Action>
+ * ```
+ */
 const Action: FC<ActionProps> = (props) => {
   const { children, type = 'button', disabled, onClick } = useModalContext(props)
 

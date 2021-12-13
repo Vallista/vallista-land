@@ -3,6 +3,15 @@ import { FC } from 'react'
 
 import { useModalContext } from '../context'
 
+/**
+ * # Modal.Header
+ *
+ * 모달의 헤더 영역입니다.
+ *
+ * @example ```tsx
+ * <Modal.Header>This is a modal</Modal.Header>
+ * ```
+ */
 const Header: FC = (props) => {
   const { children } = useModalContext(props)
 
