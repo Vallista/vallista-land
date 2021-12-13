@@ -6,6 +6,7 @@ import ButtonPlayground from './pages/ButtonPlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
 import ModalPlayground from './pages/ModalPlayground'
 import SpinnerPlayground from './pages/SpinnerPlayground'
+import { TogglePlayground } from './pages/TogglePlayground'
 
 const App: VFC = () => {
   return (
@@ -21,6 +22,9 @@ const App: VFC = () => {
       </Card>
       <Card title='Spinner'>
         <SpinnerPlayground />
+      </Card>
+      <Card title='Toggle'>
+        <TogglePlayground />
       </Card>
     </ThemeProvider>
   )
