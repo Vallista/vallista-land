@@ -112,8 +112,8 @@ const Input = styled.input`
 `
 
 const Box = styled.div<Pick<ReturningUseCheckbox, 'checked' | 'disabled' | 'indeterminate'>>`
-  width: 1em;
-  height: 1em;
+  width: 18px;
+  height: 18px;
   border: 1px solid ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
   border-radius: 3px;
   transition: border-color 0.15s ease;
