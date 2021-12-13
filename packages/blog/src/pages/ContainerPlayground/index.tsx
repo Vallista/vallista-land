@@ -1,6 +1,7 @@
-import { BlueContainer } from 'components/BlueContainer'
 import { Container, Text } from 'core'
 import { VFC } from 'react'
+
+import { BlueContainer } from '../../components/BlueContainer'
 
 const ContainerPlayground: VFC = () => {
   return (

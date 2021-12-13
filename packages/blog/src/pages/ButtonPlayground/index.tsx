@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Button, Container } from 'core'
 import { VFC } from 'react'
 

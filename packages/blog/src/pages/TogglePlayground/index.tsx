@@ -4,12 +4,24 @@ import { VFC } from 'react'
 export const TogglePlayground: VFC = () => {
   return (
     <Container row>
-      <Toggle />
-      <Toggle size='medium' />
-      <Toggle size='large' />
-      <Toggle disabled />
-      <Toggle disabled size='medium' />
-      <Toggle disabled size='large' />
+      <Container center>
+        <Toggle />
+      </Container>
+      <Container center>
+        <Toggle size='medium' />
+      </Container>
+      <Container center>
+        <Toggle size='large' />
+      </Container>
+      <Container center>
+        <Toggle disabled />
+      </Container>
+      <Container center>
+        <Toggle disabled size='medium' />
+      </Container>
+      <Container center>
+        <Toggle disabled size='large' />
+      </Container>
     </Container>
   )
 }
