@@ -5,14 +5,34 @@ import { VFC } from 'react'
 import { StyleParams, ToggleProps } from './type'
 import { useToggle } from './useToggle'
 
+/**
+ * # Toggle
+ *
+ * @description [vercel design toggle](https://vercel.com/design/toggle)
+ *
+ * 토글 컴포넌트입니다. 해당 컴포넌트로 토글을 나타냅니다.
+ *
+ * @param {ToggleProps} {@link ToggleProps} toggle 요소
+ *
+ * @example ```tsx
+ * const [state, setState] = useState(false)
+ *
+ * <Toggle size="small" toggle={state} onChange={setState} />
+ * ```
+ */
 export const Toggle: VFC<Partial<ToggleProps>> = (props) => {
-  const { size = 'small', toggle, onChange } = useToggle(props)
+  const { size = 'small', onChange, ...otherProps } = useToggle(props)
 
   return (
     <Label>
-      <Input type='checkbox' checked={toggle} onChange={() => onChange(!toggle)} />
-      <Wrapper size={size} toggle={toggle}>
-        <Circle size={size} toggle={toggle} />
+      <Input
+        type='checkbox'
+        checked={otherProps.toggle}
+        onChange={() => onChange(!otherProps.toggle)}
+        {...otherProps}
+      />
+      <Wrapper size={size} {...otherProps}>
+        <Circle size={size} {...otherProps} />
       </Wrapper>
     </Label>
   )
@@ -38,21 +58,29 @@ const Input = styled.input`
 `
 
 const Wrapper = styled.span<StyleParams>`
-  ${({ theme, size, toggle }) => css`
+  ${({ theme, size, toggle, disabled }) => css`
     display: inline-block;
     width: ${sizeMapper[size].wrap[0]}px;
     height: ${sizeMapper[size].wrap[1]}px;
     transition: background 0.15s cubic-bezier(0, 0, 0.2, 1);
     background: ${toggle ? theme.colors.SUCCESS.DEFAULT : theme.colors.PRIMARY.ACCENT_2};
-    /* border: 1px solid ${toggle ? theme.colors.SUCCESS.DEFAULT : theme.colors.PRIMARY.ACCENT_2}; */
+    border: 1px solid ${toggle ? theme.colors.SUCCESS.DEFAULT : theme.colors.PRIMARY.ACCENT_2};
     border-radius: 14px;
     cursor: pointer;
     position: relative;
+    box-sizing: border-box;
+
+    ${disabled &&
+    css`
+      background: ${theme.colors.PRIMARY.ACCENT_1};
+      border-color: ${theme.colors.PRIMARY.ACCENT_2};
+      cursor: not-allowed;
+    `}
   `}
 `
 
 const Circle = styled.div<StyleParams>`
-  ${({ theme, size, toggle }) => css`
+  ${({ theme, size, toggle, disabled }) => css`
     position: absolute;
     left: 0;
     top: 50%;
@@ -65,6 +93,12 @@ const Circle = styled.div<StyleParams>`
     border-radius: 50%;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 20%), 0 1px 3px 0 rgb(0 0 0 / 10%);
     border: 1px solid transparent;
+
+    ${disabled &&
+    css`
+      background: ${theme.colors.PRIMARY.ACCENT_2};
+      cursor: not-allowed;
+    `}
   `}
 `
 

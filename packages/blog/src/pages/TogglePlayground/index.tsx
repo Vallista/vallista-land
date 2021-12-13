@@ -7,6 +7,9 @@ export const TogglePlayground: VFC = () => {
       <Toggle />
       <Toggle size='medium' />
       <Toggle size='large' />
+      <Toggle disabled />
+      <Toggle disabled size='medium' />
+      <Toggle disabled size='large' />
     </Container>
   )
 }

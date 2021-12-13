@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import React, { FC } from 'react'
 
 import { Spinner } from '../Spinner'
-import { ButtonProps, ReturningUseButton, ButtonStateColors } from './type'
+import { ButtonProps, ReturningUseButton } from './type'
 import { useButton } from './useButton'
 
 /**
