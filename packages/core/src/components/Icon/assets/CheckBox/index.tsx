@@ -3,7 +3,6 @@ import React, { FC } from 'react'
 import Svg from '../../Svg'
 import { IconProps } from '../../type'
 import { useIcon } from '../../useIcon'
-import { useIcon } from '../../useIcon'
 
 export const CheckBox: FC<Partial<IconProps>> = (props) => {
   const { size, color, fill, ...otherProps } = useIcon(props)

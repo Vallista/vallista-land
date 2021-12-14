@@ -1,4 +1,4 @@
-import { Container, Select } from 'core'
+import { Container, Select, Icon } from 'core'
 import { useEffect, useState, VFC } from 'react'
 
 const SelectPlayground: VFC = () => {
@@ -17,7 +17,7 @@ const SelectPlayground: VFC = () => {
         </Select>
       </Container>
       <Container center>
-        <Select icon={<div>123</div>}>
+        <Select icon={<Icon.ChevronUpDown size={18} />}>
           <option>First option</option>
           <option>Second option</option>
         </Select>

@@ -104,6 +104,7 @@ const _Select = styled.select`
   border: none;
   box-shadow: none;
   outline: none;
+  cursor: pointer;
 
   ${({ theme }) => css`
     color: ${theme.colors.PRIMARY.FOREGROUND};
