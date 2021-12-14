@@ -53,6 +53,9 @@ const App: VFC = () => {
         <Card title='Tag'>
           <TagPlayground />
         </Card>
+        <Card title='Checkbox'>
+          <CheckboxPlayground />
+        </Card>
       </ThemeProvider>
     </Wrap>
   )
