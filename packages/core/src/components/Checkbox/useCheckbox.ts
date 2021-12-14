@@ -5,9 +5,7 @@ const initProps: Partial<CheckboxProps> = {
   indeterminate: false,
   disabled: false,
   fullWidth: false,
-  onChange: (): void => {
-    //
-  }
+  onChange: () => void 0
 }
 
 export const useCheckbox = <T extends Partial<CheckboxProps>>(props: T): ReturningUseCheckbox => {
