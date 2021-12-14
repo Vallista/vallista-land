@@ -1,11 +1,10 @@
-import { Container, Activity, Icon, Text } from 'core'
+import { Container, Icon, Text } from 'core'
 import { VFC } from 'react'
 
 const IconPlayground: VFC = () => {
   return (
     <Container>
       <Container row>
-        <Activity />
         <Icon.Bell />
         <Text>
           align top
