@@ -5,6 +5,20 @@ import { FC, forwardRef } from 'react'
 import { NeedRadioProp } from './type'
 import { useRadio } from './useRadio'
 
+/**
+ * # Radio
+ *
+ * @description [vercel design radio](https://vercel.com/design/radio)
+ *
+ * 라디오 컴포넌트 입니다. {@link RadioGroup}과 같이 사용해야합니다.
+ *
+ * @param {RadioProps} {@link RadioProps} 기본적인 Radio 요소
+ *
+ * @example ```tsx
+ * <Radio value='value1' />
+ * <Radio value='value2' />
+ * ```
+ */
 export const Radio: FC<NeedRadioProp> = forwardRef<HTMLInputElement, NeedRadioProp>(({ children, ...props }, ref) => {
   const { onChange, ...otherProps } = useRadio(props)
 
