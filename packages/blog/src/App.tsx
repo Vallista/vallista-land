@@ -5,6 +5,7 @@ import { VFC } from 'react'
 import { Card } from './components/Card'
 import ButtonPlayground from './pages/ButtonPlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
+import IconPlayground from './pages/IconPlayground'
 import ModalPlayground from './pages/ModalPlayground'
 import RadioPlayground from './pages/RadioPlayground'
 import SelectPlayground from './pages/SelectPlayground'
@@ -39,6 +40,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Spacer'>
           <SpacerPlayground />
+        </Card>
+        <Card title='Icon'>
+          <IconPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>

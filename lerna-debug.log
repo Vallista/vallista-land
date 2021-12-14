@@ -1,0 +1,15 @@
+0 silly argv { _: [ 'clean' ], lernaVersion: '4.0.0', '$0': '/usr/local/bin/lerna' }
+1 notice cli v4.0.0
+2 verbose rootPath /Users/deokwon/WorkSpace/vallista-land
+3 info versioning independent
+4 info Removing the following directories:
+5 info clean packages/blog/node_modules
+5 info clean packages/core/node_modules
+6 info clean removing /Users/deokwon/WorkSpace/vallista-land/packages/blog/node_modules
+7 silly rimrafDir /Users/deokwon/WorkSpace/vallista-land/packages/blog/node_modules
+8 info clean removing /Users/deokwon/WorkSpace/vallista-land/packages/core/node_modules
+9 silly rimrafDir /Users/deokwon/WorkSpace/vallista-land/packages/core/node_modules
+10 error Error: Command failed with exit code 1: /usr/local/Cellar/node@12/12.22.7/bin/node /Users/deokwon/WorkSpace/vallista-land/node_modules/rimraf/bin.js --no-glob /Users/deokwon/WorkSpace/vallista-land/packages/blog/node_modules/
+10 error     at makeError (/Users/deokwon/WorkSpace/vallista-land/node_modules/execa/lib/error.js:60:11)
+10 error     at handlePromise (/Users/deokwon/WorkSpace/vallista-land/node_modules/execa/index.js:118:26)
+10 error     at processTicksAndRejections (internal/process/task_queues.js:97:5)

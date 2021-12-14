@@ -1,0 +1,16 @@
+import React, { FC } from 'react'
+
+import Svg from '../../Svg'
+import { IconProps } from '../../type'
+import { useIcon } from '../../useIcon'
+
+export const Clock: FC<Partial<IconProps>> = (props) => {
+  const { size, color, fill, ...otherProps } = useIcon(props)
+
+  return (
+    <Svg viewBox='0 0 24 24' width={size} height={size} stroke={color} fill='none' {...otherProps}>
+      <circle cx='12' cy='12' r='10' />
+      <path d='M12 6v6l4 2' />
+    </Svg>
+  )
+}
