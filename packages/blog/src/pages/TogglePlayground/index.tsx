@@ -1,7 +1,7 @@
 import { Container, Toggle } from 'core'
 import { VFC } from 'react'
 
-export const TogglePlayground: VFC = () => {
+const TogglePlayground: VFC = () => {
   return (
     <Container row>
       <Container center>
@@ -25,3 +25,5 @@ export const TogglePlayground: VFC = () => {
     </Container>
   )
 }
+
+export default TogglePlayground
