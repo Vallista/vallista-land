@@ -1,3 +1,4 @@
+import styled from '@emotion/styled'
 import { ThemeProvider } from 'core'
 import { VFC } from 'react'
 
@@ -12,30 +13,36 @@ import TogglePlayground from './pages/TogglePlayground'
 
 const App: VFC = () => {
   return (
-    <ThemeProvider>
-      <Card title='Container'>
-        <ContainerPlayground />
-      </Card>
-      <Card title='Button'>
-        <ButtonPlayground />
-      </Card>
-      <Card title='Modal'>
-        <ModalPlayground />
-      </Card>
-      <Card title='Spinner'>
-        <SpinnerPlayground />
-      </Card>
-      <Card title='Toggle'>
-        <TogglePlayground />
-      </Card>
-      <Card title='Radio'>
-        <RadioPlayground />
-      </Card>
-      <Card title='Select'>
-        <SelectPlayground />
-      </Card>
-    </ThemeProvider>
+    <Wrap>
+      <ThemeProvider>
+        <Card title='Container'>
+          <ContainerPlayground />
+        </Card>
+        <Card title='Button'>
+          <ButtonPlayground />
+        </Card>
+        <Card title='Modal'>
+          <ModalPlayground />
+        </Card>
+        <Card title='Spinner'>
+          <SpinnerPlayground />
+        </Card>
+        <Card title='Toggle'>
+          <TogglePlayground />
+        </Card>
+        <Card title='Radio'>
+          <RadioPlayground />
+        </Card>
+        <Card title='Select'>
+          <SelectPlayground />
+        </Card>
+      </ThemeProvider>
+    </Wrap>
   )
 }
+
+const Wrap = styled.div`
+  padding: 0 24px 50px 24px;
+`
 
 export default App
