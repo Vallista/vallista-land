@@ -1,16 +1,9 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { ContainerProps } from './type'
 
-export const Container: FC<Partial<ContainerProps>> = (props) => {
-  const { children, ...otherProps } = props
-
-  return <ContainerElement {...otherProps}>{children}</ContainerElement>
-}
-
-export const ContainerElement = styled.div<Partial<ContainerProps>>`
+export const Container = styled.div<Partial<ContainerProps>>`
   display: flex;
   flex-direction: column;
   position: relative;

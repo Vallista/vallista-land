@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { ContainerElement, Text } from 'core'
+import { Container as ContainerElement, Text } from 'core'
 import { FC } from 'react'
 
 export const Card: FC<{ title: string }> = ({ title, children }) => {
