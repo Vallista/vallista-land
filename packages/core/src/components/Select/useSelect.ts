@@ -8,10 +8,12 @@ const initProps: NeedSelectProps = {
 
 export function useSelect<T extends Partial<SelectProps>>(props: T): T & NeedSelectProps & ReturningUseSelect {
   const uniqueId = useUniqueId()
+  const isAnotherIcon = (props.icon && typeof props.icon !== 'boolean') || false
 
   return {
     ...initProps,
     ...props,
-    uniqueId
+    uniqueId,
+    isAnotherIcon
   }
 }

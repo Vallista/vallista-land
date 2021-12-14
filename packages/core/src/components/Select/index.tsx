@@ -7,11 +7,23 @@ import { useSelect } from './useSelect'
 
 /**
  * # Select
+ * 
+ * select 컴포넌트, 하위에 option을 정의해서 사용해주세요.
+ * 
+ * @param {SelectProps} {@link SelectProps} 기본적인 프랍
+ * 
+ * @example ```tsx 
+  const [select1, setSelect1] = useState('Second option')
+
+  <Select value={select1} onChange={setSelect1}>
+    <option>First option</option>
+    <option>Second option</option>
+  </Select>
+ * ```
+ * 
  */
 export const Select: FC<Partial<SelectProps>> = (props) => {
-  const { children, onChange, icon, ...otherProps } = useSelect(props)
-
-  const isAnotherIcon = icon && typeof icon !== 'boolean'
+  const { children, onChange, icon, isAnotherIcon, ...otherProps } = useSelect(props)
 
   return (
     <_Wrapper {...otherProps}>

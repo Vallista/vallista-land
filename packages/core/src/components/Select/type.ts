@@ -11,4 +11,5 @@ export type NeedSelectProps = Pick<SelectProps, 'disabled' | 'icon'>
 
 export interface ReturningUseSelect {
   uniqueId: string
+  isAnotherIcon: boolean
 }
