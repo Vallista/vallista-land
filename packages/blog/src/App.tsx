@@ -11,6 +11,7 @@ import RadioPlayground from './pages/RadioPlayground'
 import SelectPlayground from './pages/SelectPlayground'
 import SpacerPlayground from './pages/SpacerPlayground'
 import SpinnerPlayground from './pages/SpinnerPlayground'
+import TabsPlayground from './pages/TabsPlayground'
 import TogglePlayground from './pages/TogglePlayground'
 
 const App: VFC = () => {
@@ -43,6 +44,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Icon'>
           <IconPlayground />
+        </Card>
+        <Card title='Tabs'>
+          <TabsPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>

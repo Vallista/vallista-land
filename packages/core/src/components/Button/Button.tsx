@@ -40,7 +40,7 @@ const Element = styled.button<ReturningUseButton>`
   transition-timing-function: ease;
   max-width: 100%;
   padding: 0 12px;
-  cursor: default;
+  cursor: pointer;
 
   ${(props) => css`
     ${props.shape &&
