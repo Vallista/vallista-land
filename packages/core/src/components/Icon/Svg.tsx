@@ -4,6 +4,8 @@ import styled from '@emotion/styled'
 import { IconProps } from './type'
 
 export default styled.svg<Partial<Pick<IconProps, 'align' | 'size' | 'color'>>>`
+  color: currentcolor;
+  stroke: currentcolor;
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
