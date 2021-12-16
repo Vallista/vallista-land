@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import { ThemeProvider } from 'core'
+import CheckboxPlayground from 'pages/CheckboxPlayground'
 import { VFC } from 'react'
 
 import { Card } from './components/Card'
@@ -51,6 +52,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Tag'>
           <TagPlayground />
+        </Card>
+        <Card title='Checkbox'>
+          <CheckboxPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
