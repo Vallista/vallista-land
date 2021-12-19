@@ -10,6 +10,7 @@ import IconPlayground from './pages/IconPlayground'
 import ModalPlayground from './pages/ModalPlayground'
 import RadioPlayground from './pages/RadioPlayground'
 import SelectPlayground from './pages/SelectPlayground'
+import ShowMorePlayground from './pages/ShowMorePlayground'
 import SpacerPlayground from './pages/SpacerPlayground'
 import SpinnerPlayground from './pages/SpinnerPlayground'
 import TabsPlayground from './pages/TabsPlayground'
@@ -55,6 +56,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Checkbox'>
           <CheckboxPlayground />
+        </Card>
+        <Card title='ShowMore'>
+          <ShowMorePlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
