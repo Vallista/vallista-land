@@ -6,6 +6,17 @@ import { Colors } from '../ThemeProvider/type'
 import { SnippetMapperType, SnippetProps, SnippetType } from './type'
 import { useSnippet } from './useSnippet'
 
+/**
+ * # Snippet
+ *
+ * 코드를 쉽게 공유할 때 사용하는 스니펫입니다.
+ *
+ * @param {SnippetProps} {@link SnippetProps}
+ *
+ * @example ```tsx
+ * <Snippet text='npm init next-app' width='300px' type='success' fill />
+ * ```
+ */
 export const Snippet: VFC<Partial<SnippetProps>> = (props) => {
   const { width = '300px', text, handleCopy, ...otherProps } = useSnippet(props)
   const ref = useRef<HTMLDivElement>(null)

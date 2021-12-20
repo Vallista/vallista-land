@@ -7,6 +7,20 @@ interface ShowMoreProps {
   onClick: (() => void) | ((e: MouseEvent<HTMLButtonElement>) => void)
 }
 
+/**
+ * # ShowMore
+ *
+ * 더 보기를 구현할 때 이걸로 구현하세요.
+ *
+ * @param {ShowMoreProps} {@link ShowMoreProps}
+ *
+ * @example ```tsx
+ * const [expanded, setExpanded] = useState(false)
+ *
+ * <ShowMore expanded={expanded} onClick={() => setExpanded(!expanded)} />
+ * ```
+ *
+ */
 export const ShowMore: VFC<ShowMoreProps> = (props) => {
   const { expanded, onClick } = props
 

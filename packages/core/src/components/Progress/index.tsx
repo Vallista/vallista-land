@@ -6,6 +6,45 @@ import { AvailablePickedColor, Colors } from '../ThemeProvider/type'
 import { ProgressMapperType, ProgressProps, ProgressType } from './type'
 import { useProgress } from './useProgress'
 
+/**
+ * # Progress
+ *
+ * 진행상황을 쉽게 컨트롤 할 때 사용하세요.
+ *
+ * @param {ProgressProps} {@link ProgressProps}
+ *
+ * @example ```tsx
+ * const [value, setValue] = useState(0)
+ * 
+  <Progress
+    value={value}
+    colors={{
+      0: Colors.PRIMARY.FOREGROUND,
+      25: Colors.PRIMARY.ACCENT_5,
+      50: Colors.WARNING.DEFAULT,
+      75: Colors.HIGHLIGHT.PINK,
+      100: Colors.SUCCESS.DEFAULT
+    }}
+  />
+  <Button
+    onClick={() => {
+      if (value < 100) setValue(value + 10)
+    }}
+    size='medium'
+  >
+    Increase
+  </Button>
+
+  <Button
+    onClick={() => {
+      if (value > 0) setValue(value - 10)
+    }}
+    color='secondary'
+  >
+    Decrease
+  </Button>
+ * ```
+ */
 export const Progress: VFC<Partial<ProgressProps>> = (props) => {
   const { ...otherProps } = useProgress(props)
 
