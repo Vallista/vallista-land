@@ -1,13 +1,14 @@
 import styled from '@emotion/styled'
 import { ThemeProvider } from 'core'
-import CheckboxPlayground from 'pages/CheckboxPlayground'
 import { VFC } from 'react'
 
 import { Card } from './components/Card'
 import ButtonPlayground from './pages/ButtonPlayground'
+import CheckboxPlayground from './pages/CheckboxPlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
 import IconPlayground from './pages/IconPlayground'
 import ModalPlayground from './pages/ModalPlayground'
+import ProgressPlayground from './pages/ProgressPlayground'
 import RadioPlayground from './pages/RadioPlayground'
 import SelectPlayground from './pages/SelectPlayground'
 import ShowMorePlayground from './pages/ShowMorePlayground'
@@ -63,6 +64,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Snippet'>
           <SnippetPlayground />
+        </Card>
+        <Card title='Progress'>
+          <ProgressPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
