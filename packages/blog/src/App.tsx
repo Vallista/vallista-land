@@ -7,6 +7,7 @@ import ButtonPlayground from './pages/ButtonPlayground'
 import CheckboxPlayground from './pages/CheckboxPlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
 import IconPlayground from './pages/IconPlayground'
+import LoadingDotsPlayground from './pages/LoadingDotsPlayground'
 import ModalPlayground from './pages/ModalPlayground'
 import ProgressPlayground from './pages/ProgressPlayground'
 import RadioPlayground from './pages/RadioPlayground'
@@ -67,6 +68,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Progress'>
           <ProgressPlayground />
+        </Card>
+        <Card title='LoadingDots'>
+          <LoadingDotsPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>

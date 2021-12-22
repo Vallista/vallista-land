@@ -6,4 +6,10 @@ declare module '@emotion/react' {
   export interface Theme extends BaseTheme {}
 }
 
+declare module 'react' {
+  export interface CSSProperties {
+    '--loading-dots-size'?: string
+  }
+}
+
 export * from './index'
