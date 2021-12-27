@@ -17,6 +17,7 @@ import ShowMorePlayground from './pages/ShowMorePlayground'
 import SnippetPlayground from './pages/SnippetPlayground'
 import SpacerPlayground from './pages/SpacerPlayground'
 import SpinnerPlayground from './pages/SpinnerPlayground'
+import SwitchPlayground from './pages/SwitchPlayground'
 import TabsPlayground from './pages/TabsPlayground'
 import TagPlayground from './pages/TagPlayground'
 import TogglePlayground from './pages/TogglePlayground'
@@ -76,6 +77,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Note'>
           <NotePlayground />
+        </Card>
+        <Card title='Switch'>
+          <SwitchPlayground />
         </Card>
         <Card title='Video'>
           <VideoPlayground />
