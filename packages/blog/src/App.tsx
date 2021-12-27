@@ -9,6 +9,7 @@ import ContainerPlayground from './pages/ContainerPlayground'
 import IconPlayground from './pages/IconPlayground'
 import LoadingDotsPlayground from './pages/LoadingDotsPlayground'
 import ModalPlayground from './pages/ModalPlayground'
+import NotePlayground from './pages/NotePlayground'
 import ProgressPlayground from './pages/ProgressPlayground'
 import RadioPlayground from './pages/RadioPlayground'
 import SelectPlayground from './pages/SelectPlayground'
@@ -71,6 +72,9 @@ const App: VFC = () => {
         </Card>
         <Card title='LoadingDots'>
           <LoadingDotsPlayground />
+        </Card>
+        <Card title='Note'>
+          <NotePlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
