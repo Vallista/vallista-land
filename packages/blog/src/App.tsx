@@ -20,6 +20,7 @@ import SpinnerPlayground from './pages/SpinnerPlayground'
 import TabsPlayground from './pages/TabsPlayground'
 import TagPlayground from './pages/TagPlayground'
 import TogglePlayground from './pages/TogglePlayground'
+import VideoPlayground from './pages/VideoPlayground'
 
 const App: VFC = () => {
   return (
@@ -75,6 +76,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Note'>
           <NotePlayground />
+        </Card>
+        <Card title='Video'>
+          <VideoPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
