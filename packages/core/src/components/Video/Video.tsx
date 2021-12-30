@@ -91,11 +91,15 @@ const Container = styled.div<Pick<VideoProps, 'width' | 'height'>>`
   `}
 
   & > div {
-    transform: scaleY(0);
+    /* transform: scaleY(0); */
+    transform: translateY(10px);
+    opacity: 0;
   }
 
   &:hover > div {
-    transform: scaleY(1);
+    /* transform: scaleY(1); */
+    transform: translateY(0);
+    opacity: 1;
   }
 `
 
@@ -113,7 +117,7 @@ const Controls = styled.div`
   height: 40px;
   padding: 0 8px;
   align-items: center;
-  transition: transform 0.2s cubic-bezier(0.25, 0.57, 0.45, 0.94);
+  transition: all 0.2s cubic-bezier(0.25, 0.57, 0.45, 0.94);
 
   ${({ theme }) => css`
     background-color: ${theme.colors.PRIMARY.BACKGROUND};
