@@ -64,6 +64,7 @@ export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo =
     totalTime: toVideoTime(videoRef?.current?.duration || 0),
     isPlay,
     onPlay,
+    muted: props.autoPlay || false,
     onFullscreen: () => videoRef?.current?.requestFullscreen(),
     dragArea: {
       onMouseDown: () => setMouseDown(true),
