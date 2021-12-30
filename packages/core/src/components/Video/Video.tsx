@@ -163,12 +163,26 @@ const Progress = styled.progress`
   position: absolute;
   top: calc(50% - 1px);
   left: 0;
+  border: none;
   width: 100%;
-  height: 0;
+  height: 2px;
   pointer-events: none;
 
   ${({ theme }) => css`
-    background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    ::-webkit-progress-bar {
+      background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    }
+
+    ::-webkit-progress-value {
+      background-color: ${theme.colors.PRIMARY.FOREGROUND};
+    }
+
+    @-moz-document url-prefix() {
+      background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    }
+    ::-moz-progress-bar {
+      background-color: ${theme.colors.PRIMARY.FOREGROUND};
+    }
   `}
 `
 
