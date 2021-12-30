@@ -90,16 +90,26 @@ const Container = styled.div<Pick<VideoProps, 'width' | 'height'>>`
     height: ${height};
   `}
 
-  & > div {
-    /* transform: scaleY(0); */
-    transform: translateY(10px);
-    opacity: 0;
+  @media (min-width: 992px) {
+    & > div {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+
+    &:hover > div {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
-  &:hover > div {
-    /* transform: scaleY(1); */
-    transform: translateY(0);
-    opacity: 1;
+  @media (max-width: 992px) {
+    & > div {
+      transform: scaleY(0);
+    }
+
+    &:hover > div {
+      transform: scaleY(1);
+    }
   }
 `
 
