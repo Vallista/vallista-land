@@ -6,6 +6,23 @@ import { createContext } from '../../utils/createContext'
 import { CollapseProps, CollapseSizeType } from './type'
 import { useCollapse } from './useCollapse'
 
+/**
+ * # Collapse
+ * 
+ * 데이터를 폴딩하고 보여주는데 최적화된 컴포넌트 입니다.
+ * 
+ * @props {CollapseProps} {@link CollapseProps} 기본적인 인자
+ * 
+ * @example ```tsx
+ * <Collapse title='Question A'>
+    <Text>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat.
+    </Text>
+  </Collapse>
+ * ```
+ */
 export const Collapse: FC<Partial<CollapseProps>> = (props) => {
   const { title, subtitle, fold, expanded, size, card, children } = useCollapse(props)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -56,6 +73,32 @@ const [CollapseContext, useContext] =
 
 export const useCollapseContext = useContext
 
+/**
+ * # CollapseGroup
+ * 
+ * Collapse를 공유하는 그룹입니다.
+ * 
+ * @example ```tsx
+ * 
+  <CollapseGroup>
+    <Collapse title='Question A'>
+      <Text>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+        dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat.
+      </Text>
+    </Collapse>
+
+    <Collapse title='Question B'>
+      <Text>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+        dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
+        ea commodo consequat.
+      </Text>
+    </Collapse>
+  </CollapseGroup>
+ * ```
+ */
 export const CollapseGroup: FC = ({ children }) => {
   const collapses = useMemo(() => {
     const result: { key: string; expanded: boolean }[] = []
