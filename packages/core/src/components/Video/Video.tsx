@@ -170,6 +170,7 @@ const DragArea = styled.div`
 `
 
 const Progress = styled.progress`
+  appearance: none;
   position: absolute;
   top: calc(50% - 1px);
   left: 0;
