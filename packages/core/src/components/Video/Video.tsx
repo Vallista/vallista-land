@@ -130,6 +130,7 @@ const Controls = styled.div`
     line-height: 40px;
     padding: 0 12px;
     font-size: 14px;
+    font-weight: 600;
   }
 
   & > button + span {
