@@ -5,6 +5,7 @@ import { VFC } from 'react'
 import { Card } from './components/Card'
 import ButtonPlayground from './pages/ButtonPlayground'
 import CheckboxPlayground from './pages/CheckboxPlayground'
+import CollapsePlayground from './pages/CollapsePlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
 import IconPlayground from './pages/IconPlayground'
 import LoadingDotsPlayground from './pages/LoadingDotsPlayground'
@@ -83,6 +84,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Video'>
           <VideoPlayground />
+        </Card>
+        <Card title='Collapse'>
+          <CollapsePlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
