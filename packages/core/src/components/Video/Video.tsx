@@ -90,16 +90,26 @@ const Container = styled.div<Pick<VideoProps, 'width' | 'height'>>`
     height: ${height};
   `}
 
-  & > div {
-    /* transform: scaleY(0); */
-    transform: translateY(10px);
-    opacity: 0;
+  @media (min-width: 992px) {
+    & > div {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+
+    &:hover > div {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
-  &:hover > div {
-    /* transform: scaleY(1); */
-    transform: translateY(0);
-    opacity: 1;
+  @media (max-width: 992px) {
+    & > div {
+      transform: scaleY(0);
+    }
+
+    &:hover > div {
+      transform: scaleY(1);
+    }
   }
 `
 
@@ -160,15 +170,30 @@ const DragArea = styled.div`
 `
 
 const Progress = styled.progress`
+  appearance: none;
   position: absolute;
   top: calc(50% - 1px);
   left: 0;
+  border: none;
   width: 100%;
-  height: 0;
+  height: 2px;
   pointer-events: none;
 
   ${({ theme }) => css`
-    background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    ::-webkit-progress-bar {
+      background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    }
+
+    ::-webkit-progress-value {
+      background-color: ${theme.colors.PRIMARY.FOREGROUND};
+    }
+
+    @-moz-document url-prefix() {
+      background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    }
+    ::-moz-progress-bar {
+      background-color: ${theme.colors.PRIMARY.FOREGROUND};
+    }
   `}
 `
 

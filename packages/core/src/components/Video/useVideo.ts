@@ -9,11 +9,9 @@ const initProps: Pick<VideoProps, 'fullscreenable' | 'autoPlay' | 'loop'> = {
 }
 
 const toVideoTime = (seconds: number): string => {
-  const min = Math.floor(seconds / 60)
-  const sec = Math.floor(seconds % 60)
-  const mm = min < 10 ? `0${min}` : `${min}`
-  const ss = sec < 10 ? `0${sec}` : `${sec}`
-  return `${mm}:${ss}`
+  const min = `${Math.floor(seconds / 60)}`
+  const sec = `${Math.floor(seconds % 60)}`
+  return `${min.padStart(2, '0')}:${sec.padStart(2, '0')}`
 }
 
 export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo => {
@@ -64,6 +62,7 @@ export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo =
     totalTime: toVideoTime(videoRef?.current?.duration || 0),
     isPlay,
     onPlay,
+    muted: props.autoPlay || false,
     onFullscreen: () => videoRef?.current?.requestFullscreen(),
     dragArea: {
       onMouseDown: () => setMouseDown(true),

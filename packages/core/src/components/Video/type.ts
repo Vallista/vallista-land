@@ -20,6 +20,7 @@ export type ReturningUseVideo<T extends NeedVideoProp = NeedVideoProp> = T & {
   totalTime: string
   percent: number
   isPlay: boolean
+  muted: boolean
   onPlay: () => void
   onFullscreen: () => void
   dragArea: {
