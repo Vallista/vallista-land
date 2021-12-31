@@ -9,6 +9,7 @@ import CheckboxPlayground from './pages/CheckboxPlayground'
 import CollapsePlayground from './pages/CollapsePlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
 import IconPlayground from './pages/IconPlayground'
+import ImagePlayground from './pages/ImagePlayground'
 import LoadingDotsPlayground from './pages/LoadingDotsPlayground'
 import ModalPlayground from './pages/ModalPlayground'
 import NotePlayground from './pages/NotePlayground'
@@ -91,6 +92,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Capacity'>
           <CapacityPlayground />
+        </Card>
+        <Card title='Image'>
+          <ImagePlayground />
         </Card>
       </ThemeProvider>
     </Wrap>

@@ -22,3 +22,5 @@ export * from './Switch'
 export * from './Video'
 export * from './Collapse'
 export * from './Capacity'
+
+export { ImageComponent as Image } from './Image'

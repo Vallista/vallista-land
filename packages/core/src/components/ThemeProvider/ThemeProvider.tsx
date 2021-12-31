@@ -1,6 +1,5 @@
 import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
-import styled from '@emotion/styled'
-import React, { FC, VFC } from 'react'
+import { FC, VFC } from 'react'
 
 import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
 
@@ -45,6 +44,16 @@ const Reset: VFC = () => {
   return (
     <Global
       styles={css`
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        html,
+        body {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+            'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+          text-rendering: optimizeLegibility;
+          -webkit-font-smoothing: antialiased;
+        }
+
         div,
         article,
         section {
