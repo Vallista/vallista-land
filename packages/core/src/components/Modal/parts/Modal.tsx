@@ -5,8 +5,6 @@ import { ModalProvider, useModalContext } from '../context'
 import { ModalAnimationState, ModalProps } from '../type'
 import { BackDrop, Container, ModalContainer, Wrap, Wrapper } from './Modal.style'
 
-let modalRoot = document.getElementById('modal-root') || null
-
 /**
  * # Modal.Modal
  *
@@ -48,11 +46,15 @@ let modalRoot = document.getElementById('modal-root') || null
  * ```
  */
 export const Modal: FC<Partial<ModalProps>> = ({ children, ...props }) => {
-  if (!modalRoot) {
-    modalRoot = document.createElement('div')
-    modalRoot.id = 'modal-root'
-    document.body.appendChild(modalRoot)
-  }
+  useEffect(() => {
+    let modalRoot = document?.getElementById('modal-root') || null
+
+    if (!modalRoot) {
+      modalRoot = document.createElement('div')
+      modalRoot.id = 'modal-root'
+      document.body.appendChild(modalRoot)
+    }
+  }, [])
 
   return createPortal(
     <ModalProvider>

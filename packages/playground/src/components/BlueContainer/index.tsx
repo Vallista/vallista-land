@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Container as ContainerElement } from 'core'
+import { Container as ContainerElement } from '@vallista-land/core'
 
 export const BlueContainer = styled(ContainerElement)`
   border-radius: 5px;

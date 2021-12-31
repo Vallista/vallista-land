@@ -1,15 +1,20 @@
-0 silly argv { _: [ 'clean' ], lernaVersion: '4.0.0', '$0': '/usr/local/bin/lerna' }
+0 silly argv {
+0 silly argv   _: [ 'run' ],
+0 silly argv   stream: true,
+0 silly argv   lernaVersion: '4.0.0',
+0 silly argv   '$0': 'node_modules\\lerna\\cli.js',
+0 silly argv   script: 'run:playground'
+0 silly argv }
 1 notice cli v4.0.0
-2 verbose rootPath /Users/deokwon/WorkSpace/vallista-land
+2 verbose rootPath C:\Users\Vallista\Desktop\projects\vallista-land
 3 info versioning independent
-4 info Removing the following directories:
-5 info clean packages/blog/node_modules
-5 info clean packages/core/node_modules
-6 info clean removing /Users/deokwon/WorkSpace/vallista-land/packages/blog/node_modules
-7 silly rimrafDir /Users/deokwon/WorkSpace/vallista-land/packages/blog/node_modules
-8 info clean removing /Users/deokwon/WorkSpace/vallista-land/packages/core/node_modules
-9 silly rimrafDir /Users/deokwon/WorkSpace/vallista-land/packages/core/node_modules
-10 error Error: Command failed with exit code 1: /usr/local/Cellar/node@12/12.22.7/bin/node /Users/deokwon/WorkSpace/vallista-land/node_modules/rimraf/bin.js --no-glob /Users/deokwon/WorkSpace/vallista-land/packages/blog/node_modules/
-10 error     at makeError (/Users/deokwon/WorkSpace/vallista-land/node_modules/execa/lib/error.js:60:11)
-10 error     at handlePromise (/Users/deokwon/WorkSpace/vallista-land/node_modules/execa/index.js:118:26)
-10 error     at processTicksAndRejections (internal/process/task_queues.js:97:5)
+4 error JSONError: Unexpected token "}" (0x7D) in JSON at position 874 while parsing near "...tem\": \"^4.4.0\"\n  },\n}" in packages\template\package.json
+4 error
+4 error [0m [90m 31 |[39m     [32m"gatsby-source-filesystem"[39m[33m:[39m [32m"^4.4.0"[39m[0m
+4 error [0m [90m 32 |[39m   }[33m,[39m[0m
+4 error [0m[31m[1m>[22m[39m[90m 33 |[39m }[0m
+4 error [0m [90m    |[39m [31m[1m^[22m[39m[0m
+4 error
+4 error     at parseJson (C:\Users\Vallista\Desktop\projects\vallista-land\node_modules\parse-json\index.js:29:21)
+4 error     at parse (C:\Users\Vallista\Desktop\projects\vallista-land\node_modules\load-json-file\index.js:15:9)
+4 error     at module.exports (C:\Users\Vallista\Desktop\projects\vallista-land\node_modules\load-json-file\index.js:18:47)

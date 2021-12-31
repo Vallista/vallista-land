@@ -20,6 +20,6 @@
     "declarationMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": ["lib", "node_modules", "build", "scripts", "acceptance-tests", "webpack", "jest", "src/setupTests.ts"]
 }

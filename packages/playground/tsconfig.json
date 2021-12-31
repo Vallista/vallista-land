@@ -1,5 +1,4 @@
 {
-  "extends": "../tsconfig.settings.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
@@ -21,6 +20,5 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["lib", "node_modules", "build", "scripts", "acceptance-tests", "webpack", "jest", "src/setupTests.ts"]
+  "include": ["./src/**/*"]
 }
