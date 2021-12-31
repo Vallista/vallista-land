@@ -15,9 +15,9 @@ yarn workspace로 모든 패키지 모듈을 실행합니다.
 
 ```shell
 // terminal tab 1 (첫번째 탭을 켠다)
-$ lerna run playground // playground start
+$ yarn run:playground // playground start
 // terminal tab 2 (두번째 탭을 켠다)
-$ lerna run dev:core // design system 실시간 반영
+$ yarn run:core // design system 실시간 반영
 ```
 
 ## Add Module (library, .js)
@@ -39,11 +39,7 @@ $ lerna add {모듈명} --scope={패키지명}
 - react
 - typescript
 - lerna + yarn workspace
-- react-app-rewired
-
-> react-app-rewired 쓰는 이유
->
-> 참고: https://stackoverflow.com/questions/65893787/create-react-app-with-typescript-and-npm-link-enums-causing-module-parse-failed
+- gatsby
 
 ## Rule
 
@@ -58,8 +54,28 @@ $ lerna add {모듈명} --scope={패키지명}
 
 ## 그 외
 
-- 3000 포트 킬
+### 3000 포트 킬
 
 ```shell
 $ npx kill-port 3000
+```
+
+### 빌드 안될 때
+
+```shell
+$ yarn clean:template
+$ yarn clean:playground
+$ lerna clean
+```
+
+1. 위 명령어 입력
+2. 최상위 node_modules 삭제
+3. @vallista-core/tsconfig.tsbuildinfo 삭제
+4. @vallista-core/lib 삭제
+5. 아래 명령어 입력
+
+```shell
+$ yarn
+$ yarn build:core
+$ yarn run:core
 ```
