@@ -115,8 +115,18 @@ export const CollapseGroup: FC = ({ children }) => {
     return collapses.find((it) => (it.expanded ? it.key : null))?.key || null
   })
 
-  return <CollapseContext state={{ expandedTarget, setExpandedTarget }}>{children}</CollapseContext>
+  return (
+    <CollapseContext state={{ expandedTarget, setExpandedTarget }}>
+      <CollapsesWrapper>{children}</CollapsesWrapper>
+    </CollapseContext>
+  )
 }
+
+const CollapsesWrapper = styled.div`
+  & > div:not(:last-of-type) {
+    border-bottom: none;
+  }
+`
 
 const Container = styled.div<{ card?: boolean }>`
   text-align: left;
