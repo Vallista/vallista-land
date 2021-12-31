@@ -18,9 +18,9 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
-    "start": "lerna run start --stream",
-    "tsc": "lerna run tsc --stream",
-    "watch": "lerna run watch --stream"
+    "playground": "lerna run playground --stream",
+    "build:core": "lerna run build:core --stream",
+    "dev:core": "lerna run dev:core --stream"
   },
   "workspaces": {
     "packages": [

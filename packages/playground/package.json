@@ -1,5 +1,5 @@
 {
-  "name": "blog",
+  "name": "playground",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -22,10 +22,7 @@
     "react-scripts": "4.0.3"
   },
   "scripts": {
-    "start": "cross-env react-app-rewired start",
-    "build": "cross-env react-app-rewired build",
-    "test": "cross-env react-app-rewired test",
-    "eject": "cross-env react-scripts eject"
+    "playground": "cross-env react-app-rewired start"
   },
   "browserslist": {
     "production": [

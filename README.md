@@ -15,9 +15,9 @@ yarn workspace로 모든 패키지 모듈을 실행합니다.
 
 ```shell
 // terminal tab 1 (첫번째 탭을 켠다)
-$ lerna run start // blog start
+$ lerna run playground // playground start
 // terminal tab 2 (두번째 탭을 켠다)
-$ lerna run watch // design system 실시간 반영
+$ lerna run dev:core // design system 실시간 반영
 ```
 
 ## Add Module (library, .js)
@@ -55,3 +55,11 @@ $ lerna add {모듈명} --scope={패키지명}
 1. core > components > 해당 컴포넌트 제작
 2. core > components > index.ts 에 등록
 3. blog > src 에서 테스트
+
+## 그 외
+
+- 3000 포트 킬
+
+```shell
+$ npx kill-port 3000
+```
