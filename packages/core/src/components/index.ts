@@ -22,5 +22,6 @@ export * from './Switch'
 export * from './Video'
 export * from './Collapse'
 export * from './Capacity'
+export * from './Badge'
 
 export { ImageComponent as Image } from './Image'

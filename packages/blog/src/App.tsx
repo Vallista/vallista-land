@@ -3,6 +3,7 @@ import { ThemeProvider } from 'core'
 import { VFC } from 'react'
 
 import { Card } from './components/Card'
+import BadgePlayground from './pages/BadgePlayground'
 import ButtonPlayground from './pages/ButtonPlayground'
 import CapacityPlayground from './pages/CapacityPlayground'
 import CheckboxPlayground from './pages/CheckboxPlayground'
@@ -95,6 +96,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Image'>
           <ImagePlayground />
+        </Card>
+        <Card title='Badge'>
+          <BadgePlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
