@@ -81,6 +81,10 @@ const Bar = styled.progress<{ nowColor?: AvailablePickedColor; type: ProgressTyp
     &[value]::-webkit-progress-value {
       background: ${ProgressTypeMapper[type].background};
     }
+
+    &[value]::-moz-progress-bar {
+      background: ${ProgressTypeMapper[type].background};
+    }
   `}
 
   ${({ theme, nowColor }) => css`
@@ -89,7 +93,21 @@ const Bar = styled.progress<{ nowColor?: AvailablePickedColor; type: ProgressTyp
       border-radius: 5px;
     }
 
+    @-moz-document url-prefix() {
+      border-radius: 5px;
+      background: ${theme.colors.PRIMARY.ACCENT_2};
+    }
+
     &[value]::-webkit-progress-value {
+      ${nowColor &&
+      css`
+        background: ${nowColor};
+      `};
+      border-radius: 5px;
+      transition: width 0.15s ease;
+    }
+
+    &[value]::-moz-progress-bar {
       ${nowColor &&
       css`
         background: ${nowColor};
