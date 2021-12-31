@@ -23,5 +23,6 @@ export * from './Video'
 export * from './Collapse'
 export * from './Capacity'
 export * from './Badge'
+export * from './Footer'
 
 export { ImageComponent as Image } from './Image'

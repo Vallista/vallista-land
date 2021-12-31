@@ -9,6 +9,7 @@ import CapacityPlayground from './pages/CapacityPlayground'
 import CheckboxPlayground from './pages/CheckboxPlayground'
 import CollapsePlayground from './pages/CollapsePlayground'
 import ContainerPlayground from './pages/ContainerPlayground'
+import FooterPlayground from './pages/FooterPlayground'
 import IconPlayground from './pages/IconPlayground'
 import ImagePlayground from './pages/ImagePlayground'
 import LoadingDotsPlayground from './pages/LoadingDotsPlayground'
@@ -99,6 +100,9 @@ const App: VFC = () => {
         </Card>
         <Card title='Badge'>
           <BadgePlayground />
+        </Card>
+        <Card title='Footer'>
+          <FooterPlayground />
         </Card>
       </ThemeProvider>
     </Wrap>
