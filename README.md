@@ -79,3 +79,7 @@ $ yarn
 $ yarn build:core
 $ yarn run:core
 ```
+
+### 트러블 슈팅
+
+- CRA 기반 프로젝트와 gatsby 기반 프로젝트를 monorepo의 root에서 모듈 관리를 함께 하니, 모듈 충돌이 일어나는 문제가 발생해서 gatsby 프로젝트가 실행이 안되었음. 그래서 모두 gatsby로 변경.
