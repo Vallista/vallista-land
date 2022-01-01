@@ -39,11 +39,11 @@ export const Select: FC<Partial<SelectProps>> = (props) => {
             width='18'
             height='18'
             stroke='currentColor'
-            stroke-width='1.5'
-            stroke-linecap='round'
-            stroke-linejoin='round'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
             fill='none'
-            shape-rendering='geometricPrecision'
+            shapeRendering='geometricPrecision'
           >
             <path d='M6 9l6 6 6-6' />
           </svg>

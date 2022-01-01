@@ -18,13 +18,15 @@ import { useSnippet } from './useSnippet'
  * ```
  */
 export const Snippet: VFC<Partial<SnippetProps>> = (props) => {
-  const { width = '300px', text, handleCopy, ...otherProps } = useSnippet(props)
+  const { width = '300px', text, handleCopy, fill, ...otherProps } = useSnippet(props)
   const ref = useRef<HTMLDivElement>(null)
 
   return (
-    <Container width={width} {...otherProps} ref={ref}>
-      {text.map((it) => (
-        <Row {...otherProps}>{it}</Row>
+    <Container width={width} fill={String(fill)} {...otherProps} ref={ref}>
+      {text.map((it, idx) => (
+        <Row key={`${it}-${idx}`} {...otherProps}>
+          {it}
+        </Row>
       ))}
       <CopyButton onClick={() => handleCopy(ref.current?.innerText ?? '')}>
         <svg
@@ -33,11 +35,11 @@ export const Snippet: VFC<Partial<SnippetProps>> = (props) => {
           height='24'
           color='currentcolor'
           stroke='currentcolor'
-          stroke-width='1.5'
-          stroke-linecap='round'
-          stroke-linejoin='round'
+          strokeWidth='1.5'
+          strokeLinecap='round'
+          strokeLinejoin='round'
           fill='none'
-          shape-rendering='geometricPrecision'
+          shapeRendering='geometricPrecision'
         >
           <path d='M8 17.929H6c-1.105 0-2-.912-2-2.036V5.036C4 3.91 4.895 3 6 3h8c1.105 0 2 .911 2 2.036v1.866m-6 .17h8c1.105 0 2 .91 2 2.035v10.857C20 21.09 19.105 22 18 22h-8c-1.105 0-2-.911-2-2.036V9.107c0-1.124.895-2.036 2-2.036z' />
         </svg>
@@ -79,7 +81,7 @@ const SnippetTypeMapper: (props: { fill?: boolean }) => SnippetMapperType = ({ f
   }
 })
 
-const Container = styled.div<{ width: string; type: SnippetType; dark?: boolean; fill?: boolean }>`
+const Container = styled.div<{ width: string; type: SnippetType; dark?: boolean; fill?: string }>`
   ${({ theme, width, type, dark, fill }) => css`
     position: relative;
     width: ${width};
@@ -87,9 +89,9 @@ const Container = styled.div<{ width: string; type: SnippetType; dark?: boolean;
     padding: 9px 42px 9px 12px;
     box-sizing: border-box;
     border-radius: 5px;
-    background: ${SnippetTypeMapper({ fill })[type]['background']};
-    border: 1px solid ${SnippetTypeMapper({ fill })[type]['border']};
-    color: ${SnippetTypeMapper({ fill })[type]['color']};
+    background: ${SnippetTypeMapper({ fill: fill === 'true' })[type]['background']};
+    border: 1px solid ${SnippetTypeMapper({ fill: fill === 'true' })[type]['border']};
+    color: ${SnippetTypeMapper({ fill: fill === 'true' })[type]['color']};
 
     ${dark &&
     css`

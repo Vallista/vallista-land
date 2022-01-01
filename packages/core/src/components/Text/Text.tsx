@@ -19,7 +19,7 @@ import { useText } from './useText'
  * ```
  */
 export const Text: FC<Partial<TextProps>> = (props) => {
-  const { as, children, transform, ...otherProps } = useText(props)
+  const { as, children, transform, wrap, ...otherProps } = useText(props)
 
   const Render = Element.withComponent(as as keyof JSX.IntrinsicElements)
   return <Render {...otherProps}>{children}</Render>

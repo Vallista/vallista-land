@@ -8,7 +8,7 @@
     "gatsby"
   ],
   "scripts": {
-    "run:playground": "gatsby develop -p 3000",
+    "run:playground": "npx kill-port 3000 && gatsby develop -p 3000",
     "build:playground": "gatsby build",
     "serve:playground": "gatsby serve",
     "clean:playground": "gatsby clean"

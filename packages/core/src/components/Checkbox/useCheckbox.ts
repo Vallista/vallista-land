@@ -13,7 +13,7 @@ export const useCheckbox = <T extends Partial<CheckboxProps>>(props: T): Returni
     ...initProps,
     ...props,
     onChange: () => {
-      !props.indeterminate && props.onChange && props.onChange()
+      if (!props.indeterminate && props.onChange) props.onChange()
     },
     marker: props.indeterminate ? 'indeterminate' : props.checked ? 'checked' : 'none'
   }

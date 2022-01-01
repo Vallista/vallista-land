@@ -17,7 +17,7 @@ const Header: FC = (props) => {
 
   return (
     <Wrapper>
-      <h3>{children}</h3>
+      <div>{children}</div>
     </Wrapper>
   )
 }

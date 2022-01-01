@@ -13,8 +13,8 @@ export const Tabs: VFC<NeedTabsProps> = (props) => {
 
   return (
     <Container>
-      {tabs.map((it) => (
-        <Tab active={isActive(it.value)} onClick={() => handleSelect(it.value)} disabled={disabled}>
+      {tabs.map((it, idx) => (
+        <Tab key={`tab-${idx}`} active={isActive(it.value)} onClick={() => handleSelect(it.value)} disabled={disabled}>
           <TabContents active={isActive(it.value)} disabled={disabled}>
             {it.icon && <IconWrapper>{it.icon}</IconWrapper>}
             {it.title}

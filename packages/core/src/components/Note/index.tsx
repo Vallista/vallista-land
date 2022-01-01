@@ -17,7 +17,7 @@ export const Note: FC<Partial<NoteProps>> = (props) => {
   } = props
 
   return (
-    <Container label={label} fill={fill} variant={variant} type={type} action={action} size={size}>
+    <Container label={label} fill={String(fill)} variant={variant} type={type} action={action} size={size}>
       <span>
         {!!label && <span>{label}: </span>}
         {children}
@@ -58,7 +58,7 @@ const NoteTypeMapper: (props: Pick<NoteProps, 'variant' | 'fill'>) => NoteMapper
   }
 })
 
-const Container = styled.div<NoteProps>`
+const Container = styled.div<Omit<NoteProps, 'fill'> & { fill?: string }>`
   display: flex;
   align-items: center;
   border-radius: 5px;
@@ -68,9 +68,9 @@ const Container = styled.div<NoteProps>`
   box-sizing: border-box;
 
   ${(props) => css`
-    color: ${NoteTypeMapper(props)[props.type].color};
-    background: ${NoteTypeMapper(props)[props.type].background};
-    border: 1px solid ${NoteTypeMapper(props)[props.type].border};
+    color: ${NoteTypeMapper({ ...props, fill: props.fill === 'true' })[props.type].color};
+    background: ${NoteTypeMapper({ ...props, fill: props.fill === 'true' })[props.type].background};
+    border: 1px solid ${NoteTypeMapper({ ...props, fill: props.fill === 'true' })[props.type].border};
 
     ${props.size === 'small' &&
     css`

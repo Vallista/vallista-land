@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import React, { FC } from 'react'
+import { FC } from 'react'
 
 import { CheckboxProps, ReturningUseCheckbox } from './type'
 import { useCheckbox } from './useCheckbox'
@@ -25,9 +25,9 @@ export const Checkbox: FC<Partial<CheckboxProps>> = (props) => {
 
   return (
     <div>
-      <Label label={label} onChange={onChange} {...otherProps}>
+      <Label label={label} {...otherProps}>
         {label && <Caption>{label}</Caption>}
-        <Input type='checkbox' {...otherProps} />
+        <Input type='checkbox' {...otherProps} onChange={onChange} />
         {label && (
           <Container>
             <Box {...otherProps}>
@@ -62,6 +62,8 @@ export const Checkbox: FC<Partial<CheckboxProps>> = (props) => {
 const Label = styled.label<Pick<ReturningUseCheckbox, 'fullWidth' | 'disabled' | 'label'>>`
   font-size: 1em;
   display: flex;
+  cursor: pointer;
+  outline: none;
 
   ${({ fullWidth, disabled, label, theme }) => css`
     ${label &&
@@ -106,15 +108,21 @@ const Caption = styled.span`
 
 const Input = styled.input`
   position: absolute;
-  top: -9999;
-  left: -9999;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
   opacity: 0;
-  z-index: 9999;
-  ${({ theme }) => css`
+  outline: none;
+  /* ${({ theme }) => css`
     &:focus ~ div {
       box-shadow: 0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND}, 0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
     }
-  `}
+  `} */
 `
 
 const Box = styled.div<Pick<ReturningUseCheckbox, 'checked' | 'disabled' | 'indeterminate'>>`

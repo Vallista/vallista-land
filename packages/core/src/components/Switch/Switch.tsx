@@ -62,12 +62,12 @@ const Group = styled.div<Pick<SwitchProps, 'size'>>`
       border-left: 0;
     }
 
-    & > :first-child {
+    & > :first-of-type {
       border-radius: 5px 0 0 5px;
       border-left: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
     }
 
-    & > :last-child {
+    & > :last-of-type {
       border-radius: 0 5px 5px 0;
     }
   `}

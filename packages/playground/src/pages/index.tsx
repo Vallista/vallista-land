@@ -1,5 +1,4 @@
 import styled from '@emotion/styled'
-import { ThemeProvider } from '@vallista-land/core'
 import { VFC } from 'react'
 
 import { Card } from '../components/Card'
@@ -14,9 +13,9 @@ import FooterPlayground from '../components/playgrounds/FooterPlayground'
 import IconPlayground from '../components/playgrounds/IconPlayground'
 import ImagePlayground from '../components/playgrounds/ImagePlayground'
 import LoadingDotsPlayground from '../components/playgrounds/LoadingDotsPlayground'
-import ProgressPlayground from '../components/playgrounds/LoadingDotsPlayground'
 import ModalPlayground from '../components/playgrounds/ModalPlayground'
 import NotePlayground from '../components/playgrounds/NotePlayground'
+import ProgressPlayground from '../components/playgrounds/ProgressPlayground'
 import RadioPlayground from '../components/playgrounds/RadioPlayground'
 import SelectPlayground from '../components/playgrounds/SelectPlayground'
 import ShowMorePlayground from '../components/playgrounds/ShowMorePlayground'
@@ -31,80 +30,78 @@ import VideoPlayground from '../components/playgrounds/VideoPlayground'
 const IndexPage: VFC = () => {
   return (
     <Wrap>
-      <ThemeProvider>
-        <Card title='Container'>
-          <ContainerPlayground />
-        </Card>
-        <Card title='Button'>
-          <ButtonPlayground />
-        </Card>
-        <Card title='Modal'>
-          <ModalPlayground />
-        </Card>
-        <Card title='Spinner'>
-          <SpinnerPlayground />
-        </Card>
-        <Card title='Toggle'>
-          <TogglePlayground />
-        </Card>
-        <Card title='Radio'>
-          <RadioPlayground />
-        </Card>
-        <Card title='Select'>
-          <SelectPlayground />
-        </Card>
-        <Card title='Spacer'>
-          <SpacerPlayground />
-        </Card>
-        <Card title='Icon'>
-          <IconPlayground />
-        </Card>
-        <Card title='Tabs'>
-          <TabsPlayground />
-        </Card>
-        <Card title='Tag'>
-          <TagPlayground />
-        </Card>
-        <Card title='Checkbox'>
-          <CheckboxPlayground />
-        </Card>
-        <Card title='ShowMore'>
-          <ShowMorePlayground />
-        </Card>
-        <Card title='Snippet'>
-          <SnippetPlayground />
-        </Card>
-        <Card title='Progress'>
-          <ProgressPlayground />
-        </Card>
-        <Card title='LoadingDots'>
-          <LoadingDotsPlayground />
-        </Card>
-        <Card title='Note'>
-          <NotePlayground />
-        </Card>
-        <Card title='Switch'>
-          <SwitchPlayground />
-        </Card>
-        <Card title='Video'>
-          <VideoPlayground />
-        </Card>
-        <Card title='Collapse'>
-          <CollapsePlayground />
-        </Card>
-        <Card title='Capacity'>
-          <CapacityPlayground />
-        </Card>
-        <Card title='Image'>
-          <ImagePlayground />
-        </Card>
-        <Card title='Badge'>
-          <BadgePlayground />
-        </Card>
-        <Card title='Footer'>
-          <FooterPlayground />
-        </Card>
-      </ThemeProvider>
+      <Card title='Container'>
+        <ContainerPlayground />
+      </Card>
+      <Card title='Button'>
+        <ButtonPlayground />
+      </Card>
+      <Card title='Modal'>
+        <ModalPlayground />
+      </Card>
+      <Card title='Spinner'>
+        <SpinnerPlayground />
+      </Card>
+      <Card title='Toggle'>
+        <TogglePlayground />
+      </Card>
+      <Card title='Radio'>
+        <RadioPlayground />
+      </Card>
+      <Card title='Select'>
+        <SelectPlayground />
+      </Card>
+      <Card title='Spacer'>
+        <SpacerPlayground />
+      </Card>
+      <Card title='Icon'>
+        <IconPlayground />
+      </Card>
+      <Card title='Tabs'>
+        <TabsPlayground />
+      </Card>
+      <Card title='Tag'>
+        <TagPlayground />
+      </Card>
+      <Card title='Checkbox'>
+        <CheckboxPlayground />
+      </Card>
+      <Card title='ShowMore'>
+        <ShowMorePlayground />
+      </Card>
+      <Card title='Snippet'>
+        <SnippetPlayground />
+      </Card>
+      <Card title='Progress'>
+        <ProgressPlayground />
+      </Card>
+      <Card title='LoadingDots'>
+        <LoadingDotsPlayground />
+      </Card>
+      <Card title='Note'>
+        <NotePlayground />
+      </Card>
+      <Card title='Switch'>
+        <SwitchPlayground />
+      </Card>
+      <Card title='Video'>
+        <VideoPlayground />
+      </Card>
+      <Card title='Collapse'>
+        <CollapsePlayground />
+      </Card>
+      <Card title='Capacity'>
+        <CapacityPlayground />
+      </Card>
+      <Card title='Image'>
+        <ImagePlayground />
+      </Card>
+      <Card title='Badge'>
+        <BadgePlayground />
+      </Card>
+      <Card title='Footer'>
+        <FooterPlayground />
+      </Card>
     </Wrap>
   )
 }
