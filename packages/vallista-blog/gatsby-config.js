@@ -35,6 +35,7 @@ module.exports = {
     'gatsby-plugin-sitemap',
     'gatsby-plugin-mdx',
     'gatsby-plugin-typescript',
+    `gatsby-plugin-sharp`,
     {
       resolve: 'gatsby-source-filesystem',
       options: {
@@ -50,6 +51,43 @@ module.exports = {
         path: `${__dirname}/content/posts`
       }
     },
-    `gatsby-transformer-remark`
+    {
+      resolve: `gatsby-transformer-remark`,
+      options: {
+        plugins: [
+          {
+            resolve: `gatsby-remark-images`,
+            options: {
+              maxWidth: 1000,
+              linkImagesToOriginal: false
+            }
+          },
+          {
+            resolve: `gatsby-remark-vscode`,
+            options: {
+              theme: 'Dark+ (default dark)'
+            }
+          }
+        ]
+      }
+    }
   ]
+  //   {
+  //     resolve: `gatsby-transformer-remark`,
+  //     options: {
+  //       plugins: [
+  //         {
+  //           resolve: `gatsby-remark-images`,
+  //           options: {
+  //             maxWidth: 1000,
+  //             linkImagesToOriginal: false
+  //           }
+  //         },
+  //         {
+  //           resolve: 'gatsby-remark-copy-linked-files'
+  //         }
+  //       ]
+  //     }
+  //   }
+  // ]
 }

@@ -1,37 +1,51 @@
-import styled from '@emotion/styled'
-import { Container, Note } from '@vallista-land/core'
+import { Container } from '@vallista-land/core'
 import { graphql } from 'gatsby'
-import { VFC } from 'react'
+import { useCallback, VFC } from 'react'
 import { PageProps, PostQuery } from 'types/query'
 
-import { MarkdownProvider } from '../components/MarkdownProvider'
+import { Markdown } from '../components/Markdown'
+import { PostHeader } from '../components/PostHeader'
+import { Series } from '../components/Series'
+
+const author = 'Vallista'
 
 const Post: VFC<PageProps<PostQuery>> = (props) => {
-  const { markdownRemark } = props.data
-  console.log(props.data)
+  const { allMarkdownRemark, markdownRemark, seriesGroup } = props.data
+  const { timeToRead } = props.data.markdownRemark
+  const { title, date, image, tags, series } = props.data.markdownRemark.frontmatter
+
+  const cachedFilterSeries = useCallback(getFilteredSeries, [props.data])
+
   return (
     <Container>
-      <article>
-        <header>{markdownRemark.frontmatter.title}</header>
-        <MarkdownProvider>
-          <Markdown id='post-markdown' dangerouslySetInnerHTML={{ __html: markdownRemark.html }} />
-        </MarkdownProvider>
-      </article>
+      <main>
+        <article>
+          <PostHeader
+            title={title}
+            date={date}
+            image={image?.publicURL}
+            tags={tags}
+            timeToRead={timeToRead}
+            author={author}
+          >
+            {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
+          </PostHeader>
+          <Markdown html={markdownRemark.html} />
+        </article>
+        <section id='comments'></section>
+      </main>
     </Container>
   )
+
+  function getFilteredSeries(): { name: string; timeToRead: number }[] {
+    return allMarkdownRemark.edges
+      .filter((it) => it.node.frontmatter.series)
+      .filter((it) => it.node.frontmatter.series === series)
+      .map((it) => ({ name: it.node.frontmatter.title, timeToRead: it.node.timeToRead }))
+  }
 }
 
 export default Post
-
-const Markdown = styled.div`
-  max-width: 900px;
-  padding: 2rem;
-  @media screen and (max-width: 1000px) {
-    padding: 1.5rem;
-  }
-  margin-left: auto;
-  margin-right: auto;
-`
 
 export const pageQuery = graphql`
   query BlogPostQuery($id: String) {
@@ -82,7 +96,6 @@ export const pageQuery = graphql`
         slug
       }
       headings {
-        id
         value
         depth
       }

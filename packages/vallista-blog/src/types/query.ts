@@ -11,6 +11,7 @@ export interface Post {
   fields: {
     slug: string
   }
+  timeToRead: number
   frontmatter: {
     title: string
     date: string
@@ -32,10 +33,9 @@ export interface IndexQuery {
 }
 
 export interface PostQuery extends IndexQuery {
-  series: { group: { fieldValue: string; totalCount: number }[] }
+  seriesGroup: { group: { fieldValue: string; totalCount: number }[] }
   markdownRemark: Post & {
     id: string
-    timeToRead: number
     headings: { depth: number; id: string | null; value: string }[]
   }
 }

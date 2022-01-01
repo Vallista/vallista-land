@@ -95,17 +95,8 @@ exports.createPages = async function ({ node, actions, graphql }) {
     }
   `)
 
-  const getTime = (date) => {
-    const translate = date.split(/[\-\+ :T]/)
-    return [translate[0] || 0, translate[1] || 0, translate[2] || 0]
-  }
-
   result.data.allMarkdownRemark.edges.forEach((edge) => {
-    const [year, month, day] = getTime(edge.node.frontmatter.date)
-
-    const slug = `/${year}/${month}/${day}${edge.node.fields.slug}`.slice(0, -1)
-
-    // if (!edge.node.published) return
+    const slug = `${edge.node.fields.slug}`.slice(0, -1)
 
     actions.createPage({
       path: slug,

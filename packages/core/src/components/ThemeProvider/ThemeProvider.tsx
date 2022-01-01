@@ -44,15 +44,30 @@ const Reset: VFC = () => {
   return (
     <Global
       styles={css`
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
         :root {
           --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
             'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
+          --scrollbar-background: #1e1e1e;
+          --scrollbar-thumb: #666;
+          --scrollbar-thumb-highlight: #ff0080;
         }
-
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         html {
           font-size: 16px;
+
+          &::-webkit-scrollbar {
+            background: var(--scrollbar-background);
+            height: 8px;
+            width: 8px;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb-highlight);
+            border-radius: 0;
+          }
         }
 
         html,
@@ -157,6 +172,7 @@ const Reset: VFC = () => {
           font: inherit;
           vertical-align: baseline;
         }
+
         /* HTML5 display-role reset for older browsers */
         article,
         aside,
@@ -171,17 +187,21 @@ const Reset: VFC = () => {
         section {
           display: block;
         }
+
         body {
           line-height: 1;
         }
+
         ol,
         ul {
           list-style: none;
         }
+
         blockquote,
         q {
           quotes: none;
         }
+
         blockquote:before,
         blockquote:after,
         q:before,
@@ -189,6 +209,7 @@ const Reset: VFC = () => {
           content: '';
           content: none;
         }
+
         table {
           border-collapse: collapse;
           border-spacing: 0;
