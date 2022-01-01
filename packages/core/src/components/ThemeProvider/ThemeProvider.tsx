@@ -44,14 +44,23 @@ const Reset: VFC = () => {
   return (
     <Global
       styles={css`
+        :root {
+          --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+            'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        html {
+          font-size: 16px;
+        }
 
         html,
         body {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-            'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+          font-family: var(--font-family) !important;
           text-rendering: optimizeLegibility;
           -webkit-font-smoothing: antialiased;
+          font-size: 1rem;
         }
 
         div,
@@ -144,7 +153,7 @@ const Reset: VFC = () => {
           margin: 0;
           padding: 0;
           border: 0;
-          font-size: 100%;
+          font-size: 1rem;
           font: inherit;
           vertical-align: baseline;
         }

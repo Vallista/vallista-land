@@ -5,10 +5,13 @@ export function wrapRootElement({ element }) {
   return <ThemeProvider>{element}</ThemeProvider>
 }
 
-export function wrapPageElement({ element }) {
-  document.addEventListener('load', () => {
-    console.log('hello')
-  })
+// export function onClientEntry() {
+//   document.body.children[0].style.opacity = 0
+//   document.body.children[0].style.transition = 'opacity 0.2s ease'
 
-  return <>{element}</>
-}
+//   window.onload = () => {
+//     setTimeout(() => {
+//       document.body.children[0].style.opacity = 1
+//     }, 100)
+//   }
+// }

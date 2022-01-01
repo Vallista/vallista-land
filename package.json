@@ -18,14 +18,15 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap --hoist",
-    "run:playground": "lerna run run:playground --stream",
     "run:core": "lerna run run:core --stream",
-    "run:template": "lerna run run:template --stream",
     "build:core": "lerna run build:core",
+    "run:playground": "lerna run run:playground --stream",
     "build:playground": "lerna run build:playground",
-    "build:template": "lerna run build:template",
     "clean:playground": "lerna run clean:playground",
-    "clean:template": "lerna run clean:template"
+    "run:blog": "lerna run run:blog --stream",
+    "build:blog": "lerna run build:blog",
+    "clean:blog": "lerna run clean:blog",
+    "post:blog": "lerna run post:blog"
   },
   "workspaces": {
     "packages": [

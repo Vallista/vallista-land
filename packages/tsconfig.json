@@ -3,6 +3,6 @@
   "references": [
     { "path": "@vallista-land/core" },
     { "path": "@vallista-land/playground" },
-    { "path": "@vallista-land/template" }
+    { "path": "@vallista-land/blog" }
   ]
 }
