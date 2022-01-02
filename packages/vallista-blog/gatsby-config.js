@@ -1,12 +1,14 @@
+const profile = require('./config/profile.json')
+
 module.exports = {
   siteMetadata: {
-    title: "'Vallista's Log",
-    titleTemplate: '%s · Vallista',
-    siteUrl: 'https://vallista.kr',
-    description: 'Vallista의 블로그',
-    author: `@vallista`,
-    url: 'https://vallista.kr',
-    image: '/images/profile.jpg',
+    title: profile.title,
+    titleTemplate: profile.titleTemplate,
+    siteUrl: profile.siteUrl,
+    description: profile.description,
+    author: profile.author,
+    url: profile.siteUrl,
+    image: profile.placeholder,
     twitterUsername: ''
   },
   plugins: [

@@ -59,14 +59,17 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
 }
 
 const Wrapper = styled.div`
-  width: calc(100vw - 1.5rem);
+  width: 100%;
+  /* width: calc(100vw - 1.5rem - 80px); */
   max-width: 900px;
   padding: 2rem;
-  @media screen and (max-width: 1000px) {
-    padding: 1.5rem;
-  }
   margin-left: auto;
   margin-right: auto;
+
+  @media screen and (max-width: 1000px) {
+    /* width: calc(100vw - 1.5rem); */
+    padding: 1.5rem;
+  }
 `
 
 const Contents = styled(Wrapper)`

@@ -57,7 +57,9 @@ const Container = styled.div`
   }
 `
 
-const ChildrenWrapper = styled.div``
+const ChildrenWrapper = styled.div`
+  position: relative;
+`
 
 const distanceGap = 10
 
@@ -80,6 +82,8 @@ const Popup = styled.div<{
   position: absolute;
   opacity: 0;
   transition: opacity 0.2s ease-in;
+  text-align: center;
+
   ${({ theme, position, width, height, type }) => css`
     z-index: ${theme.layers.FOREGROUND};
     color: ${theme.colors.PRIMARY.BACKGROUND};

@@ -108,11 +108,19 @@ exports.createPages = async function ({ node, actions, graphql }) {
     })
   })
 
-  // actions.createPage({
-  //   path: '/resume',
-  //   component: require.resolve('./src/pages/index.tsx'),
-  //   context: {
-  //     slug: '/resume'
-  //   }
-  // })
+  actions.createPage({
+    path: '/me',
+    component: require.resolve('./src/pages/me.tsx'),
+    context: {
+      slug: '/me'
+    }
+  })
+
+  actions.createPage({
+    path: '/posts',
+    component: require.resolve('./src/pages/posts.tsx'),
+    context: {
+      slug: '/posts'
+    }
+  })
 }

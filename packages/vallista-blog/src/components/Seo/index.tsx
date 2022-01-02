@@ -3,7 +3,7 @@ import { useStaticQuery, graphql } from 'gatsby'
 import { VFC } from 'react'
 import { Helmet } from 'react-helmet'
 
-import { StaticQuery } from '../../types/query'
+import { StaticQuery } from '../../types/type'
 
 interface SeoProps {
   title?: string

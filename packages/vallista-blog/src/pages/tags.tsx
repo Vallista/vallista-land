@@ -4,17 +4,17 @@ import { VFC } from 'react'
 import { Layout } from '../components/Layout'
 import { IndexQuery, PageProps } from '../types/type'
 
-const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
+const TagsPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
   const { edges } = data.allMarkdownRemark
 
   return <Layout edges={edges}></Layout>
 }
 
-export default IndexPage
+export default TagsPage
 
 export const pageQuery = graphql`
-  query BlogIndexQuery {
+  query BlogTagsQuery {
     allMarkdownRemark(
       sort: { fields: [frontmatter___date], order: DESC }
       filter: { frontmatter: { draft: { eq: false } } }
