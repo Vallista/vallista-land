@@ -6,9 +6,11 @@ import { useCallback, VFC } from 'react'
 import { PageProps, PostQuery } from 'types/query'
 
 import { Markdown } from '../components/Markdown'
+import { NavBar } from '../components/NavBar'
 import { PostHeader } from '../components/PostHeader'
 import { Seo } from '../components/Seo'
 import { Series } from '../components/Series'
+import { Sidebar } from '../components/Sidebar'
 
 const author = 'Vallista'
 
@@ -23,6 +25,8 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
     <>
       <Seo title={title} description={excerpt} article={html} />
       <Container>
+        <NavBar />
+        <Sidebar />
         <Main>
           <article>
             <PostHeader
@@ -125,6 +129,12 @@ export const pageQuery = graphql`
 
 const Main = styled.main`
   ${({ theme }) => css`
+    margin-left: 400px;
+
+    @media screen and (max-width: 1000px) {
+      margin-left: 80px;
+    }
+
     /* a */
     a {
       cursor: pointer;

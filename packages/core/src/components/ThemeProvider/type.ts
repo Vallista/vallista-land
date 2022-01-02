@@ -73,6 +73,8 @@ export const Layers = {
   BACKGROUND: -1,
   /** 기본 */
   STANDARD: 0,
+  /** 기본 */
+  AFTER_STANDARD: 10,
   /** 앞 배경 */
   FOREGROUND: 100,
   /** 모달 */

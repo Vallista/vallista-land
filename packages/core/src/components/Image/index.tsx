@@ -68,6 +68,7 @@ export const ImageComponent: VFC<ImageProps> = (props) => {
 const Container = styled.figure<{ show: boolean } & Pick<ImageProps, 'width' | 'height' | 'margin'>>`
   display: block;
   text-align: center;
+
   ${({ show, margin }) => css`
     margin: ${margin ?? 0}px 0;
     opacity: ${show ? 1 : 0};
