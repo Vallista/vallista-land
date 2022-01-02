@@ -71,7 +71,7 @@ B마트의 앱으로 고객이 주문해서 전달받기까지의 간략한 플�
 
 #### HTML 형태는 동일하다
 
-영수증 기기는 표준 규격이 존재하기 때문에 사이즈 (400*min600)으로 구현하면 대다수의 경우에 잘 출력이 된다.
+영수증 기기는 표준 규격이 존재하기 때문에 사이즈 (400\*min600)으로 구현하면 대다수의 경우에 잘 출력이 된다.
 
 ### 실제 구현하기
 
@@ -90,7 +90,7 @@ B마트의 앱으로 고객이 주문해서 전달받기까지의 간략한 플�
 이러한 프로세스를 구축해두면 추후 로직이 수정되야 할 때 혹은, 브라우저 지원으로 인해서 다양한 대응로직이 들어가야할 때 등 관심사의 분리를 진행할 수 있다.
 
 > **iframe을 왜 사용하는가?**
-> 
+>
 > window.print() 기능은 현재 페이지의 보이는 모든 요소들(graphics layer로 출력되어야 할 요소를 추린 것들)을 프린트한다.
 > 그렇기 때문에 보통 브라우저에서 영수증 개발을 진행할 때는, iframe을 기반으로 새로운 html 요소를 만들어 그 안에 데이터를 렌더링하고 body의 이벤트로 onload 이벤트를 걸어, 모두 로드가 되었을 때 print() 를 호출한다.
 
@@ -123,7 +123,7 @@ B마트의 앱으로 고객이 주문해서 전달받기까지의 간략한 플�
 
 #### Receipt.context.ts
 
-```tsx
+```tsx {numberLines}
 import { createContext } from '_utils/createContext'
 
 import { ReceiptState } from './Receipt.type'
@@ -139,7 +139,7 @@ export const useReceiptContext = useContext
 
 #### Receipt.style.ts
 
-```tsx
+```tsx {numberLines}
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 
@@ -175,7 +175,7 @@ export { Container, ... }
 
 ### Receipt.tsx
 
-```tsx
+```tsx {numberLines}
 import { FC } from 'react'
 
 import { ReceiptContext } from './Receipt.context'
@@ -197,7 +197,7 @@ export const ReceiptProvider: FC = (props) => {
 
 ### Receipt.type.ts
 
-```tsx
+```tsx {numberLines}
 import { FC } from 'react'
 
 type ReceiptType = 'USER_ORDER_RECEIPT_ID'
@@ -271,7 +271,7 @@ export type { Receipt, ReceiptState, ReceiptHook, ReceiptContainerProps, Receipt
 
 #### useReceiptState.ts
 
-```tsx
+```tsx {numberLines}
 import { useState } from 'react'
 
 import { Receipt, ReceiptState } from './Receipt.type'
@@ -299,7 +299,7 @@ export function useReceiptState<T>(props: T): T & ReceiptState {
 
 #### useReceipt.tsx
 
-```tsx
+```tsx {numberLines}
 /**
  * # useReceipt
  *
@@ -359,9 +359,7 @@ const ReceiptContainer: FC<ReceiptContainerProps> = (props) => {
 - executePrint: 실제 컴포넌트에서 request를 받으면 데이터를 fetch 받아 사용할 수 있도록 제공한다. executePrint를 실제로 사용해야 프린트를 진행한다. createReceiptHTML에 관해서는 밑에서 서술한다.
 - ReceiptContainer로 React Component가 존재하고, field로 받게 되는데, Styled로만 제공하면 따르지 않을 수 있으므로 아에 제공을 해버렸다.
 
-```tsx
-
-
+```tsx {numberLines}
 interface CustomHeadParam {
   /** html의 헤드 타이틀 @default "Receipt"*/
   title: string
@@ -445,8 +443,8 @@ emotion.js으로 스타일을 하게 되면, 위와 같이 element에 class 이�
 
 이러한 rule로 제공된 css를 가져오려면 아래와 같은 코드를 작성하면 된다.
 
-```ts
-[...document.styleSheets].map((it) => it.cssRules).flatMap((it) => [...it].flatMap((it_) => it_.cssText))
+```ts {numberLines}
+;[...document.styleSheets].map((it) => it.cssRules).flatMap((it) => [...it].flatMap((it_) => it_.cssText))
 ```
 
 - document.styleSheets는 현재 문서의 모든 styleSheets를 가져온다.
@@ -471,7 +469,7 @@ emotion.js으로 스타일을 하게 되면, 위와 같이 element에 class 이�
 
 ### 사용해보기
 
-```tsx
+```tsx {numberLines}
 export const UserOrderReceipt: VFC = () => {
   const { orderId, executePrint, availablePrint, ReceiptContainer } = useReceipt()
 

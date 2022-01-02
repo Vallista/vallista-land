@@ -34,12 +34,11 @@ vue.js 에서 생성부터 파괴 될 때 까지의 한 사이클을 돌아가�
 
 클라이언트, 서버 렌더링 단에서 처리해야할 일이 있다면 이 곳에서 처리하면 된다.
 
-
 - new Vue()
 
 Vue Instance를 생성하는 단계이다.
 
--  Init (Events & Lifecycle)
+- Init (Events & Lifecycle)
 
 Event와 Lifecycle을 초기화 하는 단계.
 
@@ -47,7 +46,7 @@ Event와 Lifecycle을 초기화 하는 단계.
 
 가장 처음으로 가져다 쓸 수 있는 함수이다.
 
-```javascript
+```javascript {numberLines}
 <script>
   export default {
     beforeCreate() {
@@ -70,7 +69,7 @@ Event와 Lifecycle을 초기화 하는 단계.
 데이터, 이벤트 등이 주입되어 반응이 되었다.
 template과 virtual DOM은 아직 mount 및 rendering 되지 않은 상황이라서 사용했다간 에러를 뱉는다.
 
-```javascript
+```javascript {numberLines}
   export default {
     created() {
 
@@ -107,7 +106,7 @@ new Vue를 작성시 instance 안에 el option으로 아이디나 클래스를 �
 
 렌더링 전 최초 1회 실행하는 함수.
 
-```javascript
+```javascript {numberLines}
 export default {
   beforeMount() {
 
@@ -128,7 +127,7 @@ vm.$el을 아까 컴파일 한 대상으로 만들고, el을 교체한다.
 
 렌더링 후 실행하는 함수, 컴포넌트, 템플릿, 렌더링 된 돔에 접근 할 수 있다. 근데 확실히 모든 컴포넌트의 마운트된 상태를 보장하진 않는다. vm.$nextTick을 사용하여 전체가 렌더링된 상태를 보장할 수 있다.
 
-```javascript
+```javascript {numberLines}
 export default {
   mounted() {
     this.$nextTick(function () {
@@ -145,10 +144,10 @@ export default {
 서버렌더링 시에는 호출되지 않음.
 
 - beforeUpdate
-컴포넌트의 데이터가 변하여 업데이트 사이클이 시작될 때 실행됨.
-돔이 재 렌더링되고 패치 직전 실행. 바로 전의 데이터들을 얻을 수 있어서 많은 변경이 가능해짐. 다만 여기서의 변경은 적용되지 않음.
+  컴포넌트의 데이터가 변하여 업데이트 사이클이 시작될 때 실행됨.
+  돔이 재 렌더링되고 패치 직전 실행. 바로 전의 데이터들을 얻을 수 있어서 많은 변경이 가능해짐. 다만 여기서의 변경은 적용되지 않음.
 
-```javascript
+```javascript {numberLines}
 export default {
   beforeUpdate() {
     this.$nextTick(function () {
@@ -159,11 +158,11 @@ export default {
 ```
 
 - updated
-재 렌더링이 일어난 후에 실행되는 훅.
-DOM이 업데이트 되었으므로 돔 종속적인 연산이 가능.
-mount와 마찬가지로 vm.$nextTick을 사용해서 렌더링 확정을 걸 수 있다.
+  재 렌더링이 일어난 후에 실행되는 훅.
+  DOM이 업데이트 되었으므로 돔 종속적인 연산이 가능.
+  mount와 마찬가지로 vm.$nextTick을 사용해서 렌더링 확정을 걸 수 있다.
 
-```javascript
+```javascript {numberLines}
 export default {
   updated() {
     this.$nextTick(function () {

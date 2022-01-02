@@ -9,7 +9,6 @@ draft: false
 info: false
 ---
 
-
 ![0](./assets/0.png)
 
 <br/>
@@ -47,7 +46,7 @@ React와 Redux, Redux Saga 그리고 TypeScript를 가이드 문사를 참고하
 
 **modules/employee.ts**
 
-```ts
+```ts {numberLines}
 import fetch from 'node-fetch'
 
 export interface IEmployee {
@@ -59,13 +58,12 @@ export interface IEmployee {
 }
 
 export const fetchEmployees = (): Promise<IEmployee> => {
-  return fetch('http://dummy.restapiexample.com/api/v1/employees')
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(res.statusText)
-      }
-      return res.json() as Promise<IEmployee>
-    })
+  return fetch('http://dummy.restapiexample.com/api/v1/employees').then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText)
+    }
+    return res.json() as Promise<IEmployee>
+  })
 }
 ```
 
@@ -77,13 +75,9 @@ Redux를 사용한 스토어입니다. 상태와 액션을 생성하고 관리�
 
 **reducers.ts**
 
-```ts
-import {
-  ActionType,
-  createReducer,
-  createAsyncAction
-} from 'typesafe-actions'
-import { IEmployee } from '../apis/modules/employee';
+```ts {numberLines}
+import { ActionType, createReducer, createAsyncAction } from 'typesafe-actions'
+import { IEmployee } from '../apis/modules/employee'
 
 const FETCH_EMPLOYEES = {
   REQUEST: 'EMPLOYEES_FETCH_REQUEST',
@@ -91,9 +85,7 @@ const FETCH_EMPLOYEES = {
   FAILURE: 'EMPLOYEES_FETCH_FAILURE'
 }
 
-interface IRequest {
-
-}
+interface IRequest {}
 
 interface IResponse {
   employees: IEmployee[]
@@ -103,15 +95,18 @@ interface IError {
   message: string
 }
 
-export const fetchEmployees =
-  createAsyncAction(FETCH_EMPLOYEES.REQUEST, FETCH_EMPLOYEES.SUCCESS, FETCH_EMPLOYEES.FAILURE)<IRequest, IResponse, IError>()
+export const fetchEmployees = createAsyncAction(
+  FETCH_EMPLOYEES.REQUEST,
+  FETCH_EMPLOYEES.SUCCESS,
+  FETCH_EMPLOYEES.FAILURE
+)<IRequest, IResponse, IError>()
 
 const actions = {
   fetchEmployees
 }
 
 type Actions = ActionType<typeof actions>
-type State = { employees: IEmployee[], message: string }
+type State = { employees: IEmployee[]; message: string }
 
 const initialState: State = { employees: [], message: '' }
 
@@ -135,7 +130,7 @@ Reducer에는 현재 상태를 새로운 상태로 바꾸는 로직이 존재합
 
 **sagas.ts**
 
-```ts
+```ts {numberLines}
 import { takeEvery, call, put } from 'redux-saga/effects'
 
 import { fetchEmployees } from '../apis/modules/employee'
@@ -150,7 +145,7 @@ function* fetch() {
 }
 
 export default function* sagas() {
-  yield takeEvery("EMPLOYEES_FETCH_REQUEST", fetch)
+  yield takeEvery('EMPLOYEES_FETCH_REQUEST', fetch)
 }
 ```
 
@@ -164,7 +159,7 @@ Sagas에서는 프로젝트에 쓰이는 다양한 비동기 로직은 javascrip
 
 **index.ts**
 
-```ts
+```ts {numberLines}
 import { applyMiddleware, createStore } from 'redux'
 import createSagaMiddleware from 'redux-saga'
 
@@ -180,7 +175,6 @@ const store = createStore(reducers, applyMiddleware(sagaMiddleware))
 sagaMiddleware.run(sagas)
 
 export default store
-
 ```
 
 `index.ts` 에서는 store를 설정하고 saga middleware를 실행시킵니다. saga가 실행되면 지속적으로 감시를 시작하게 됩니다.
@@ -189,7 +183,7 @@ export default store
 
 **useEmployee.tsx**
 
-```ts
+```ts {numberLines}
 import { useSelector, useDispatch } from 'react-redux'
 import * as actions from '../../store/reducers'
 import { RootState } from '../../store'
@@ -219,7 +213,7 @@ useSelector와 dispatch를 이용해 액션과 상태를 실시간으로 요청�
 
 **home.tsx**
 
-```ts
+```ts {numberLines}
 import React, { useEffect } from 'react'
 
 import useEmployee from '../../hooks/useEmployee'
@@ -233,10 +227,14 @@ const Home: React.FC = () => {
     fetchEmployees()
   }, [])
 
-  return <div>
-    Home!
-    {employeeState.map((employee, index) => <Employee {...employee} key={index} />)}
-  </div>
+  return (
+    <div>
+      Home!
+      {employeeState.map((employee, index) => (
+        <Employee {...employee} key={index} />
+      ))}
+    </div>
+  )
 }
 
 export default Home
@@ -268,14 +266,10 @@ export default Home
 
 **store/modules/activity/reducer.ts**
 
-```ts
-import {
-  ActionType,
-  createReducer,
-  createAsyncAction
-} from 'typesafe-actions'
+```ts {numberLines}
+import { ActionType, createReducer, createAsyncAction } from 'typesafe-actions'
 
-import { IActivity } from '../../../apis/modules/activity';
+import { IActivity } from '../../../apis/modules/activity'
 
 export const FETCH_ACTIVITIES = {
   REQUEST: 'FETCH_ACTIVITIES_REQUEST',
@@ -283,9 +277,7 @@ export const FETCH_ACTIVITIES = {
   FAILURE: 'FETCH_ACTIVITIES_FAILURE'
 }
 
-interface IRequest {
-
-}
+interface IRequest {}
 
 interface IResponse {
   activities: IActivity[]
@@ -295,14 +287,18 @@ interface IError {
   message: string
 }
 
-export const fetchActivities = createAsyncAction(FETCH_ACTIVITIES.REQUEST, FETCH_ACTIVITIES.SUCCESS, FETCH_ACTIVITIES.FAILURE)<IRequest, IResponse, IError>()
+export const fetchActivities = createAsyncAction(
+  FETCH_ACTIVITIES.REQUEST,
+  FETCH_ACTIVITIES.SUCCESS,
+  FETCH_ACTIVITIES.FAILURE
+)<IRequest, IResponse, IError>()
 
 const actions = {
   fetchActivities
 }
 
 type Actions = ActionType<typeof actions>
-type State = { activities: IActivity[], message: string }
+type State = { activities: IActivity[]; message: string }
 
 const initialState: State = { activities: [], message: '' }
 
@@ -324,7 +320,7 @@ reducer는 기존의 reducers와 별 다르지 않습니다. 다만 `FETCH_ACTIV
 
 **store/modules/activity/saga.ts**
 
-```ts
+```ts {numberLines}
 import { takeEvery, call, put } from 'redux-saga/effects'
 
 import { fetchActivities } from '../../../apis/modules/activity'
@@ -339,9 +335,7 @@ function* fetch() {
   }
 }
 
-export default [
-  takeEvery(FETCH_ACTIVITIES.REQUEST, fetch)
-]
+export default [takeEvery(FETCH_ACTIVITIES.REQUEST, fetch)]
 ```
 
 saga에서는 `FETCH_ACTIVITIES` 를 가져와서 type에 넣어줍니다. 기존에는 string 으로 직접 타이핑을 진행했지만 이렇게 불러와서 사용하게 되면 실수 없이 사용할 수 있습니다.
@@ -350,7 +344,7 @@ saga에서는 `FETCH_ACTIVITIES` 를 가져와서 type에 넣어줍니다. 기�
 
 **store/modules/activity/index.ts**
 
-```ts
+```ts {numberLines}
 import reducer from './reducer'
 import saga from './saga'
 
@@ -367,20 +361,21 @@ export default {
 
 **store/modules/index.ts**
 
-```ts
+```ts {numberLines}
 import { combineReducers } from 'redux'
 import { ForkEffect } from 'redux-saga/effects'
 
 import employee from './employee'
 import activity from './activity'
 
-const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) => function* () {
-  const targetSagas = Object.values(param).flat()
+const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) =>
+  function* () {
+    const targetSagas = Object.values(param).flat()
 
-  for (let i = 0; i < targetSagas.length; i++) {
-    yield targetSagas[i]
+    for (let i = 0; i < targetSagas.length; i++) {
+      yield targetSagas[i]
+    }
   }
-}
 
 export default {
   rootReducer: combineReducers({ employee: employee.reducer, activity: activity.reducer }),
@@ -396,7 +391,7 @@ modules/index.ts에서는 모듈들을 한데 모아서 rootReducer와 rootSagas
 
 **src/pages/home.tsx**
 
-```ts
+```ts {numberLines}
 import React, { useEffect } from 'react'
 
 import useEmployee from '../../hooks/useEmployee'
@@ -414,12 +409,18 @@ const Home: React.FC = () => {
     fetchActivities()
   }, [])
 
-  return <div>
-    Home!
-    {employeeState.map((employee, index) => <Employee {...employee} key={index} />)}
-    <hr />
-    {activities.map((activity, index) => <Activity {...activity} key={index} />)}
-  </div>
+  return (
+    <div>
+      Home!
+      {employeeState.map((employee, index) => (
+        <Employee {...employee} key={index} />
+      ))}
+      <hr />
+      {activities.map((activity, index) => (
+        <Activity {...activity} key={index} />
+      ))}
+    </div>
+  )
 }
 
 export default Home
@@ -445,23 +446,22 @@ fetchEmployees와 동일하게 custom hook도 만들어주고 useEffect에서 �
 
 **modules/activity.ts**
 
-```ts
+```ts {numberLines}
 import fetch from 'node-fetch'
-import { IActivity } from '../../store/modules/activity/reducer';
+import { IActivity } from '../../store/modules/activity/reducer'
 
-export interface IRequest { }
+export interface IRequest {}
 export interface IError {
   message: string
 }
 
 const fetchActivities = (): Promise<IActivity[]> => {
-  return fetch('http://fakerestapi.azurewebsites.net/api/Activities')
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(res.statusText)
-      }
-      return res.json() as Promise<IActivity[]> // 수정 필요
-    })
+  return fetch('http://fakerestapi.azurewebsites.net/api/Activities').then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText)
+    }
+    return res.json() as Promise<IActivity[]> // 수정 필요
+  })
 }
 
 export default {
@@ -471,11 +471,11 @@ export default {
 
 **modules/employee.ts**
 
-```ts
+```ts {numberLines}
 import fetch from 'node-fetch'
 import { IEmployee } from '../../store/modules/employee/reducer'
 
-export interface IRequest { }
+export interface IRequest {}
 
 export interface IResponse {
   status: string
@@ -487,13 +487,12 @@ export interface IError {
 }
 
 const fetchEmployees = (): Promise<IResponse> => {
-  return fetch('http://dummy.restapiexample.com/api/v1/employees')
-    .then(res => {
-      if (!res.ok) {
-        throw new Error(res.statusText)
-      }
-      return res.json() as Promise<IResponse>
-    })
+  return fetch('http://dummy.restapiexample.com/api/v1/employees').then((res) => {
+    if (!res.ok) {
+      throw new Error(res.statusText)
+    }
+    return res.json() as Promise<IResponse>
+  })
 }
 
 export default {
@@ -511,7 +510,7 @@ export default {
 
 **lib/index.ts**
 
-```ts
+```ts {numberLines}
 import {
   createAsyncAction as asyncActionCreator,
   AsyncActionCreatorBuilder,
@@ -574,20 +573,21 @@ export function createCustomReducer<S, A extends { [key: string]: any }>(state: 
   return createReducer<States, Actions>(state)
 }
 
-export const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) => function* () {
-  const targetSagas = Object.values(param).flat()
+export const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) =>
+  function* () {
+    const targetSagas = Object.values(param).flat()
 
-  for (let i = 0; i < targetSagas.length; i++) {
-    yield targetSagas[i]
+    for (let i = 0; i < targetSagas.length; i++) {
+      yield targetSagas[i]
+    }
   }
-}
 ```
 
 lib/index.ts는 Redux에서 공통으로 사용되는 함수의 모음입니다. 하나하나씩 차근차근 보도록 합시다.
 
 <br/>
 
-```ts
+```ts {numberLines}
 export type AsyncAction = {
   REQUEST: string
   SUCCESS: string
@@ -628,7 +628,7 @@ Redux는 Reducer에서 어떤 이벤트가 들어왔는지 감시를 진행합�
 
 <br/>
 
-```ts
+```ts {numberLines}
 export function createAsyncSaga<RequestType, RequestPayload, SuccessType, SuccessPayload, FailureType, FailurePayload>(
   asyncAction: AsyncActionCreatorBuilder<
     [RequestType, [RequestPayload, undefined]],
@@ -662,7 +662,7 @@ export function createAsyncSaga<RequestType, RequestPayload, SuccessType, Succes
 
 <br/>
 
-```ts
+```ts {numberLines}
 export function createCustomReducer<S, A extends { [key: string]: any }>(state: S, action: A) {
   type Actions = ActionType<typeof action>
   type States = typeof state
@@ -670,13 +670,14 @@ export function createCustomReducer<S, A extends { [key: string]: any }>(state: 
   return createReducer<States, Actions>(state)
 }
 
-export const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) => function* () {
-  const targetSagas = Object.values(param).flat()
+export const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) =>
+  function* () {
+    const targetSagas = Object.values(param).flat()
 
-  for (let i = 0; i < targetSagas.length; i++) {
-    yield targetSagas[i]
+    for (let i = 0; i < targetSagas.length; i++) {
+      yield targetSagas[i]
+    }
   }
-}
 ```
 
 `createCustomReducer`는 Reducer를 쉽게 만들어주는 함수입니다. 이 함수를 사용하게 되면 state와 action에 대해서 타입을 생성하지 않아도 됩니다.
@@ -685,7 +686,7 @@ export const combineSagas = (param: { [key: string]: ForkEffect<never>[] }) => f
 
 **modules/activity/reducer.ts**
 
-```ts
+```ts {numberLines}
 import { createAsyncAction, createActionEntity, createCustomReducer } from '../../lib'
 import { IRequest, IError } from '../../../apis/modules/activity'
 
@@ -702,10 +703,7 @@ export const fetch = createActionEntity<IRequest, IActivity[], IError>(FETCH)
 const actions = { fetch }
 const state = { activities: [] as IActivity[], message: '' }
 
-const reducer = createCustomReducer(
-  state,
-  actions
-)
+const reducer = createCustomReducer(state, actions)
   .handleAction(fetch.success, (state, action) => {
     return { ...state, activities: action.payload }
   })
@@ -722,7 +720,7 @@ export default reducer
 
 **modules/activity/saga.ts**
 
-```ts
+```ts {numberLines}
 import { takeEvery } from 'redux-saga/effects'
 
 import API from '../../../apis/modules/activity'
@@ -731,9 +729,7 @@ import { fetch } from './reducer'
 
 const asyncFetchSaga = createAsyncSaga(fetch, API.fetchActivities)
 
-export default [
-  takeEvery(fetch.request, asyncFetchSaga)
-]
+export default [takeEvery(fetch.request, asyncFetchSaga)]
 ```
 
 saga 또한 기존 activity/saga.ts와 비교해 코드가 많이 줄은 것을 확인할 수 있습니다. modules/activity를 예로 들었지만 modules/employee도 동일하게 코드가 최적화된 걸 확인할 수 있습니다.

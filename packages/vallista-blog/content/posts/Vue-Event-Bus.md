@@ -22,65 +22,67 @@ Event Bus는 기본적으로 제작한 vue 컴포넌트에서 새로운 vue inst
 
 vue instance를 새로 만들어서 $on으로 이벤트를 만들어주고, $emit으로 호출하면 끝이다. 아래의 예제를 보도록 하자.
 
-```javascript
+```javascript {numberLines}
 Vue.component('button-component', {
-    name: 'button-component',
-    template: '<button @click="this.clickEvent">Alert Print!</button>',
-    methods: {
-        clickEvent: function() {
-            EventBus.$emit('addAlert', { description: Math.random().toString()});
-        }
+  name: 'button-component',
+  template: '<button @click="this.clickEvent">Alert Print!</button>',
+  methods: {
+    clickEvent: function () {
+      EventBus.$emit('addAlert', { description: Math.random().toString() })
     }
-});
+  }
+})
 
 Vue.component('alert-box', {
-    name: 'alert-box',
-    props: {
-        index: '',
-        description: ''
-    },
-    mounted: function() {
-        setTimeout(function() {
-            EventBus.$emit('deleteAlert');
-        }, 2000);
-    },
-    template: '<div :class="`alert-box-${this.index}`" class="alert-box alert-box-start flex-container flex-center-sort flex-column">' +
-        '<div class="title flex-container flex-center-sort flex-column"><div class="title-image-background"></div><img class="title-image" src="image.png"/></div>' +
-        '<div class="description flex-container flex-center-sort flex-column">{{this.description}}</div>' +
+  name: 'alert-box',
+  props: {
+    index: '',
+    description: ''
+  },
+  mounted: function () {
+    setTimeout(function () {
+      EventBus.$emit('deleteAlert')
+    }, 2000)
+  },
+  template:
+    '<div :class="`alert-box-${this.index}`" class="alert-box alert-box-start flex-container flex-center-sort flex-column">' +
+    '<div class="title flex-container flex-center-sort flex-column"><div class="title-image-background"></div><img class="title-image" src="image.png"/></div>' +
+    '<div class="description flex-container flex-center-sort flex-column">{{this.description}}</div>' +
     '</div>'
-});
+})
 
 Vue.component('alert-box-list', {
-    name: 'alert-box-list',
-    data: function() {
-        return {
-            alertList: []
-        };
+  name: 'alert-box-list',
+  data: function () {
+    return {
+      alertList: []
+    }
+  },
+  methods: {
+    addAlert: function ({ description }) {
+      this.alertList.push({ description })
     },
-    methods: {
-        addAlert: function({ description }) {
-            this.alertList.push({ description });
-        },
-        deleteAlert: function() {
-            this.alertList.shift();
-        }
-    },
-    created: function() {
-        this.alertList = [];
-        EventBus.$on('addAlert', this.addAlert);
-        EventBus.$on('deleteAlert', this.deleteAlert);
-    },
-    template: '<ul><li v-for="(value, index) in alertList">' +
+    deleteAlert: function () {
+      this.alertList.shift()
+    }
+  },
+  created: function () {
+    this.alertList = []
+    EventBus.$on('addAlert', this.addAlert)
+    EventBus.$on('deleteAlert', this.deleteAlert)
+  },
+  template:
+    '<ul><li v-for="(value, index) in alertList">' +
     '<alert-box :description="value.description" :index="index" :key="index">' +
     '</alert-box>' +
     '</li></ul>'
-});
+})
 
-var EventBus = new Vue();
+var EventBus = new Vue()
 
 new Vue({
-    el: '#app'
-});
+  el: '#app'
+})
 ```
 
 해당 소스는 alert-box-list 컴포넌트와 button-component가 통신하는 과정을 보여준다.

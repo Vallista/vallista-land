@@ -71,7 +71,7 @@ SPA(Single App Application)의 대두는 위의 모바일 기기 성능 향상�
 
 기본적으로 `cursor: pointer` 옵션을 주면 모바일에서 터치 시 터치 레이어가 잡혀요! 아래와 같이 CSS를 주세요!
 
-```css
+```css {numberLines}
 -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 -webkit-touch-callout: none;
 -webkit-user-select: none;
@@ -91,7 +91,7 @@ user-select: none;
 
 #### Button
 
-```css
+```css {numberLines}
 input {
   padding: 0;
   outline: none;
@@ -103,7 +103,7 @@ input {
 
 #### Input
 
-```css
+```css {numberLines}
 input {
   -webkit-appearance: none;
   padding: 0;
@@ -116,7 +116,7 @@ input {
 
 #### Body
 
-```css
+```css {numberLines}
 body {
   margin: 0;
   -webkit-user-select: none;
@@ -127,8 +127,9 @@ body {
 
 #### ul, ol
 
-```css
-ul, ol {
+```css {numberLines}
+ul,
+ol {
   list-style: none;
   margin: 0;
 }
@@ -136,8 +137,24 @@ ul, ol {
 
 #### Header, p, etc..
 
-```css
-h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, em, figure, figcaption, address {
+```css {numberLines}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+em,
+figure,
+figcaption,
+address {
   padding: 0;
   margin: 0;
   font: inherit;
@@ -152,7 +169,7 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, em, figure, figcaption, addre
 
 아주 쉽게 대응할 수 있는 방법은 아래와 같습니다.
 
-```css
+```css {numberLines}
 .modal-wrapper {
   position: fixed;
   left: 0;
@@ -173,11 +190,11 @@ h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, em, figure, figcaption, addre
 
 모바일 사파리에서 `position: fixed`를 주고, fixed Element 위에서 스크롤을 하다보면 스크롤이 흔들리는 이슈가 있습니다. 해당 이슈를 해결하는 방법은 아래와 같습니다.
 
-```css
+```css {numberLines}
 .modal-wrapper {
   position: fixed;
   -webkit-transform: translateZ(0);
-  ...
+  ...;
 }
 ```
 

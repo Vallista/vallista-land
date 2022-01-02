@@ -130,27 +130,25 @@ KG이니시스 이메일 고지
 
 첫 번째부터 굉장히 큰 벽이 느껴집니다. 여기서 `inline style`이라는 것은 아래와 같이 style 태그로 감싼 코드가 아닙니다.
 
-```html
+```html {numberLines}
 <head>
   <style>
     .table-wrapper {
       background-color: #fff;
-      ...
+      ...;
     }
   </style>
 </head>
 <body>
-  <div class="table-wrapper">
-  </div>
+  <div class="table-wrapper"></div>
 </body>
 ```
 
 이렇게 할 수 있다면 희망이 보이겠지만 아쉽게도 아닙니다. 그래서 아래와 같이 작업을 해야합니다.
 
-```html
+```html {numberLines}
 <body>
-  <div style="backgroundColor: #fff">
-  </div>
+  <div style="backgroundColor: #fff"></div>
 </body>
 ```
 
@@ -176,7 +174,7 @@ KG이니시스 이메일 고지
 
 여러가지 템플릿 엔진 중에서 많이 쓰이는 템플릿 중 하나는 [Free Marker](https://freemarker.apache.org/)가 있을 겁니다. 아무래도 Java 개발자가 많다보니 익숙한 템플릿을 선호하게 되는데 지금에서야 [Free Marker](https://freemarker.apache.org/)는 많이 사용되지 않으나 과거에 만들어졌던 다양한 이메일 솔루션은 [Free Marker](https://freemarker.apache.org/)로 많이 사용되었습니다.
 
-```html
+```html {numberLines}
 <html>
 <head>
   <title>${title}
@@ -215,7 +213,7 @@ KG이니시스 이메일 고지
 
 ### 두 번째 :: 본격적인 작성 시작
 
-이제 레이아웃을 본격적으로 코딩해보도록 합시다. 
+이제 레이아웃을 본격적으로 코딩해보도록 합시다.
 
 #### DOCTYPE
 
@@ -231,10 +229,10 @@ DOCTYPE은 브라우저에게 문서의 형식을 어떤 형식으로 사용할 
 
 즉, frameset을 사용하지 못하고 XML 문법을 사용하는 규제가 강한 문법의 형태라고 볼 수 있습니다. 이 형태를 사용하게 되면 이메일 클라이언트에서는 신뢰할 수 있는 형식으로 인지하여 유효성 검사 및 렌더링에 도움을 줍니다.
 
-```html
+```html {numberLines}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-...
+  ...
 </html>
 ```
 
@@ -242,13 +240,13 @@ DOCTYPE은 브라우저에게 문서의 형식을 어떤 형식으로 사용할 
 
 문서 초기 설정이 변경되었으므로(HTML -> XHTML) meta 태그로 설정을 해줍시다. 해당 meta 태그로 설정을 해주게 되면 캐릭터셋과 문서의 포맷을 설정할 수 있습니다.
 
-```html
+```html {numberLines}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>이메일 고지</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
     ...
@@ -264,32 +262,27 @@ DOCTYPE은 브라우저에게 문서의 형식을 어떤 형식으로 사용할 
 > 하지만 이렇게 되면 gmail에서 제대로 반응하지 않으므로 조심하세요!
 > P.S 일반적으로 600이상 800미만을 지키는게 좋습니다.
 
-
 #### BODY
 
 위에서 언급되었던 네이버, 다음과 같은 국내의 이메일 플랫폼은 `<body>` 태그를 삭제해버립니다. 그래서 body 대신으로 사용될 수 있는 태그가 필요한데, 이 태그는 위에 언급했던 것 처럼 `<div>` 태그 대신 `<table>` 태그를 사용하여 감싸줍시다.
 
-```html
+```html {numberLines}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>이메일 고지</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
     <table border="0" cellpadding="0" cellspacing="0" width="100%" id="container">
       <tr>
         <td>
-          
           <table border="0" cellpadding="0" cellspacing="0" width="800">
             <tr>
-              <td>
-                안녕하세요.
-              </td>
+              <td>안녕하세요.</td>
             </tr>
           </table>
-
         </td>
       </tr>
     </table>
@@ -300,8 +293,9 @@ DOCTYPE은 브라우저에게 문서의 형식을 어떤 형식으로 사용할 
 <br/>
 
 > `<table border="0" cellpadding="0" cellspacing="0" width="800"></table>`
-> 
+>
 > 기본적으로 위 옵션 형태로 코딩하는 걸 권장 드립니다. 기본 값을 초기화하지 않아 생기는 문제에 대해서 해결할 수 있습니다.
+>
 > - border: 보더
 > - cellpadding: cell내의 패딩값
 > - cellspacing: cell의 간격
@@ -318,7 +312,7 @@ html에 Table 코딩을 진행하셨다면 이제 스타일을 넣을 차례입�
 
 이 두 가지 방법을 사용하면 `<style>` 태그를 사용하더라도 inline화 시킬 수 있기 때문에 조금 더 편리하게 작성할 수 있습니다.
 
-```css
+```css {numberLines}
 body {
   width: 100% !important;
   height: 100%;
@@ -332,27 +326,37 @@ body {
   box-sizing: border-box;
 }
 
-img, a, button {
+img,
+a,
+button {
   border: 0;
   outline: none;
   text-decoration: none;
 }
 
-h1, h2, h3, h4, p, span, strong, strike {
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+strong,
+strike {
   padding: 0;
   margin: 0;
   font-size: 14px;
   font-weight: 400;
 }
 
-table, td {
+table,
+td {
   border-collapse: collapse;
 }
 ```
 
 공통된 부분을 첫 번째로 작성해줍니다. 개발이 완료될 쯔음 class를 차례대로 선언해주고 확장시켜줍니다.
 
-```css
+```css {numberLines}
 .img-wrapper {
   width: 100%;
   height: auto;
@@ -364,8 +368,9 @@ table, td {
 
 또한 최종 마무리 시 각 플랫폼 별 예외처리 코드를 작성해주도록 합시다.
 
-```css
-table, td {
+```css {numberLines}
+table,
+td {
   /* mso는 microsoft outlook의 약자입니다. */
   /* outlook 2007 이상에서 강제로 추가하는 테이블 주위의 간격을 제거 해줍니다. */
   mso-table-lspace: 0pt;
@@ -377,7 +382,13 @@ img {
   -ms-interpolation-mode: bicubic;
 }
 
-body, table, td, p, a, li, blockquote {
+body,
+table,
+td,
+p,
+a,
+li,
+blockquote {
   /* IE와 Safari에서 텍스트 크기 및 내부 데이터 크기를 자동으로 줄여서 텍스트가 빠져나가지 않도록 크기를 잡아주는 설정입니다. */
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: auto;
@@ -396,7 +407,7 @@ body, table, td, p, a, li, blockquote {
 
 **Before**
 
-```html
+```html {numberLines}
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td></td>
@@ -414,16 +425,16 @@ body, table, td, p, a, li, blockquote {
 
 **After**
 
-```html
+```html {numberLines}
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
     <td>
       <table border="0" cellpadding="0" cellspacing="0" width="100%">
         <tr>
           <td></td>
-        <td></td>
-        <td></td>
-      </tr>
+          <td></td>
+          <td></td>
+        </tr>
       </table>
     </td>
   </tr>
@@ -450,21 +461,19 @@ body, table, td, p, a, li, blockquote {
 
 이미지 태그는 인라인 스타일로 width와 height를 주기보다, Property로 줄 수 있는 width, height로 주는게 좋습니다.
 
-```html
-<img src="https://example.com/image1.png" width="400" height="400" alt="image1">
+```html {numberLines}
+<img src="https://example.com/image1.png" width="400" height="400" alt="image1" />
 ```
 
 #### 텍스트
 
 자주 사용하던 `p`, `h1`, `h2`, `h3`와 같은 텍스트는 사용하지 않습니다. 그 이유는 이메일 플랫폼들은 과거 방식의 `table` 코드 작성을 택하고 있으며 그 때의 최적화된 텍스트 작성법은 `<td>` 태그 안에 텍스트를 삽입하는 방법이었기 때문입니다. `시맨틱 웹`이라고 하는 알아보기 쉽도록 상황에 맞게 태그를 적절히 쓰는 방법은 과거에는 많이 사용하지 않았기 때문에 해당 규칙을 신경쓰면서 작성하지 않으셔야 합니다.
 
-```html
+```html {numberLines}
 <!-- 텍스트를 그냥쓰거나 -->
 <table>
   <tr>
-    <td>
-      안녕하세요.
-    </td>
+    <td>안녕하세요.</td>
   </tr>
 </table>
 
@@ -485,7 +494,7 @@ body, table, td, p, a, li, blockquote {
 - 색상을 `rgb`나 `rgba` 형식으로 작성하면 호환되지 않는 이메일 플랫폼이 있습니다. 그래서 `#`를 사용하는 Hexadecimal Colors를 이용하여아 합니다.
 - Background 옵션이 적용되지 않는 이메일 플랫폼이 존재합니다. 그러므로 bgcolor 옵션으로 조정해주도록 합시다.
 
-```html
+```html {numberLines}
 <!-- 올바르지 않은 기입 -->
 <td style="backgroundColor: #fff"></td>
 <!-- 올바른 기입 -->
@@ -498,7 +507,7 @@ body, table, td, p, a, li, blockquote {
 
 - 무조껀 클래스는 여러개 사용하면 안됩니다. 위에서 언급했듯 단 하나의 id를 가지고 코딩하는 걸 추천드리며, 동일한 옵션을 가진 태그일 때 단일 클래스로 이용하는 걸 추천드립니다.
 
-```html
+```html {numberLines}
 <!-- 올바르지 않은 기입 -->
 <td class="example1 example2"></td>
 <!-- 올바른 기입 -->
@@ -511,15 +520,15 @@ body, table, td, p, a, li, blockquote {
 
 - CSS는 여러 옵션을 단축해서 사용할 수 있게 지원합니다. 이러한 Property로는 `background`가 존재합니다. 위에서 언급했듯, 지원하지 않는 이메일 플랫폼이 있기 때문에 이 Property는 사용하면 안됩니다.
 
-```css
+```css {numberLines}
 /* 올바르지 않은 기입 */
 body {
-  background: lightblue url("img_tree.gif") no-repeat fixed center;
+  background: lightblue url('img_tree.gif') no-repeat fixed center;
 }
 /* 올바른 기입 */
 body {
   background-color: lightblue;
-  background-image: url("img_tree.gif");
+  background-image: url('img_tree.gif');
   background-repeat: no-repeat;
   background-size: fixed;
   background-position: center;
@@ -533,7 +542,7 @@ body {
 - 여러 이메일 플랫폼은 Margin Property를 제공하지 않습니다. 그래서 padding으로 거리를 두어야 합니다.
 - padding을 쓸 때 유의해야 하는 부분은 `padding: 0 0 0 10px` 처럼 모든 인자를 넣어주어야 한다는 점 입니다.
 
-```css
+```css {numberLines}
 /* 올바르지 않은 기입 */
 .common {
   padding: 12px 12px;

@@ -9,7 +9,6 @@ draft: false
 info: false
 ---
 
-
 ![main_image](./assets/image1.png)
 
 하나의 프로덕트를 개발하면서 웹은 들어갈 수 밖에 없는 필수 존재입니다. 특히나 최근의 웹 시장은 웹 프론트앤드 개발자가 부족해짐에 따라 서버 개발자들이 어드민을 개발하는 일이 종종 일어나고 있습니다. 하지만 서버 개발자 중에서 HTML/CSS를 잘하시는 분도 있지만 자신 없는 분도 있기 마련입니다. 이 포스팅은 이러한 HTML/CSS에 약하신 분을 위해 중요한 개념만 짚고 넘어가고자 준비한 글 입니다.
@@ -32,7 +31,7 @@ info: false
 
 ![image3](./assets/image3.png)
 
-위 사진을 보면 사각형의 형태를 띄는 파란색 상자를 볼 수 있을꺼에요. 모든 HTML의 Element는 사각형의 형태로 생겼습니다. 그 예외는 없어요. 그렇다면 이런 질문을 할 수 있을꺼에요. `어떤 레이아웃은 모서리가 둥근데 이 친구들은 둥근 형태가 아닐까요?!` 이 질문에 대해서는 `아니요! 그 친구들도 사각형 안에서 둥글게 만든 레이아웃이 존재하는거에요!` 라고 말할 수 있습니다. 
+위 사진을 보면 사각형의 형태를 띄는 파란색 상자를 볼 수 있을꺼에요. 모든 HTML의 Element는 사각형의 형태로 생겼습니다. 그 예외는 없어요. 그렇다면 이런 질문을 할 수 있을꺼에요. `어떤 레이아웃은 모서리가 둥근데 이 친구들은 둥근 형태가 아닐까요?!` 이 질문에 대해서는 `아니요! 그 친구들도 사각형 안에서 둥글게 만든 레이아웃이 존재하는거에요!` 라고 말할 수 있습니다.
 
 단순하게 생각하세요. **모든 HTML요소는 사각형으로 이루어져 있고, 사각형을 단장시키는 행위가 `CSS`입니다**.
 
@@ -62,24 +61,26 @@ Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되�
 
 <br/>
 
-```html
+```html {numberLines}
 <div>
   <h2>인재채용</h2>
-  <p>우아한형제들과 함께 성장할 수 있는 기회!<br><em class="highlight">지금이 바로 그 때</em>입니다.</p>
+  <p>우아한형제들과 함께 성장할 수 있는 기회!<br /><em class="highlight">지금이 바로 그 때</em>입니다.</p>
 
   <table style="margin-top:40px">
-    <caption>개발직군 채용</caption>
+    <caption>
+      개발직군 채용
+    </caption>
     <tbody data-role="bind" data-name="recruits_develop" data-type="main-recruit-tech-item">
       <tr>
         <th>개발/서버</th>
         <td><a href="/recruit/tech?pidx=10571">[배민마켓] 백엔드 애플리케이션 개발자 모집</a></td>
       </tr>
-    
+
       <tr>
         <th>개발/업무시스템</th>
         <td><a href="/recruit/tech?pidx=10567">업무시스템 서버 개발자 모집</a></td>
       </tr>
-    
+
       <tr>
         <th>개발/서버</th>
         <td><a href="/recruit/tech?pidx=10698">[배민아카데미] 서버 개발자 모집</a></td>
@@ -87,7 +88,7 @@ Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되�
     </tbody>
   </table>
   <div class="btn-area-table">
-      <a href="#/recruit/tech" class="btn">개발직군 공고 더보기</a>
+    <a href="#/recruit/tech" class="btn">개발직군 공고 더보기</a>
   </div>
 </div>
 ```
@@ -98,24 +99,26 @@ Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되�
 
 위의 코드를 아래와 같이 수정해볼께요.
 
-```html
+```html {numberLines}
 <div style="opacity: 0.1">
   <h2>인재채용</h2>
-  <p>우아한형제들과 함께 성장할 수 있는 기회!<br><em class="highlight">지금이 바로 그 때</em>입니다.</p>
+  <p>우아한형제들과 함께 성장할 수 있는 기회!<br /><em class="highlight">지금이 바로 그 때</em>입니다.</p>
 
   <table style="margin-top:40px">
-    <caption>개발직군 채용</caption>
+    <caption>
+      개발직군 채용
+    </caption>
     <tbody data-role="bind" data-name="recruits_develop" data-type="main-recruit-tech-item">
       <tr>
         <th>개발/서버</th>
         <td><a href="/recruit/tech?pidx=10571">[배민마켓] 백엔드 애플리케이션 개발자 모집</a></td>
       </tr>
-    
+
       <tr>
         <th>개발/업무시스템</th>
         <td><a href="/recruit/tech?pidx=10567">업무시스템 서버 개발자 모집</a></td>
       </tr>
-    
+
       <tr>
         <th>개발/서버</th>
         <td><a href="/recruit/tech?pidx=10698">[배민아카데미] 서버 개발자 모집</a></td>
@@ -123,10 +126,11 @@ Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되�
     </tbody>
   </table>
   <div class="btn-area-table">
-      <a href="#/recruit/tech" class="btn">개발직군 공고 더보기</a>
+    <a href="#/recruit/tech" class="btn">개발직군 공고 더보기</a>
   </div>
 </div>
 ```
+
 <br/>
 
 최상위 div에 opacity를 0.1을 주었습니다. opacity는 알파값인데요, 요소의 흐린 정도를 나타냅니다. 0.1로 변경하면 div 요소들이 엄청 흐려지겠군요! 결과를 한 번 봐보겠습니다.
@@ -141,24 +145,26 @@ Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되�
 
 <br/>
 
-```html
+```html {numberLines}
 <div style="display: flex; flex-direction: row;">
   <h2>인재채용</h2>
-  <p>우아한형제들과 함께 성장할 수 있는 기회!<br><em class="highlight">지금이 바로 그 때</em>입니다.</p>
+  <p>우아한형제들과 함께 성장할 수 있는 기회!<br /><em class="highlight">지금이 바로 그 때</em>입니다.</p>
 
   <table style="margin-top:40px">
-    <caption>개발직군 채용</caption>
+    <caption>
+      개발직군 채용
+    </caption>
     <tbody data-role="bind" data-name="recruits_develop" data-type="main-recruit-tech-item">
       <tr>
         <th>개발/서버</th>
         <td><a href="/recruit/tech?pidx=10571">[배민마켓] 백엔드 애플리케이션 개발자 모집</a></td>
       </tr>
-    
+
       <tr>
         <th>개발/업무시스템</th>
         <td><a href="/recruit/tech?pidx=10567">업무시스템 서버 개발자 모집</a></td>
       </tr>
-    
+
       <tr>
         <th>개발/서버</th>
         <td><a href="/recruit/tech?pidx=10698">[배민아카데미] 서버 개발자 모집</a></td>
@@ -166,7 +172,7 @@ Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되�
     </tbody>
   </table>
   <div class="btn-area-table">
-      <a href="#/recruit/tech" class="btn">개발직군 공고 더보기</a>
+    <a href="#/recruit/tech" class="btn">개발직군 공고 더보기</a>
   </div>
 </div>
 ```
@@ -191,7 +197,7 @@ P 태그와 Span 태그는 HTML에서 글자를 나타낼 때 가장 많이 사�
 
 먼저 아래의 예제를 살펴볼꼐요.
 
-```html
+```html {numberLines}
 <!DOCTYPE html>
 <html>
   <head>
@@ -237,7 +243,6 @@ P 태그의 위 아래에 보면 주황색 구역이 있습니다. 이 부분은
 
 에에? 커서를 올렸는데 두 p 태그가 겹쳐지는 사이 부분이 두 마진이 겹쳐서 표기가 되고 있어요. 원래는 높이가 2배가 되야 하는데 한개어치의 간격 차이밖에 안나네요. 우리가 의도를 안했다면 이런 레이아웃은 문제가 되겠죠? 그래서 일반적으로 P 태그에는 Margin 옵션을 0으로 설정하는 경우가 많습니다.
 
-
 ## CSS의 이해
 
 HTML의 Element가 직사각형으로 이루어진 요소들의 집합이라는 사실을 알게 되었어요. 이제, CSS에서 알면 편한 정보를 알아보도록 해요.
@@ -254,7 +259,7 @@ HTML의 Element가 직사각형으로 이루어진 요소들의 집합이라는 
 
 <br/>
 
-```css
+```css {numberLines}
 div {
   display: block;
 }
@@ -309,30 +314,28 @@ div {
 
 <br/>
 
-> 여기서 중요한 포인트!
-> -
+> ## 여기서 중요한 포인트!
+>
 > flex-direction: row에서 column으로 변경할 경우, 정렬 방법이 바뀝니다. row에서 justify-content의 역할은 align-items로 변경되고, align-items의 역할은 justify-content로 변경되는데 직접 해보고 보시면 좋습니다!
 
 ### Margin과 Padding, 그리고 Border
 
 쉽게 정리하면, Margin은 Element와 Element 사이의 간격을 말하고 Padding은 Element 내부의 간격을 뜻합니다. Border는 Margin과 Padding 사이의 영역을 일컫는데, 대부분 아웃라인으로 사용하는 경우가 많습니다. 한번 아래의 예제를 실행해보도록 합시다.
 
-```html
+```html {numberLines}
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="./index.css">
+    <link rel="stylesheet" type="text/css" href="./index.css" />
   </head>
   <body>
-    <div class="section-1">
-    </div>
-    <div class="section-2">
-    </div>
+    <div class="section-1"></div>
+    <div class="section-2"></div>
   </body>
 </html>
 ```
 
-```css
+```css {numberLines}
 .section-1 {
   margin-bottom: 20px;
   background-color: #000;
@@ -346,7 +349,7 @@ div {
 
 예제를 실행시키면 section-1과 section-2로 지정된 친구들이 간격이 떨어져있고, section-2는 section-1보다 크기가 큰 걸 볼 수 있어요. 왜 크기가 클까요? 그 이유는 section-2에 padding이 있기 때문이에요. padding은 앞서 설명한대로 Element 내부의 간격을 말해요. 그래서 Element 내부의 사이즈로 칭해집니다. 만약 늘어나는게 원치 않다. 나는 사이즈를 고정하고 padding 영역만큼 contents 사이즈를 줄이겠다 라고 한다면 아래와 같이 CSS를 수정해주세요.
 
-```css
+```css {numberLines}
 .section-1 {
   margin-bottom: 20px;
   background-color: #000;
@@ -381,4 +384,3 @@ div {
 이 문서를 보시면서 백앤드 개발자 분들이 편-안한 HTML/CSS 코딩을 하길 바랍니다. 읽어주셔서 감사합니다.
 
 ![image8](./assets/image8.png)
-

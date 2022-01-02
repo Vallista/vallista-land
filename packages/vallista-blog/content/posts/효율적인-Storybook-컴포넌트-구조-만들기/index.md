@@ -22,8 +22,7 @@ info: false
 <br/>
 
 > 디자인 시스템이란?
-> _
-> [https://story.pxd.co.kr/1434](디자인 시스템) 포스트를 보면 더 도움이 될 수 있습니다.
+> \_ > [https://story.pxd.co.kr/1434](디자인 시스템) 포스트를 보면 더 도움이 될 수 있습니다.
 > "쉽게 말하면 디자인 시스템은 디자인 원칙, 규격, 다시 사용할 수 있는 UI 패턴과 컴포넌트, 코드를 포괄하는 종합 세트입니다."
 
 ## 스토리북
@@ -46,7 +45,7 @@ Storybook은 [Stories 파일](https://github.com/Vallista/DesignSystem/blob/mast
 
 **Card/index.stories.tsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import { withKnobs, text, number } from '@storybook/addon-knobs'
 
@@ -63,7 +62,10 @@ export default {
 export const Default = () => {
   const title = text('타이틀', '컴포넌트 관리 기법')
   const description = text('설명', '안녕하세요 오늘은 컴포넌트 관리에 대해서 알아볼 것이에요')
-  const image = text('이미지', 'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg')
+  const image = text(
+    '이미지',
+    'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg'
+  )
   const viewCount = number('열람 수', 5)
 
   return (
@@ -85,7 +87,10 @@ export const White = () => {
 
   const title = text('타이틀', '컴포넌트 관리 기법')
   const description = text('설명', '안녕하세요 오늘은 컴포넌트 관리에 대해서 알아볼 것이에요')
-  const image = text('이미지', 'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg')
+  const image = text(
+    '이미지',
+    'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg'
+  )
   const viewCount = number('열람 수', 5)
 
   return (
@@ -97,12 +102,12 @@ export const White = () => {
 
 Default.story = {
   name: 'Default',
-  decorators: [ withKnobs ]
+  decorators: [withKnobs]
 }
 
 White.story = {
   name: 'White',
-  decorators: [ withKnobs ]
+  decorators: [withKnobs]
 }
 ```
 
@@ -116,20 +121,18 @@ White.story = {
 
 **기존 스토리북 사용법**
 
-```jsx
-storiesOf('Button', module)
-.addDecorator(withKnobs)
-.addParameters({ notes: someNotes });
+```jsx {numberLines}
+storiesOf('Button', module).addDecorator(withKnobs).addParameters({ notes: someNotes })
 ```
 
 **변경된 스토리북 사용법**
 
-```jsx
+```jsx {numberLines}
 export default {
   title: 'Button',
   component: module,
-  decorators: [ withKnobs ],
-  parameters: [ { notes: someNotes } ]
+  decorators: [withKnobs],
+  parameters: [{ notes: someNotes }]
 }
 ```
 
@@ -155,7 +158,7 @@ Storybook을 사용해서 디자인 시스템을 구현하다보면 컴포넌트
 
 **[component/molecules/Block/index.tsx](https://github.com/Vallista/DesignSystem/blob/master/src/components/molecules/Block/index.tsx)**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import classNames from 'classnames'
 
@@ -220,7 +223,7 @@ export default Block
 
 **[products/Card/index.tsx](https://github.com/Vallista/DesignSystem/blob/master/src/products/Blog/Card/index.tsx)**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import classNames from 'classnames'
 ...

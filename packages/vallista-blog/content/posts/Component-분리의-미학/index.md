@@ -13,7 +13,7 @@ info: false
 
 개발을 하다보면 정답이 없는 오묘한 문제가 발생합니다. 이 문제는 잘 잡지 않으면 유지보수에 큰 영향을 주지만 정답은 없습니다. 항상 탐험해야하는 문제에 해당하죠.
 
-이 문제는 바로 `SoC(Separation of concerns) - 관심사의 분리` 입니다.  프로젝트의 규모, 도메인 등에 따라서 효율적인 관심사의 분리 방법이 바뀔 수 있으며 분리가 어떻게 되어 있냐에 따라 진입점 자체도 달라집니다.
+이 문제는 바로 `SoC(Separation of concerns) - 관심사의 분리` 입니다. 프로젝트의 규모, 도메인 등에 따라서 효율적인 관심사의 분리 방법이 바뀔 수 있으며 분리가 어떻게 되어 있냐에 따라 진입점 자체도 달라집니다.
 
 웹 프론트엔드 생태계는 발촉된 지 얼마 안되었습니다. 그래서 관심사의 분리가 제대로 이루어진 사례가 많이 없고, 수많은 프론트엔드 개발자는 정답을 찾기위해 헤메이고 있는 중입니다.
 
@@ -87,8 +87,7 @@ info: false
 그래서 생각을 거듭한 끝에 데이터 컴포넌트와 레이아웃 컴포넌트를 분리하려는 생각을 하게 됩니다.
 
 > Dan Abramov - Presentational and Container Components
-> 링크: https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0
-> _
+> 링크: https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0 > \_
 > Facebook의 React 개발자인 Dan Abramov의 데이터 컴포넌트, 레이아웃 컴포넌트 분리 철학에 대한 글 입니다. 그는 현재 이러한 생각을 하고 있지 않으며, React Hooks에 그의 철학이 담겨있습니다.
 
 > 2017년 당시, 저는 이 글을 읽고 참고 했으며 2018년 말, 저는 이 패턴에 대해 발표를 하게 됩니다.
@@ -110,7 +109,7 @@ info: false
 
 **TweetListContainer.jsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import axios from 'axios'
 
@@ -129,12 +128,11 @@ class TweetListContainer extends React.Component {
   componentWillMount() {
     const { userId } = this.props
 
-    http.get(`/users/${userId}/timeline`)
-      .then((res) => {
-        this.setState({
-          list: res.data
-        })
+    http.get(`/users/${userId}/timeline`).then((res) => {
+      this.setState({
+        list: res.data
       })
+    })
   }
 
   render() {
@@ -149,7 +147,7 @@ TweetListContainer 에서는 TweetList를 HoC 하고 있습니다. TweetListCont
 
 **TweetList.jsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 
 const TweetList = ({ list }) => {
@@ -166,9 +164,13 @@ const TweetList = ({ list }) => {
     </div>
   )
 
-  return <div>
-    { list.map((tweet) => <Tweet {...tweet} />) }
-  </div>
+  return (
+    <div>
+      {list.map((tweet) => (
+        <Tweet {...tweet} />
+      ))}
+    </div>
+  )
 }
 
 export default TweetList
@@ -227,7 +229,7 @@ Atomic Design은 5가지 구성요소로 나뉩니다.
 
 **templates/TweetList.jsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 
 import P, { TextAlign } from '../../atoms/P'
@@ -238,19 +240,27 @@ const TweetList = ({ list }) => {
   const Tweet = ({ user, description }) => (
     <Block direction={Direction.COLUMN}>
       <Block sort={Sort.LEFT_CENTER} margin={[0, 0, 24, 0]}>
-        <Span weight={TextWeight.BOLD} color={TextColor.GRAY}>{user.name}</Span>
+        <Span weight={TextWeight.BOLD} color={TextColor.GRAY}>
+          {user.name}
+        </Span>
         <Span color={TextColor.GRAY}>{user.nickname}</Span>
         <Span color={TextColor.GRAY}>{user.date}</Span>
       </Block>
       <Block sort={Sort.LEFT_CENTER}>
-        <P align={TextAlign.LEFT} color={TextColor.GRAY}>{description}</P>
+        <P align={TextAlign.LEFT} color={TextColor.GRAY}>
+          {description}
+        </P>
       </Block>
     </Block>
   )
 
-  return <Block direction={Direction.COLUMN}>
-    { list.map((tweet) => <Tweet {...tweet} />) }
-  </Block>
+  return (
+    <Block direction={Direction.COLUMN}>
+      {list.map((tweet) => (
+        <Tweet {...tweet} />
+      ))}
+    </Block>
+  )
 }
 
 export default TweetList
@@ -280,7 +290,7 @@ export default TweetList
 <br/>
 
 > 번외 : Block의 마술
-> _
+> \_
 > 일반적으로 atomic design을 구현할 때, molecules에는 Box, Block등의 이름을 가진 정렬 컴포넌트를 만들어서 사용하게 됩니다.
 > 이 컴포넌트는 하나를 잘 만들어 두면 마진, 패딩, 정렬 등의 작업을 한번에 처리할 수 있어 정렬 및 패딩, 마진등의 작업에서 더이상 스타일 요소에 대한 코딩이 필요없게 됩니다.
 
@@ -300,7 +310,7 @@ export default TweetList
 
 **useMountedState.tsx**
 
-```jsx
+```jsx {numberLines}
 import { useCallback, useEffect, useRef } from 'react'
 
 function useMountedState() {
@@ -327,7 +337,7 @@ Hooks API를 사용하여 위의 TweetListContainer를 hooks스럽게 변경해�
 
 **containers/TweetListContainer.jsx**
 
-```jsx
+```jsx {numberLines}
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
@@ -361,7 +371,7 @@ React Hooks에는 Custom 하게 Hooks를 사용하는 방법이 있습니다. �
 
 **hooks/useTweetList.jsx**
 
-```jsx
+```jsx {numberLines}
 import axios from 'axios'
 
 const http = axios.create({
@@ -390,7 +400,7 @@ API 로직을 custom hooks로 만들어 빼냈습니다.
 
 **containers/TweetListContainer.jsx**
 
-```jsx
+```jsx {numberLines}
 import React, { useState, useEffect } from 'react'
 
 import TweetList from '../../presentationals/templates/TweetList'
@@ -412,7 +422,7 @@ export default TweetList
 
 **Home.jsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 
 import Sidebar from '../../containers/Sidebar'

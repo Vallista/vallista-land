@@ -11,7 +11,6 @@ series: TypeScript 디자인 패턴
 seriesPriority: 2
 ---
 
-
 ![이미지0](./assets/0.jpg)
 
 ## 옵저버 패턴이란
@@ -50,7 +49,7 @@ seriesPriority: 2
 
 **Observer.ts**
 
-```jsx
+```jsx {numberLines}
 export interface IObserver {
   notifyAddTodo(message: string): void
   notifyRemoveTodo(): void
@@ -83,7 +82,7 @@ export class Subject {
 
 먼저, 오늘의 주인공 Observer 입니다. Observer Interface에서는 이벤트 함수를 들고 있습니다. Todo를 모두 추가하거나 삭제하기 위한 이벤트 입니다. 이제 이 인터페이스는 객체에 적절히 추가될 것 입니다.
 
-Subject 클래스는 IObserver Interface를 구현한 객체를 담는 배열을 들고 있고, 해당 이벤트를 발생시키기 위한 함수가 있습니다. Subject에서 notifyAddTodo, notifyRemoveTodo를 실행하면 배열을 돌면서 observerCollection에 있는 객체의 함수를 실행하게 됩니다. 
+Subject 클래스는 IObserver Interface를 구현한 객체를 담는 배열을 들고 있고, 해당 이벤트를 발생시키기 위한 함수가 있습니다. Subject에서 notifyAddTodo, notifyRemoveTodo를 실행하면 배열을 돌면서 observerCollection에 있는 객체의 함수를 실행하게 됩니다.
 
 Observer Collection에 Observer 객체를 등록시킬때는 registration 함수를 사용하여 등록합니다.
 
@@ -91,7 +90,7 @@ Observer Collection에 Observer 객체를 등록시킬때는 registration 함수
 
 **src/models/Removable**
 
-```jsx
+```jsx {numberLines}
 export enum RemoveState {
   IDLE = 0,
   REMOVE
@@ -109,7 +108,7 @@ Removable은 상태에 대한 enum 값과, 삭제가능한 객체인지를 알�
 
 **Todo.ts**
 
-```jsx
+```jsx {numberLines}
 import { IRemovable, RemoveState } from "./Removable"
 
 class Todo implements IRemovable {
@@ -146,7 +145,7 @@ Todo 객체를 추상화한 Todo 클래스는 삭제상태와 메시지를 멤�
 
 **TodoList.ts**
 
-```jsx
+```jsx {numberLines}
 import Todo from "./Todo"
 import { RemoveState, IRemovable } from './Removable'
 import { IObserver } from './Observer'
@@ -206,7 +205,7 @@ TodoList는 Subject에서 제공한 함수를 동작시키기 위해 Observer In
 
 **src/hooks/useTodo.tsx**
 
-```jsx
+```jsx {numberLines}
 import { useState } from 'react'
 import TodoList from '../models/TodoList'
 
@@ -274,18 +273,16 @@ custom hook인 useTodo 입니다. 모델과 대응되고 있으며, 모델의 �
 
 **src/components/Todo.tsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import '../App.css'
 
 interface IProps {
-  message: string
+  message: string;
 }
 
 const Todo: React.FC<IProps> = ({ message }) => {
-  return <div className="todo">
-    {message}
-  </div>
+  return <div className='todo'>{message}</div>
 }
 
 export default Todo
@@ -297,7 +294,7 @@ Todo Component는 간단하게 message만 prop으로 받아서 렌더링을 해�
 
 **src/components/Todos.tsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import '../App.css'
 
@@ -341,7 +338,7 @@ Todos에서는 TodoList 모델을 받아서 렌더링 해줍니다.
 
 App에서 실제로 적용해줍니다.
 
-```jsx
+```jsx {numberLines}
 import React, { useEffect } from 'react'
 import './App.css'
 
@@ -356,16 +353,32 @@ const App = () => {
   }, [])
 
   return (
-    <div id="app">
-      <div className="collection">
+    <div id='app'>
+      <div className='collection'>
         {todoListCollection.map((todoList, index) => (
           <Todos todos={todoList} index={index + 1} addTodo={addTodo} key={index} />
         ))}
       </div>
       <div>
-        <button className="button" onClick={addTodoList}>콜렉션 추가</button>
-        <button className="button" onClick={() => { allAddTodo('전체 추가') }}>전체 추가</button>
-        <button className="button" onClick={() => { allRemoveTodo() }}>전체 삭제</button>
+        <button className='button' onClick={addTodoList}>
+          콜렉션 추가
+        </button>
+        <button
+          className='button'
+          onClick={() => {
+            allAddTodo('전체 추가')
+          }}
+        >
+          전체 추가
+        </button>
+        <button
+          className='button'
+          onClick={() => {
+            allRemoveTodo()
+          }}
+        >
+          전체 삭제
+        </button>
       </div>
     </div>
   )

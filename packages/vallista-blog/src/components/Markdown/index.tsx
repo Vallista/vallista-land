@@ -226,13 +226,13 @@ const Contents = styled(Wrapper)`
       padding-left: 2rem;
 
       &::-webkit-scrollbar {
-        background: var(--scrollbar-thumb);
+        background: var(--scrollbar-background);
         height: 8px;
         width: 8px;
       }
 
       &::-webkit-scrollbar-thumb {
-        background: ${theme.colors.PRIMARY.ACCENT_5};
+        background: var(--scrollbar-thumb);
         border-radius: 0;
       }
     }
@@ -276,6 +276,9 @@ const Contents = styled(Wrapper)`
 
         & * span {
           white-space: inherit;
+        }
+
+        & * span:not([class='grvsc-source']) {
           padding-left: 0 !important;
         }
       }

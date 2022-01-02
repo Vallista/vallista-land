@@ -36,14 +36,15 @@ Generator는 `Coroutine`이나, `First-class continuations`처럼 흐름을 제�
 
 먼저, 일반적인 반복문을 보자
 
-```javascript
+```javascript {numberLines}
 for (let i = 0; i < 10; i++) {
   console.log(i)
 }
 
 const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // Symbol.iterator
 
-for (const val of arr) { // ES6 for ... of
+for (const val of arr) {
+  // ES6 for ... of
   console.log(val)
 }
 ```
@@ -62,12 +63,15 @@ for (const val of arr) { // ES6 for ... of
 
 일반적으로 아래와 같이 하나의 객체에 Iterator Protocol과 Iterable Protocol을 구현한다.
 
-```javascript
-const iterator = { // iterator 객체
-  [Symbol.iterator]: function() { // iterable 객체
+```javascript {numberLines}
+const iterator = {
+  // iterator 객체
+  [Symbol.iterator]: function () {
+    // iterable 객체
     return this // iterator 객체를 반환
   },
-  next: function() { // iterator 객체는 next 함수를 내장하고 있어야 한다.
+  next: function () {
+    // iterator 객체는 next 함수를 내장하고 있어야 한다.
     return { done: false, value: 'Hello' } // iterator protocol 규칙
   }
 }
@@ -88,7 +92,7 @@ Iterator의 장점은 다양한 Iterable 객체에 대해 하나의 Iterator Pro
 
 예시로 덧셈과 곱셈을 하는 프로세스를 이터레이터로 구현해보자.
 
-```javascript
+```javascript {numberLines}
 class calculatingIterator {
   constructor(start, dest) {
     this.value = 1
@@ -96,13 +100,14 @@ class calculatingIterator {
     this.dest = dest
   }
 
-  [Symbol.iterator]() { // Iterable Protocol
+  [Symbol.iterator]() {
+    // Iterable Protocol
     return this
   }
 
   next() {
     let value = this.value
-    this.start ++
+    this.start++
 
     if (this.start > this.dest) {
       return { done: true, value: undefined }
@@ -125,7 +130,7 @@ console.log(iterator.next()) // { done: true, value: undefined }
 
 이 코드를 ES6의 제너레이터를 사용하여 변경해보도록 하자.
 
-```javascript
+```javascript {numberLines}
 function* calculatingGenerator(start, dest) {
   let value = 0
 
@@ -151,7 +156,7 @@ console.log(iterator.next()) // { done: true, value: undefined }
 
 메인 페이지에서 세션체크 후 포스트, 인기있는 포스트, 이 달의 포스트를 가져오려고 한다. 이럴 때 구상할 수 있는 방법은 아래와 같다.
 
-```javascript
+```javascript {numberLines}
 function getSessionCheck() { /* 비동기 처리 */ }
 function getPostList() { /* 비동기 처리 */ }
 function getFavoritePostList() { /* 비동기 처리 */ }
@@ -177,20 +182,23 @@ function loadMainPage() {
 
 Promise를 이용해서 비동기 처리 코드를 작성해보자.
 
-```javascript
-function getSessionCheck() { /* 비동기 처리 */ } // promise 객체 반환
-function getPostList() { /* 비동기 처리 */ } // promise 객체 반환
-function getFavoritePostList() { /* 비동기 처리 */ } // promise 객체 반환
-function getMontlyPostList() { /* 비동기 처리 */ } // promise 객체 반환
+```javascript {numberLines}
+function getSessionCheck() {
+  /* 비동기 처리 */
+} // promise 객체 반환
+function getPostList() {
+  /* 비동기 처리 */
+} // promise 객체 반환
+function getFavoritePostList() {
+  /* 비동기 처리 */
+} // promise 객체 반환
+function getMontlyPostList() {
+  /* 비동기 처리 */
+} // promise 객체 반환
 
-const loadMainPage = () => new Promise(
-  resolve => resolve(getSessionCheck())
-)
+const loadMainPage = () => new Promise((resolve) => resolve(getSessionCheck()))
 
-loadMainPage()
-  .then(getPostList())
-  .then(getFavoritePostList())
-  .than(getMontlyPostList())
+loadMainPage().then(getPostList()).then(getFavoritePostList()).than(getMontlyPostList())
 ```
 
 promise를 사용하게 되면, than을 통해서 동기로 실행할 수 있다. 동기로 실행할 수 있다는 말은 네트워크 작업이 처리되고, 그 이후 순차적으로 다음 함수를 방문하여 일을 처리한다는 말이다.
@@ -202,11 +210,19 @@ promise를 사용하게 되면, than을 통해서 동기로 실행할 수 있다
 
 그렇다면 Promise가 아닌, Generator를 사용하여 처리해보자. 위의 문제점을 generator는 해결할 수 있으며 오히려 더 직관적으로 보이게 코딩할 수 있다.
 
-```javascript
-function getSessionCheck() { /* 비동기 처리 */ }
-function getPostList() { /* 비동기 처리 */ }
-function getFavoritePostList() { /* 비동기 처리 */ }
-function getMontlyPostList() { /* 비동기 처리 */ }
+```javascript {numberLines}
+function getSessionCheck() {
+  /* 비동기 처리 */
+}
+function getPostList() {
+  /* 비동기 처리 */
+}
+function getFavoritePostList() {
+  /* 비동기 처리 */
+}
+function getMontlyPostList() {
+  /* 비동기 처리 */
+}
 
 function* loadMainPage() {
   yield getSessionCheck()
@@ -227,7 +243,7 @@ generator는 iterator를 반환하는 함수인데, 반환하기 위해서는 `.
 
 1. 함수 내 호출
 
-```javascript
+```javascript {numberLines}
 function getSessionCheck(itr) {
   /* 비동기 처리 */
   itr.next()
@@ -254,29 +270,37 @@ function getMontlyPostList() {
 
 2. 재귀호출
 
-```javascript
-function getSessionCheck() { /* 비동기 처리 */ }
-function getPostList() { /* 비동기 처리 */ }
-function getFavoritePostList() { /* 비동기 처리 */ }
-function getMontlyPostList() { /* 비동기 처리 */ }
+```javascript {numberLines}
+function getSessionCheck() {
+  /* 비동기 처리 */
+}
+function getPostList() {
+  /* 비동기 처리 */
+}
+function getFavoritePostList() {
+  /* 비동기 처리 */
+}
+function getMontlyPostList() {
+  /* 비동기 처리 */
+}
 
 function* loadMainPage() {
-  yield getSessionCheck();
-  yield getPostList();
-  yield getFavoritePostList();
-  yield getMontlyPostList();
+  yield getSessionCheck()
+  yield getPostList()
+  yield getFavoritePostList()
+  yield getMontlyPostList()
 }
 
 function runner(generator) {
-  const iterator = generator();
+  const iterator = generator()
 
-  (function repeatIterator({ done, value }) {
-    if (done) return value; // done이 true가 될 때 까지
-    repeatIterator(iterator.next()); //다음 iterator 호출
+  ;(function repeatIterator({ done, value }) {
+    if (done) return value // done이 true가 될 때 까지
+    repeatIterator(iterator.next()) //다음 iterator 호출
   })(iterator.next()) // 시작
 }
 
-runner(loadMainPage);
+runner(loadMainPage)
 ```
 
 재귀호출을 통해, 해당 generator에 맞는 컨디션을 제작하여 한번 호출시 연속해서 실행 할 수 있는 로직을 구현할 수 있다.
@@ -285,11 +309,19 @@ runner(loadMainPage);
 
 한편, Generator는 caller와 callee가 명확하게 구분되어 있어 동기적 프로그래밍을 하기위해서 위의 runner를 만들어 줬는데, 이는 ES6의 Async/Await를 사용하여 우리가 궁극적으로 추구하던 방향과 비슷하게 코딩을 할 수 있다.
 
-```javascript
-function getSessionCheck() { /* 비동기 처리 */ }
-function getPostList() { /* 비동기 처리 */ }
-function getFavoritePostList() { /* 비동기 처리 */ }
-function getMontlyPostList() { /* 비동기 처리 */ }
+```javascript {numberLines}
+function getSessionCheck() {
+  /* 비동기 처리 */
+}
+function getPostList() {
+  /* 비동기 처리 */
+}
+function getFavoritePostList() {
+  /* 비동기 처리 */
+}
+function getMontlyPostList() {
+  /* 비동기 처리 */
+}
 
 async function loadMainPage() {
   await getSessionCheck()
@@ -312,7 +344,7 @@ Javascript ES6부터 Async/Await 구문을 지원하게 되었다. 문법을 사
 
 ## Reference
 
-- [Generator (computer_programming) - wikipedia](https://en.wikipedia.org/wiki/Generator_(computer_programming))
+- [Generator (computer_programming) - wikipedia](<https://en.wikipedia.org/wiki/Generator_(computer_programming)>)
 - [Coroutine - wikipedia](https://en.wikipedia.org/wiki/Coroutine)
 - [what is the difference between an iterator and a generator - stack overflow](https://stackoverflow.com/questions/1022564/what-is-the-difference-between-an-iterator-and-a-generator)
 - [Cooperative multitasking - wikipedia](https://en.wikipedia.org/wiki/Cooperative_multitasking)

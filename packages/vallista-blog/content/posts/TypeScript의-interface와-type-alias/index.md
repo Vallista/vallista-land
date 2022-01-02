@@ -19,7 +19,7 @@ image: ./assets/1.jpeg
 
 type alias는 타입스크립트에서 빼놓을 수 없는 아주 중요한 매커니즘이며 잊으면 안되는 키워드입니다. type으로 하여금 여러 타입의 유니온을 만들 수 있습니다.
 
-```ts
+```ts {numberLines}
 type StringLiteralUnion = 'Hello' | 'World'
 type NumberLiteralUnion = 1 | 2 | 3
 
@@ -31,7 +31,7 @@ type UnionType = StringLiteralUnion | NumberLiteralUnion
 
 조금 더 복잡한 타입을 만들어보겠습니다.
 
-```ts
+```ts {numberLines}
 interface IOS {
   type: 'iOS'
   AppleChipVersion: 'A5' | 'A6' | 'A7'
@@ -54,7 +54,7 @@ const myIOSPhone: MobilePhone = {
 const myAndroidPhone: MobilePhone = {
   type: 'android',
   AppleChipVersion: 'A5'
-//~~~~~~~~~~~~~~~~~~~~~~ Error!
+  //~~~~~~~~~~~~~~~~~~~~~~ Error!
 }
 ```
 
@@ -62,7 +62,7 @@ const myAndroidPhone: MobilePhone = {
 
 그런데 여기서 의문점이 생깁니다. type alias는 다양한 타입의 유니온을 만들 수 있다고 했습니다. 그렇다면 `interface IOS`와 `interface Android` 또한 type alias로 명명된 타입을 만들 수 있지 않을까요?
 
-```ts
+```ts {numberLines}
 type IOS = {
   type: 'iOS'
   AppleChipVersion: 'A5' | 'A6' | 'A7'
@@ -89,7 +89,7 @@ Type Alias로 모든 타입 명세를 변경하기 전에, 잠깐만요. 무언�
 
 아래의 타입에 대한 확장 예시를 보도록 하겠습니다.
 
-```tsx
+```tsx {numberLines}
 type ValidateProperties = {
   errorMessage: string
 }
@@ -98,16 +98,19 @@ type FormProperties = {
   disabled: boolean
 }
 
-type ButtonProps = Partial<ValidateProperties> | Partial<FormProperties> | {
-  infoMessage?: string
-}
+type ButtonProps =
+  | Partial<ValidateProperties>
+  | Partial<FormProperties>
+  | {
+      infoMessage?: string
+    }
 ```
 
 위의 예제는 ValidateProperties와 FormProperties 두 타입을 type ButtonProps에 확장의 개념으로 추가한 코드입니다.
 
 위 ButtonProps를 설명하면 아래와 같이 해석할 수 있습니다.
 
-```ts
+```ts {numberLines}
 const i_am_not_validate_properties: Partial<ValidateProperties> = {
   errorMessage: 'string'
 }
@@ -117,7 +120,7 @@ const button: ButtonProps = i_am_not_validate_properties
 
 그렇습니다. `type ButtonProps`는 `Partial<ValidateProperties> | Partial<FormProperties> | { infoMessage?: string }` 이므로, 세 개중 하나가 들어가도 문제가 없다는 코드가 되는 것입니다. (왜냐하면 |로 합집합을 만들었기 때문이죠.) 이는 인터페이스를 사용하여 읽는이에게 명확하게 전달해야합니다.
 
-```ts
+```ts {numberLines}
 interface ValidateProperties {
   errorMessage: string
 }
@@ -148,7 +151,7 @@ const button: ButtonProps = i_am_not_validate_properties
 
 이러한 상황을 실제로 적용해보도록 합시다. 흔하게 쓰이는 리액트에서의 컴포넌트 코드입니다.
 
-```tsx
+```tsx {numberLines}
 // Button.tsx
 import React, { ReactNode, forwardRef } from 'react'
 
@@ -184,7 +187,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
 아래의 상황을 보겠습니다.
 
-```tsx
+```tsx {numberLines}
 // type.ts
 type CommonComponentProps = {
   disabled: boolean
@@ -215,7 +218,7 @@ Button 뿐만 아니라, Input이나 다양한 Component에서 사용하는 공�
 
 그러므로 코드는 아래와 같이 작성해야합니다.
 
-```tsx
+```tsx {numberLines}
 // type.ts
 interface CommonComponentProps {
   disabled: boolean
@@ -246,7 +249,7 @@ interface ButtonProps extends Partial<CommonComponentProps> {
 - type은 string, number, interface, object 등을 읽컫습니다. 조금 더 나아가 union type은 이러한 타입의 집합을 나타냅니다.
 - 명세는 어떤 property가 존재하는지, 실제 어떤 데이터가 필요한지에 대해서 알 수 있는 이름과 타입의 나열입니다.
 
-```ts
+```ts {numberLines}
 type Property = {
   a: string
 }
@@ -265,7 +268,7 @@ interface Property {
 
 그렇다면, 현재 챕터인 구조적 서브 타이핑과는 어떤 연관관계가 있을까요?
 
-```ts
+```ts {numberLines}
 interface Vector1D {
   x: number
 }
@@ -296,7 +299,7 @@ console.log(Distance(a, b)) // 13
 
 그렇기에 아래와 같이 작성할 수 있습니다.
 
-```ts
+```ts {numberLines}
 interface Vector1D {
   x: number
 }
@@ -330,7 +333,7 @@ console.log(Distance(a, b)) // 13
 
 이 선언 병합이 가장 잘 활용되는 곳은 라이브러리간의 adapter를 만들때 주로 사용됩니다.
 
-```ts
+```ts {numberLines}
 // @emotion/react/types
 ...
 // tslint:disable-next-line: no-empty-interface
@@ -369,7 +372,7 @@ emotion.js의 react 내 types를 보면, `export interface Theme`을 빈 공간�
 
 그렇다면, Type Alias를 적극 활용해야할 때는 언제일까요?
 
-```ts
+```ts {numberLines}
 type NumberTuple = [number, number]
 type StringTuple = [string, string]
 type A = [NumberTuple, StringTuple, ...string[]]
@@ -377,7 +380,7 @@ type A = [NumberTuple, StringTuple, ...string[]]
 
 먼저, 튜플을 사용할 때는 type alias를 사용하는 것이 좋습니다. 이 것을 interface로 사용하면 다음과 같습니다.
 
-```ts
+```ts {numberLines}
 interface A {
   0: NumberTuple
   1: StringTuple

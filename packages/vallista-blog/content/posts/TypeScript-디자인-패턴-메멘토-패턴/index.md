@@ -11,7 +11,6 @@ series: TypeScript 디자인 패턴
 seriesPriority: 3
 ---
 
-
 ![이미지0](./assets/0.jpg)
 
 ## 메멘토 패턴
@@ -73,7 +72,7 @@ seriesPriority: 3
 
 <br/>
 
-```jsx
+```jsx {numberLines}
 class Originator {
   public state1: string
   public state2: string
@@ -82,7 +81,7 @@ class Originator {
     this.state1 = state1
     this.state2 = state2
   }
-  
+
   createMemento(): Memento {
     return new Memento(this.state1, this.state2)
   }
@@ -151,7 +150,7 @@ Todo List 예시를 사용하여 변화에 대해서 롤백할 수 있는 기능
 
 **src/models/memento.ts**
 
-```jsx
+```jsx {numberLines}
 export interface IOriginator<T> {
   createMemento(): T
   restoreMemento(memento: T): void
@@ -183,7 +182,7 @@ CareTaker는 단독으로 사용될 수 있어야 합니다. 그렇기 때문에
 
 **src/models/Removable**
 
-```jsx
+```jsx {numberLines}
 export enum RemoveState {
   IDLE = 0,
   REMOVE
@@ -201,7 +200,7 @@ Removable은 상태에 대한 enum 값과, 삭제가능한 객체인지를 알�
 
 **Todo.ts**
 
-```jsx
+```jsx {numberLines}
 import { IRemovable, RemoveState } from "./Removable"
 
 class Todo implements IRemovable {
@@ -238,7 +237,7 @@ Todo 객체를 추상화한 Todo 클래스는 삭제상태와 메시지를 멤�
 
 **TodoList.ts**
 
-```jsx
+```jsx {numberLines}
 import Todo from "./Todo"
 import { RemoveState, IRemovable } from './Removable'
 
@@ -286,7 +285,7 @@ TodoList는 생성 말고도 데이터를 덮어쓰기 가능하도록 construct
 
 **TodoListCollection.ts**
 
-```jsx
+```jsx {numberLines}
 import TodoList from "./TodoList"
 import { IOriginator } from "./Memento"
 import Todo from "./Todo"
@@ -335,7 +334,7 @@ createMemento에서는 TodoListCollection단위로 객체를 재 생성합니다
 
 **src/hooks/useTodo.tsx**
 
-```jsx
+```jsx {numberLines}
 import { useState } from 'react'
 import TodoList from '../models/TodoList'
 
@@ -430,18 +429,16 @@ custom hook인 useTodo 입니다. 모델과 대응되고 있으며, 모델의 �
 
 **src/components/Todo.tsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import '../App.css'
 
 interface IProps {
-  message: string
+  message: string;
 }
 
 const Todo: React.FC<IProps> = ({ message }) => {
-  return <div className="todo">
-    {message}
-  </div>
+  return <div className='todo'>{message}</div>
 }
 
 export default Todo
@@ -453,7 +450,7 @@ Todo Component는 간단하게 message만 prop으로 받아서 렌더링을 해�
 
 **src/components/Todos.tsx**
 
-```jsx
+```jsx {numberLines}
 import React from 'react'
 import '../App.css'
 
@@ -497,7 +494,7 @@ Todos에서는 TodoList 모델을 받아서 렌더링 해줍니다.
 
 App에서 실제로 적용해줍니다.
 
-```jsx
+```jsx {numberLines}
 import React, { useEffect } from 'react'
 import './App.css'
 
@@ -512,17 +509,40 @@ const App = () => {
   }, [])
 
   return (
-    <div id="app">
-      <div className="collection">
+    <div id='app'>
+      <div className='collection'>
         {todoListCollection.map((todoList, index) => (
           <Todos todos={todoList} index={index + 1} addTodo={addTodo} key={index} />
         ))}
       </div>
       <div>
-        <button className="button" onClick={addTodoList}>콜렉션 추가</button>
-        <button className="button" onClick={() => { allAddTodo('전체 추가') }}>전체 추가</button>
-        <button className="button" onClick={() => { allRemoveTodo() }}>전체 삭제</button>
-        <button className="button" onClick={() => { rollback() }}>롤백</button>
+        <button className='button' onClick={addTodoList}>
+          콜렉션 추가
+        </button>
+        <button
+          className='button'
+          onClick={() => {
+            allAddTodo('전체 추가')
+          }}
+        >
+          전체 추가
+        </button>
+        <button
+          className='button'
+          onClick={() => {
+            allRemoveTodo()
+          }}
+        >
+          전체 삭제
+        </button>
+        <button
+          className='button'
+          onClick={() => {
+            rollback()
+          }}
+        >
+          롤백
+        </button>
       </div>
     </div>
   )

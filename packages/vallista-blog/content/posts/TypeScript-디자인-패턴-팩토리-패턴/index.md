@@ -27,7 +27,7 @@ seriesPriority: 1
 
 ### 코드
 
-```jsx
+```jsx {numberLines}
 enum InputType {
     DEFAULT = 0,
     ANIMATED,
@@ -88,7 +88,7 @@ inputArr.forEach((input) => { console.log(input.render()) })
 
 그렇다면 팩토리 매서드 패턴을 이용해서 조금 심화된 위의 구조를 코드로 구현해보도록 합시다.
 
-```jsx
+```jsx {numberLines}
 enum InputType {
     DEFAULT = 0,
     ANIMATED,
@@ -228,6 +228,7 @@ console.log(Form.FormFactory(FormType.ONE))
 console.log(Form.FormFactory(FormType.TWO))
 console.log(Form.FormFactory(FormType.THREE))
 ```
+
 이번에는 Form을 만드는 코드입니다. 팩토리 메서드 패턴을 이용해 Input과 Button을 팩토리 메서드를 호출하여 생성했습니다.
 
 이 코드가 원하는 결과값은 `ONE`에 해당하는 Form이면 기본 버튼과 인풋, `TWO`에 해당하는 Form이면 각각 인풋과 버튼 타입의 두 번째 요소 (ANIMATED, IMAGE) 그리고 `THREE`에 해당하는 Form이면 세 번째 요소 (UNSHAPED, TEXT)를 출력해야 합니다.
@@ -248,7 +249,7 @@ console.log(Form.FormFactory(FormType.THREE))
 
 ### 코드
 
-```jsx
+```jsx {numberLines}
 enum InputType {
     DEFAULT = 0,
     ANIMATED,

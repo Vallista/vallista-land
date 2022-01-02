@@ -14,9 +14,9 @@ info: false
 
 ## 유효 범위 지정 (Lexical Scope)
 
-```javascript
+```javascript {numberLines}
 function init() {
-  var name = "Vallista"
+  var name = 'Vallista'
   function displayName() {
     alert(name)
   }
@@ -26,14 +26,12 @@ function init() {
 init()
 ```
 
-init()은 지역 변수 name과 함수 displayName을 갖고있다. displayName은 init안에 있기 때문에 init 안에서만 사용할 수 있다. displayName는 변수가 없고, Parameter도 없다. 하지만 내부에서 alert (alert은 Global Object, Window에 정의되어 있다.)을 호출 할 때 상위 함수의 name을 가져와서 출력한다. 
+init()은 지역 변수 name과 함수 displayName을 갖고있다. displayName은 init안에 있기 때문에 init 안에서만 사용할 수 있다. displayName는 변수가 없고, Parameter도 없다. 하지만 내부에서 alert (alert은 Global Object, Window에 정의되어 있다.)을 호출 할 때 상위 함수의 name을 가져와서 출력한다.
 
 함수가 중첩 됐을 때 아래의 가이드 라인을 따른다.
 
 - 동일한 변수 명이 내부 함수와 외부 함수에 있다면 내부 함수에 있는 변수가 사용된다.
 - 변수 명이 내부 함수에 없다면 실행 컨텍스트로 생성된 scope chain을 거슬러 올라가 부모 함수에서 가지고 있는 변수를 찾아, 호출한다.
-
- 
 
 단어 **Lexical은 유효 범위를 지정할 때 변수가 사용가능한 범위를 결정하기 위해 소스 코드 내에서 변수가 선언된 위치를 사용한다는 뜻**이다.
 
@@ -41,7 +39,7 @@ init()은 지역 변수 name과 함수 displayName을 갖고있다. displayName�
 
 ## 클로저 (Closure)
 
-```javascript
+```javascript {numberLines}
 function A(x) {
   var y = 0
   return function B(z) {
@@ -63,10 +61,10 @@ a 는 A(10)을 실행한다. 실행해서 받는 결과값은 function B인데, 
 
 b도 a가 받은 형태와 비슷하다. 이때 a, b가 받는 결과값은 다음과 같다.
 
-```javascript
+```javascript {numberLines}
 a = function A(x = 10) {
   var y = 0
-  return function B (z) {
+  return function B(z) {
     y = 100
     return x(10) + y(100) + z
   }
@@ -74,7 +72,7 @@ a = function A(x = 10) {
 
 b = function A(x = 100) {
   var y = 0
-  return function B (z) {
+  return function B(z) {
     y = 100
     return x(100) + y(100) + z
   }
@@ -84,7 +82,7 @@ b = function A(x = 100) {
 a, b 에는 각각 x자리에 10, 100이 들어간 상황에 대해서 저장한다.
 그래서 a, b를 함수로 호출하면,
 
-```javascript
+```javascript {numberLines}
 a(7) = function A(x = 10) {
   var y = 0
   return function B (z = 7) {
@@ -108,7 +106,7 @@ b(3) = function A(x = 100) {
 
 배열을 10번 돌려, 1초 후에 1,2,3,4,5,6,7,8,9,10 이 나오는 코드를 작성해보자.
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
   for (var i = 0; i < 10; i++) {
     setTimeout(function () {
@@ -116,7 +114,7 @@ function printAfter1Sec() {
     }, 1000)
   }
 }
-    
+
 printAfter1sec()
 ```
 
@@ -126,7 +124,7 @@ printAfter1sec()
 
 > setTimeout 함수의 첫번째 인자에 함수명을 작성하지 않고 정의했다. 이런 함수를 익명함수(Anonymous Function)라고 한다.
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
   for (var i = 0; i < 10; i++) {
     const closure = function () {
@@ -135,7 +133,7 @@ function printAfter1Sec() {
         console.log(temp + 1)
       }, 1000)
     }
-    closure();
+    closure()
   }
 }
 
@@ -144,10 +142,10 @@ printAfter1Sec()
 
 내부 함수 closure를 호출할 때마다 i의 환경을 기억하도록 작성했다. 이는 다음과 같이 표현할 수 있다.
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
   for (var i = 0; i < 10; i++) {
-    (function () {
+    ;(function () {
       const temp = i
       setTimeout(function () {
         console.log(temp + 1)
@@ -160,7 +158,7 @@ printAfter1Sec()
 
 function printAfter1Sec() {
   for (var i = 0; i < 10; i++) {
-    (function (value) {
+    ;(function (value) {
       setTimeout(function () {
         console.log(value + 1)
       }, 1000)
@@ -177,9 +175,9 @@ printAfter1Sec()
 
 ES6에서는 블록 스코프를 사용하여 해결할 수 있다.
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
-  for (let i = 0; i < 10; i++) {	
+  for (let i = 0; i < 10; i++) {
     setTimeout(() => {
       console.log(i + 1)
     }, 1000)
@@ -197,14 +195,13 @@ ES6에서 새로 추가된 const, let은 기존의 Lexical Scope이 아닌, Bloc
 
 ## 잘못된 이해
 
-
 Closure를 사용하는 이유는 es6 이전 block scope가 아닌, function scope로 JavaScript가 Scope을 잡으면서 생기는 문제를 해결하기 위해서 사용한다.
 
 흔히 Closure를 이야기할 때 예시로 드는 setTimeOut으로 이야기를 들어보자. 간단하게 1초 후 로그를 찍는 함수를 만들어보자.
 
 ## 문제
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
   setTimeout(function () {
     console.log('hi')
@@ -216,7 +213,7 @@ function printAfter1Sec() {
 
 그렇다면 이 함수를 변형해서 1초 후 1부터 10까지 출력하는 함수를 만들어보자.
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
   for (var i = 0; i < 10; i++) {
     setTimeout(function () {
@@ -238,10 +235,10 @@ Function Scope를 지니므로, for loop에서 도는 i는 printAfter1Sec 내부
 
 쉽게 생각하자. function 단위로 실행 컨텍스트가 만들어지므로, setTimeout을 실행하는 함수를 만들면 된다.
 
-```javascript
+```javascript {numberLines}
 function printAfter1Sec() {
   for (var i = 0; i < 10; i++) {
-    (function() {
+    ;(function () {
       var keep = i
       setTimeout(function () {
         console.log(keep + 1)
