@@ -43,3 +43,16 @@ export interface PostQuery extends IndexQuery {
 export interface PageProps<T> {
   data: T
 }
+
+export interface StaticQuery {
+  site: {
+    siteMetadata: {
+      defaultTitle: string
+      titleTemplate: string
+      defaultDescription: string
+      siteUrl: string
+      defaultImage: string
+      twitterUsername: string
+    }
+  }
+}

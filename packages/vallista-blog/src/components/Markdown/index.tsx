@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
+import { useLocation } from '@reach/router'
 import { useEffect, useMemo, VFC } from 'react'
 
 interface MarkdownProps {
@@ -9,6 +10,8 @@ interface MarkdownProps {
 const markdownId = 'markdown-contents'
 
 export const Markdown: VFC<MarkdownProps> = (props) => {
+  const { hash } = useLocation()
+
   const html = useMemo(() => {
     const result = props.html
       // pre 태그 (소스코드)에 추가하여 wrapping 하는 div를 추가한다.
@@ -20,6 +23,8 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
   }, [])
 
   useEffect(() => {
+    // heading 전부 체크해서 해시에 저장할 수 있는 버튼을 추가한다.
+    // 버튼을 클릭하면 이동되도록 구현.
     Array.from(document.getElementById(markdownId)?.getElementsByTagName('*') ?? [])
       .filter((it) => Number(it.tagName?.[1] ?? '999') < 6)
       .forEach((it) => {
@@ -39,9 +44,10 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
         it.id = name
       })
 
+    // 페이지가 로드되고 나서 선택된 해딩으로 이동한다.
     window.onload = () => {
       setTimeout(() => {
-        const hashData = decodeURIComponent(window.location.hash).substring(1)
+        const hashData = decodeURIComponent(hash).substring(1)
         if (hashData) {
           window.scrollTo(0, document.getElementById(hashData)?.getBoundingClientRect().bottom ?? 0)
         }
@@ -168,6 +174,11 @@ const Contents = styled(Wrapper)`
       padding-left: 1.5rem;
       box-sizing: border-box;
       line-height: 1.6;
+
+      & ul,
+      & ol {
+        margin-bottom: 0;
+      }
     }
 
     ul {
@@ -200,22 +211,6 @@ const Contents = styled(Wrapper)`
 
     iframe {
       margin-bottom: 2rem;
-    }
-
-    /* a */
-    a {
-      cursor: pointer;
-      border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-      font-weight: 600;
-      text-decoration: none;
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      transition: all 0.1s ease-out;
-
-      &:hover {
-        background: ${theme.colors.HIGHLIGHT.PINK};
-        border-top: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-        color: ${theme.colors.PRIMARY.BACKGROUND};
-      }
     }
 
     /* Code */

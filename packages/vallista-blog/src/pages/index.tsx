@@ -1,11 +1,17 @@
 import { Text } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { VFC } from 'react'
-import { IndexQuery, PageProps } from 'types/query'
+
+import Seo from '../components/Seo'
+import { IndexQuery, PageProps } from '../types/query'
 
 const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
-  console.log(props)
-  return <Text>HelloWorld</Text>
+  return (
+    <>
+      <Seo />
+      <Text>HelloWorld</Text>
+    </>
+  )
 }
 
 export default IndexPage

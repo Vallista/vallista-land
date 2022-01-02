@@ -25,6 +25,7 @@ import SpinnerPlayground from '../components/playgrounds/SpinnerPlayground'
 import SwitchPlayground from '../components/playgrounds/SwitchPlayground'
 import TabsPlayground from '../components/playgrounds/TabsPlayground'
 import TagPlayground from '../components/playgrounds/TagPlayground'
+import TooltipPlayground from '../components/playgrounds/TooltipPlayground'
 import VideoPlayground from '../components/playgrounds/VideoPlayground'
 
 const IndexPage: VFC = () => {
@@ -101,6 +102,9 @@ const IndexPage: VFC = () => {
       </Card>
       <Card title='Footer'>
         <FooterPlayground />
+      </Card>
+      <Card title='Tooltip'>
+        <TooltipPlayground />
       </Card>
     </Wrap>
   )

@@ -37,7 +37,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
         )}
         <Spacer y={1} />
         <Text size={16}>
-          {dateToString}에 <Link href='/'>{author}</Link>가 작성했어요.
+          {dateToString}에 <a href='/'>{author}</a>가 작성했어요.
         </Text>
         <Spacer y={0.2} />
         <Text size={16}>읽는데 약 {timeToRead}분 걸려요!</Text>
@@ -61,23 +61,6 @@ const Wrapper = styled.div`
   padding: 2rem;
   margin-left: auto;
   margin-right: auto;
-`
-
-const Link = styled.a`
-  cursor: pointer;
-  ${({ theme }) => css`
-    border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-    font-weight: 600;
-    text-decoration: none;
-    color: ${theme.colors.PRIMARY.FOREGROUND};
-    transition: all 0.1s ease-out;
-
-    &:hover {
-      background: ${theme.colors.HIGHLIGHT.PINK};
-      border-top: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-      color: ${theme.colors.PRIMARY.BACKGROUND};
-    }
-  `}
 `
 
 const ChildrenWrapper = styled.div`

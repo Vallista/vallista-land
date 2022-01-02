@@ -24,5 +24,6 @@ export * from './Collapse'
 export * from './Capacity'
 export * from './Badge'
 export * from './Footer'
+export * from './Tooltip'
 
 export { ImageComponent as Image } from './Image'

@@ -1,3 +1,5 @@
+import { css } from '@emotion/react'
+import styled from '@emotion/styled'
 import { Container } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { useCallback, VFC } from 'react'
@@ -5,36 +7,40 @@ import { PageProps, PostQuery } from 'types/query'
 
 import { Markdown } from '../components/Markdown'
 import { PostHeader } from '../components/PostHeader'
+import { Seo } from '../components/Seo'
 import { Series } from '../components/Series'
 
 const author = 'Vallista'
 
 const Post: VFC<PageProps<PostQuery>> = (props) => {
-  const { allMarkdownRemark, markdownRemark, seriesGroup } = props.data
-  const { timeToRead } = props.data.markdownRemark
+  const { allMarkdownRemark, seriesGroup } = props.data
+  const { timeToRead, excerpt, html } = props.data.markdownRemark
   const { title, date, image, tags, series } = props.data.markdownRemark.frontmatter
 
   const cachedFilterSeries = useCallback(getFilteredSeries, [props.data])
 
   return (
-    <Container>
-      <main>
-        <article>
-          <PostHeader
-            title={title}
-            date={date}
-            image={image?.publicURL}
-            tags={tags}
-            timeToRead={timeToRead}
-            author={author}
-          >
-            {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
-          </PostHeader>
-          <Markdown html={markdownRemark.html} />
-        </article>
-        <section id='comments'></section>
-      </main>
-    </Container>
+    <>
+      <Seo title={title} description={excerpt} article={html} />
+      <Container>
+        <Main>
+          <article>
+            <PostHeader
+              title={title}
+              date={date}
+              image={image?.publicURL}
+              tags={tags}
+              timeToRead={timeToRead}
+              author={author}
+            >
+              {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
+            </PostHeader>
+            <Markdown html={html} />
+          </article>
+          <section id='comments'></section>
+        </Main>
+      </Container>
+    </>
   )
 
   function getFilteredSeries(): { name: string; timeToRead: number }[] {
@@ -115,4 +121,24 @@ export const pageQuery = graphql`
       }
     }
   }
+`
+
+const Main = styled.main`
+  ${({ theme }) => css`
+    /* a */
+    a {
+      cursor: pointer;
+      border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
+      font-weight: 600;
+      text-decoration: none;
+      color: ${theme.colors.PRIMARY.FOREGROUND};
+      transition: all 0.1s ease-out;
+
+      &:hover {
+        background: ${theme.colors.HIGHLIGHT.PINK};
+        border-top: 2px solid ${theme.colors.HIGHLIGHT.PINK};
+        color: ${theme.colors.PRIMARY.BACKGROUND};
+      }
+    }
+  `}
 `
