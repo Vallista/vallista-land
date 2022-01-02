@@ -1,8 +1,8 @@
-import { css } from '@emotion/react'
+import { css, Theme } from '@emotion/react'
 import styled from '@emotion/styled'
 import { FC } from 'react'
 
-import { AvailablePickedColor, Colors } from '../ThemeProvider/type'
+import { AvailablePickedColor } from '../ThemeProvider/type'
 import { BadgeProps, BadgeType } from './type'
 
 /**
@@ -44,6 +44,7 @@ export const Badge: FC<Partial<BadgeProps>> = (props) => {
 }
 
 const BadgeColorMapper = (
+  theme: Theme,
   params: BadgeProps
 ): Record<
   BadgeType,
@@ -51,77 +52,77 @@ const BadgeColorMapper = (
 > => ({
   primary: {
     background: params.outline
-      ? Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? Colors.PRIMARY.FOREGROUND
-      : Colors.PRIMARY.FOREGROUND,
-    border: Colors.PRIMARY.FOREGROUND,
-    color: params.outline ? Colors.PRIMARY.FOREGROUND : Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.FOREGROUND
+      : theme.colors.PRIMARY.FOREGROUND,
+    border: theme.colors.PRIMARY.FOREGROUND,
+    color: params.outline ? theme.colors.PRIMARY.FOREGROUND : theme.colors.PRIMARY.BACKGROUND
   },
   secondary: {
     background: params.outline
-      ? Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? Colors.PRIMARY.ACCENT_2
-      : Colors.PRIMARY.ACCENT_5,
-    border: Colors.PRIMARY.ACCENT_5,
+      ? theme.colors.PRIMARY.ACCENT_2
+      : theme.colors.PRIMARY.ACCENT_5,
+    border: theme.colors.PRIMARY.ACCENT_5,
     color: params.outline
-      ? Colors.PRIMARY.FOREGROUND
+      ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? Colors.PRIMARY.ACCENT_7
-      : Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.ACCENT_7
+      : theme.colors.PRIMARY.BACKGROUND
   },
   success: {
     background: params.outline
-      ? Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? Colors.SUCCESS.LIGHTER
-      : Colors.SUCCESS.DEFAULT,
-    border: Colors.SUCCESS.DEFAULT,
+      ? theme.colors.SUCCESS.LIGHTER
+      : theme.colors.SUCCESS.DEFAULT,
+    border: theme.colors.SUCCESS.DEFAULT,
     color: params.outline
-      ? Colors.PRIMARY.FOREGROUND
+      ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? Colors.SUCCESS.DARK
-      : Colors.PRIMARY.BACKGROUND
+      ? theme.colors.SUCCESS.DARK
+      : theme.colors.PRIMARY.BACKGROUND
   },
   error: {
     background: params.outline
-      ? Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? Colors.ERROR.LIGHTER
-      : Colors.ERROR.DEFAULT,
-    border: Colors.ERROR.DEFAULT,
+      ? theme.colors.ERROR.LIGHTER
+      : theme.colors.ERROR.DEFAULT,
+    border: theme.colors.ERROR.DEFAULT,
     color: params.outline
-      ? Colors.PRIMARY.FOREGROUND
+      ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? Colors.ERROR.DARK
-      : Colors.PRIMARY.BACKGROUND
+      ? theme.colors.ERROR.DARK
+      : theme.colors.PRIMARY.BACKGROUND
   },
   warning: {
     background: params.outline
-      ? Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? Colors.WARNING.LIGHTER
-      : Colors.WARNING.DEFAULT,
-    border: Colors.WARNING.DEFAULT,
+      ? theme.colors.WARNING.LIGHTER
+      : theme.colors.WARNING.DEFAULT,
+    border: theme.colors.WARNING.DEFAULT,
     color: params.outline
-      ? Colors.PRIMARY.FOREGROUND
+      ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? Colors.WARNING.DARK
-      : Colors.PRIMARY.BACKGROUND
+      ? theme.colors.WARNING.DARK
+      : theme.colors.PRIMARY.BACKGROUND
   },
   violet: {
     background: params.outline
-      ? Colors.PRIMARY.BACKGROUND
+      ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? Colors.VIOLET.LIGHTER
-      : Colors.VIOLET.DEFAULT,
-    border: Colors.VIOLET.DEFAULT,
+      ? theme.colors.VIOLET.LIGHTER
+      : theme.colors.VIOLET.DEFAULT,
+    border: theme.colors.VIOLET.DEFAULT,
     color: params.outline
-      ? Colors.PRIMARY.FOREGROUND
+      ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? Colors.VIOLET.DARK
-      : Colors.PRIMARY.BACKGROUND
+      ? theme.colors.VIOLET.DARK
+      : theme.colors.PRIMARY.BACKGROUND
   }
 })
 
@@ -132,31 +133,31 @@ const Container = styled.span<BadgeProps>`
   font-weight: 500;
   line-height: 1;
   cursor: inherit;
-  font-feature-settings: 'tnum';
+  font-feature-settings: tnum;
   font-variant: tabular-nums;
   text-transform: capitalize;
   white-space: nowrap;
-  ${(props) => css`
-    background: ${BadgeColorMapper(props)[props.type].background};
-    color: ${BadgeColorMapper(props)[props.type].color};
-    border: 1px solid ${BadgeColorMapper(props)[props.type].border};
+  ${({ theme, ...props }) => css`
+    background: ${BadgeColorMapper(theme, props)[props.type].background};
+    color: ${BadgeColorMapper(theme, props)[props.type].color};
+    border: 1px solid ${BadgeColorMapper(theme, props)[props.type].border};
 
     ${props.size === 'small' &&
     css`
       padding: 3px 7px;
-      font-size: 12px;
+      font-size: 0.75rem;
     `}
 
     ${props.size === 'normal' &&
     css`
       padding: 2px 7px;
-      font-size: 14px;
+      font-size: 0.875rem;
     `}
     
     ${props.size === 'large' &&
     css`
       padding: 3px 10px;
-      font-size: 16px;
+      font-size: 1rem;
     `}
   `}
 `

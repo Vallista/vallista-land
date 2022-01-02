@@ -98,11 +98,11 @@ const Label = styled.label<Pick<ReturningUseCheckbox, 'fullWidth' | 'disabled' |
 
 const Caption = styled.span`
   color: ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
-  font-size: 0.98em;
+  font-size: 0.98rem;
   font-weight: 500;
   display: flex;
   max-width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   cursor: text;
 `
 

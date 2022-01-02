@@ -1,9 +1,9 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { useLocation } from '@reach/router'
-import { Text, Tooltip } from '@vallista-land/core'
+import { Text, Tooltip, useWindowSize } from '@vallista-land/core'
 import { navigate } from 'gatsby'
-import { useMemo, VFC } from 'react'
+import { useEffect, useMemo, useState, VFC } from 'react'
 
 import { NavCategory, NavFooter } from '../../../config/navbar'
 
@@ -11,6 +11,12 @@ export const NavBar: VFC = () => {
   const location = useLocation()
   const categories = useMemo(() => Object.values(NavCategory), [])
   const footer = useMemo(() => Object.values(NavFooter), [])
+  const [visibleTooltip, setVisibleTooltip] = useState(true)
+  const windowSize = useWindowSize()
+
+  useEffect(() => {
+    setVisibleTooltip(!((windowSize.width ?? 0) <= 1000))
+  }, [windowSize])
 
   return (
     <Container>
@@ -18,9 +24,13 @@ export const NavBar: VFC = () => {
         <Wrapper>
           {categories.map((it) => (
             <Category checked={isCategoryActive(it.link)} key={it.name} onClick={() => moveToLocation(it.link)}>
-              <Tooltip text={<Text>{it.name}</Text>} position='right'>
-                <div>{it.icon}</div>
-              </Tooltip>
+              {visibleTooltip ? (
+                <Tooltip text={<Text>{it.name}</Text>} position='right'>
+                  <div>{it.icon}</div>
+                </Tooltip>
+              ) : (
+                it.icon
+              )}
             </Category>
           ))}
         </Wrapper>
@@ -28,9 +38,13 @@ export const NavBar: VFC = () => {
           {footer.map((it) =>
             it.link === '' ? undefined : (
               <Category key={it.name} onClick={() => moveToLocation(it.link, true)}>
-                <Tooltip text={<Text>{it.name}</Text>} position='right'>
-                  <div>{it.icon}</div>
-                </Tooltip>
+                {visibleTooltip ? (
+                  <Tooltip text={<Text>{it.name}</Text>} position='right'>
+                    <div>{it.icon}</div>
+                  </Tooltip>
+                ) : (
+                  it.icon
+                )}
               </Category>
             )
           )}
@@ -54,31 +68,48 @@ export const NavBar: VFC = () => {
 }
 
 const Container = styled.aside`
-  min-width: 80px;
-  height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
 
   ${({ theme }) => css`
     background: ${theme.colors.PRIMARY.ACCENT_2};
-    z-index: ${theme.layers.AFTER_STANDARD};
+    z-index: ${theme.layers.AFTER_STANDARD + 1};
   `}
 
+  @media screen and (min-width: 1001px) {
+    min-width: 80px;
+    height: 100vh;
+  }
+
   @media screen and (max-width: 1000px) {
-    left: -9999px;
+    top: 43px;
+    min-height: 80px;
+    width: calc(100vw - 8px);
   }
 `
 
 const Section = styled.section`
-  height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
   align-items: center;
+
+  @media screen and (min-width: 1001px) {
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  @media screen and (max-width: 1000px) {
+    flex-direction: row;
+  }
 `
 
-const Wrapper = styled.nav``
+const Wrapper = styled.nav`
+  @media screen and (max-width: 1000px) {
+    display: flex;
+    flex-direction: row;
+  }
+`
 
 const Category = styled.a<{ checked?: boolean }>`
   position: relative;
@@ -126,7 +157,7 @@ const Category = styled.a<{ checked?: boolean }>`
         width: 80px;
         height: 80px;
         content: '';
-        border-left: 1px solid ${theme.colors.HIGHLIGHT.PINK};
+        border-left: 3px solid ${theme.colors.HIGHLIGHT.PINK};
       }
     `}
   `}

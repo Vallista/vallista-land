@@ -22,7 +22,7 @@ export const Container = styled.div<Partial<ContainerProps>>`
       ? css`
           flex-direction: row;
           & > *:not(:first-of-type) {
-            margin-left: ${gap * 24}px;
+            margin-left: calc(${gap} * 1rem);
           }
         `
       : css`
@@ -31,7 +31,7 @@ export const Container = styled.div<Partial<ContainerProps>>`
           & > article,
           & > header,
           & > footer {
-            gap: ${gap * 24}px;
+            gap: calc(${gap} * 1rem);
           }
 
           &:last-of-type {

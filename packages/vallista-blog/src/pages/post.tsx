@@ -21,22 +21,18 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
 
   return (
     <Layout seo={{ title: title, description: excerpt, article: html }} edges={edges}>
-      <Main>
-        <article>
-          <PostHeader
-            title={title}
-            date={date}
-            image={image?.publicURL}
-            tags={tags}
-            timeToRead={timeToRead}
-            author={author}
-          >
-            {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
-          </PostHeader>
-          <Markdown html={html} />
-        </article>
-        <section id='comments'></section>
-      </Main>
+      <PostHeader
+        title={title}
+        date={date}
+        image={image?.publicURL}
+        tags={tags}
+        timeToRead={timeToRead}
+        author={author}
+      >
+        {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
+      </PostHeader>
+      <Markdown html={html} />
+      <section id='comments'></section>
     </Layout>
   )
 
@@ -118,30 +114,4 @@ export const pageQuery = graphql`
       }
     }
   }
-`
-
-const Main = styled.main`
-  ${({ theme }) => css`
-    margin-left: 400px;
-
-    @media screen and (max-width: 1000px) {
-      margin-left: 0;
-    }
-
-    /* a */
-    a {
-      cursor: pointer;
-      border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-      font-weight: 600;
-      text-decoration: none;
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      transition: all 0.1s ease-out;
-
-      &:hover {
-        background: ${theme.colors.HIGHLIGHT.PINK};
-        border-top: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-        color: ${theme.colors.PRIMARY.BACKGROUND};
-      }
-    }
-  `}
 `

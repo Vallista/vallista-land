@@ -1,6 +1,6 @@
-import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Text, Badge, Container, Spacer } from '@vallista-land/core'
+import { Link } from 'gatsby'
 import { FC } from 'react'
 
 import { getTime } from '../../utils'
@@ -37,7 +37,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
         )}
         <Spacer y={1} />
         <Text size={16}>
-          {dateToString}에 <a href='/'>{author}</a>가 작성했어요.
+          {dateToString}에 <Link to='/'>{author}</Link>가 작성했어요.
         </Text>
         <Spacer y={0.2} />
         <Text size={16}>읽는데 약 {timeToRead}분 걸려요!</Text>

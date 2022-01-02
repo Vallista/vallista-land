@@ -136,7 +136,7 @@ const Container = styled.div<{ card?: boolean }>`
 
     ${card &&
     css`
-      padding: 24px;
+      padding: 1.5rem;
       box-shadow: ${theme.shadows.SMALL};
       border-radius: 5px;
       border: none;
@@ -148,12 +148,12 @@ const Header = styled.h3<{ size?: CollapseSizeType }>`
   ${({ size }) =>
     size === 'small'
       ? css`
-          font-size: 16px;
+          font-size: 1rem;
           font-weight: 500;
         `
       : css`
           font-weight: 600;
-          font-size: 21px;
+          font-size: 1.3rem;
         `}
   hyphens: auto;
   margin-top: 0;
@@ -195,10 +195,10 @@ const HeaderContents = styled.span<{ size?: CollapseSizeType }>`
   ${({ size }) =>
     size === 'small'
       ? css`
-          padding: 12px 0;
+          padding: 0.875rem 0;
         `
       : css`
-          padding: 24px 0;
+          padding: 1.5rem 0;
         `}
 
   ${({ theme }) =>
@@ -217,13 +217,13 @@ const Arrow = styled.span<{ expanded: boolean }>`
 `
 
 const Contents = styled.div`
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 26px;
   overflow-y: hidden;
   will-change: height;
   transition: height 0.2s ease;
 
   & > div {
-    margin: 16px 0;
+    margin: 1rem 0;
   }
 `

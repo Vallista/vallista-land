@@ -29,7 +29,7 @@ const Element = styled.p<ReturningUseText>`
   ${({ size, lineHeight, color, weight, align, wrap }) => css`
     color: ${color || 'inherit'};
     font-size: ${size}px;
-    line-height: ${lineHeight || 1.5};
+    line-height: ${lineHeight ? `${lineHeight}px` : 1.5};
     
     ${
       weight &&
@@ -49,5 +49,9 @@ const Element = styled.p<ReturningUseText>`
         white-space: nowrap;
       `
     };
+
+    & strong, & bold {
+      font-weight: 800;
+    }
   `}
 `

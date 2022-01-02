@@ -38,7 +38,7 @@ const Wrapper = styled.li<ReturningUseTag>`
       background-color: ${theme.colors.PRIMARY.ACCENT_1};
       border: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
       border-radius: 5px;
-      font-size: 14px;
+      font-size: 0.9rem;
       padding: 0 6px;
       align-items: center;
       display: flex;

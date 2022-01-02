@@ -11,12 +11,12 @@ const Inset: FC = (props) => {
 }
 
 const Wrapper = styled.div`
-  margin: 0 -24px;
+  margin: 0 -1.5rem;
   ${({ theme }) => css`
     border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
     border-bottom: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
     background: 1px solid ${theme.colors.PRIMARY.ACCENT_1};
-    padding: 24px;
+    padding: 1.5rem;
   `}
 `
 

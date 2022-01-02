@@ -19,8 +19,8 @@ const Body: FC = (props) => {
 }
 
 const Wrapper = styled.div`
-  padding: 24px;
-  font-size: 14px;
+  padding: 1.5rem;
+  font-size: 0.9rem;
   line-height: 1.6;
 `
 

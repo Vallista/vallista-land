@@ -1,8 +1,8 @@
-import { css } from '@emotion/react'
+import { css, Theme } from '@emotion/react'
 import styled from '@emotion/styled'
 import { FC, useEffect, useRef, useState } from 'react'
 
-import { AvailablePickedColor, Colors } from '../../components/ThemeProvider'
+import { AvailablePickedColor } from '../../components/ThemeProvider'
 import { TooltipPosition, TooltipType, TooltipProps } from './type'
 import { useTooltip } from './useTooltip'
 
@@ -63,13 +63,13 @@ const ChildrenWrapper = styled.div`
 
 const distanceGap = 10
 
-const tooltipBackgroundMapper: Record<TooltipType, AvailablePickedColor> = {
-  primary: Colors.PRIMARY.FOREGROUND,
-  success: Colors.SUCCESS.DEFAULT,
-  warning: Colors.WARNING.DEFAULT,
-  error: Colors.ERROR.DEFAULT,
-  secondary: Colors.PRIMARY.ACCENT_5
-}
+const tooltipBackgroundMapper: (theme: Theme) => Record<TooltipType, AvailablePickedColor> = (theme) => ({
+  primary: theme.colors.PRIMARY.FOREGROUND,
+  success: theme.colors.SUCCESS.DEFAULT,
+  warning: theme.colors.WARNING.DEFAULT,
+  error: theme.colors.ERROR.DEFAULT,
+  secondary: theme.colors.PRIMARY.ACCENT_5
+})
 
 const Popup = styled.div<{
   type: TooltipType
@@ -78,6 +78,7 @@ const Popup = styled.div<{
   width: number
   height: number
 }>`
+  cursor: default;
   width: 250px;
   position: absolute;
   opacity: 0;
@@ -85,9 +86,9 @@ const Popup = styled.div<{
   text-align: center;
 
   ${({ theme, position, width, height, type }) => css`
-    z-index: ${theme.layers.FOREGROUND};
+    z-index: ${theme.layers.AFTER_STANDARD};
     color: ${theme.colors.PRIMARY.BACKGROUND};
-    background: ${tooltipBackgroundMapper[type]};
+    background: ${tooltipBackgroundMapper(theme)[type]};
     padding: 24px;
     border-radius: 5px;
     box-sizing: border-box;
@@ -97,7 +98,7 @@ const Popup = styled.div<{
       position: absolute;
       width: 10px;
       height: 10px;
-      background: ${tooltipBackgroundMapper[type]};
+      background: ${tooltipBackgroundMapper(theme)[type]};
     }
 
     ${position === 'top' &&

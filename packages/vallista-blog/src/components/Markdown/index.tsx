@@ -60,20 +60,30 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
 
 const Wrapper = styled.div`
   width: 100%;
-  /* width: calc(100vw - 1.5rem - 80px); */
   max-width: 900px;
   padding: 2rem;
   margin-left: auto;
   margin-right: auto;
 
   @media screen and (max-width: 1000px) {
-    /* width: calc(100vw - 1.5rem); */
     padding: 1.5rem;
   }
 `
 
 const Contents = styled(Wrapper)`
+  width: calc(100vw - 408px);
+
+  @media screen and (max-width: 1000px) {
+    width: calc(100vw - 8px);
+  }
+
   ${({ theme }) => css`
+    /** image */
+
+    p > img {
+      width: 100%;
+    }
+
     /* Default Text */
 
     p {
@@ -210,6 +220,15 @@ const Contents = styled(Wrapper)`
       }
     }
 
+    li > a {
+      white-space: inherit;
+      word-wrap: break-word;
+    }
+
+    li {
+      color: ${theme.colors.PRIMARY.FOREGROUND};
+    }
+
     /* iframe */
 
     iframe {
@@ -221,7 +240,6 @@ const Contents = styled(Wrapper)`
       font-size: 0.9rem;
       text-size-adjust: none;
       margin: 1.5rem -1.5rem;
-      max-width: 999999px;
       overflow-x: auto;
       overflow-y: hidden;
       box-sizing: border-box;
@@ -285,6 +303,38 @@ const Contents = styled(Wrapper)`
           padding-left: 0 !important;
         }
       }
+    }
+
+    p > code {
+      font-weight: 600;
+      color: ${theme.colors.HIGHLIGHT.PINK};
+      white-space: inherit;
+
+      & * span {
+        white-space: inherit;
+      }
+
+      & * span:not([class='grvsc-source']) {
+        padding-left: 0 !important;
+      }
+    }
+
+    img[class='gatsby-resp-image-image'] {
+      box-shadow: none !important;
+    }
+
+    img[class='gatsby-resp-image-image'][alt]:after {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: ${theme.colors.PRIMARY.BACKGROUND};
+      font-weight: 200;
+      content: '이미지를 표시할 수 없어요. :(';
     }
   `}
 `

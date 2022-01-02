@@ -1,22 +1,41 @@
 import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
-import { FC, VFC } from 'react'
+import { FC, useState, VFC } from 'react'
 
+import { createContext } from '../../utils/createContext'
 import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
 
 const Themes: BaseThemeMapper = {
-  DEFAULT: {
+  light: {
     colors: Colors,
     layers: Layers,
     shadows: Shadows
   },
-  DARK: {
-    colors: Colors,
+  dark: {
+    colors: {
+      ...Colors,
+      PRIMARY: {
+        ACCENT_1: Colors.PRIMARY.ACCENT_8,
+        ACCENT_2: Colors.PRIMARY.ACCENT_7,
+        ACCENT_3: Colors.PRIMARY.ACCENT_6,
+        ACCENT_4: Colors.PRIMARY.ACCENT_5,
+        ACCENT_5: Colors.PRIMARY.ACCENT_4,
+        ACCENT_6: Colors.PRIMARY.ACCENT_3,
+        ACCENT_7: Colors.PRIMARY.ACCENT_2,
+        ACCENT_8: Colors.PRIMARY.ACCENT_1,
+        BACKGROUND: Colors.PRIMARY.FOREGROUND,
+        FOREGROUND: Colors.PRIMARY.BACKGROUND
+      }
+    },
     layers: Layers,
     shadows: Shadows
   }
 }
 
 type ThemeKeys = keyof typeof Themes
+
+const [Context, useContext] = createContext<{
+  changeTheme: (theme: 'light' | 'dark') => void
+}>()
 
 /**
  * # ThemeProvider
@@ -31,14 +50,22 @@ type ThemeKeys = keyof typeof Themes
  * </ThemeProvider>
  * ```
  */
-export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'DEFAULT', children }) => {
+export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'light', children }) => {
+  const [themeState, setThemeState] = useState(theme)
+
   return (
-    <>
+    <Context state={{ changeTheme }}>
       <Reset />
-      <BaseThemeProvider theme={Themes[theme]}>{children}</BaseThemeProvider>
-    </>
+      <BaseThemeProvider theme={Themes[themeState]}>{children}</BaseThemeProvider>
+    </Context>
   )
+
+  function changeTheme(state: 'light' | 'dark'): void {
+    setThemeState(state)
+  }
 }
+
+export const useTheme = useContext
 
 const Reset: VFC = () => {
   return (
@@ -213,6 +240,10 @@ const Reset: VFC = () => {
         table {
           border-collapse: collapse;
           border-spacing: 0;
+        }
+
+        string {
+          font-weight: 600 !important;
         }
       `}
     />

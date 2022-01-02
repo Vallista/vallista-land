@@ -40,7 +40,7 @@ export const Radio: FC<NeedRadioProp> = forwardRef<HTMLInputElement, NeedRadioPr
 const Label = styled.label<{ disabled: boolean }>`
   display: inline-flex;
   align-items: flex-start;
-  font-size: 14px;
+  font-size: 0.9rem;
   ${({ theme, disabled }) => css`
     color: ${disabled ? theme.colors.PRIMARY.ACCENT_3 : theme.colors.PRIMARY.FOREGROUND};
     cursor: ${disabled ? 'not-allowed' : 'pointer'};
@@ -113,5 +113,5 @@ const InnerCircle = styled.span`
 `
 
 const Text = styled.span`
-  margin-left: 8px;
+  margin-left: 0.5rem;
 `

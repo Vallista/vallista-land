@@ -109,10 +109,10 @@ const _Select = styled.select`
   ${({ theme }) => css`
     color: ${theme.colors.PRIMARY.FOREGROUND};
     background: ${theme.colors.PRIMARY.BACKGROUND};
-    font-size: 14px;
-    margin-right: -20px;
+    font-size: 0.9rem;
+    margin-right: -1.125rem;
     width: calc(100% + 20px);
-    padding: 0 12px;
+    padding: 0 0.875rem;
     text-transform: none;
     box-sizing: border-box;
   `}

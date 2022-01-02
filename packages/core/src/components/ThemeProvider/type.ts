@@ -61,7 +61,7 @@ export const Colors = {
     PINK: '#FF0080',
     YELLOW: '#FFF500'
   }
-} as const
+}
 
 /**
  * # Layers
@@ -85,7 +85,7 @@ export const Layers = {
   SNACKBAR: 3000,
   /** input등 요소들이 안보여야하는 경우, 지정하고 화면 밖으로 컬링해서 빼버림 */
   CONCEAL: 9999
-} as const
+}
 
 export const Shadows = {
   SMALLEST: '0 2px 4px rgba(0,0,0,0.1)',
@@ -94,7 +94,7 @@ export const Shadows = {
   MEDIUM: '0 8px 30px rgba(0,0,0,0.12)',
   LARGE: '0 30px 60px rgba(0,0,0,0.12)',
   HOVER: '0 30px 60px rgba(0,0,0,0.12)'
-} as const
+}
 
 export type ColorType = typeof Colors
 export type LayerType = typeof Layers
@@ -114,4 +114,4 @@ export interface BaseTheme {
   shadows: ShadowType
 }
 
-export type BaseThemeMapper = Record<'DEFAULT' | 'DARK', BaseTheme>
+export type BaseThemeMapper = Record<'light' | 'dark', BaseTheme>

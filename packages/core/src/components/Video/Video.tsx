@@ -125,7 +125,7 @@ const Controls = styled.div`
   bottom: 5%;
   width: 85%;
   height: 40px;
-  padding: 0 8px;
+  padding: 0 0.5rem;
   align-items: center;
   transition: all 0.2s cubic-bezier(0.25, 0.57, 0.45, 0.94);
 

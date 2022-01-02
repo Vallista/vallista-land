@@ -136,7 +136,7 @@ const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>
 const Wrapper = styled.div`
   width: 420px;
   height: auto;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   overflow: hidden;
   overflow-y: auto;
   outline: none;

@@ -29,11 +29,11 @@ export const Footer: FC<FooterProps> = (props) => {
 }
 
 const FooterContainer = styled.footer`
-  font-size: 14px;
+  font-size: 0.9rem;
   ${({ theme }) => css`
     background: ${theme.colors.PRIMARY.ACCENT_1};
     border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-    padding: calc(1.5 * 24px) 24px 24px;
+    padding: calc(1.5 * 1rem) 1rem 1rem;
   `}
 `
 
@@ -83,7 +83,7 @@ export const FooterGroup: FC<FooterGroupProps> = (props) => {
 
 const FooterGroupContainer = styled.div`
   &:not(:last-of-type) {
-    margin-right: 24px;
+    margin-right: 1rem;
   }
 
   & > ul {
@@ -111,8 +111,8 @@ const FooterGroupTitleInput = styled.input`
 const FooterGroupTitleLabel = styled.label`
   & > h3 {
     font-weight: 400;
-    font-size: 14px;
-    margin: 12px 0;
+    font-size: 0.9rem;
+    margin: 0.875rem 0;
   }
 `
 
@@ -149,7 +149,7 @@ export const FooterLink: FC<FooterLinkProps> = (props) => {
 const FooterLinkContainer = styled.li`
   ${({ theme }) => css`
     color: ${theme.colors.PRIMARY.ACCENT_5};
-    padding: 8px 0;
+    padding: 0.5rem 0;
 
     & > a {
       color: ${theme.colors.PRIMARY.ACCENT_5};

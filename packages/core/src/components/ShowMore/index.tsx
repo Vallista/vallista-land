@@ -52,8 +52,8 @@ export const ShowMore: VFC<ShowMoreProps> = (props) => {
 const Container = styled.div`
   display: flex;
   width: calc(100% - 40px);
-  margin-top: 20px;
-  margin-left: 20px;
+  margin-top: 1.125rem;
+  margin-left: 1.125rem;
   box-align: center;
   align-items: center;
   min-height: 30px;

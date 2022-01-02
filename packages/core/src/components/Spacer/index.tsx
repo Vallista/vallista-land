@@ -43,8 +43,8 @@ export const Spacer: FC<Partial<SpacerProps>> = (props) => {
 
 const Space = styled.span<SpacerProps>`
   ${({ x, y }) => css`
-    margin-left: calc(${24 * x}px - 1px);
-    margin-top: calc(${24 * y}px - 1px);
+    margin-left: calc(${1.5 * x}rem - 1px);
+    margin-top: calc(${1.5 * y}rem - 1px);
   `}
 
   width: 1px;
