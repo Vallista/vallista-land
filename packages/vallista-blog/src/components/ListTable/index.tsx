@@ -24,7 +24,7 @@ export const ListTable: VFC<ListTableProps> = (props) => {
       <Spacer y={1} />
       <List>
         {list.map((it) => (
-          <ListItem onClick={() => moveToLocation(it.slug)}>
+          <ListItem key={it.slug} onClick={() => moveToLocation(it.slug)}>
             <Text as='span' size={16} weight={600}>
               {it.name}
             </Text>
@@ -49,7 +49,8 @@ const ListItem = styled.a`
   justify-content: space-between;
   align-items: center;
   border: none !important;
-  padding: 0.55rem 1.5rem;
+  border-radius: 6px;
+  padding: 0.625rem 1.5rem;
   margin: 0 -1.5rem;
 
   ${({ theme }) => css`

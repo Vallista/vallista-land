@@ -255,18 +255,14 @@ const Contents = styled(Wrapper)`
         background: var(--scrollbar-thumb);
         border-radius: 0;
       }
-    }
 
-    @media screen and (min-width: 1350px) {
-      div[class*='markdown-wrapper'] {
+      @media screen and (min-width: 1350px) {
         margin-left: -3.5rem;
         margin-right: -3.5rem;
         margin-bottom: 2rem;
       }
-    }
 
-    @media screen and (max-width: 1000px) {
-      div[class*='markdown-wrapper'] {
+      @media screen and (max-width: 1000px) {
         padding-left: 1.5rem;
       }
     }
@@ -277,9 +273,9 @@ const Contents = styled(Wrapper)`
       margin-bottom: 0;
       margin-top: 0;
       min-width: calc(100% + 1rem);
+      padding: 1rem 1rem 1rem 0;
       -webkit-font-smoothing: subpixel-antialiased;
       overflow: initial;
-      padding: 1rem 1rem 1rem 0;
       white-space: pre;
       font-family: var(--code-font-family);
       word-wrap: normal;
@@ -334,6 +330,27 @@ const Contents = styled(Wrapper)`
       background: ${theme.colors.PRIMARY.BACKGROUND};
       font-weight: 200;
       content: '이미지를 표시할 수 없어요. :(';
+    }
+
+    blockquote {
+      background: ${theme.colors.PRIMARY.ACCENT_2};
+      margin: 0 -1.5rem;
+      margin-bottom: 2rem;
+      padding: 1rem 1.5rem;
+      border-left: 6px solid ${theme.colors.HIGHLIGHT.PINK};
+
+      & > p {
+        margin-bottom: 0;
+      }
+
+      @media screen and (min-width: 1350px) {
+        margin-left: -3.5rem;
+        margin-right: -3.5rem;
+      }
+
+      @media screen and (max-width: 1000px) {
+        padding-left: 1.5rem;
+      }
     }
   `}
 `

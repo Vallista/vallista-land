@@ -53,7 +53,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
                 strokeLinecap='round'
                 strokeLinejoin='round'
                 fill='none'
-                shape-rendering='geometricPrecision'
+                shapeRendering='geometricPrecision'
               >
                 <path d='M21 10H3' />
                 <path d='M21 6H3' />

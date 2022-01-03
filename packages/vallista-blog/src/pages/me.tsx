@@ -1,7 +1,7 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Button, Container, Spacer, Text } from '@vallista-land/core'
-import { graphql, navigate } from 'gatsby'
+import { graphql } from 'gatsby'
 import { VFC } from 'react'
 
 import { Layout } from '../components/Layout'
@@ -12,8 +12,6 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
   const { resume } = useConfig()
   const { data } = props
   const { edges } = data.allMarkdownRemark
-
-  console.log(resume.skills)
 
   return (
     <Layout edges={edges}>
@@ -125,8 +123,8 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
                   </Container>
                   <Container>
                     <div>
-                      {it.projects?.map((it_) => (
-                        <Container>
+                      {it.projects?.map((it_, idx) => (
+                        <Container key={idx}>
                           <Text size={24} weight={600} as='h3'>
                             {it_.name}
                           </Text>
@@ -134,13 +132,15 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
                           <Text size={16}>
                             {it_.startDate} ~ {it_.endDate}
                           </Text>
-                          {it_.descriptions.map((it__) => (
-                            <Text size={16}>{it__}</Text>
+                          {it_.descriptions.map((it__, idx) => (
+                            <Text size={16} key={idx}>
+                              {it__}
+                            </Text>
                           ))}
                           <Spacer y={1} />
                           <ul>
-                            {it_.which.map((it__) => (
-                              <li>
+                            {it_.which.map((it__, idx) => (
+                              <li key={idx}>
                                 <Text size={14}>{it__}</Text>
                               </li>
                             ))}
@@ -162,20 +162,22 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
                 {resume.skills.title}
               </Text>
               <Spacer y={1.5} />
-              {resume.skills.list.map((it) => (
-                <Container>
+              {resume.skills.list.map((it, idx) => (
+                <Container key={idx}>
                   <Text as='h3' size={24} weight={600}>
                     {it.title}
                   </Text>
                   <div>
-                    {it.descriptions?.map((it_) => (
-                      <ul>
+                    {it.descriptions?.map((it_, idx) => (
+                      <ul key={idx}>
                         <li>
                           <Container>
                             <Text size={16}>{it_.title}</Text>
                             <SubTitleText>
-                              {it_.subTitle.map((it__) => (
-                                <Text size={14}>{it__}</Text>
+                              {it_.subTitle.map((it__, idx) => (
+                                <Text size={14} key={idx}>
+                                  {it__}
+                                </Text>
                               ))}
                             </SubTitleText>
                           </Container>
@@ -196,14 +198,14 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
                 {resume.hobby.description}
               </Text>
               <Spacer y={1.5} />
-              {resume.hobby.list.map((it) => (
-                <Container>
+              {resume.hobby.list.map((it, idx) => (
+                <Container key={idx}>
                   <Text as='h3' size={24} weight={600}>
                     {it.title}
                   </Text>
                   <div>
-                    {it.descriptions?.map((it_) => (
-                      <ul>
+                    {it.descriptions?.map((it_, idx) => (
+                      <ul key={idx}>
                         <li>
                           <Container>
                             <Text size={16}>{it_}</Text>
@@ -226,8 +228,8 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
               </Text>
               <Spacer y={1.5} />
               <ul>
-                {resume.speaker.list.map((it) => (
-                  <li>
+                {resume.speaker.list.map((it, idx) => (
+                  <li key={idx}>
                     <Text size={16}>
                       <a onClick={() => openNewPage(it.url)}>{it.title}</a>
                     </Text>
@@ -245,15 +247,15 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
               </Text>
               <Spacer y={1.5} />
               <ul>
-                {resume.activities.list.map((it) =>
+                {resume.activities.list.map((it, idx) =>
                   it.url !== null ? (
-                    <li>
+                    <li key={idx}>
                       <Text size={16}>
                         <a onClick={() => openNewPage(it.url!)}>{it.title}</a>
                       </Text>
                     </li>
                   ) : (
-                    <li>
+                    <li key={idx}>
                       <Text size={16}>{it.title}</Text>
                     </li>
                   )
@@ -270,15 +272,15 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
               </Text>
               <Spacer y={1.5} />
               <ul>
-                {resume.lectures.list.map((it) =>
+                {resume.lectures.list.map((it, idx) =>
                   it.url !== null ? (
-                    <li>
+                    <li key={idx}>
                       <Text size={16}>
                         <a onClick={() => openNewPage(it.url!)}>{it.title}</a>
                       </Text>
                     </li>
                   ) : (
-                    <li>
+                    <li key={idx}>
                       <Text size={16}>{it.title}</Text>
                     </li>
                   )
@@ -295,15 +297,15 @@ const MePage: VFC<PageProps<IndexQuery>> = (props) => {
               </Text>
               <Spacer y={1.5} />
               <ul>
-                {resume.awards.list.map((it) =>
+                {resume.awards.list.map((it, idx) =>
                   it.url !== null ? (
-                    <li>
+                    <li key={idx}>
                       <Text size={16}>
                         <a onClick={() => openNewPage(it.url!)}>{it.title}</a>
                       </Text>
                     </li>
                   ) : (
-                    <li>
+                    <li key={idx}>
                       <Text size={16}>{it.title}</Text>
                     </li>
                   )
