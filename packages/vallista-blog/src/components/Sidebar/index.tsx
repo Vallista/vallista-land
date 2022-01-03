@@ -17,11 +17,12 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const location = useLocation()
   const [search, setSearch] = useState(() => {
     if (typeof window === 'undefined') return ''
+
     return window.localStorage.getItem('search') || ''
   })
   const [viewType, setViewType] = useState<'list' | 'card'>(() => {
-    if (typeof window === 'undefined') return 'list'
-    return (window.localStorage.getItem('viewType') as 'list' | 'card') || 'list'
+    if (typeof window === 'undefined') return 'card'
+    return (window.localStorage.getItem('viewType') as 'list' | 'card') || 'card'
   })
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
@@ -32,7 +33,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   useEffect(() => {
     if (!ref.current) return
 
-    ref.current.scrollBy(0, Number(window.localStorage.getItem('sidebarScroll') || '0'))
+    ref.current.scrollTo({ top: Number(window.localStorage.getItem('sidebarScroll') || '0'), behavior: 'smooth' })
 
     ref.current.addEventListener(
       'scroll',
@@ -51,7 +52,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const ListItem = useMemo(() => (viewType === 'card' ? CardStyleItem : ListStyleItem), [viewType])
 
   return (
-    <SidebarContainer ref={ref} hasVerticalScrollbar={hasVerticalScrollbar} fold={fold}>
+    <SidebarContainer id='sidebar-scroller' ref={ref} hasVerticalScrollbar={hasVerticalScrollbar} fold={fold}>
       <Header>
         <Title>
           <Text>
