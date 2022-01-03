@@ -164,7 +164,7 @@ const SubTitle = styled.span`
   font-size: 14px;
   font-weight: 400;
   letter-spacing: normal;
-  margin-bottom: 0
+  margin-bottom: 0;
   display: block;
   ${({ theme }) => css`
     color: ${theme.colors.PRIMARY.ACCENT_5};

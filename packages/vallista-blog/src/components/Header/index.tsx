@@ -113,7 +113,7 @@ const Container = styled.header<{ fold: boolean }>`
 
   @media screen and (max-width: 1000px) {
     left: 0;
-    width: 100%;
+    width: 100% !important;
   }
 `
 

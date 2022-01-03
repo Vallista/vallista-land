@@ -85,7 +85,20 @@ const Container = styled.aside`
   @media screen and (max-width: 1000px) {
     top: 43px;
     min-height: 80px;
-    width: calc(100vw - 8px);
+    width: 100vw;
+    overflow-y: hidden;
+    overflow-x: auto;
+
+    &::-webkit-scrollbar {
+      background: var(--scrollbar-background);
+      height: 8px;
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 0;
+    }
   }
 `
 
@@ -158,6 +171,12 @@ const Category = styled.a<{ checked?: boolean }>`
         height: 80px;
         content: '';
         border-left: 3px solid ${theme.colors.HIGHLIGHT.PINK};
+
+        @media screen and (max-width: 1000px) {
+          border-left: none;
+
+          border-bottom: 3px solid ${theme.colors.HIGHLIGHT.PINK};
+        }
       }
     `}
   `}

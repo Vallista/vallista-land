@@ -71,10 +71,9 @@ const Wrapper = styled.div`
 `
 
 const Contents = styled(Wrapper)`
-  width: calc(100vw - 408px);
-
+  width: calc(100vw - 400px);
   @media screen and (max-width: 1000px) {
-    width: calc(100vw - 8px);
+    width: 100vw;
   }
 
   ${({ theme }) => css`

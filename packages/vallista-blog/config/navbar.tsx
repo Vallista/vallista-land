@@ -9,6 +9,26 @@ export const NavCategory: NavCategoryType = {
     icon: <Image src={profile} width={55} height={55} />,
     link: '/me'
   },
+  home: {
+    name: '홈으로 갑니다!',
+    icon: (
+      <svg
+        viewBox='0 0 24 24'
+        width='24'
+        height='24'
+        stroke='currentColor'
+        strokeWidth='1.5'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+        fill='none'
+        shapeRendering='geometricPrecision'
+      >
+        <path d='M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z' />
+        <path d='M9 22V12h6v10' />
+      </svg>
+    ),
+    link: '/'
+  },
   posts: {
     name: '제가 쓴 글을 보세요!',
     icon: (
