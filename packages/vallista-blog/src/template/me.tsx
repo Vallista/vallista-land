@@ -4,17 +4,17 @@ import { Button, Container, Spacer, Text } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { VFC } from 'react'
 
-import { Layout } from '../components/Layout'
+import Layout from '../components/Layout'
 import { useConfig } from '../hooks/useConfig'
 import { IndexQuery, PageProps } from '../types/type'
 
 const MePage: VFC<PageProps<IndexQuery>> = (props) => {
   const { resume } = useConfig()
   const { data } = props
-  const { edges } = data.allMarkdownRemark
+  const { nodes } = data.allMarkdownRemark
 
   return (
-    <Layout edges={edges}>
+    <Layout nodes={nodes}>
       <Container>
         <Header>
           <Wrapper>
@@ -435,34 +435,18 @@ export default MePage
 
 export const pageQuery = graphql`
   query BlogMeQuery {
-    allMarkdownRemark(
-      sort: { fields: [frontmatter___date], order: DESC }
-      filter: { frontmatter: { draft: { eq: false } } }
-    ) {
-      edges {
-        node {
-          excerpt
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            date
-            tags
-            image {
-              relativePath
-              relativeDirectory
-              root
-              sourceInstanceName
-              publicURL
-            }
-          }
-          html
+    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+      nodes {
+        fields {
+          slug
         }
-      }
-      group(field: frontmatter___tags) {
-        fieldValue
-        totalCount
+        frontmatter {
+          title
+          date
+          image {
+            publicURL
+          }
+        }
       }
     }
   }

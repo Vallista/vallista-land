@@ -92,6 +92,6 @@ interface ReturningUseConfig {
 export function useConfig(): ReturningUseConfig {
   return {
     profile: profile as ReturningUseConfig['profile'],
-    resume: resume as unknown as ReturningUseConfig['resume']
+    resume: resume as ReturningUseConfig['resume']
   }
 }

@@ -3,7 +3,7 @@ import { Container, Spacer, Text } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { useMemo, useState, VFC } from 'react'
 
-import { Layout } from '../components/Layout'
+import Layout from '../components/Layout'
 import { ListTable } from '../components/ListTable'
 import { SearchBox } from '../components/SearchBox'
 import { IndexQuery, PageProps } from '../types/type'
@@ -11,20 +11,20 @@ import { toDate, getTime } from '../utils'
 
 const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
-  const { edges } = data.allMarkdownRemark
+  const { nodes } = data.allMarkdownRemark
   const [search, setSearch] = useState('')
 
   const sortPosts = useMemo(() => {
-    return edges
+    return nodes
       .sort((a, b) => {
-        const base = toDate(a.node.frontmatter.date)
-        const target = toDate(b.node.frontmatter.date)
+        const base = toDate(a.frontmatter.date)
+        const target = toDate(b.frontmatter.date)
 
         return target.getTime() - base.getTime()
       })
       .map((it) => {
-        const { slug } = it.node.fields
-        const { date, title: name } = it.node.frontmatter
+        const { slug } = it.fields
+        const { date, title: name } = it.frontmatter
         const [, month, day] = getTime(date)
         const time = toDate(date)
 
@@ -36,19 +36,19 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
         }
       })
       .sort((a, b) => Number(b.time) - Number(a.time))
-  }, [edges])
+  }, [nodes])
 
   const posts = useMemo(() => {
-    const remake = edges
+    const remake = nodes
       .sort((a, b) => {
-        const base = toDate(a.node.frontmatter.date)
-        const target = toDate(b.node.frontmatter.date)
+        const base = toDate(a.frontmatter.date)
+        const target = toDate(b.frontmatter.date)
 
         return target.getTime() - base.getTime()
       })
       .reduce<Record<string, Array<{ name: string; date: string; slug: string }>>>((acc, curr) => {
-        const { slug } = curr.node.fields
-        const { date, title: name } = curr.node.frontmatter
+        const { slug } = curr.fields
+        const { date, title: name } = curr.frontmatter
         const [year, month, day] = getTime(date)
 
         if (!acc[year]) acc[year] = []
@@ -69,14 +69,14 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
         posts: values[idx]
       }))
       .sort((a, b) => Number(b.year) - Number(a.year))
-  }, [edges])
+  }, [nodes])
 
   const filteredSearchPosts = useMemo(() => sortPosts.filter((it) => it.name.includes(search)), [sortPosts, search])
 
   const hasSearchText = search.length !== 0
 
   return (
-    <Layout edges={edges}>
+    <Layout nodes={nodes}>
       <Wrapper>
         <Container>
           <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
@@ -119,34 +119,18 @@ export default PostsPage
 
 export const pageQuery = graphql`
   query BlogPostsQuery {
-    allMarkdownRemark(
-      sort: { fields: [frontmatter___date], order: DESC }
-      filter: { frontmatter: { draft: { eq: false } } }
-    ) {
-      edges {
-        node {
-          excerpt
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            date
-            tags
-            image {
-              relativePath
-              relativeDirectory
-              root
-              sourceInstanceName
-              publicURL
-            }
-          }
-          html
+    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+      nodes {
+        fields {
+          slug
         }
-      }
-      group(field: frontmatter___tags) {
-        fieldValue
-        totalCount
+        frontmatter {
+          title
+          date
+          image {
+            publicURL
+          }
+        }
       }
     }
   }

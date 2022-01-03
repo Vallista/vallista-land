@@ -3,17 +3,17 @@ import { Button, Text } from '@vallista-land/core'
 import { graphql, navigate } from 'gatsby'
 import { VFC } from 'react'
 
-import { Layout } from '../components/Layout'
+import Layout from '../components/Layout'
 import { ListTable } from '../components/ListTable'
 import { IndexQuery, PageProps } from '../types/type'
 import { getTime } from '../utils'
 
 const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
-  const { edges } = data.allMarkdownRemark
+  const { nodes } = data.allMarkdownRemark
 
   return (
-    <Layout edges={edges}>
+    <Layout nodes={nodes}>
       <Header>
         <Wrapper>
           <Title>
@@ -41,12 +41,12 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
       <Contents>
         <ListTable
           title='최근 글'
-          list={edges
+          list={nodes
             .filter((_, idx) => idx < 6)
             .map((it) => ({
-              name: it.node.frontmatter.title,
-              slug: it.node.fields.slug,
-              date: getSimpleDate(it.node.frontmatter.date)
+              name: it.frontmatter.title,
+              slug: it.fields.slug,
+              date: getSimpleDate(it.frontmatter.date)
             }))}
         />
       </Contents>
@@ -95,35 +95,19 @@ const Contents = styled.div`
 export default IndexPage
 
 export const pageQuery = graphql`
-  query BlogIndexQuery {
-    allMarkdownRemark(
-      sort: { fields: [frontmatter___date], order: DESC }
-      filter: { frontmatter: { draft: { eq: false } } }
-    ) {
-      edges {
-        node {
-          excerpt
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            date
-            tags
-            image {
-              relativePath
-              relativeDirectory
-              root
-              sourceInstanceName
-              publicURL
-            }
-          }
-          html
+  query {
+    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+      nodes {
+        fields {
+          slug
         }
-      }
-      group(field: frontmatter___tags) {
-        fieldValue
-        totalCount
+        frontmatter {
+          title
+          date
+          image {
+            publicURL
+          }
+        }
       }
     }
   }

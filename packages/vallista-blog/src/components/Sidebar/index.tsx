@@ -15,18 +15,19 @@ interface SidebarProps {
 export const Sidebar: VFC<SidebarProps> = (props) => {
   const { posts, fold } = props
   const location = useLocation()
-  const [search, setSearch] = useState('')
-  const [viewType, setViewType] = useState<'list' | 'card'>('list')
+  const [search, setSearch] = useState(() => {
+    if (typeof window === 'undefined') return ''
+    return window.localStorage.getItem('search') || ''
+  })
+  const [viewType, setViewType] = useState<'list' | 'card'>(() => {
+    if (typeof window === 'undefined') return 'list'
+    return (window.localStorage.getItem('viewType') as 'list' | 'card' | undefined) || 'list'
+  })
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
 
   const hasSearchText = search.length > 0
   const filteredPosts = useMemo(() => posts.filter((it) => it.name.includes(search)), [search, posts])
-
-  useEffect(() => {
-    setSearch(window.localStorage.getItem('search') || '')
-    setViewType((window.localStorage.getItem('viewType') as 'list' | 'card' | undefined) || 'list')
-  }, [])
 
   useEffect(() => {
     setHasVerticalScrollbar((ref.current?.scrollHeight ?? 0) > (ref.current?.clientHeight ?? 0))
@@ -156,7 +157,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   )
 
   function moveToLocation(target: string): void {
-    navigate(`${target.slice(0, -1)}`)
+    navigate(target)
   }
 
   function handleInput(target: string): void {
@@ -176,7 +177,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   }
 
   function isActive(target: string): boolean {
-    return decodeURIComponent(location.pathname) === target.slice(0, -1)
+    return decodeURIComponent(location.pathname).includes(target.slice(0, -1))
   }
 }
 

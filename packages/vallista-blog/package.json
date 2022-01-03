@@ -9,11 +9,11 @@
   ],
   "scripts": {
     "run:blog": "npx kill-port 8000 && gatsby develop",
-    "build:blog": "gatsby build",
+    "build:blog": "cross-env GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES=true gatsby build --log-pages",
     "serve:blog": "gatsby serve",
     "clean:blog": "gatsby clean",
     "post:blog": "node ./scripts/create-post-file.js",
-    "deploy:blog": "gatsby clean && gatsby build && yarn ./scripts/deploy.js"
+    "deploy:blog": "gatsby build && node ./scripts/deploy.js"
   },
   "dependencies": {
     "@emotion/react": "^11.4.1",
@@ -21,10 +21,13 @@
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
     "@vallista-land/core": "0.1.0",
+    "cross-env": "^7.0.3",
     "gatsby": "^4.4.0",
     "gatsby-plugin-emotion": "^7.4.0",
     "gatsby-plugin-google-analytics": "^4.4.0",
+    "gatsby-plugin-layout": "^3.4.0",
     "gatsby-plugin-mdx": "^3.4.0",
+    "gatsby-plugin-nprogress": "^4.4.0",
     "gatsby-plugin-react-helmet": "^5.4.0",
     "gatsby-plugin-sharp": "^4.4.0",
     "gatsby-plugin-sitemap": "^5.4.0",

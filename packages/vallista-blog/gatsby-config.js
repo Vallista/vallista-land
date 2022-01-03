@@ -1,6 +1,9 @@
 const profile = require('./config/profile.json')
 
 module.exports = {
+  flags: {
+    FAST_DEV: true
+  },
   siteMetadata: {
     title: profile.title,
     titleTemplate: profile.titleTemplate,
@@ -72,7 +75,22 @@ module.exports = {
           }
         ]
       }
+    },
+    {
+      resolve: `gatsby-plugin-nprogress`,
+      options: {
+        // Setting a color is optional.
+        color: `#ff0080`,
+        // Disable the loading spinner.
+        showSpinner: false
+      }
     }
+    // {
+    //   resolve: `gatsby-plugin-layout`,
+    //   options: {
+    //     component: require.resolve(`./src/components/Layout/index.tsx`)
+    //   }
+    // }
   ]
   //   {
   //     resolve: `gatsby-transformer-remark`,

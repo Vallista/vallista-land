@@ -4,7 +4,6 @@ import { Container } from '@vallista-land/core'
 import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
-import { useConfig } from '../../hooks/useConfig'
 import { IndexQuery } from '../../types/type'
 import { NavBar } from '../NavBar'
 import Seo from '../Seo'
@@ -17,24 +16,23 @@ interface LayoutProps {
     image?: string
     article?: string
   }
-  edges: IndexQuery['allMarkdownRemark']['edges']
+  nodes: IndexQuery['allMarkdownRemark']['nodes']
 }
 
-export const Layout: FC<LayoutProps> = (props) => {
-  const { placeholder } = useConfig()
-  const { children, seo, edges } = props
+const Layout: FC<LayoutProps> = (props) => {
+  const { children, seo, nodes } = props
   // Sidebar Folding
   const [fold, setFold] = useState(false)
 
   const posts = useMemo(
     () =>
-      edges.map((it) => ({
-        name: it.node.frontmatter.title,
-        slug: it.node.fields.slug,
-        series: it.node.frontmatter.series || null,
-        image: it.node.frontmatter.image?.publicURL || placeholder
+      nodes.map((it) => ({
+        name: it.frontmatter.title,
+        slug: it.fields.slug,
+        series: it.frontmatter.series || null,
+        image: it.frontmatter.image?.publicURL || '/profile.jpeg'
       })),
-    [edges]
+    [nodes]
   )
 
   useEffect(() => {
@@ -64,6 +62,8 @@ export const Layout: FC<LayoutProps> = (props) => {
     setFold(flag)
   }
 }
+
+export default Layout
 
 const Wrapper = styled.div`
   min-height: 100vh;
