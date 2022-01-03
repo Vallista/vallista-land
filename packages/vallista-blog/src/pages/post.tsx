@@ -11,7 +11,7 @@ import { Series } from '../components/Series'
 import { useConfig } from '../hooks/useConfig'
 
 const Post: VFC<PageProps<PostQuery>> = (props) => {
-  const { author } = useConfig()
+  const { profile } = useConfig()
   const { allMarkdownRemark, seriesGroup } = props.data
   const { edges } = allMarkdownRemark
   const { timeToRead, excerpt, html } = props.data.markdownRemark
@@ -27,7 +27,7 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
         image={image?.publicURL}
         tags={tags}
         timeToRead={timeToRead}
-        author={author}
+        author={profile.author}
       >
         {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
       </PostHeader>
