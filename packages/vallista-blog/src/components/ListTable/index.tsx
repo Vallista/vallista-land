@@ -11,16 +11,19 @@ interface ListTableProps {
     slug: string
     date: string
   }[]
+  underline?: boolean
 }
 
 export const ListTable: VFC<ListTableProps> = (props) => {
-  const { title, list } = props
+  const { title, list, underline = false } = props
 
   return (
     <Container>
-      <Text as='h3' size={32} weight={800}>
-        {title}
-      </Text>
+      <TitleWrapper underline={underline}>
+        <Text as='h3' size={32} weight={800}>
+          {title}
+        </Text>
+      </TitleWrapper>
       <Spacer y={1} />
       <List>
         {list.map((it) => (
@@ -41,6 +44,15 @@ export const ListTable: VFC<ListTableProps> = (props) => {
     navigate(target)
   }
 }
+
+const TitleWrapper = styled.header<{ underline: boolean }>`
+  ${({ theme, underline }) => css`
+    ${underline &&
+    css`
+      border-bottom: 1px solid ${theme.colors.PRIMARY.ACCENT_4};
+    `}
+  `}
+`
 
 const List = styled.div``
 

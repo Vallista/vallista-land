@@ -15,15 +15,18 @@ interface SidebarProps {
 export const Sidebar: VFC<SidebarProps> = (props) => {
   const { posts, fold } = props
   const location = useLocation()
-  const [search, setSearch] = useState(localStorage.getItem('search') || '')
-  const [viewType, setViewType] = useState<'list' | 'card'>(
-    (localStorage.getItem('viewType') as 'list' | 'card' | undefined) || 'card'
-  )
+  const [search, setSearch] = useState('')
+  const [viewType, setViewType] = useState<'list' | 'card'>('list')
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
 
   const hasSearchText = search.length > 0
   const filteredPosts = useMemo(() => posts.filter((it) => it.name.includes(search)), [search, posts])
+
+  useEffect(() => {
+    setSearch(window.localStorage.getItem('search') || '')
+    setViewType((window.localStorage.getItem('viewType') as 'list' | 'card' | undefined) || 'list')
+  }, [])
 
   useEffect(() => {
     setHasVerticalScrollbar((ref.current?.scrollHeight ?? 0) > (ref.current?.clientHeight ?? 0))
@@ -158,17 +161,17 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
 
   function handleInput(target: string): void {
     setSearch(target)
-    localStorage.setItem('search', target)
+    window.localStorage.setItem('search', target)
   }
 
   function searchClear(): void {
     setSearch('')
-    localStorage.setItem('search', '')
+    window.localStorage.setItem('search', '')
   }
 
   function handleChangeViewType(): void {
     const type = viewType === 'card' ? 'list' : 'card'
-    localStorage.setItem('viewType', type)
+    window.localStorage.setItem('viewType', type)
     setViewType(type)
   }
 

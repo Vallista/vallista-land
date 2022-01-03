@@ -11,13 +11,15 @@ interface HeaderProps {
 export const Header: VFC<HeaderProps> = (props) => {
   const { fold, folding } = props
   const theme = useTheme()
-  const [mode, setMode] = useState<'light' | 'dark'>(
-    (localStorage.getItem('theme') as 'light' | 'dark' | undefined) || 'light'
-  )
+  const [mode, setMode] = useState<'light' | 'dark'>('light')
+
+  useEffect(() => {
+    setMode((window.localStorage.getItem('theme') as 'light' | 'dark' | undefined) || 'light')
+  }, [])
 
   useEffect(() => {
     theme.state.changeTheme(mode)
-    localStorage.setItem('theme', mode)
+    window.localStorage.setItem('theme', mode)
   }, [mode])
 
   return (

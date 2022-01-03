@@ -14,8 +14,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='inherit'
-        height='inherit'
+        width='32'
+        height='32'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -34,8 +34,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='inherit'
-        height='inherit'
+        width='32'
+        height='32'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -47,27 +47,27 @@ export const NavCategory: NavCategoryType = {
       </svg>
     ),
     link: '/posts'
-  },
-  tags: {
-    name: '태그 단위로 글을 보세요!',
-    icon: (
-      <svg
-        viewBox='0 0 24 24'
-        width='inherit'
-        height='inherit'
-        stroke='currentColor'
-        strokeWidth='1.5'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-        fill='none'
-        shapeRendering='geometricPrecision'
-      >
-        <path d='M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z' />
-        <path d='M7 7h.01' />
-      </svg>
-    ),
-    link: '/tags'
   }
+  // tags: {
+  //   name: '태그 단위로 글을 보세요!',
+  //   icon: (
+  //     <svg
+  //       viewBox='0 0 24 24'
+  //       width='32'
+  //       height='32'
+  //       stroke='currentColor'
+  //       strokeWidth='1.5'
+  //       strokeLinecap='round'
+  //       strokeLinejoin='round'
+  //       fill='none'
+  //       shapeRendering='geometricPrecision'
+  //     >
+  //       <path d='M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z' />
+  //       <path d='M7 7h.01' />
+  //     </svg>
+  //   ),
+  //   link: '/tags'
+  // }
 }
 
 export const NavFooter: NavFooterType = {
@@ -76,8 +76,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='inherit'
-        height='inherit'
+        width='32'
+        height='32'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -95,8 +95,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='inherit'
-        height='inherit'
+        width='32'
+        height='32'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -114,8 +114,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='inherit'
-        height='inherit'
+        width='32'
+        height='32'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'

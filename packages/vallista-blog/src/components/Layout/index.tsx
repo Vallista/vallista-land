@@ -1,7 +1,7 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Container } from '@vallista-land/core'
-import { FC, useMemo, useState } from 'react'
+import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
 import { useConfig } from '../../hooks/useConfig'
@@ -24,7 +24,7 @@ export const Layout: FC<LayoutProps> = (props) => {
   const { placeholder } = useConfig()
   const { children, seo, edges } = props
   // Sidebar Folding
-  const [fold, setFold] = useState(localStorage.getItem('sidebar-fold') === 'true')
+  const [fold, setFold] = useState(false)
 
   const posts = useMemo(
     () =>
@@ -36,6 +36,14 @@ export const Layout: FC<LayoutProps> = (props) => {
       })),
     [edges]
   )
+
+  useEffect(() => {
+    setFold(window.localStorage.getItem('sidebar-fold') === 'true')
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem('sidebar-fold', String(fold))
+  }, [fold])
 
   return (
     <Wrapper>
@@ -54,7 +62,6 @@ export const Layout: FC<LayoutProps> = (props) => {
   function handleFold(): void {
     const flag = !fold
     setFold(flag)
-    localStorage.setItem('sidebar-fold', String(flag))
   }
 }
 

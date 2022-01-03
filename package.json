@@ -22,10 +22,10 @@
     "build:core": "lerna run build:core",
     "run:playground": "lerna run run:playground --stream",
     "build:playground": "lerna run build:playground",
-    "clean:playground": "lerna run clean:playground",
+    "clean:playground": "cd packages/playground && gatsby clean",
     "run:blog": "lerna run run:blog --stream",
     "build:blog": "lerna run build:blog",
-    "clean:blog": "lerna run clean:blog",
+    "clean:blog": "cd packages/vallista-blog && gatsby clean",
     "post:blog": "lerna run post:blog"
   },
   "workspaces": {
