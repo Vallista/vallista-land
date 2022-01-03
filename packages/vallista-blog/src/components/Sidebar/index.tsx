@@ -30,6 +30,18 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const filteredPosts = useMemo(() => posts.filter((it) => it.name.includes(search)), [search, posts])
 
   useEffect(() => {
+    if (!ref.current) return
+
+    ref.current.scrollTo(0, Number(window.localStorage.getItem('sidebarScroll')) || 0)
+
+    ref.current.addEventListener(
+      'scroll',
+      (e) => window.localStorage.setItem('sidebarScroll', String((e.target as any).scrollTop)),
+      false
+    )
+  }, [])
+
+  useEffect(() => {
     setHasVerticalScrollbar((ref.current?.scrollHeight ?? 0) > (ref.current?.clientHeight ?? 0))
   }, [search, posts, viewType])
 
@@ -234,6 +246,7 @@ const Header = styled.div`
   position: fixed;
   top: 0;
   width: 320px;
+  padding-bottom: 0.875rem;
   ${({ theme }) => css`
     z-index: ${theme.layers.AFTER_STANDARD - 2};
     background: ${theme.colors.PRIMARY.ACCENT_1};
