@@ -134,20 +134,26 @@ const Category = styled.a<{ checked?: boolean }>`
   cursor: pointer;
   transition: background 0.2s ease;
 
+  & > div > div > div > svg {
+    width: 32px;
+    height: 32px;
+  }
+
   @media screen and (max-width: 1000px) {
     width: 60px;
     height: 60px;
 
     & > figure {
-      width: 32px;
-      height: 32px;
+      width: 40px;
+      height: 40px;
       border-radius: 12px;
       overflow: hidden;
     }
 
-    /* & img {
-      
-    } */
+    & > svg {
+      width: 24px;
+      height: 24px;
+    }
   }
 
   & > div {

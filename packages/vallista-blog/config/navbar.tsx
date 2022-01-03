@@ -14,8 +14,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='24'
-        height='24'
+        width='inherit'
+        height='inherit'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -34,8 +34,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='24'
-        height='24'
+        width='inherit'
+        height='inherit'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -53,8 +53,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='24'
-        height='24'
+        width='inherit'
+        height='inherit'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -76,8 +76,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='24'
-        height='24'
+        width='inherit'
+        height='inherit'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -95,8 +95,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='24'
-        height='24'
+        width='inherit'
+        height='inherit'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -114,8 +114,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='24'
-        height='24'
+        width='inherit'
+        height='inherit'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
