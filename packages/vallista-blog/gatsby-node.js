@@ -17,8 +17,6 @@ exports.createPages = async function ({ actions, graphql }) {
   const { createPage } = actions
 
   const postPage = path.resolve(`./src/template/post.tsx`)
-  const postsPage = path.resolve(`./src/pages/posts.tsx`)
-  const resumePage = path.resolve(`./src/pages/resume.tsx`)
 
   const result = await graphql(`
     {
@@ -46,22 +44,6 @@ exports.createPages = async function ({ actions, graphql }) {
       })
     })
   }
-
-  actions.createPage({
-    path: '/resume',
-    component: resumePage,
-    context: {
-      slug: '/resume/'
-    }
-  })
-
-  actions.createPage({
-    path: '/posts',
-    component: postsPage,
-    context: {
-      slug: '/posts/'
-    }
-  })
 }
 
 // 노드 환경 생성될 때
