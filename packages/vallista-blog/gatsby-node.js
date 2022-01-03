@@ -17,8 +17,8 @@ exports.createPages = async function ({ actions, graphql }) {
   const { createPage } = actions
 
   const postPage = path.resolve(`./src/template/post.tsx`)
-  const postsPage = path.resolve(`./src/template/posts.tsx`)
-  const resumePage = path.resolve(`./src/template/me.tsx`)
+  const postsPage = path.resolve(`./src/pages/posts.tsx`)
+  const resumePage = path.resolve(`./src/pages/resume.tsx`)
 
   const result = await graphql(`
     {
