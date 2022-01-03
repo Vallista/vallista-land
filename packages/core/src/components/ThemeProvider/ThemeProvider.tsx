@@ -83,7 +83,11 @@ const Reset: VFC = () => {
         }
 
         html {
-          font-size: 16px;
+          font-size: 16px !important;
+
+          @media screen and (max-width: 1000px) {
+            font-size: 14px !important;
+          }
 
           &::-webkit-scrollbar {
             background: var(--scrollbar-background);

@@ -29,7 +29,7 @@ export const Footer: FC<FooterProps> = (props) => {
 }
 
 const FooterContainer = styled.footer`
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   ${({ theme }) => css`
     background: ${theme.colors.PRIMARY.ACCENT_1};
     border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
@@ -111,8 +111,8 @@ const FooterGroupTitleInput = styled.input`
 const FooterGroupTitleLabel = styled.label`
   & > h3 {
     font-weight: 400;
-    font-size: 0.9rem;
-    margin: 0.875rem 0;
+    font-size: 0.875rem;
+    margin: 0.75rem 0;
   }
 `
 

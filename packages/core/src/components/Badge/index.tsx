@@ -145,7 +145,7 @@ const Container = styled.span<BadgeProps>`
     ${props.size === 'small' &&
     css`
       padding: 3px 7px;
-      font-size: 0.75rem;
+      font-size: 0.625rem;
     `}
 
     ${props.size === 'normal' &&

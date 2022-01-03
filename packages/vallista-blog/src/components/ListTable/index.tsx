@@ -66,6 +66,7 @@ const ListItem = styled.a`
 
     & > span:last-of-type {
       max-width: 15%;
+      white-space: nowrap;
     }
 
     &:last-of-type {

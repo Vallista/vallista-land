@@ -19,7 +19,7 @@ const Title: FC = (props) => {
 }
 
 const H3 = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   letter-spacing: -0.4;
   font-weight: 600;
   margin: 0;

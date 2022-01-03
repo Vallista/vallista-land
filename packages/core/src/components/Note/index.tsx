@@ -63,7 +63,7 @@ const Container = styled.div<Omit<NoteProps, 'fill'> & { fill?: string }>`
   align-items: center;
   border-radius: 5px;
   line-height: 24px;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   word-break: break-word;
   box-sizing: border-box;
 
@@ -100,6 +100,6 @@ const Container = styled.div<Omit<NoteProps, 'fill'> & { fill?: string }>`
 
   & > div {
     margin-left: auto;
-    padding-left: 0.875rem;
+    padding-left: 0.75rem;
   }
 `

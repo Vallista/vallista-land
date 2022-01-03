@@ -153,7 +153,7 @@ const Header = styled.h3<{ size?: CollapseSizeType }>`
         `
       : css`
           font-weight: 600;
-          font-size: 1.3rem;
+          font-size: 1.25rem;
         `}
   hyphens: auto;
   margin-top: 0;
@@ -161,7 +161,7 @@ const Header = styled.h3<{ size?: CollapseSizeType }>`
 `
 
 const SubTitle = styled.span`
-  font-size: 14px;
+  font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: normal;
   margin-bottom: 0;
@@ -195,7 +195,7 @@ const HeaderContents = styled.span<{ size?: CollapseSizeType }>`
   ${({ size }) =>
     size === 'small'
       ? css`
-          padding: 0.875rem 0;
+          padding: 0.75rem 0;
         `
       : css`
           padding: 1.5rem 0;

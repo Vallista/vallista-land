@@ -84,7 +84,7 @@ const Container = styled.aside`
 
   @media screen and (max-width: 1000px) {
     top: 43px;
-    min-height: 80px;
+    min-height: 60px;
     width: 100vw;
     overflow-y: hidden;
     overflow-x: auto;
@@ -134,6 +134,22 @@ const Category = styled.a<{ checked?: boolean }>`
   cursor: pointer;
   transition: background 0.2s ease;
 
+  @media screen and (max-width: 1000px) {
+    width: 60px;
+    height: 60px;
+
+    & > figure {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* & img {
+      
+    } */
+  }
+
   & > div {
     width: inherit;
     height: inherit;
@@ -173,6 +189,8 @@ const Category = styled.a<{ checked?: boolean }>`
         border-left: 3px solid ${theme.colors.HIGHLIGHT.PINK};
 
         @media screen and (max-width: 1000px) {
+          width: 60px;
+          height: 60px;
           border-left: none;
 
           border-bottom: 3px solid ${theme.colors.HIGHLIGHT.PINK};

@@ -53,13 +53,13 @@ const Container = styled.div`
 const Tab = styled.div<{ active: boolean; disabled?: boolean }>`
   ${({ theme, disabled }) => css`
     cursor: pointer;
-    padding: 0 0.875rem;
+    padding: 0 0.75rem;
     margin-bottom: -1px;
     border-bottom: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
     outline: 0;
 
     &:first-of-type {
-      padding-left: 0.875rem;
+      padding-left: 0.75rem;
     }
 
     ${disabled &&

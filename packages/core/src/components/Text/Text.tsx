@@ -1,6 +1,7 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { FC } from 'react'
+import { FontSizeType } from '.'
 
 import { TextProps, ReturningUseText } from './type'
 import { useText } from './useText'
@@ -25,10 +26,22 @@ export const Text: FC<Partial<TextProps>> = (props) => {
   return <Render {...otherProps}>{children}</Render>
 }
 
+const fontSizeMapper: Record<FontSizeType, number> = {
+  10: 0.625,
+  12: 0.75,
+  14: 0.875,
+  16: 1,
+  20: 1.25,
+  24: 1.5,
+  32: 2,
+  40: 2.5,
+  48: 3
+}
+
 const Element = styled.p<ReturningUseText>`
   ${({ size, lineHeight, color, weight, align, wrap }) => css`
     color: ${color || 'inherit'};
-    font-size: ${size}px;
+    font-size: ${fontSizeMapper[size ?? 16]}rem;
     line-height: ${lineHeight ? `${lineHeight}px` : 1.5};
     
     ${

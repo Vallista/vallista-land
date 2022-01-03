@@ -7,7 +7,7 @@ export const NavCategory: NavCategoryType = {
   me: {
     name: '제가 궁금하세요?',
     icon: <Image src={profile} width={55} height={55} />,
-    link: '/me'
+    link: '/resume'
   },
   home: {
     name: '홈으로 갑니다!',
@@ -34,8 +34,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='32'
-        height='32'
+        width='24'
+        height='24'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -53,8 +53,8 @@ export const NavCategory: NavCategoryType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='32'
-        height='32'
+        width='24'
+        height='24'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -76,8 +76,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='32'
-        height='32'
+        width='24'
+        height='24'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'
@@ -95,8 +95,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='32'
-        height='32'
+        width='24'
+        height='24'
         stroke='currentColor'
         stroke-width='1.5'
         stroke-linecap='round'
@@ -114,8 +114,8 @@ export const NavFooter: NavFooterType = {
     icon: (
       <svg
         viewBox='0 0 24 24'
-        width='32'
-        height='32'
+        width='24'
+        height='24'
         stroke='currentColor'
         strokeWidth='1.5'
         strokeLinecap='round'

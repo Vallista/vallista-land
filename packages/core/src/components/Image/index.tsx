@@ -104,7 +104,7 @@ const Img = styled.img`
 const Caption = styled.p`
   ${({ theme }) => css`
     color: ${theme.colors.PRIMARY.ACCENT_5};
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     text-align: center;
   `}
 `
