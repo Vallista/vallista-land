@@ -20,8 +20,8 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
     return window.localStorage.getItem('search') || ''
   })
   const [viewType, setViewType] = useState<'list' | 'card'>(() => {
-    if (typeof window === 'undefined') return 'list'
-    return (window.localStorage.getItem('viewType') as 'list' | 'card' | undefined) || 'list'
+    if (typeof window === 'undefined') return 'card'
+    return (window.localStorage.getItem('viewType') as 'list' | 'card') || 'card'
   })
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
@@ -32,11 +32,13 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   useEffect(() => {
     if (!ref.current) return
 
-    ref.current.scrollTo(0, Number(window.localStorage.getItem('sidebarScroll')) || 0)
+    ref.current.scrollBy(0, Number(window.localStorage.getItem('sidebarScroll')))
 
     ref.current.addEventListener(
       'scroll',
-      (e) => window.localStorage.setItem('sidebarScroll', String((e.target as any).scrollTop)),
+      (e) => {
+        window.localStorage.setItem('sidebarScroll', (e.currentTarget as HTMLDivElement).scrollTop.toString())
+      },
       false
     )
   }, [])
