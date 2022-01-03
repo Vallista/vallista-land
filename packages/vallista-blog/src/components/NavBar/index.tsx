@@ -193,6 +193,7 @@ const Category = styled.a<{ checked?: boolean }>`
         height: 80px;
         content: '';
         border-left: 3px solid ${theme.colors.HIGHLIGHT.PINK};
+        box-sizing: border-box;
 
         @media screen and (max-width: 1000px) {
           width: 60px;
