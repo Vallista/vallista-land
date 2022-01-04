@@ -1,5 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
+import { useLocation } from '@reach/router'
 import { Container } from '@vallista-land/core'
 import { graphql, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
@@ -20,6 +21,7 @@ interface LayoutProps {
 }
 
 export const Layout: FC<LayoutProps> = (props) => {
+  const location = useLocation()
   const { children, seo } = props
   const data: IndexQuery = useStaticQuery(graphql`
     query {
@@ -35,6 +37,7 @@ export const Layout: FC<LayoutProps> = (props) => {
               publicURL
             }
           }
+          excerpt
         }
       }
     }
@@ -49,9 +52,18 @@ export const Layout: FC<LayoutProps> = (props) => {
         name: it.frontmatter.title,
         slug: it.fields.slug,
         series: it.frontmatter.series || null,
-        image: it.frontmatter.image?.publicURL || '/profile.jpeg'
+        image: it.frontmatter.image?.publicURL || '/profile.jpeg',
+        excerpt: it.excerpt
       })),
     [nodes]
+  )
+
+  const nowPost = useMemo(
+    () =>
+      posts.find((it) => {
+        return decodeURIComponent(location.pathname).includes(it.slug)
+      }) || { name: location.pathname.slice(1).toLocaleUpperCase() },
+    [location]
   )
 
   useEffect(() => {
@@ -64,7 +76,7 @@ export const Layout: FC<LayoutProps> = (props) => {
 
   return (
     <Wrapper>
-      <Seo {...seo} />
+      <Seo {...nowPost} />
       <Container>
         <NavBar />
         <Sidebar posts={posts} fold={fold} />

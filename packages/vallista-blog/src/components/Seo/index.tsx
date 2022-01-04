@@ -6,20 +6,19 @@ import { Helmet } from 'react-helmet'
 import { StaticQuery } from '../../types/type'
 
 interface SeoProps {
-  title?: string
-  description?: string
+  name?: string
   image?: string
-  article?: string
+  excerpt?: string
 }
 
-export const Seo: VFC<SeoProps> = ({ title, description, image, article }) => {
+export const Seo: VFC<SeoProps> = ({ name, image, excerpt }) => {
   const location = useLocation()
   const { site } = useStaticQuery<StaticQuery>(query)
   const { defaultTitle, titleTemplate, defaultDescription, siteUrl, defaultImage, twitterUsername } = site.siteMetadata
 
   const seo = {
-    title: title || defaultTitle,
-    description: description || defaultDescription,
+    title: name || defaultTitle,
+    description: excerpt || defaultDescription,
     image: `${siteUrl}${image || defaultImage}`,
     url: `${siteUrl}${location.pathname}`
   }
@@ -30,7 +29,7 @@ export const Seo: VFC<SeoProps> = ({ title, description, image, article }) => {
       <meta name='description' content={seo.description} />
       <meta name='image' content={seo.image} />
       {seo.url && <meta property='og:url' content={seo.url} />}
-      {(article ? true : null) && <meta property='og:type' content='article' />}
+      {(excerpt ? true : null) && <meta property='og:type' content='article' />}
       {seo.title && <meta property='og:title' content={seo.title} />}
       {seo.description && <meta property='og:description' content={seo.description} />}
       {seo.image && <meta property='og:image' content={seo.image} />}

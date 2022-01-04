@@ -25,7 +25,6 @@
     "gatsby": "^4.4.0",
     "gatsby-plugin-emotion": "^7.4.0",
     "gatsby-plugin-google-analytics": "^4.4.0",
-    "gatsby-plugin-layout": "^3.4.0",
     "gatsby-plugin-manifest": "^4.4.0",
     "gatsby-plugin-mdx": "^3.4.0",
     "gatsby-plugin-nprogress": "^4.4.0",

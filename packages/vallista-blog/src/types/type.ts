@@ -7,6 +7,7 @@ export interface Post {
     slug: string
   }
   timeToRead: number
+  excerpt: string
   frontmatter: {
     title: string
     date: string
@@ -45,6 +46,7 @@ export interface StaticQuery {
       twitterUsername: string
     }
   }
+  markdownRemark: Post
 }
 
 export interface SidebarPost {
