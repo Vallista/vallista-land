@@ -13,14 +13,15 @@ interface SeoProps {
 }
 
 export const Seo: VFC<SeoProps> = ({ title, description, image, article }) => {
-  const { pathname } = useLocation()
+  const location = useLocation()
   const { site } = useStaticQuery<StaticQuery>(query)
   const { defaultTitle, titleTemplate, defaultDescription, siteUrl, defaultImage, twitterUsername } = site.siteMetadata
+
   const seo = {
     title: title || defaultTitle,
     description: description || defaultDescription,
     image: `${siteUrl}${image || defaultImage}`,
-    url: `${siteUrl}${pathname}`
+    url: `${siteUrl}${location.pathname}`
   }
 
   return (

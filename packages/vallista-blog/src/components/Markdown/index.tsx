@@ -10,8 +10,7 @@ interface MarkdownProps {
 const markdownId = 'markdown-contents'
 
 export const Markdown: VFC<MarkdownProps> = (props) => {
-  const { hash } = useLocation()
-
+  const location = useLocation()
   const html = useMemo(() => {
     const result = props.html
       // pre 태그 (소스코드)에 추가하여 wrapping 하는 div를 추가한다.
@@ -47,7 +46,7 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
     // 페이지가 로드되고 나서 선택된 해딩으로 이동한다.
     window.onload = () => {
       setTimeout(() => {
-        const hashData = decodeURIComponent(hash).substring(1)
+        const hashData = decodeURIComponent(location.hash).substring(1)
         if (hashData) {
           window.scrollTo(0, document.getElementById(hashData)?.getBoundingClientRect().bottom ?? 0)
         }

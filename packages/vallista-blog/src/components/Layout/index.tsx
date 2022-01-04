@@ -1,6 +1,7 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Container } from '@vallista-land/core'
+import { graphql, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
@@ -16,11 +17,29 @@ interface LayoutProps {
     image?: string
     article?: string
   }
-  nodes: IndexQuery['allMarkdownRemark']['nodes']
 }
 
-const Layout: FC<LayoutProps> = (props) => {
-  const { children, seo, nodes } = props
+export const Layout: FC<LayoutProps> = (props) => {
+  const { children, seo } = props
+  const data: IndexQuery = useStaticQuery(graphql`
+    query {
+      allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+        nodes {
+          fields {
+            slug
+          }
+          frontmatter {
+            title
+            date
+            image {
+              publicURL
+            }
+          }
+        }
+      }
+    }
+  `)
+  const { nodes } = data.allMarkdownRemark
   // Sidebar Folding
   const [fold, setFold] = useState(false)
 
@@ -62,8 +81,6 @@ const Layout: FC<LayoutProps> = (props) => {
     setFold(flag)
   }
 }
-
-export default Layout
 
 const Wrapper = styled.div`
   min-height: 100vh;

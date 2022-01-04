@@ -20,11 +20,11 @@ export interface Post {
 export interface IndexQuery {
   allMarkdownRemark: {
     nodes: Post[]
+    group?: { fieldValue: string; totalCount: number }[]
   }
 }
 
 export interface PostQuery extends IndexQuery {
-  seriesGroup: { group: { fieldValue: string; totalCount: number }[] }
   markdownRemark: Post & {
     id: string
   }

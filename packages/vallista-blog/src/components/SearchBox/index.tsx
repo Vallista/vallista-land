@@ -17,7 +17,7 @@ export const SearchBox: VFC<SearchBoxProps> = (props) => {
   const hasSearchText = value.length !== 0
 
   return (
-    <Search hasSearchText={hasSearchText} size={size} placeholder={placeholder}>
+    <Search hasSearchText={hasSearchText} size={size} placeholder={placeholder ?? ''}>
       <Input value={value} onChange={(e) => onSearch(e.currentTarget.value)} />
       <svg
         viewBox='0 0 24 24'
@@ -71,11 +71,15 @@ const Search = styled.label<{ hasSearchText: boolean; size: SearchBoxSize; place
       content: '${placeholder}';
       font-size: 1rem;
       position: absolute;
-      left: 41px;
+      left: 2.5rem;
       top: 50%;
       transform: translateY(-50%);
       color: ${theme.colors.PRIMARY.ACCENT_3};
       font-weight: 500;
+
+      @media screen and (max-width: 1000px) {
+        font-size: 0.875rem;
+      }
     }
 
     ${hasSearchText &&
@@ -92,13 +96,17 @@ const Search = styled.label<{ hasSearchText: boolean; size: SearchBoxSize; place
 
       & input {
         font-size: 1.5rem;
-        width: calc(100% - 100px);
-        left: 50px;
+        width: calc(100% - 6.25rem);
+        left: 3.125rem;
       }
 
       &::before {
         left: 52px;
         font-size: 1.5rem;
+
+        @media screen and (max-width: 1000px) {
+          font-size: 1.25rem;
+        }
       }
     `}
   `}
@@ -132,9 +140,9 @@ const Search = styled.label<{ hasSearchText: boolean; size: SearchBoxSize; place
 `
 
 const Input = styled.input`
-  width: calc(100% - 85px);
+  width: calc(100% - 5.3125rem);
   position: relative;
-  left: 40px;
+  left: 2.5rem;
   top: 50%;
   transform: translateY(-50%);
   border: none;

@@ -3,7 +3,6 @@ import { Container, Spacer, Text } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { useMemo, useState, VFC } from 'react'
 
-import Layout from '../components/Layout'
 import { ListTable } from '../components/ListTable'
 import { SearchBox } from '../components/SearchBox'
 import { IndexQuery, PageProps } from '../types/type'
@@ -76,37 +75,35 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
   const hasSearchText = search.length !== 0
 
   return (
-    <Layout nodes={nodes}>
-      <Wrapper>
-        <Container>
-          <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
-          <Spacer y={2} />
-        </Container>
-        {hasSearchText ? (
-          filteredSearchPosts.length === 0 ? (
-            <>
-              <Text size={20} weight={600}>
-                검색된 결과가 없어요 :(
-              </Text>
-              <Text size={20} weight={600}>
-                다른 결과를 검색해보시겠어요?
-              </Text>
-            </>
-          ) : (
-            <ListTable underline title='검색결과' list={filteredSearchPosts} />
-          )
+    <Wrapper>
+      <Container>
+        <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
+        <Spacer y={2} />
+      </Container>
+      {hasSearchText ? (
+        filteredSearchPosts.length === 0 ? (
+          <>
+            <Text size={20} weight={600}>
+              검색된 결과가 없어요 :(
+            </Text>
+            <Text size={20} weight={600}>
+              다른 결과를 검색해보시겠어요?
+            </Text>
+          </>
         ) : (
-          posts.map((it) => (
-            <Container key={it.year}>
-              <div>
-                <ListTable title={it.year} list={it.posts} underline />
-              </div>
-              <Spacer y={2} />
-            </Container>
-          ))
-        )}
-      </Wrapper>
-    </Layout>
+          <ListTable underline title='검색결과' list={filteredSearchPosts} />
+        )
+      ) : (
+        posts.map((it) => (
+          <Container key={it.year}>
+            <div>
+              <ListTable title={it.year} list={it.posts} underline />
+            </div>
+            <Spacer y={2} />
+          </Container>
+        ))
+      )}
+    </Wrapper>
   )
 }
 

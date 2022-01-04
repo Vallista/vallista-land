@@ -1,7 +1,8 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { useEffect, useRef, useState, VFC } from 'react'
+import { useRef, useState, VFC } from 'react'
 
+import { useMount } from '../../hooks/useMount'
 import { raiseDecimalPoint } from '../../utils/math'
 import { ImageProps } from './type'
 
@@ -39,14 +40,14 @@ export const ImageComponent: VFC<ImageProps> = (props) => {
   const ref = useRef<HTMLImageElement>(null)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
 
-  useEffect(() => {
+  useMount(() => {
     const imageLoader = new Image()
     imageLoader.src = src
 
     imageLoader.onload = () => {
       setImgSrc(src)
     }
-  }, [])
+  })
 
   const height = raiseDecimalPoint((otherProps.height / otherProps.width) * 100)
   const onlyProps = {

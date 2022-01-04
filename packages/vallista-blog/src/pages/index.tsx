@@ -3,7 +3,6 @@ import { Button, Text } from '@vallista-land/core'
 import { graphql, navigate } from 'gatsby'
 import { VFC } from 'react'
 
-import Layout from '../components/Layout'
 import { ListTable } from '../components/ListTable'
 import { IndexQuery, PageProps } from '../types/type'
 import { getTime } from '../utils'
@@ -13,7 +12,7 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { nodes } = data.allMarkdownRemark
 
   return (
-    <Layout nodes={nodes}>
+    <>
       <Header>
         <Wrapper>
           <Title>
@@ -50,7 +49,7 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
             }))}
         />
       </Contents>
-    </Layout>
+    </>
   )
 
   function getSimpleDate(target: string): string {

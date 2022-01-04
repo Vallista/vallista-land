@@ -1,15 +1,18 @@
 import React from 'react'
+import { Location } from '@reach/router'
 import { ThemeProvider, useTheme } from '@vallista-land/core'
 
+import { Layout } from './src/components/Layout'
+
 export function wrapRootElement({ element }) {
-  return (
-    <ThemeProvider>
-      <InitializeElement>{element}</InitializeElement>
-    </ThemeProvider>
-  )
+  return <ThemeProvider>{element}</ThemeProvider>
 }
 
-const InitializeElement = ({ children }) => {
+export function wrapPageElement({ element }) {
+  return <InitializeElement element={element} />
+}
+
+const InitializeElement = ({ element }) => {
   const theme = useTheme()
 
   if (typeof window !== 'undefined') {
@@ -22,5 +25,5 @@ const InitializeElement = ({ children }) => {
     }
   }
 
-  return <>{children}</>
+  return <Layout>{element}</Layout>
 }
