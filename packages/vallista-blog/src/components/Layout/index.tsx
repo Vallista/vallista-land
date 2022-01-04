@@ -62,7 +62,7 @@ export const Layout: FC<LayoutProps> = (props) => {
     () =>
       posts.find((it) => {
         return decodeURIComponent(location.pathname).includes(it.slug)
-      }) || { name: location.pathname.slice(1).toLocaleUpperCase() },
+      }) || { name: location.pathname.replaceAll('/', '').toLocaleUpperCase() },
     [location]
   )
 
