@@ -209,7 +209,7 @@ const Header = styled.div`
   position: fixed;
   top: 0;
   width: 320px;
-  padding-bottom: 0.875rem;
+  padding-bottom: 14px;
   ${({ theme }) => css`
     z-index: ${theme.layers.AFTER_STANDARD - 2};
     background: ${theme.colors.PRIMARY.ACCENT_1};
@@ -238,20 +238,20 @@ const Title = styled.div`
   align-items: flex-end;
   height: 35px;
   font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0 1.7rem;
+  font-size: 14px;
+  padding: 0 28px;
 `
 
 const SearchBox = styled.div`
   display: flex;
   align-items: flex-end;
   height: 38px;
-  padding: 0 1.5rem;
+  padding: 0 24px;
 `
 
 const Categories = styled.div`
   margin-top: 73px;
-  padding: 1rem 1.5rem 2rem;
+  padding: 16px 24px 32px;
 `
 
 const CardStyle = styled.nav`
@@ -299,7 +299,7 @@ const CardStyleItem = styled.a<{ image: string | null; text: string; isActive: b
       position: absolute;
       right: 0;
       bottom: 0;
-      font-size: 1rem;
+      font-size: 16px;
       font-weight: 600;
       line-height: 1.1;
       color: ${theme.colors.PRIMARY.BACKGROUND};
