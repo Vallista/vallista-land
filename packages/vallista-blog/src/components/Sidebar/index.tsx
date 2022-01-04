@@ -239,7 +239,7 @@ const Title = styled.div`
   height: 35px;
   font-weight: 600;
   font-size: 14px;
-  padding: 0 28px;
+  padding: 0 28px 2px;
 `
 
 const SearchBox = styled.div`

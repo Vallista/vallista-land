@@ -34,7 +34,7 @@ export const Collapse: FC<Partial<CollapseProps>> = (props) => {
     setContentHeight(contentRef.current.clientHeight)
   }, [contentRef])
 
-  const contentsOptions = contentRef.current ? { height: expanded ? `${contentHeight}px` : 0 } : {}
+  const contentsOptions = contentRef.current ? { height: expanded ? `${contentHeight / 16}rem` : 0 } : {}
 
   return (
     <Container card={card}>
