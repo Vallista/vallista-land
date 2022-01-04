@@ -305,8 +305,7 @@ const CardStyleItem = styled.a<{ image: string | null; text: string; isActive: b
       color: ${theme.colors.PRIMARY.BACKGROUND};
       text-align: right;
       margin: 6px 6px 12px;
-      word-break: normal;
-      word-spacing: normal;
+      word-break: keep-all;
       letter-spacing: -0.02rem;
     }
   `}

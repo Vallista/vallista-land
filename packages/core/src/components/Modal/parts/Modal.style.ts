@@ -47,7 +47,7 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
   animation: none;
   ${({ theme, animationState, onClickOutSide }) => css`
     z-index: ${theme.layers.MODAL - 1};
-    background-color: ${theme.colors.PRIMARY.FOREGROUND};
+    background-color: ${theme.colors.PRIMARY.ACCENT_4};
 
     ${onClickOutSide &&
     css`
@@ -143,6 +143,8 @@ const Wrapper = styled.div`
 
   @media (max-width: 600px) {
     width: 100%;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
   ${({ theme }) => css`

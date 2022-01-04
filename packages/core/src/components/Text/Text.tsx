@@ -1,8 +1,8 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { FC } from 'react'
-import { FontSizeType } from '.'
 
+import { FontSizeType } from '.'
 import { TextProps, ReturningUseText } from './type'
 import { useText } from './useText'
 

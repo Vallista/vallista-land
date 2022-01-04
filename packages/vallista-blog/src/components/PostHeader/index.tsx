@@ -25,7 +25,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
         <Text as='h1' size={40} weight={800}>
           {title}
         </Text>
-        <Spacer y={0.5} />
+        <Spacer y={1} />
         {tags && (
           <Container row>
             {tags.map((it) => (
@@ -39,7 +39,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
         <Text size={16}>
           {dateToString}에 <Link to='/'>{author}</Link>가 작성했어요.
         </Text>
-        <Spacer y={0.2} />
+        <Spacer y={0.5} />
         <Text size={16}>읽는데 약 {timeToRead}분 걸려요!</Text>
         <Spacer y={1} />
         <ChildrenWrapper>{children}</ChildrenWrapper>

@@ -47,14 +47,17 @@ const Label = styled.label`
 `
 
 const Input = styled.input`
-  ${({ theme }) => css`
-    position: absolute;
-    left: -${theme.layers.CONCEAL};
-    top: -${theme.layers.CONCEAL};
-    z-index: ${theme.layers.CONCEAL};
-    width: 1px;
-    height: 1px;
-  `}
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  opacity: 0;
+  outline: none;
 `
 
 const Wrapper = styled.span<StyleParams>`

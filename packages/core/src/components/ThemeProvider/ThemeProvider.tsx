@@ -83,18 +83,23 @@ const Reset: VFC = () => {
         }
 
         html {
-          font-size: 16px !important;
+          font-size: 16px;
 
           @media screen and (max-width: 1000px) {
-            font-size: 14px !important;
+            font-size: 14px;
           }
 
+          /** 파이어폭스 스크롤 대응 */
+          scrollbar-width: 8px;
+          // thumb background 순
+          scrollbar-color: var(--scrollbar-thumb-highlight) var(--scrollbar-background);
+
+          /** 사파리, 크롬 스크롤 대응 */
           &::-webkit-scrollbar {
             background: var(--scrollbar-background);
             height: 8px;
             width: 8px;
           }
-
           &::-webkit-scrollbar-thumb {
             background: var(--scrollbar-thumb-highlight);
             border-radius: 0;
@@ -202,6 +207,13 @@ const Reset: VFC = () => {
           font-size: 1rem;
           font: inherit;
           vertical-align: baseline;
+        }
+
+        label,
+        input,
+        button,
+        a {
+          -webkit-tap-highlight-color: transparent;
         }
 
         /* HTML5 display-role reset for older browsers */

@@ -80,7 +80,7 @@ const Contents = styled(Wrapper)`
   }
 
   @media screen and (max-width: 1000px) {
-    width: 100vw;
+    width: calc(100vw - 8px);
   }
 
   ${({ theme }) => css`
