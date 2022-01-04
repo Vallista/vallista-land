@@ -9,6 +9,7 @@ interface SeriesProps {
   posts: {
     name: string
     timeToRead: number
+    slug: string
   }[]
 }
 
@@ -21,7 +22,7 @@ export const Series: VFC<SeriesProps> = (props) => {
         <List>
           {posts.map((it) => (
             <Item timeToRead={it.timeToRead} key={it.name}>
-              <span onClick={() => moveToLocation(it.name)}>{it.name}</span>
+              <span onClick={() => moveToLocation(it.slug)}>{it.name}</span>
             </Item>
           ))}
         </List>
@@ -29,12 +30,8 @@ export const Series: VFC<SeriesProps> = (props) => {
     </Collapse>
   )
 
-  function moveToLocation(name: string): void {
-    navigate(`/${replaceSpaceToHypen(name)}`)
-  }
-
-  function replaceSpaceToHypen(value: string): string {
-    return value.replaceAll(' ', '-')
+  function moveToLocation(slug: string): void {
+    navigate(slug)
   }
 }
 

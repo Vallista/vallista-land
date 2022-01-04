@@ -33,11 +33,11 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
     </div>
   )
 
-  function getFilteredSeries(): { name: string; timeToRead: number }[] {
+  function getFilteredSeries(): { name: string; timeToRead: number; slug: string }[] {
     return nodes
       .filter((it) => it.frontmatter.series)
       .filter((it) => it.frontmatter.series === series)
-      .map((it) => ({ name: it.frontmatter.title, timeToRead: it.timeToRead }))
+      .map((it) => ({ name: it.frontmatter.title, timeToRead: it.timeToRead, slug: it.fields.slug }))
   }
 }
 
