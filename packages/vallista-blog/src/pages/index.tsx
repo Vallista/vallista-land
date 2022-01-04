@@ -1,5 +1,6 @@
+import { keyframes } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Button, Text } from '@vallista-land/core'
+import { Button, Container, Text } from '@vallista-land/core'
 import { graphql, navigate } from 'gatsby'
 import { VFC } from 'react'
 
@@ -12,12 +13,12 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { nodes } = data.allMarkdownRemark
 
   return (
-    <>
+    <Container>
       <Header>
         <Wrapper>
           <Title>
-            <Text as='h1' size={48} weight={800}>
-              어서오세요! ✋
+            <Text as='span' size={48} weight={800}>
+              어서오세요!
             </Text>
             <Text as='h1' size={48} weight={800} lineHeight={56}>
               저는 마광휘입니다.
@@ -49,7 +50,7 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
             }))}
         />
       </Contents>
-    </>
+    </Container>
   )
 
   function getSimpleDate(target: string): string {
@@ -62,6 +63,20 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
     navigate(target)
   }
 }
+
+const HandAnimation = keyframes`
+  0% {
+    transform: rotateZ(0);
+  }
+
+  50% {
+    transform: rotateZ(30deg);
+  }
+
+  100% {
+    transform: rotateZ(0deg);
+  }
+`
 
 const Wrapper = styled.div`
   margin-left: auto;
@@ -77,6 +92,19 @@ const Header = styled.header`
 const Title = styled.div`
   margin-bottom: 1.5rem;
   max-width: 550px;
+
+  & > span:first-of-type {
+    position: relative;
+
+    &::after {
+      position: absolute;
+      right: -4rem;
+      top: -0.5rem;
+      content: '✋';
+      display: block;
+      animation: ${HandAnimation} 1s ease-in-out infinite;
+    }
+  }
 `
 
 const SubTitle = styled.div`
@@ -84,7 +112,8 @@ const SubTitle = styled.div`
   margin-bottom: 2rem;
 `
 
-const Contents = styled.div`
+const Contents = styled.section`
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
   max-width: 900px;

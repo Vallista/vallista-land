@@ -75,40 +75,43 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
   const hasSearchText = search.length !== 0
 
   return (
-    <Wrapper>
-      <Container>
-        <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
-        <Spacer y={2} />
-      </Container>
-      {hasSearchText ? (
-        filteredSearchPosts.length === 0 ? (
-          <>
-            <Text size={20} weight={600}>
-              검색된 결과가 없어요 :(
-            </Text>
-            <Text size={20} weight={600}>
-              다른 결과를 검색해보시겠어요?
-            </Text>
-          </>
+    <Container>
+      <Wrapper>
+        <Container>
+          <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
+          <Spacer y={2} />
+        </Container>
+        {hasSearchText ? (
+          filteredSearchPosts.length === 0 ? (
+            <>
+              <Text size={20} weight={600}>
+                검색된 결과가 없어요 :(
+              </Text>
+              <Text size={20} weight={600}>
+                다른 결과를 검색해보시겠어요?
+              </Text>
+            </>
+          ) : (
+            <ListTable underline title='검색결과' list={filteredSearchPosts} />
+          )
         ) : (
-          <ListTable underline title='검색결과' list={filteredSearchPosts} />
-        )
-      ) : (
-        posts.map((it) => (
-          <Container key={it.year}>
-            <div>
-              <ListTable title={it.year} list={it.posts} underline />
-            </div>
-            <Spacer y={2} />
-          </Container>
-        ))
-      )}
-    </Wrapper>
+          posts.map((it) => (
+            <Container key={it.year}>
+              <div>
+                <ListTable title={it.year} list={it.posts} underline />
+              </div>
+              <Spacer y={2} />
+            </Container>
+          ))
+        )}
+      </Wrapper>
+    </Container>
   )
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled.section`
   margin: 0 auto;
+  width: 100%;
   max-width: 900px;
   padding: 2rem;
 `

@@ -185,6 +185,12 @@ const SidebarContainer = styled.aside<{ hasVerticalScrollbar: boolean; fold: boo
     overflow-y: auto;
   }
 
+  /** 파이어폭스 스크롤 대응 */
+  scrollbar-width: 8px;
+  // thumb background 순
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-background);
+
+  /** 사파리 크롬 스크롤 대응 */
   &::-webkit-scrollbar {
     background: var(--scrollbar-background);
     height: 8px;

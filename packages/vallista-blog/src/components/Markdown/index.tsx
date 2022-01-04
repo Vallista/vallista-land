@@ -74,6 +74,11 @@ const Wrapper = styled.div`
 
 const Contents = styled(Wrapper)`
   width: calc(100vw - 400px);
+
+  @media screen and (max-width: 1308px) {
+    width: calc(100vw - 408px);
+  }
+
   @media screen and (max-width: 1000px) {
     width: 100vw;
   }
@@ -247,6 +252,12 @@ const Contents = styled(Wrapper)`
       background-color: var(--scrollbar-background);
       padding-left: 2rem;
 
+      /** 파이어폭스 스크롤 대응 */
+      scrollbar-width: 8px;
+      // thumb background 순
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-background);
+
+      /** 사파리, 크롬 스크롤 대응 */
       &::-webkit-scrollbar {
         background: var(--scrollbar-background);
         height: 8px;

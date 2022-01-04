@@ -8,9 +8,21 @@ export function wrapRootElement({ element }) {
   return <ThemeProvider>{element}</ThemeProvider>
 }
 
+// let init = false
+
 export function wrapPageElement({ element }) {
+  // if (!init) {
+  //   document.body.style.opacity = 0
+  //   document.body.style.transition = 'opacity 0.2s ease'
+  //   init = true
+  // }
+
   return <InitializeElement element={element} />
 }
+
+// export function onInitialClientRender() {
+//   setTimeout(() => (document.body.style.opacity = 1), 500)
+// }
 
 const InitializeElement = ({ element }) => {
   const theme = useTheme()
