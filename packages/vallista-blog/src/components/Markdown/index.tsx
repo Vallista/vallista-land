@@ -1,16 +1,15 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { useLocation } from '@reach/router'
-import { useEffect, useMemo, VFC } from 'react'
+import { useEffect, useMemo, useRef, VFC } from 'react'
 
 interface MarkdownProps {
   html: string
 }
 
-const markdownId = 'markdown-contents'
-
 export const Markdown: VFC<MarkdownProps> = (props) => {
   const location = useLocation()
+  const ref = useRef<HTMLDivElement>(null)
   const html = useMemo(() => {
     const result = props.html
       // pre 태그 (소스코드)에 추가하여 wrapping 하는 div를 추가한다.
@@ -24,7 +23,7 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
   useEffect(() => {
     // heading 전부 체크해서 해시에 저장할 수 있는 버튼을 추가한다.
     // 버튼을 클릭하면 이동되도록 구현.
-    Array.from(document.getElementById(markdownId)?.getElementsByTagName('*') ?? [])
+    Array.from(ref.current?.getElementsByTagName('*') ?? [])
       .filter((it) => Number(it.tagName?.[1] ?? '999') < 6)
       .forEach((it) => {
         if (it.getElementsByTagName('a').length > 0) return
@@ -54,7 +53,11 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
     }
   }, [])
 
-  return <Contents id={markdownId} dangerouslySetInnerHTML={{ __html: html }} />
+  return (
+    <div>
+      <Contents ref={ref} dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  )
 }
 
 const Wrapper = styled.div`

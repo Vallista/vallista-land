@@ -17,7 +17,7 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
   const cachedFilterSeries = useCallback(getFilteredSeries, [props.data])
 
   return (
-    <>
+    <div>
       <PostHeader
         title={title}
         date={date}
@@ -30,7 +30,7 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
       </PostHeader>
       <Markdown html={html} />
       <section id='comments'></section>
-    </>
+    </div>
   )
 
   function getFilteredSeries(): { name: string; timeToRead: number }[] {

@@ -5,6 +5,7 @@ import { Colors, Container, Text } from '@vallista-land/core'
 import { navigate } from 'gatsby'
 import { useEffect, useMemo, useRef, useState, VFC } from 'react'
 
+import { SearchBox as Search } from '../../components/SearchBox'
 import { SidebarPost } from '../../types/type'
 
 interface SidebarProps {
@@ -27,7 +28,6 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
 
-  const hasSearchText = search.length > 0
   const filteredPosts = useMemo(() => posts.filter((it) => it.name.includes(search)), [search, posts])
 
   useEffect(() => {
@@ -84,39 +84,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
           </Button>
         </Title>
         <SearchBox>
-          <Search hasSearchText={hasSearchText}>
-            <Input value={search} onChange={(e) => handleInput(e.currentTarget.value)} />
-            <svg
-              viewBox='0 0 24 24'
-              width='15'
-              height='15'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              fill='none'
-              shapeRendering='geometricPrecision'
-            >
-              <path d='M11 17.25a6.25 6.25 0 110-12.5 6.25 6.25 0 010 12.5z' />
-              <path d='M16 16l4.5 4.5' />
-            </svg>
-            <svg
-              onClick={searchClear}
-              viewBox='0 0 24 24'
-              width='15'
-              height='15'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              fill='none'
-              shapeRendering='geometricPrecision'
-            >
-              <path d='M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z' />
-              <path d='M18 9l-6 6' />
-              <path d='M12 9l6 6' />
-            </svg>
-          </Search>
+          <Search value={search} onSearch={(e) => handleInput(e)} />
         </SearchBox>
       </Header>
       <Categories>
@@ -273,58 +241,6 @@ const SearchBox = styled.div`
   align-items: flex-end;
   height: 38px;
   padding: 0 1.5rem;
-`
-
-const Search = styled.label<{ hasSearchText: boolean }>`
-  position: relative;
-  width: 100%;
-  height: 30px;
-  border-radius: 15px;
-  ${({ theme }) => css`
-    background: ${theme.colors.PRIMARY.ACCENT_2};
-  `}
-
-  & > svg {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  ${({ theme, hasSearchText }) => css`
-    border: 1px solid transparent;
-    transition: border 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
-
-    &:focus-within {
-      border: 1px solid ${theme.colors.PRIMARY.ACCENT_3};
-    }
-
-    & > svg:first-of-type {
-      left: 12px;
-      color: ${theme.colors.PRIMARY.ACCENT_4};
-    }
-
-    & > svg:last-of-type {
-      cursor: pointer;
-      opacity: ${hasSearchText ? 1 : 0};
-      right: 12px;
-      color: ${theme.colors.ERROR.DARK};
-    }
-  `}
-`
-
-const Input = styled.input`
-  width: calc(100% - 85px);
-  position: relative;
-  left: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: none;
-  background: none;
-  outline: none;
-
-  :focus {
-    background: none;
-  }
 `
 
 const Categories = styled.div`
