@@ -7,7 +7,6 @@ export interface Post {
     slug: string
   }
   timeToRead: number
-  excerpt: string
   frontmatter: {
     title: string
     date: string

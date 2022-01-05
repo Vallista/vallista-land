@@ -5,6 +5,7 @@ import { graphql, navigate } from 'gatsby'
 import { VFC } from 'react'
 
 import { ListTable } from '../components/ListTable'
+import { Seo } from '../components/Seo'
 import { IndexQuery, PageProps } from '../types/type'
 import { getTime } from '../utils'
 
@@ -14,6 +15,7 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   return (
     <Container>
+      <Seo name='홈' />
       <Header>
         <Wrapper>
           <Title>

@@ -4,6 +4,7 @@ import { PageProps, PostQuery } from 'types/type'
 
 import { Markdown } from '../components/Markdown'
 import { PostHeader } from '../components/PostHeader'
+import { Seo } from '../components/Seo'
 import { Series } from '../components/Series'
 import { useConfig } from '../hooks/useConfig'
 
@@ -18,6 +19,7 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
 
   return (
     <div>
+      <Seo name={title} image={image?.publicURL} isPost />
       <PostHeader
         title={title}
         date={date}

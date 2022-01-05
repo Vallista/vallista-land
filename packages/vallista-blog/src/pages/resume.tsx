@@ -3,13 +3,15 @@ import styled from '@emotion/styled'
 import { Button, Container, Spacer, Text } from '@vallista-land/core'
 import { VFC } from 'react'
 
+import { Seo } from '../components/Seo'
 import { useConfig } from '../hooks/useConfig'
 
-const MePage: VFC = () => {
+const ResumePage: VFC = () => {
   const { resume } = useConfig()
 
   return (
     <Container>
+      <Seo name='이력서' />
       <Header>
         <Wrapper>
           <Container>
@@ -424,4 +426,4 @@ const SubTitleText = styled.div`
   `}
 `
 
-export default MePage
+export default ResumePage

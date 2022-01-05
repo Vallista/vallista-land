@@ -8,7 +8,6 @@ import { FC, useEffect, useMemo, useState } from 'react'
 import { Header } from '../../components/Header'
 import { IndexQuery } from '../../types/type'
 import { NavBar } from '../NavBar'
-import Seo from '../Seo'
 import { Sidebar } from '../Sidebar'
 
 export const Layout: FC = (props) => {
@@ -22,23 +21,20 @@ export const Layout: FC = (props) => {
   const posts = useMemo(
     () =>
       nodes
-        .filter((it) => (!it.frontmatter.draft ? true : location.hostname.includes('localhost') ? true : false))
+        .filter((it) =>
+          !it.frontmatter.draft
+            ? true
+            : (typeof window === 'undefined' ? '' : location.host).includes('localhost')
+            ? true
+            : false
+        )
         .map((it) => ({
           name: it.frontmatter.title,
           slug: it.fields.slug,
           series: it.frontmatter.series || null,
-          image: it.frontmatter.image?.publicURL || '/profile.png',
-          excerpt: it.excerpt
+          image: it.frontmatter.image?.publicURL || '/profile.png'
         })),
     [nodes]
-  )
-
-  const nowPost = useMemo(
-    () =>
-      posts.find((it) => {
-        return decodeURIComponent(location.pathname).includes(it.slug)
-      }) || { name: location.pathname.replaceAll('/', '').toLocaleUpperCase() },
-    [location]
   )
 
   useEffect(() => {
@@ -51,7 +47,6 @@ export const Layout: FC = (props) => {
 
   return (
     <Wrapper>
-      <Seo {...nowPost} />
       <Container>
         <NavBar />
         <Sidebar posts={posts} fold={fold} />
@@ -130,7 +125,6 @@ const layoutQuery = graphql`
           }
           draft
         }
-        excerpt
       }
     }
   }

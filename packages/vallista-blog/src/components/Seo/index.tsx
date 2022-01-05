@@ -8,17 +8,17 @@ import { StaticQuery } from '../../types/type'
 interface SeoProps {
   name?: string
   image?: string
-  excerpt?: string
+  isPost?: boolean
 }
 
-export const Seo: VFC<SeoProps> = ({ name, image, excerpt }) => {
+export const Seo: VFC<SeoProps> = ({ name, image, isPost = false }) => {
   const location = useLocation()
   const { site } = useStaticQuery<StaticQuery>(query)
   const { defaultTitle, titleTemplate, defaultDescription, siteUrl, defaultImage, twitterUsername } = site.siteMetadata
 
   const seo = {
     title: name || defaultTitle,
-    description: excerpt || defaultDescription,
+    description: defaultDescription,
     image: `${siteUrl}${image || defaultImage}`,
     url: `${siteUrl}${decodeURIComponent(location.pathname)}`
   }
@@ -29,7 +29,7 @@ export const Seo: VFC<SeoProps> = ({ name, image, excerpt }) => {
       <meta name='description' content={seo.description} />
       <meta name='image' content={seo.image} />
       {seo.url && <meta property='og:url' content={seo.url} />}
-      {(excerpt ? true : null) && <meta property='og:type' content='article' />}
+      <meta property='og:type' content={isPost ? 'article' : 'website'} />
       {seo.title && <meta property='og:title' content={seo.title} />}
       {seo.description && <meta property='og:description' content={seo.description} />}
       {seo.image && <meta property='og:image' content={seo.image} />}

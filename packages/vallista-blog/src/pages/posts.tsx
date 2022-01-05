@@ -6,6 +6,7 @@ import { useMemo, useState, VFC } from 'react'
 
 import { ListTable } from '../components/ListTable'
 import { SearchBox } from '../components/SearchBox'
+import { Seo } from '../components/Seo'
 import { IndexQuery, PageProps } from '../types/type'
 import { toDate, getTime } from '../utils'
 
@@ -17,7 +18,13 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   const sortPosts = useMemo(() => {
     return nodes
-      .filter((it) => (!it.frontmatter.draft ? true : location.hostname.includes('localhost') ? true : false))
+      .filter((it) =>
+        !it.frontmatter.draft
+          ? true
+          : (typeof window === 'undefined' ? '' : location.host).includes('localhost')
+          ? true
+          : false
+      )
       .sort((a, b) => {
         const base = toDate(a.frontmatter.date)
         const target = toDate(b.frontmatter.date)
@@ -42,7 +49,13 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   const posts = useMemo(() => {
     const remake = nodes
-      .filter((it) => (!it.frontmatter.draft ? true : location.hostname.includes('localhost') ? true : false))
+      .filter((it) =>
+        !it.frontmatter.draft
+          ? true
+          : (typeof window === 'undefined' ? '' : location.host).includes('localhost')
+          ? true
+          : false
+      )
       .sort((a, b) => {
         const base = toDate(a.frontmatter.date)
         const target = toDate(b.frontmatter.date)
@@ -80,6 +93,7 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   return (
     <Container>
+      <Seo name='글 목록' />
       <Wrapper>
         <Container>
           <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
