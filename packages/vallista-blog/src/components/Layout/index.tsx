@@ -11,50 +11,25 @@ import { NavBar } from '../NavBar'
 import Seo from '../Seo'
 import { Sidebar } from '../Sidebar'
 
-interface LayoutProps {
-  seo?: {
-    title?: string
-    description?: string
-    image?: string
-    article?: string
-  }
-}
-
-export const Layout: FC<LayoutProps> = (props) => {
+export const Layout: FC = (props) => {
   const location = useLocation()
-  const { children, seo } = props
-  const data: IndexQuery = useStaticQuery(graphql`
-    query {
-      allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
-        nodes {
-          fields {
-            slug
-          }
-          frontmatter {
-            title
-            date
-            image {
-              publicURL
-            }
-          }
-          excerpt
-        }
-      }
-    }
-  `)
+  const { children } = props
+  const data: IndexQuery = useStaticQuery(layoutQuery)
   const { nodes } = data.allMarkdownRemark
   // Sidebar Folding
   const [fold, setFold] = useState(false)
 
   const posts = useMemo(
     () =>
-      nodes.map((it) => ({
-        name: it.frontmatter.title,
-        slug: it.fields.slug,
-        series: it.frontmatter.series || null,
-        image: it.frontmatter.image?.publicURL || '/profile.jpeg',
-        excerpt: it.excerpt
-      })),
+      nodes
+        .filter((it) => (!it.frontmatter.draft ? true : location.hostname.includes('localhost') ? true : false))
+        .map((it) => ({
+          name: it.frontmatter.title,
+          slug: it.fields.slug,
+          series: it.frontmatter.series || null,
+          image: it.frontmatter.image?.publicURL || '/profile.png',
+          excerpt: it.excerpt
+        })),
     [nodes]
   )
 
@@ -138,4 +113,25 @@ const Article = styled.article`
       }
     }
   `}
+`
+
+const layoutQuery = graphql`
+  query {
+    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
+      nodes {
+        fields {
+          slug
+        }
+        frontmatter {
+          title
+          date
+          image {
+            publicURL
+          }
+          draft
+        }
+        excerpt
+      }
+    }
+  }
 `

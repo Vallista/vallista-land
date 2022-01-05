@@ -1,5 +1,4 @@
 import React from 'react'
-import { Location } from '@reach/router'
 import { ThemeProvider, useTheme } from '@vallista-land/core'
 
 import { Layout } from './src/components/Layout'

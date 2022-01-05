@@ -14,6 +14,7 @@ export interface Post {
     tags: string[]
     image: Image | null
     series?: string | null
+    draft?: boolean
   }
   html: string
 }

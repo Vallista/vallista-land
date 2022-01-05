@@ -59,6 +59,7 @@ const sizeMapper = {
 }
 
 const Search = styled.label<{ hasSearchText: boolean; size: SearchBoxSize; placeholder: string }>`
+  display: flex;
   position: relative;
   width: 100%;
   height: 30px;
@@ -96,8 +97,8 @@ const Search = styled.label<{ hasSearchText: boolean; size: SearchBoxSize; place
 
       & input {
         font-size: 1.5rem;
-        width: calc(100% - 6.25rem);
-        left: 3.125rem;
+        width: calc(100% - 100px);
+        left: 50px;
       }
 
       &::before {
@@ -140,9 +141,9 @@ const Search = styled.label<{ hasSearchText: boolean; size: SearchBoxSize; place
 `
 
 const Input = styled.input`
-  width: calc(100% - 5.3125rem);
+  width: calc(100% - 85px);
   position: relative;
-  left: 2.5rem;
+  left: 40px;
   top: 50%;
   transform: translateY(-50%);
   border: none;

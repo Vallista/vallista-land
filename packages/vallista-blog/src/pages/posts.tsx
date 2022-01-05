@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+import { useLocation } from '@reach/router'
 import { Container, Spacer, Text } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { useMemo, useState, VFC } from 'react'
@@ -12,9 +13,11 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
   const { nodes } = data.allMarkdownRemark
   const [search, setSearch] = useState('')
+  const location = useLocation()
 
   const sortPosts = useMemo(() => {
     return nodes
+      .filter((it) => (!it.frontmatter.draft ? true : location.hostname.includes('localhost') ? true : false))
       .sort((a, b) => {
         const base = toDate(a.frontmatter.date)
         const target = toDate(b.frontmatter.date)
@@ -39,6 +42,7 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   const posts = useMemo(() => {
     const remake = nodes
+      .filter((it) => (!it.frontmatter.draft ? true : location.hostname.includes('localhost') ? true : false))
       .sort((a, b) => {
         const base = toDate(a.frontmatter.date)
         const target = toDate(b.frontmatter.date)
@@ -130,6 +134,7 @@ export const pageQuery = graphql`
           image {
             publicURL
           }
+          draft
         }
       }
     }

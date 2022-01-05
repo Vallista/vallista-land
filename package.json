@@ -26,7 +26,7 @@
     "run:blog": "lerna run run:blog --stream",
     "build:blog": "lerna run build:blog",
     "clean:blog": "cd packages/vallista-blog && gatsby clean",
-    "post:blog": "lerna run post:blog",
+    "post:blog": "cd packages/vallista-blog && yarn post:blog",
     "deploy:blog": "cd packages/vallista-blog && yarn deploy:blog"
   },
   "workspaces": {

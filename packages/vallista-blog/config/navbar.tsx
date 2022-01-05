@@ -1,7 +1,7 @@
 import { Image } from '@vallista-land/core'
 
 import { NavCategoryType, NavFooterType } from '../src/components/NavBar/type'
-import profile from '../static/profile.jpeg'
+import profile from '../static/profile.png'
 
 export const NavCategory: NavCategoryType = {
   me: {

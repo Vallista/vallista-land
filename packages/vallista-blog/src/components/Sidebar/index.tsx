@@ -44,7 +44,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
           <Text>
             글{' '}
             <Text as='span' color={Colors.PRIMARY.ACCENT_4}>
-              ({posts.length} 개)
+              ({posts.length})
             </Text>
           </Text>
           <Button onClick={handleChangeViewType}>

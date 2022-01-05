@@ -88,9 +88,9 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        // name: profile.description,
-        // short_name: profile.author,
-        // start_url: `/`,
+        name: profile.description,
+        short_name: profile.author,
+        start_url: `/`,
         icon: `static/favicons/favicon-96x96.png`,
         icons: [
           {
