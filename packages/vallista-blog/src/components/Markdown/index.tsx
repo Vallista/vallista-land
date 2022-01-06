@@ -60,7 +60,7 @@ export const Markdown: VFC<MarkdownProps> = (props) => {
   )
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled.section`
   width: 100%;
   max-width: 900px;
   padding: 2rem;

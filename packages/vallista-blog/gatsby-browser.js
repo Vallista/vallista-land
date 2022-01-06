@@ -3,25 +3,23 @@ import { ThemeProvider, useTheme } from '@vallista-land/core'
 
 import { Layout } from './src/components/Layout'
 
+export function onInitialClientRender() {
+  let modalRoot = document?.getElementById('modal-root') || null
+
+  if (!modalRoot) {
+    modalRoot = document.createElement('div')
+    modalRoot.id = 'modal-root'
+    document.body.appendChild(modalRoot)
+  }
+}
+
 export function wrapRootElement({ element }) {
   return <ThemeProvider>{element}</ThemeProvider>
 }
 
-// let init = false
-
 export function wrapPageElement({ element }) {
-  // if (!init) {
-  //   document.body.style.opacity = 0
-  //   document.body.style.transition = 'opacity 0.2s ease'
-  //   init = true
-  // }
-
   return <InitializeElement element={element} />
 }
-
-// export function onInitialClientRender() {
-//   setTimeout(() => (document.body.style.opacity = 1), 500)
-// }
 
 const InitializeElement = ({ element }) => {
   const theme = useTheme()

@@ -46,21 +46,11 @@ import { BackDrop, Container, ModalContainer, Wrap, Wrapper } from './Modal.styl
  * ```
  */
 export const Modal: FC<Partial<ModalProps>> = ({ children, ...props }) => {
-  useEffect(() => {
-    let modalRoot = document?.getElementById('modal-root') || null
-
-    if (!modalRoot) {
-      modalRoot = document.createElement('div')
-      modalRoot.id = 'modal-root'
-      document.body.appendChild(modalRoot)
-    }
-  }, [])
-
   return createPortal(
     <ModalProvider>
       <Contents {...props}>{children}</Contents>
     </ModalProvider>,
-    document.body
+    document.getElementById('modal-root') ?? document.body
   )
 }
 
