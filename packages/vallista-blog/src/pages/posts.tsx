@@ -27,21 +27,19 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   const sortPosts = useMemo(
     () =>
-      posts
-        .map((it) => {
-          const { slug } = it.fields
-          const { date, title: name } = it.frontmatter
-          const [, month, day] = getTime(date)
-          const time = toDate(date)
+      posts.map((it) => {
+        const { slug } = it.fields
+        const { date, title: name } = it.frontmatter
+        const [, month, day] = getTime(date)
+        const time = toDate(date)
 
-          return {
-            time: time.getTime(),
-            date: `${Number(month)}월 ${day}일`,
-            name,
-            slug
-          }
-        })
-        .sort((a, b) => Number(b.time) - Number(a.time)),
+        return {
+          time: time.getTime(),
+          date: `${Number(month)}월 ${day}일`,
+          name,
+          slug
+        }
+      }),
     [posts]
   )
 
