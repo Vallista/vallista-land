@@ -89,6 +89,12 @@ const Reset: VFC = () => {
             font-size: 14px;
           }
 
+          /** ios safari fixed bottom 대응 */
+          height: 100%;
+          overflow-x: hidden
+          overflow-y: scroll;
+          --webkit-overflow-scrolling: touch;
+
           /** 파이어폭스 스크롤 대응 */
           scrollbar-width: 8px;
           // thumb background 순
