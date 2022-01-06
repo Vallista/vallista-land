@@ -104,6 +104,7 @@ const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>
     align-items: center;
     align-content: center;
     flex-direction: column;
+    bottom: 0;
   }
 
   ${({ theme, animationState }) => css`

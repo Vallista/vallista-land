@@ -194,6 +194,10 @@ const Contents = styled(Wrapper)`
       box-sizing: border-box;
       line-height: 1.6;
 
+      & ul {
+        margin-top: 8px;
+      }
+
       & ul,
       & ol {
         margin-bottom: 0;

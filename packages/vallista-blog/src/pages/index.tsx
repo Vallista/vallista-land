@@ -6,8 +6,8 @@ import { VFC } from 'react'
 
 import { ListTable } from '../components/ListTable'
 import { Seo } from '../components/Seo'
-import { IndexQuery, PageProps } from '../types/type'
-import { getTime } from '../utils'
+import { IndexQuery, PageProps, Post } from '../types/type'
+import { filteredByDraft, getTime } from '../utils'
 
 const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
@@ -63,6 +63,18 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   function moveToLocation(target: string): void {
     navigate(target)
+  }
+
+  function filteredNewestPosts(posts: Post[]): { name: string; slug: string; date: string }[] {
+    const cuttingCount = 5
+
+    return filteredByDraft(posts)
+      .filter((_, idx) => idx < cuttingCount + 1)
+      .map((it) => ({
+        name: it.frontmatter.title,
+        slug: it.fields.slug,
+        date: getSimpleDate(it.frontmatter.date)
+      }))
   }
 }
 

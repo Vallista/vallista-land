@@ -1,3 +1,5 @@
+import { Post } from '../types/type'
+
 // eslint-disable-next-line no-useless-escape
 export const SPLIT_DATE_FORMAT = /[\-\+ :T]/
 
@@ -13,4 +15,14 @@ export function toDate(time: string): Date {
 export function getTime(date: string): [string, string, string] {
   const translate = date.split(SPLIT_DATE_FORMAT)
   return [translate[0] || '0', translate[1] || '0', translate[2] || '0']
+}
+
+export function filteredByDraft(posts: Post[]): Post[] {
+  return posts.filter((it) =>
+    !it.frontmatter.draft
+      ? true
+      : (typeof window === 'undefined' ? '' : window.location.host).includes('localhost')
+      ? true
+      : false
+  )
 }

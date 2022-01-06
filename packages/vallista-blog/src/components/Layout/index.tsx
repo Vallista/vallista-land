@@ -7,11 +7,11 @@ import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
 import { IndexQuery } from '../../types/type'
+import { filteredByDraft } from '../../utils'
 import { NavBar } from '../NavBar'
 import { Sidebar } from '../Sidebar'
 
 export const Layout: FC = (props) => {
-  const location = useLocation()
   const { children } = props
   const data: IndexQuery = useStaticQuery(layoutQuery)
   const { nodes } = data.allMarkdownRemark
@@ -20,20 +20,12 @@ export const Layout: FC = (props) => {
 
   const posts = useMemo(
     () =>
-      nodes
-        .filter((it) =>
-          !it.frontmatter.draft
-            ? true
-            : (typeof window === 'undefined' ? '' : location.host).includes('localhost')
-            ? true
-            : false
-        )
-        .map((it) => ({
-          name: it.frontmatter.title,
-          slug: it.fields.slug,
-          series: it.frontmatter.series || null,
-          image: it.frontmatter.image?.publicURL || '/profile.png'
-        })),
+      filteredByDraft(nodes).map((it) => ({
+        name: it.frontmatter.title,
+        slug: it.fields.slug,
+        series: it.frontmatter.series || null,
+        image: it.frontmatter.image?.publicURL || '/profile.png'
+      })),
     [nodes]
   )
 

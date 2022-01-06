@@ -1,5 +1,4 @@
 import styled from '@emotion/styled'
-import { useLocation } from '@reach/router'
 import { Container, Spacer, Text } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { useMemo, useState, VFC } from 'react'
@@ -8,75 +7,60 @@ import { ListTable } from '../components/ListTable'
 import { SearchBox } from '../components/SearchBox'
 import { Seo } from '../components/Seo'
 import { IndexQuery, PageProps } from '../types/type'
-import { toDate, getTime } from '../utils'
+import { toDate, getTime, filteredByDraft } from '../utils'
 
 const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
   const { nodes } = data.allMarkdownRemark
   const [search, setSearch] = useState('')
-  const location = useLocation()
 
-  const sortPosts = useMemo(() => {
-    return nodes
-      .filter((it) =>
-        !it.frontmatter.draft
-          ? true
-          : (typeof window === 'undefined' ? '' : location.host).includes('localhost')
-          ? true
-          : false
-      )
-      .sort((a, b) => {
+  const posts = useMemo(
+    () =>
+      filteredByDraft(nodes).sort((a, b) => {
         const base = toDate(a.frontmatter.date)
         const target = toDate(b.frontmatter.date)
 
         return target.getTime() - base.getTime()
-      })
-      .map((it) => {
-        const { slug } = it.fields
-        const { date, title: name } = it.frontmatter
-        const [, month, day] = getTime(date)
-        const time = toDate(date)
+      }),
+    [nodes]
+  )
 
-        return {
-          time: time.getTime(),
-          date: `${Number(month)}월 ${day}일`,
-          name,
-          slug
-        }
-      })
-      .sort((a, b) => Number(b.time) - Number(a.time))
-  }, [nodes])
+  const sortPosts = useMemo(
+    () =>
+      posts
+        .map((it) => {
+          const { slug } = it.fields
+          const { date, title: name } = it.frontmatter
+          const [, month, day] = getTime(date)
+          const time = toDate(date)
 
-  const posts = useMemo(() => {
-    const remake = nodes
-      .filter((it) =>
-        !it.frontmatter.draft
-          ? true
-          : (typeof window === 'undefined' ? '' : location.host).includes('localhost')
-          ? true
-          : false
-      )
-      .sort((a, b) => {
-        const base = toDate(a.frontmatter.date)
-        const target = toDate(b.frontmatter.date)
-
-        return target.getTime() - base.getTime()
-      })
-      .reduce<Record<string, Array<{ name: string; date: string; slug: string }>>>((acc, curr) => {
-        const { slug } = curr.fields
-        const { date, title: name } = curr.frontmatter
-        const [year, month, day] = getTime(date)
-
-        if (!acc[year]) acc[year] = []
-
-        acc[year].push({
-          name,
-          date: `${Number(month)}월 ${day}일`,
-          slug
+          return {
+            time: time.getTime(),
+            date: `${Number(month)}월 ${day}일`,
+            name,
+            slug
+          }
         })
+        .sort((a, b) => Number(b.time) - Number(a.time)),
+    [posts]
+  )
 
-        return acc
-      }, {})
+  const views = useMemo(() => {
+    const remake = posts.reduce<Record<string, Array<{ name: string; date: string; slug: string }>>>((acc, curr) => {
+      const { slug } = curr.fields
+      const { date, title: name } = curr.frontmatter
+      const [year, month, day] = getTime(date)
+
+      if (!acc[year]) acc[year] = []
+
+      acc[year].push({
+        name,
+        date: `${Number(month)}월 ${day}일`,
+        slug
+      })
+
+      return acc
+    }, {})
 
     const values = Object.values(remake)
     return Object.keys(remake)
@@ -113,7 +97,7 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
             <ListTable underline title='검색결과' list={filteredSearchPosts} />
           )
         ) : (
-          posts.map((it) => (
+          views.map((it) => (
             <Container key={it.year}>
               <div>
                 <ListTable title={it.year} list={it.posts} underline />

@@ -24,6 +24,7 @@ async function processCall() {
         .getMinutes()
         .toString()
         .padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`,
+      'draft: true',
       '---'
     ]
 
