@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { useLocation } from '@reach/router'
 import { Container } from '@vallista-land/core'
 import { graphql, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'

@@ -58,8 +58,6 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   function filteredNewestPosts(posts: Post[]): { name: string; slug: string; date: string }[] {
     const cuttingCount = 5
-    const a = filteredByDraft(posts)
-    console.log(a)
 
     return filteredByDraft(posts)
       .filter((_, idx) => idx < cuttingCount + 1)

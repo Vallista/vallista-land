@@ -1,11 +1,10 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { useLocation } from '@reach/router'
-import { Colors, Container, Text } from '@vallista-land/core'
+import { Colors, Container, Text, SearchInput } from '@vallista-land/core'
 import { navigate } from 'gatsby'
 import { useEffect, useMemo, useRef, useState, VFC } from 'react'
 
-import { SearchBox as Search } from '../../components/SearchBox'
 import { SidebarPost } from '../../types/type'
 
 interface SidebarProps {
@@ -84,8 +83,11 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
           </Button>
         </Title>
         <SearchBox>
-          <Search value={search} onSearch={(e) => handleInput(e)} />
+          <SearchInput value={search} onChange={handleInput} size='small' placeholder='검색..' />
         </SearchBox>
+        {/* <SearchBox>
+          <Search value={search} onSearch={(e) => handleInput(e)} />
+        </SearchBox> */}
       </Header>
       <Categories>
         <Container>
@@ -247,6 +249,11 @@ const SearchBox = styled.div`
   align-items: flex-end;
   height: 38px;
   padding: 0 24px;
+  max-width: 100%;
+
+  & > div {
+    width: 100%;
+  }
 `
 
 const Categories = styled.div`

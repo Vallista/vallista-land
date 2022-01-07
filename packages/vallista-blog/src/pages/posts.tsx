@@ -1,10 +1,9 @@
 import styled from '@emotion/styled'
-import { Container, Spacer, Text } from '@vallista-land/core'
+import { Container, Spacer, Text, SearchInput } from '@vallista-land/core'
 import { graphql } from 'gatsby'
 import { useMemo, useState, VFC } from 'react'
 
 import { ListTable } from '../components/ListTable'
-import { SearchBox } from '../components/SearchBox'
 import { Seo } from '../components/Seo'
 import { IndexQuery, PageProps } from '../types/type'
 import { toDate, getTime, filteredByDraft } from '../utils'
@@ -78,7 +77,9 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
       <Seo name='글 목록' />
       <Wrapper>
         <Container>
-          <SearchBox value={search} onSearch={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
+          <div>
+            <SearchInput value={search} onChange={setSearch} size='large' placeholder='검색할 텍스트를 입력하세요.' />
+          </div>
           <Spacer y={2} />
         </Container>
         {hasSearchText ? (

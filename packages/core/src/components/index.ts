@@ -25,6 +25,7 @@ export * from './Capacity'
 export * from './Badge'
 export * from './Footer'
 export * from './Tooltip'
+export * from './Input'
 
 export { ImageComponent as Image } from './Image'
 

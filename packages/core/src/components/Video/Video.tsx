@@ -44,7 +44,7 @@ export const Video: VFC<NeedVideoProp> = (props) => {
           <span>{currentTime}</span>
           <Timeline>
             <DragArea {...dragArea} />
-            <Progress value={percent} max={100} />
+            <Progress max={100} />
             <Handle
               style={{
                 left: `${percent}%`

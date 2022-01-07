@@ -11,6 +11,7 @@ import ContainerPlayground from '../components/playgrounds/ContainerPlayground'
 import FooterPlayground from '../components/playgrounds/FooterPlayground'
 import IconPlayground from '../components/playgrounds/IconPlayground'
 import ImagePlayground from '../components/playgrounds/ImagePlayground'
+import InputPlayground from '../components/playgrounds/InputPlayground'
 import LoadingDotsPlayground from '../components/playgrounds/LoadingDotsPlayground'
 import ModalPlayground from '../components/playgrounds/ModalPlayground'
 import NotePlayground from '../components/playgrounds/NotePlayground'
@@ -105,6 +106,9 @@ const IndexPage: VFC = () => {
       </Card>
       <Card title='Tooltip'>
         <TooltipPlayground />
+      </Card>
+      <Card title='Input'>
+        <InputPlayground />
       </Card>
     </Wrap>
   )
