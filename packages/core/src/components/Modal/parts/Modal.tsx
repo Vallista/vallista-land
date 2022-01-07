@@ -70,9 +70,13 @@ const Contents: FC<Partial<ModalProps>> = (props) => {
 
   useEffect(() => {
     if (active) {
+      document.body.style.overflow = 'hidden'
       changeAnimationState(ModalAnimationState.FADE_IN)
     } else {
-      if (animationState === ModalAnimationState.ALIVE) changeAnimationState(ModalAnimationState.FADE_OUT)
+      if (animationState === ModalAnimationState.ALIVE) {
+        document.body.style.overflow = ''
+        changeAnimationState(ModalAnimationState.FADE_OUT)
+      }
     }
   }, [active])
 

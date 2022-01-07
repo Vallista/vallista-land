@@ -40,14 +40,14 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
   top: 0;
   left: 0;
   bottom: 0;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   opacity: 0;
   pointer-events: none;
   animation: none;
   ${({ theme, animationState, onClickOutSide }) => css`
     z-index: ${theme.layers.MODAL - 1};
-    background-color: ${theme.colors.PRIMARY.ACCENT_4};
+    background-color: #111;
 
     ${onClickOutSide &&
     css`
@@ -83,14 +83,6 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
 const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>`
   position: fixed;
   left: 0;
-  top: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  flex-direction: column;
-  height: 100vh;
-  height: -webkit-fill-available;
   width: 100vw;
   animation: none;
   z-index: ${({ theme }) => theme.layers.MODAL};
@@ -98,12 +90,16 @@ const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>
   border: none;
   outline: none;
 
-  @media (max-width: 600px) {
+  @media (min-width: 601px) {
+    top: 0;
+    width: 100vw;
+    height: 100vh;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    align-content: center;
-    flex-direction: column;
+  }
+
+  @media (max-width: 600px) {
     bottom: 0;
   }
 

@@ -35,7 +35,7 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
         return {
           time: time.getTime(),
-          date: `${Number(month)}월 ${day}일`,
+          date: `${Number(month)}월 ${Number(day)}일`,
           name,
           slug
         }
@@ -53,7 +53,7 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
 
       acc[year].push({
         name,
-        date: `${Number(month)}월 ${day}일`,
+        date: `${Number(month)}월 ${Number(day)}일`,
         slug
       })
 

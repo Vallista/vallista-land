@@ -41,16 +41,7 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
         </Wrapper>
       </Header>
       <Contents>
-        <ListTable
-          title='최근 글'
-          list={nodes
-            .filter((_, idx) => idx < 6)
-            .map((it) => ({
-              name: it.frontmatter.title,
-              slug: it.fields.slug,
-              date: getSimpleDate(it.frontmatter.date)
-            }))}
-        />
+        <ListTable title='최근 글' list={filteredNewestPosts(nodes)} />
       </Contents>
     </Container>
   )
@@ -58,7 +49,7 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
   function getSimpleDate(target: string): string {
     const [, month, day] = getTime(target)
 
-    return `${month}월 ${day}일`
+    return `${Number(month)}월 ${Number(day)}일`
   }
 
   function moveToLocation(target: string): void {
@@ -67,6 +58,8 @@ const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
 
   function filteredNewestPosts(posts: Post[]): { name: string; slug: string; date: string }[] {
     const cuttingCount = 5
+    const a = filteredByDraft(posts)
+    console.log(a)
 
     return filteredByDraft(posts)
       .filter((_, idx) => idx < cuttingCount + 1)
@@ -149,6 +142,7 @@ export const pageQuery = graphql`
           image {
             publicURL
           }
+          draft
         }
       }
     }
