@@ -27,7 +27,10 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
 
-  const filteredPosts = useMemo(() => posts.filter((it) => it.name.includes(search)), [search, posts])
+  const filteredPosts = useMemo(
+    () => posts.filter((it) => it.name.toLocaleUpperCase().includes(search.toLocaleUpperCase())),
+    [search, posts]
+  )
 
   useEffect(() => {
     setHasVerticalScrollbar((ref.current?.scrollHeight ?? 0) > (ref.current?.clientHeight ?? 0))
@@ -85,9 +88,6 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
         <SearchBox>
           <SearchInput value={search} onChange={handleInput} size='small' placeholder='검색..' />
         </SearchBox>
-        {/* <SearchBox>
-          <Search value={search} onSearch={(e) => handleInput(e)} />
-        </SearchBox> */}
       </Header>
       <Categories>
         <Container>

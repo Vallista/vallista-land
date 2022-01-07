@@ -68,7 +68,10 @@ const PostsPage: VFC<PageProps<IndexQuery>> = (props) => {
       .sort((a, b) => Number(b.year) - Number(a.year))
   }, [nodes])
 
-  const filteredSearchPosts = useMemo(() => sortPosts.filter((it) => it.name.includes(search)), [sortPosts, search])
+  const filteredSearchPosts = useMemo(
+    () => sortPosts.filter((it) => it.name.toLocaleUpperCase().includes(search.toLocaleUpperCase())),
+    [sortPosts, search]
+  )
 
   const hasSearchText = search.length !== 0
 
