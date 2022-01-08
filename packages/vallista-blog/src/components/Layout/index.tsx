@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Container, Footer, FooterGroup, FooterLink, Text } from '@vallista-land/core'
+import { Container, Footer, FooterGroup, FooterLink, Spacer, Text } from '@vallista-land/core'
 import { graphql, Link, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
 
@@ -60,11 +60,20 @@ export const Layout: FC = (props) => {
               <FooterGroup title='관련 사이트'>
                 <FooterLink href='https://vallista.tistory.com'>다른 블로그</FooterLink>
                 <FooterLink href='https://career.woowahan.com/'>우아한형제들 채용</FooterLink>
+                <FooterLink href='https://techblog.woowahan.com/'>우아한형제들 기술블로그</FooterLink>
               </FooterGroup>
             </Footer>
           </FooterBox>
           <FooterAllRightReserve>
-            <Text size={14}>Copyrightⓒ2008 Vallista All rights reserved.</Text>
+            <Text size={14}>
+              Copyright ⓒ 2021 <Link to='https://vallista.kr'>Vallista</Link> All rights reserved.
+            </Text>
+            <Spacer y={0.1} />
+            <Text size={14}>
+              Created by <Link to='https://vallista.kr'>@Vallista</Link>. Powered By{' '}
+              <a href='https://github.com/Vallista/vallista-land'>@Vallista-land</a>
+            </Text>
+            <Spacer y={0.5} />
           </FooterAllRightReserve>
         </Main>
       </Container>
@@ -79,6 +88,7 @@ export const Layout: FC = (props) => {
 
 const FooterAllRightReserve = styled.p`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -86,6 +96,11 @@ const FooterAllRightReserve = styled.p`
   ${({ theme }) => css`
     background: ${theme.colors.PRIMARY.ACCENT_1};
     color: ${theme.colors.PRIMARY.ACCENT_3};
+
+    & a {
+      color: ${theme.colors.PRIMARY.FOREGROUND};
+      text-decoration: none;
+    }
   `}
 `
 
