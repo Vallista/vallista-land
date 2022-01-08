@@ -36,7 +36,7 @@ const ResumePage: VFC = () => {
                 <Spacer y={1.5} />
               </Container>
               <Container row>
-                <Button size='large' width={200} onClick={() => openNewPage(resume.config.github)}>
+                <Button size='large' width={220} onClick={() => openNewPage(resume.config.github)}>
                   <Container row center>
                     <svg
                       viewBox='0 0 24 24'
@@ -57,7 +57,7 @@ const ResumePage: VFC = () => {
                     </Text>
                   </Container>
                 </Button>
-                <Button size='large' width={220} onClick={() => openNewPage(resume.config.github)}>
+                <Button size='large' width={240} onClick={() => openNewPage(resume.config.github)}>
                   <Container row center>
                     <svg
                       viewBox='0 0 24 24'

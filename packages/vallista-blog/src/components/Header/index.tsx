@@ -8,6 +8,8 @@ interface HeaderProps {
   folding: () => void
 }
 
+const fontSizeControllerMapper = [14, 16, 18, 20]
+
 export const Header: VFC<HeaderProps> = (props) => {
   const { fold, folding } = props
   const theme = useTheme()
@@ -118,7 +120,7 @@ export const Header: VFC<HeaderProps> = (props) => {
             <EnvironmentContainer>
               <Text weight={500}>텍스트 크기</Text>
               <SelectGaugeWrapper>
-                {[16, 20, 24].map((it, idx, arr) => (
+                {fontSizeControllerMapper.map((it, idx, arr) => (
                   <SelectGauge
                     key={idx}
                     value={it}

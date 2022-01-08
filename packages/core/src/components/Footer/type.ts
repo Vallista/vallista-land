@@ -10,4 +10,5 @@ export interface FooterGroupProps {
 
 export interface FooterLinkProps {
   href?: string
+  custom?: boolean
 }

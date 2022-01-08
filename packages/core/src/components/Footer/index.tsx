@@ -43,6 +43,10 @@ const FooterNav = styled.nav`
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
+
+  @media screen and (max-width: 1000px) {
+    flex-direction: column;
+  }
 `
 
 /**
@@ -91,6 +95,20 @@ const FooterGroupContainer = styled.div`
     margin: 0;
     padding: 0;
   }
+
+  @media screen and (max-width: 1000px) {
+    margin-right: 0 !important;
+
+    ${({ theme }) => css`
+      border-bottom: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
+    `}
+
+    & > ul {
+      display: block;
+      padding-left: 12px;
+      padding-bottom: 12px;
+    }
+  }
 `
 
 const FooterGroupTitleInput = styled.input`
@@ -106,6 +124,20 @@ const FooterGroupTitleInput = styled.input`
   appearance: none;
   white-space: nowrap;
   word-wrap: normal;
+
+  @media screen and (max-width: 1000px) {
+    & + label {
+      cursor: pointer;
+    }
+
+    & + label + ul {
+      display: none;
+    }
+
+    &:checked + label + ul {
+      display: block;
+    }
+  }
 `
 
 const FooterGroupTitleLabel = styled.label`
@@ -113,6 +145,14 @@ const FooterGroupTitleLabel = styled.label`
     font-weight: 400;
     font-size: 0.875rem;
     margin: 0.75rem 0;
+  }
+
+  @media screen and (max-width: 1000px) {
+    & > h3::after {
+      content: '+';
+      float: right;
+      transition: transform 0.15s ease;
+    }
   }
 `
 
@@ -137,13 +177,9 @@ const FooterGroupTitleLabel = styled.label`
  * ```
  */
 export const FooterLink: FC<FooterLinkProps> = (props) => {
-  const { children } = props
+  const { href, custom = false, children } = props
 
-  return (
-    <FooterLinkContainer>
-      <a>{children}</a>
-    </FooterLinkContainer>
-  )
+  return <FooterLinkContainer>{custom ? children : <a href={href}>{children}</a>}</FooterLinkContainer>
 }
 
 const FooterLinkContainer = styled.li`
@@ -158,6 +194,10 @@ const FooterLinkContainer = styled.li`
       cursor: pointer;
       outline: none;
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+      &:hover {
+        color: ${theme.colors.PRIMARY.FOREGROUND};
+      }
     }
   `}
 `

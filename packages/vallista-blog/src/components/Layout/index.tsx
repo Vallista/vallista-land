@@ -1,7 +1,7 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Container } from '@vallista-land/core'
-import { graphql, useStaticQuery } from 'gatsby'
+import { Container, Footer, FooterGroup, FooterLink, Text } from '@vallista-land/core'
+import { graphql, Link, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
@@ -44,6 +44,28 @@ export const Layout: FC = (props) => {
         <Header fold={fold} folding={handleFold} />
         <Main fold={fold}>
           <Article>{children}</Article>
+          <FooterBox>
+            <Footer>
+              <FooterGroup title='사이트 맵'>
+                <FooterLink custom>
+                  <Link to='/'>홈</Link>
+                </FooterLink>
+                <FooterLink custom>
+                  <Link to='/posts'>포스트</Link>
+                </FooterLink>
+                <FooterLink custom>
+                  <Link to='/resume'>이력서</Link>
+                </FooterLink>
+              </FooterGroup>
+              <FooterGroup title='관련 사이트'>
+                <FooterLink href='https://vallista.tistory.com'>다른 블로그</FooterLink>
+                <FooterLink href='https://career.woowahan.com/'>우아한형제들 채용</FooterLink>
+              </FooterGroup>
+            </Footer>
+          </FooterBox>
+          <FooterAllRightReserve>
+            <Text size={14}>Copyrightⓒ2008 Vallista All rights reserved.</Text>
+          </FooterAllRightReserve>
         </Main>
       </Container>
     </Wrapper>
@@ -55,6 +77,18 @@ export const Layout: FC = (props) => {
   }
 }
 
+const FooterAllRightReserve = styled.p`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  ${({ theme }) => css`
+    background: ${theme.colors.PRIMARY.ACCENT_1};
+    color: ${theme.colors.PRIMARY.ACCENT_3};
+  `}
+`
+
 const Wrapper = styled.div`
   min-height: 100vh;
   ${({ theme }) => css`
@@ -64,6 +98,10 @@ const Wrapper = styled.div`
 `
 
 const Main = styled.main<{ fold: boolean }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc(100vh - 43px);
   margin-top: 43px;
   margin-left: 400px;
 
@@ -79,6 +117,31 @@ const Main = styled.main<{ fold: boolean }>`
     margin-left: 0;
     margin-top: 123px;
   }
+`
+
+const FooterBox = styled.div`
+  ${({ theme }) => css`
+    @media screen and (min-width: 1001px) {
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
+
+      & > footer {
+        width: 900px;
+        box-sizing: border-box;
+        padding: 2rem 2rem 1rem 2rem;
+        border-top: none;
+
+        & > nav {
+          justify-content: flex-start;
+          gap: 2rem;
+        }
+      }
+      background: ${theme.colors.PRIMARY.ACCENT_1};
+    }
+  `}
 `
 
 const Article = styled.article`
