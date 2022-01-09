@@ -3,6 +3,7 @@ export interface ToggleProps {
   size: 'small' | 'medium' | 'large'
   toggle: boolean
   onChange: (active: boolean) => void
+  color: 'blue' | 'pink'
 }
 
 export interface ReturningUseToggle extends Partial<ToggleProps> {
@@ -10,4 +11,4 @@ export interface ReturningUseToggle extends Partial<ToggleProps> {
   onChange: (active: boolean) => void
 }
 
-export type StyleParams = Partial<Pick<ToggleProps, 'disabled'>> & Pick<ToggleProps, 'size' | 'toggle'>
+export type StyleParams = Partial<Pick<ToggleProps, 'disabled'>> & Pick<ToggleProps, 'size' | 'toggle' | 'color'>

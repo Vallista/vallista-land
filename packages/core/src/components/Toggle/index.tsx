@@ -21,7 +21,7 @@ import { useToggle } from './useToggle'
  * ```
  */
 export const Toggle: VFC<Partial<ToggleProps>> = (props) => {
-  const { size = 'small', onChange, ...otherProps } = useToggle(props)
+  const { size = 'small', color = 'blue', onChange, ...otherProps } = useToggle(props)
 
   return (
     <Label>
@@ -31,8 +31,8 @@ export const Toggle: VFC<Partial<ToggleProps>> = (props) => {
         onChange={() => onChange(!otherProps.toggle)}
         {...otherProps}
       />
-      <Wrapper size={size} {...otherProps}>
-        <Circle size={size} {...otherProps} />
+      <Wrapper size={size} {...otherProps} color={color}>
+        <Circle size={size} {...otherProps} color={color} />
       </Wrapper>
     </Label>
   )
@@ -61,13 +61,22 @@ const Input = styled.input`
 `
 
 const Wrapper = styled.span<StyleParams>`
-  ${({ theme, size, toggle, disabled }) => css`
+  ${({ theme, size, toggle, disabled, color }) => css`
     display: inline-block;
     width: ${sizeMapper[size].wrap[0]}px;
     height: ${sizeMapper[size].wrap[1]}px;
     transition: background 0.15s cubic-bezier(0, 0, 0.2, 1);
-    background: ${toggle ? theme.colors.SUCCESS.DEFAULT : theme.colors.PRIMARY.ACCENT_2};
-    border: 1px solid ${toggle ? theme.colors.SUCCESS.DEFAULT : theme.colors.PRIMARY.ACCENT_2};
+    background: ${toggle
+      ? color === 'blue'
+        ? theme.colors.SUCCESS.DEFAULT
+        : theme.colors.HIGHLIGHT.PINK
+      : theme.colors.PRIMARY.ACCENT_2};
+    border: 1px solid
+      ${toggle
+        ? color === 'blue'
+          ? theme.colors.SUCCESS.DEFAULT
+          : theme.colors.HIGHLIGHT.PINK
+        : theme.colors.PRIMARY.ACCENT_2};
     border-radius: 14px;
     cursor: pointer;
     position: relative;
