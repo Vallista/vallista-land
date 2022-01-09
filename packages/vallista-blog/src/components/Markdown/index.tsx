@@ -75,7 +75,7 @@ const Wrapper = styled.section`
   margin-left: auto;
   margin-right: auto;
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     padding: 1rem;
   }
 `
@@ -87,7 +87,7 @@ const Contents = styled(Wrapper)`
     width: calc(100vw - 408px);
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     width: calc(100vw - 8px);
   }
 
@@ -289,7 +289,7 @@ const Contents = styled(Wrapper)`
         margin-bottom: 2rem;
       }
 
-      @media screen and (max-width: 1000px) {
+      @media screen and (max-width: 1024px) {
         padding-left: 1rem;
       }
     }
@@ -375,7 +375,7 @@ const Contents = styled(Wrapper)`
         margin-right: -3.5rem;
       }
 
-      @media screen and (max-width: 1000px) {
+      @media screen and (max-width: 1024px) {
         padding-left: 1rem;
       }
     }

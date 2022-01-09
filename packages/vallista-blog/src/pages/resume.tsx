@@ -338,7 +338,7 @@ const Title = styled.div`
 const SubTitle = styled.div`
   max-width: 550px;
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     & > div:last-of-type {
       flex-direction: column !important;
 
@@ -407,7 +407,7 @@ const TwoColumn = styled.div`
     flex: 7;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     flex-direction: column;
 
     & > div:last-of-type {

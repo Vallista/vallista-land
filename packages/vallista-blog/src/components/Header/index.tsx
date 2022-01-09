@@ -180,7 +180,7 @@ const Container = styled.header<{ fold: boolean }>`
     `}
   `}
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     left: 0;
     width: 100% !important;
   }
@@ -209,7 +209,7 @@ const FoldingButton = styled.button<{ fold: boolean }>`
         `}
   `}
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     display: none;
 
     & + span {

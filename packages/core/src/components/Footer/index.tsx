@@ -38,13 +38,13 @@ const FooterContainer = styled.footer`
 `
 
 const FooterNav = styled.nav`
-  max-width: 1000px;
+  max-width: 1024px;
   margin: 0 auto;
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     flex-direction: column;
   }
 `
@@ -96,7 +96,7 @@ const FooterGroupContainer = styled.div`
     padding: 0;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     margin-right: 0 !important;
 
     ${({ theme }) => css`
@@ -125,7 +125,7 @@ const FooterGroupTitleInput = styled.input`
   white-space: nowrap;
   word-wrap: normal;
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     & + label {
       cursor: pointer;
     }
@@ -147,7 +147,7 @@ const FooterGroupTitleLabel = styled.label`
     margin: 0.75rem 0;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     & > h3::after {
       content: '+';
       float: right;

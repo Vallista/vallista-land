@@ -14,7 +14,10 @@ export interface InputProps {
   onChange: (target: string) => void
 }
 
-export type SearchInputProps = InputProps
+export interface SearchInputProps extends InputProps {
+  onReset?: () => void
+}
+
 export interface ReturningUseInput {
   value: string
   onChange: (value: string) => void

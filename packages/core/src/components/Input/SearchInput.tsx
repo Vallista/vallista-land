@@ -2,13 +2,13 @@ import styled from '@emotion/styled'
 import { VFC } from 'react'
 
 import { Input } from '.'
-import { InputProps } from './type'
+import { SearchInputProps } from './type'
 import { useInput } from './useInput'
 
-export const SearchInput: VFC<Partial<Omit<InputProps, 'prefix' | 'suffix' | 'prefixStyling' | 'suffixStyling'>>> = (
-  props
-) => {
-  const { size = 'medium', disabled = false, placeholder, value, onChange } = useInput(props)
+export const SearchInput: VFC<
+  Partial<Omit<SearchInputProps, 'prefix' | 'suffix' | 'prefixStyling' | 'suffixStyling'>>
+> = (props) => {
+  const { size = 'medium', disabled = false, placeholder, value, onChange, onReset } = useInput(props)
 
   return (
     <Input
@@ -35,7 +35,7 @@ export const SearchInput: VFC<Partial<Omit<InputProps, 'prefix' | 'suffix' | 'pr
       }
       suffix={
         value.length > 0 && (
-          <RemoveText onClick={() => onChange('')}>
+          <RemoveText onClick={() => (onReset ? onReset() : onChange(''))}>
             <svg
               viewBox='0 0 24 24'
               width='18'

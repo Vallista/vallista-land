@@ -118,6 +118,7 @@ const Main = styled.main<{ fold: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  width: calc(100% - 400px);
   min-height: calc(100vh - 43px);
   margin-top: 43px;
   margin-left: 400px;
@@ -126,19 +127,21 @@ const Main = styled.main<{ fold: boolean }>`
     background: ${theme.colors.PRIMARY.BACKGROUND};
     ${fold &&
     css`
+      width: calc(100% - 80px);
       margin-left: 80px;
     `}
   `}
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     margin-left: 0;
     margin-top: 123px;
+    width: 100%;
   }
 `
 
 const FooterBox = styled.div`
   ${({ theme }) => css`
-    @media screen and (min-width: 1001px) {
+    @media screen and (min-width: 1025px) {
       width: 100%;
       margin: 0 auto;
       display: flex;

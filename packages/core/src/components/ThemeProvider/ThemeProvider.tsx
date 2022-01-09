@@ -85,7 +85,7 @@ const Reset: VFC = () => {
         html {
           font-size: 16px;
 
-          @media screen and (max-width: 1000px) {
+          @media screen and (max-width: 1024px) {
             font-size: 14px;
           }
 

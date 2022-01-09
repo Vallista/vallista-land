@@ -86,7 +86,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
           </Button>
         </Title>
         <SearchBox>
-          <SearchInput value={search} onChange={handleInput} size='small' placeholder='검색..' />
+          <SearchInput value={search} onReset={searchClear} onChange={handleInput} size='small' placeholder='검색..' />
         </SearchBox>
       </Header>
       <Categories>
@@ -176,11 +176,31 @@ const SidebarContainer = styled.aside<{ hasVerticalScrollbar: boolean; fold: boo
     ${fold &&
     css`
       left: -320px;
+
+      & > div:first-of-type {
+        left: -320px;
+      }
     `}
+
+    /* ipad Portrait and Landscape */
+    @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+      overflow-y: auto;
+
+      ${hasVerticalScrollbar &&
+      css`
+        &:hover > div:last-of-type {
+          margin-right: 0;
+        }
+      `}
+    }
   `}
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     left: -320px;
+
+    & > div:first-of-type {
+      left: -320px;
+    }
   }
 
   &:hover {
@@ -210,6 +230,8 @@ const Header = styled.div`
   flex-direction: column;
   position: fixed;
   top: 0;
+  left: 80px;
+  transform: translate3d(0, 0, 1);
   width: 320px;
   padding-bottom: 14px;
   ${({ theme }) => css`
@@ -242,6 +264,10 @@ const Title = styled.div`
   font-weight: 600;
   font-size: 14px;
   padding: 0 28px 2px;
+
+  & > button {
+    margin: 0;
+  }
 `
 
 const SearchBox = styled.div`
@@ -299,6 +325,7 @@ const CardStyleItem = styled.a<{ image: string | null; text: string; isActive: b
       height: inherit;
       background: ${isActive ? theme.colors.HIGHLIGHT.PINK : theme.colors.PRIMARY.FOREGROUND};
       opacity: ${isActive ? 0.5 : 0.3};
+      border-radius: 12px;
     }
 
     &::after {

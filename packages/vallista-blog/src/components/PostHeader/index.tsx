@@ -110,7 +110,7 @@ const Wrapper = styled.div`
   margin-left: auto;
   margin-right: auto;
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     padding: 1.5rem 1rem;
   }
 `
@@ -121,7 +121,7 @@ const BottomBox = styled.div`
   align-items: center;
   width: 100%;
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     flex-direction: column-reverse;
     align-items: flex-start;
     justify-content: center;

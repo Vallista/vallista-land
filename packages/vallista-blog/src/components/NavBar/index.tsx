@@ -15,7 +15,7 @@ export const NavBar: VFC = () => {
   const windowSize = useWindowSize()
 
   useEffect(() => {
-    setVisibleTooltip(!((windowSize.width ?? 0) <= 1000))
+    setVisibleTooltip(!((windowSize.width ?? 0) <= 1024))
   }, [windowSize])
 
   return (
@@ -77,12 +77,12 @@ const Container = styled.aside`
     z-index: ${theme.layers.AFTER_STANDARD + 1};
   `}
 
-  @media screen and (min-width: 1001px) {
+  @media screen and (min-width: 1025px) {
     min-width: 80px;
     height: 100vh;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     top: 43px;
     min-height: 60px;
     width: 100vw;
@@ -113,18 +113,18 @@ const Section = styled.section`
   justify-content: space-between;
   align-items: center;
 
-  @media screen and (min-width: 1001px) {
+  @media screen and (min-width: 1025px) {
     flex-direction: column;
     height: 100vh;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     flex-direction: row;
   }
 `
 
 const Wrapper = styled.nav`
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     display: flex;
     flex-direction: row;
   }
@@ -145,7 +145,7 @@ const Category = styled.a<{ checked?: boolean }>`
     height: 32px;
   }
 
-  @media screen and (max-width: 1000px) {
+  @media screen and (max-width: 1024px) {
     width: 60px;
     height: 60px;
 
@@ -201,7 +201,7 @@ const Category = styled.a<{ checked?: boolean }>`
         border-left: 3px solid ${theme.colors.HIGHLIGHT.PINK};
         box-sizing: border-box;
 
-        @media screen and (max-width: 1000px) {
+        @media screen and (max-width: 1024px) {
           width: 60px;
           height: 60px;
           border-left: none;
