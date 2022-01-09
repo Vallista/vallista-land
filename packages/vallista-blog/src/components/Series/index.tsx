@@ -17,7 +17,7 @@ export const Series: VFC<SeriesProps> = (props) => {
   const { name, posts } = props
 
   return (
-    <Collapse title={name} card size='medium' subtitle='시리즈의 다른 글도 읽어보세요!'>
+    <Collapse title={name} card size='medium' subtitle={`시리즈의 글 (${posts.length}개)`}>
       <Container>
         <List>
           {posts.map((it) => (

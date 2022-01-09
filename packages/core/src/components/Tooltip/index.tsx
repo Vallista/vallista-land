@@ -79,11 +79,16 @@ const Popup = styled.div<{
   height: number
 }>`
   cursor: default;
-  width: 250px;
+  max-width: 250px;
+  width: auto;
   position: absolute;
   opacity: 0;
   transition: opacity 0.2s ease-in;
   text-align: center;
+
+  & {
+    white-space: pre;
+  }
 
   ${({ theme, position, width, height, type }) => css`
     z-index: ${theme.layers.AFTER_STANDARD};

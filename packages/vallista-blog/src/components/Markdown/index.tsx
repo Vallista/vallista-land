@@ -76,7 +76,7 @@ const Wrapper = styled.section`
   margin-right: auto;
 
   @media screen and (max-width: 1000px) {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 `
 
@@ -259,7 +259,7 @@ const Contents = styled(Wrapper)`
     div[class*='markdown-wrapper'] {
       font-size: 0.9rem;
       text-size-adjust: none;
-      margin: 1.5rem -1.5rem;
+      margin: 1rem -1rem;
       overflow-x: auto;
       overflow-y: hidden;
       box-sizing: border-box;
@@ -290,7 +290,7 @@ const Contents = styled(Wrapper)`
       }
 
       @media screen and (max-width: 1000px) {
-        padding-left: 1.5rem;
+        padding-left: 1rem;
       }
     }
 
@@ -361,9 +361,9 @@ const Contents = styled(Wrapper)`
 
     blockquote {
       background: ${theme.colors.PRIMARY.ACCENT_2};
-      margin: 0 -1.5rem;
+      margin: 0 -1rem;
       margin-bottom: 2rem;
-      padding: 1rem 1.5rem;
+      padding: 1rem 1rem;
       border-left: 6px solid ${theme.colors.HIGHLIGHT.PINK};
 
       & > p {
@@ -376,7 +376,7 @@ const Contents = styled(Wrapper)`
       }
 
       @media screen and (max-width: 1000px) {
-        padding-left: 1.5rem;
+        padding-left: 1rem;
       }
     }
   `}
