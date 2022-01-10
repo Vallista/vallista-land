@@ -5,6 +5,28 @@ import { forwardRef } from 'react'
 import { InputSizeType, InputProps } from './type'
 import { useInput } from './useInput'
 
+/**
+ * # Input
+ *
+ * 인풋 컴포넌트.
+ *
+ * @param {SearchInputProps} {@link InputProps} 인풋 파라미터
+ *
+ * @example ```tsx
+ * <Input size='small' placeholder='search...' disabled />
+ * <Input size='small' prefix={<Icon.Activity />} placeholder='search...' prefixStyling={false} disabled />
+ * <Input size='small' suffix={<Icon.Activity />} placeholder='search...' suffixStyling={false} disabled />
+ * <Input
+ *   size='large'
+ *   prefix={<Icon.Activity />}
+ *   suffix={<Icon.Activity />}
+ *   placeholder='search...'
+ *   prefixStyling={false}
+ *   suffixStyling={false}
+ *   disabled
+ * />
+ * ```
+ */
 export const Input = forwardRef<HTMLInputElement, Partial<InputProps>>((props, ref) => {
   const {
     size = 'medium',

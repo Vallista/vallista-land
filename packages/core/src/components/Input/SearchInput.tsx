@@ -5,6 +5,18 @@ import { Input } from '.'
 import { SearchInputProps } from './type'
 import { useInput } from './useInput'
 
+/**
+ * # SearchInput
+ *
+ * 검색 인풋 컴포넌트.
+ *
+ * @param {SearchInputProps} {@link SearchInputProps} 검색 인풋 파라미터
+ *
+ * @example ```tsx
+ * <SearchInput size='small' placeholder='search...' />
+ * <SearchInput size='small' placeholder='search...' disabled />
+ * ```
+ */
 export const SearchInput: VFC<
   Partial<Omit<SearchInputProps, 'prefix' | 'suffix' | 'prefixStyling' | 'suffixStyling'>>
 > = (props) => {

@@ -9,6 +9,19 @@ import { ReturningUseToasts, ToastContextState, ToastProps, ToastState, ToastTyp
 
 const [Context, useContext] = createContext<ToastContextState>()
 
+/**
+ * # useToasts
+ *
+ * 실제 토스트를 사용하는 훅
+ * 모든 컴포넌트 필요없이, 토스트 컴포넌트로 호출만 하면 됩니다.
+ * 다만 상단에 ThemeProvider가 필수적으로 존재해야 합니다.
+ *
+ * @example ```tsx
+ * toast.message('링크를 복사했습니다.')
+ * toast.success({ text: '링크를 복사했습니다.',})
+ * toast.error({ text: '링크를 복사했습니다.',})
+ * ```
+ */
 export function useToasts(): Omit<ReturningUseToasts, 'toastList'> {
   const { state } = useContext()
 
@@ -21,6 +34,13 @@ export function useToasts(): Omit<ReturningUseToasts, 'toastList'> {
 
 let toastUniqueCount = 0
 
+/**
+ * # ToastProvider
+ *
+ * 실제로 사용되지 않습니다.
+ * 이 Provider는 ThemeProvider에 적용되어 있습니다.
+ * 별도로 사용하지 마시고, ThemeProvider를 사용해서 함께 사용하세요.
+ */
 export const ToastProvider: FC = ({ children }) => {
   const [state, setState] = useState<ToastState>({
     toastList: []

@@ -8,6 +8,12 @@ import { ToastElementProps, ToastType } from './type'
 
 const REMOVE_TIME = 5000
 
+/**
+ * # Toast
+ *
+ * 실제로 사용되지 않습니다.
+ * useToasts로 생성하면 자동으로 컴포넌트가 등록됩니다.
+ */
 export const Toast: VFC<ToastElementProps> = (props) => {
   const { order, hover, text, type, remove } = props
   const ref = useRef<HTMLDivElement>(null)
