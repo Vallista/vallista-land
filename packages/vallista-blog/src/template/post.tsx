@@ -2,6 +2,7 @@ import { graphql } from 'gatsby'
 import { useCallback, VFC } from 'react'
 import { PageProps, PostQuery } from 'types/type'
 
+import { Comment } from '../components/Comment'
 import { Markdown } from '../components/Markdown'
 import { PostHeader } from '../components/PostHeader'
 import { Seo } from '../components/Seo'
@@ -32,6 +33,7 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
       </PostHeader>
       <Markdown html={html} />
       <section id='comments'></section>
+      <Comment />
     </div>
   )
 

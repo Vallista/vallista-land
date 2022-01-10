@@ -25,3 +25,4 @@ yarn-error.log*
 .package-lock.json
 lib
 tsconfig.tsbuildinfo
+.credentials.json

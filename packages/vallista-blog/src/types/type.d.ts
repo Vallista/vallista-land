@@ -1,3 +1,5 @@
+import { VFC } from 'react'
+
 declare module '*.svg' {
   const content: any
   export default content
@@ -30,3 +32,5 @@ declare module '*.css' {
   const classNames: IClassNames
   export = classNames
 }
+
+// export declare const Video: VFC<NeedVideoProp>;
