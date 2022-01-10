@@ -21,20 +21,22 @@ export const Toast: VFC<ToastElementProps> = (props) => {
   const [destroy, setDestroy] = useState(false)
 
   useMount(() => {
+    const removeTransitionEvent = (): void => {
+      remove()
+    }
+
     // 삭제 이벤트
     // 1. 5초 후 삭제
     // 2. 애니메이션 (transition opacity) 후 삭제
     const destroyInstance = setTimeout(() => {
       setDestroy(true)
 
-      ref.current?.addEventListener('transitionend', () => {
-        remove()
-      })
+      ref.current?.addEventListener('transitionend', removeTransitionEvent)
     }, REMOVE_TIME)
 
     return () => {
       clearTimeout(destroyInstance)
-      if (ref.current) ref.current.ontransitionend = null
+      if (ref.current) ref.current.removeEventListener('transitionend', removeTransitionEvent)
     }
   })
 
