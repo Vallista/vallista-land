@@ -1,11 +1,11 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Text, Badge, Container, Spacer, Tooltip, copy } from '@vallista-land/core'
+import { useLocation } from '@reach/router'
+import { Text, Badge, Container, Spacer, Tooltip, copy, useToasts } from '@vallista-land/core'
 import { Link } from 'gatsby'
 import { FC } from 'react'
 
 import { getTime } from '../../utils'
-import { useLocation } from '@reach/router'
 
 interface PostHeaderProps {
   title: string
@@ -19,8 +19,9 @@ interface PostHeaderProps {
 export const PostHeader: FC<PostHeaderProps> = (props) => {
   const { title, tags, date, author, timeToRead, children } = props
   const [year, month, day] = getTime(date)
-  const dateToString = `${year}년 ${Number(month)}월 ${Number(day)}일`
   const location = useLocation()
+  const toast = useToasts()
+  const dateToString = `${year}년 ${Number(month)}월 ${Number(day)}일`
 
   return (
     <Header>
@@ -52,7 +53,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
             </TextContainer>
             <IconContainer>
               <Tooltip text='페이스북 공유' position='top'>
-                <Icon onClick={() => copy(location.href)}>
+                <Icon onClick={facebookShare}>
                   <svg
                     viewBox='0 0 24 24'
                     width='16'
@@ -69,7 +70,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
                 </Icon>
               </Tooltip>
               <Tooltip text='링크 복사' position='top'>
-                <Icon onClick={() => copy(location.href)}>
+                <Icon onClick={linkCopy}>
                   <svg
                     viewBox='0 0 24 24'
                     width='16'
@@ -94,6 +95,15 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
       </Wrapper>
     </Header>
   )
+
+  function facebookShare(): void {
+    toast.error('페이스북 공유 기능은 개발중입니다.')
+  }
+
+  function linkCopy(): void {
+    copy(location.href)
+    toast.success('링크를 복사했습니다.')
+  }
 }
 
 const Header = styled.header`

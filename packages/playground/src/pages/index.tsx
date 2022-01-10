@@ -25,6 +25,7 @@ import SpinnerPlayground from '../components/playgrounds/SpinnerPlayground'
 import SwitchPlayground from '../components/playgrounds/SwitchPlayground'
 import TabsPlayground from '../components/playgrounds/TabsPlayground'
 import TagPlayground from '../components/playgrounds/TagPlayground'
+import ToastPlayground from '../components/playgrounds/ToastPlayground'
 import TogglePlayground from '../components/playgrounds/TogglePlayground'
 import TooltipPlayground from '../components/playgrounds/TooltipPlayground'
 import VideoPlayground from '../components/playgrounds/VideoPlayground'
@@ -109,6 +110,9 @@ const IndexPage: VFC = () => {
       </Card>
       <Card title='Input'>
         <InputPlayground />
+      </Card>
+      <Card title='Toast'>
+        <ToastPlayground />
       </Card>
     </Wrap>
   )

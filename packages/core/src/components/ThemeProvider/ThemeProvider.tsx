@@ -2,6 +2,7 @@ import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
 import { FC, useState, VFC } from 'react'
 
 import { createContext } from '../../utils/createContext'
+import { ToastProvider } from '../Toast'
 import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
 
 const Themes: BaseThemeMapper = {
@@ -56,7 +57,9 @@ export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'light', chil
   return (
     <Context state={{ changeTheme }}>
       <Reset />
-      <BaseThemeProvider theme={Themes[themeState]}>{children}</BaseThemeProvider>
+      <BaseThemeProvider theme={Themes[themeState]}>
+        <ToastProvider>{children}</ToastProvider>
+      </BaseThemeProvider>
     </Context>
   )
 

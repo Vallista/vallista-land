@@ -186,7 +186,7 @@ const Side = styled.span<{ size: InputSizeType; styling: boolean }>`
 
     ${!styling &&
     css`
-      background: none;
+      background: ${theme.colors.PRIMARY.BACKGROUND};
     `}
   `}
 `
