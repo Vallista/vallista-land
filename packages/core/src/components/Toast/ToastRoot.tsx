@@ -120,6 +120,12 @@ const ToastRoot: VFC = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (state.toastList.length === 0) {
+      setHover(false)
+    }
+  }, [state.toastList])
+
   if (typeof document === 'undefined') return <></>
 
   return ReactDOM.createPortal(
