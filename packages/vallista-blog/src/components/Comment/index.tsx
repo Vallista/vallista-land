@@ -27,7 +27,7 @@ export const Comment: VFC = () => {
   return (
     <Wrapper>
       <Text size={24} weight={700}>
-        코맨트를 달아주세요 :)
+        댓글 :)
       </Text>
       <div ref={ref}></div>
     </Wrapper>
@@ -43,6 +43,7 @@ const Wrapper = styled.div`
 
   & > p {
     margin-bottom: 1.5rem;
+    font-size: 1.8rem;
     ${({ theme }) => css`
       color: ${theme.colors.PRIMARY.FOREGROUND};
     `}
