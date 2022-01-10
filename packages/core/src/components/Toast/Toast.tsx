@@ -18,14 +18,23 @@ export const Toast: VFC<ToastElementProps> = (props) => {
   const { order, hover, text, type, remove } = props
   const ref = useRef<HTMLDivElement>(null)
   const [styleProps, setStyleProps] = useState<CSSProperties>({})
+  const [destroy, setDestroy] = useState(false)
 
   useMount(() => {
+    // 삭제 이벤트
+    // 1. 5초 후 삭제
+    // 2. 애니메이션 (transition opacity) 후 삭제
     const destroyInstance = setTimeout(() => {
-      remove()
+      setDestroy(true)
+
+      ref.current?.addEventListener('transitionend', () => {
+        remove()
+      })
     }, REMOVE_TIME)
 
     return () => {
       clearTimeout(destroyInstance)
+      if (ref.current) ref.current.ontransitionend = null
     }
   })
 
@@ -63,7 +72,7 @@ export const Toast: VFC<ToastElementProps> = (props) => {
   }, [order, hover])
 
   return (
-    <ToastContainer ref={ref} style={styleProps} type={type}>
+    <ToastContainer ref={ref} style={styleProps} type={type} destroy={destroy}>
       <ToastWrapper>
         <ToastMessage>{text}</ToastMessage>
       </ToastWrapper>
@@ -77,24 +86,28 @@ const ToastTypeMapper: (theme: Theme) => Record<ToastType, AvailablePickedColor>
   error: theme.colors.ERROR.DEFAULT
 })
 
-const ToastContainer = styled.div<Pick<ToastElementProps, 'type'>>`
+const ToastContainer = styled.div<Pick<ToastElementProps, 'type'> & { destroy: boolean }>`
   position: absolute;
   bottom: 0;
   right: 0;
   border-radius: 5px;
   padding: 24px;
   transition: all 0.4s ease;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translate3d(0, 100%, 150px) scale(1);
 
-  ${({ theme, type }) => css`
+  ${({ theme, type, destroy }) => css`
     box-shadow: ${theme.shadows.SMALL};
     background: ${ToastTypeMapper(theme)[type]};
     color: ${type === 'primary' ? theme.colors.PRIMARY.FOREGROUND : '#fff'};
     z-index: ${theme.layers.SNACKBAR};
-  `}
 
-  box-sizing: border-box;
-  opacity: 0;
-  transform: translate3d(0, 100%, 150px) scale(1);
+    ${destroy &&
+    css`
+      opacity: 0 !important;
+    `}
+  `}
 
   @media (max-width: 440px) {
     width: 90vw;

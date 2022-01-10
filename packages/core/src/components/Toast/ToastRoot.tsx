@@ -120,6 +120,8 @@ const ToastRoot: VFC = () => {
     }
   }, [])
 
+  if (typeof document === 'undefined') return <></>
+
   return ReactDOM.createPortal(
     <ToastRootLayer ref={ref}>
       {state.toastList.map((it, idx, arr) => (
@@ -132,7 +134,7 @@ const ToastRoot: VFC = () => {
         />
       ))}
     </ToastRootLayer>,
-    document.getElementById('modal-root') ?? document.body
+    document.body
   )
 }
 
