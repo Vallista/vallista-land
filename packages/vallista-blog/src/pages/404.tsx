@@ -1,54 +1,29 @@
+import styled from '@emotion/styled'
+import { Image, Spacer, Text } from '@vallista-land/core'
 import { Link } from 'gatsby'
-import * as React from 'react'
+import { VFC } from 'react'
 
-// styles
-const pageStyles = {
-  color: '#232129',
-  padding: '96px',
-  fontFamily: '-apple-system, Roboto, sans-serif, serif'
-}
-const headingStyles = {
-  marginTop: 0,
-  marginBottom: 64,
-  maxWidth: 320
-}
-
-const paragraphStyles = {
-  marginBottom: 48
-}
-const codeStyles = {
-  color: '#8A6534',
-  padding: 4,
-  backgroundColor: '#FFF4DB',
-  fontSize: '1.25rem',
-  borderRadius: 4
-}
+import FailureImage from '../assets/images/failure.gif'
 
 // markup
-const NotFoundPage = () => {
+const NotFoundPage: VFC = () => {
   return (
-    <main style={pageStyles}>
-      <title>Not found</title>
-      <h1 style={headingStyles}>Page not found</h1>
-      <p style={paragraphStyles}>
-        Sorry{' '}
-        <span role='img' aria-label='Pensive emoji'>
-          😔
-        </span>{' '}
-        we couldn’t find what you were looking for.
-        <br />
-        {process.env.NODE_ENV === 'development' ? (
-          <>
-            <br />
-            Try creating a page in <code style={codeStyles}>src/pages/</code>.
-            <br />
-          </>
-        ) : null}
-        <br />
-        <Link to='/'>Go home</Link>.
-      </p>
-    </main>
+    <Center>
+      <Image src={FailureImage as string} width={400} height={400} />
+      <Text size={16}>페이지를 찾지 못했어요 :(</Text>
+      <Spacer y={0.5} />
+      <Link to='/'>
+        <Text size={16}>홈으로 가기</Text>
+      </Link>
+    </Center>
   )
 }
+
+const Center = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
 
 export default NotFoundPage

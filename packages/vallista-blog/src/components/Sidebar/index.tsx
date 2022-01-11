@@ -40,8 +40,8 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const ListItem = useMemo(() => (viewType === 'card' ? CardStyleItem : ListStyleItem), [viewType])
 
   return (
-    <SidebarContainer ref={ref} hasVerticalScrollbar={hasVerticalScrollbar} fold={fold}>
-      <Header>
+    <aside>
+      <Header hasVerticalScrollbar={hasVerticalScrollbar} fold={fold}>
         <Title>
           <Text>
             글{' '}
@@ -89,42 +89,44 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
           <SearchInput value={search} onReset={searchClear} onChange={handleInput} size='small' placeholder='검색..' />
         </SearchBox>
       </Header>
-      <Categories>
-        <Container>
-          <List>
-            {filteredPosts.map((it) => (
-              <ListItem
-                key={it.name}
-                onClick={() => moveToLocation(it.slug)}
-                image={it.image}
-                text={it.name}
-                isActive={isActive(it.slug)}
-              >
-                <div>
-                  {viewType === 'list' && (
-                    <svg
-                      viewBox='0 0 24 24'
-                      width='20'
-                      height='20'
-                      stroke='currentColor'
-                      strokeWidth='1.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      fill='none'
-                      shapeRendering='geometricPrecision'
-                    >
-                      <path d='M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z' />
-                      <path d='M13 2v7h7' />
-                    </svg>
-                  )}
-                </div>
-                {viewType === 'list' && <Text>{it.name}</Text>}
-              </ListItem>
-            ))}
-          </List>
-        </Container>
-      </Categories>
-    </SidebarContainer>
+      <SidebarContainer ref={ref} hasVerticalScrollbar={hasVerticalScrollbar} fold={fold}>
+        <Categories>
+          <Container>
+            <List>
+              {filteredPosts.map((it) => (
+                <ListItem
+                  key={it.name}
+                  onClick={() => moveToLocation(it.slug)}
+                  image={it.image}
+                  text={it.name}
+                  isActive={isActive(it.slug)}
+                >
+                  <div>
+                    {viewType === 'list' && (
+                      <svg
+                        viewBox='0 0 24 24'
+                        width='20'
+                        height='20'
+                        stroke='currentColor'
+                        strokeWidth='1.5'
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        fill='none'
+                        shapeRendering='geometricPrecision'
+                      >
+                        <path d='M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z' />
+                        <path d='M13 2v7h7' />
+                      </svg>
+                    )}
+                  </div>
+                  {viewType === 'list' && <Text>{it.name}</Text>}
+                </ListItem>
+              ))}
+            </List>
+          </Container>
+        </Categories>
+      </SidebarContainer>
+    </aside>
   )
 
   function moveToLocation(target: string): void {
@@ -152,7 +154,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   }
 }
 
-const SidebarContainer = styled.aside<{ hasVerticalScrollbar: boolean; fold: boolean }>`
+const SidebarContainer = styled.div<{ hasVerticalScrollbar: boolean; fold: boolean }>`
   position: fixed;
   width: 320px;
   height: 100vh;
@@ -225,7 +227,7 @@ const SidebarContainer = styled.aside<{ hasVerticalScrollbar: boolean; fold: boo
   }
 `
 
-const Header = styled.div`
+const Header = styled.div<{ hasVerticalScrollbar: boolean; fold: boolean }>`
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -234,10 +236,28 @@ const Header = styled.div`
   transform: translate3d(0, 0, 1);
   width: 320px;
   padding-bottom: 14px;
-  ${({ theme }) => css`
-    z-index: ${theme.layers.AFTER_STANDARD - 2};
+
+  ${({ theme, fold }) => css`
+    z-index: ${theme.layers.AFTER_STANDARD};
     background: ${theme.colors.PRIMARY.ACCENT_1};
+
+    ${fold &&
+    css`
+      left: -320px;
+
+      & > div:first-of-type {
+        left: -320px;
+      }
+    `}
   `}
+
+  @media screen and (max-width: 1024px) {
+    left: -320px;
+
+    & > div:first-of-type {
+      left: -320px;
+    }
+  }
 `
 
 const Button = styled.button`

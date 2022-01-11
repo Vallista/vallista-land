@@ -1,5 +1,7 @@
-import React from 'react'
+import { css } from '@emotion/react'
+import styled from '@emotion/styled'
 import { ThemeProvider, useTheme } from '@vallista-land/core'
+import React, { useEffect, useState } from 'react'
 
 import { Layout } from './src/components/Layout'
 
@@ -14,12 +16,38 @@ export function onInitialClientRender() {
 }
 
 export function wrapRootElement({ element }) {
-  return <ThemeProvider>{element}</ThemeProvider>
+  return (
+    <ThemeProvider>
+      <Loader>{element}</Loader>
+    </ThemeProvider>
+  )
 }
 
 export function wrapPageElement({ element }) {
   return <InitializeElement element={element} />
 }
+
+const Loader = ({ children }) => {
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    setLoading(true)
+  }, [])
+
+  return <Loading loading={loading}>{children}</Loading>
+}
+
+const Loading = styled.div`
+  transition: opacity 0.2s ease;
+  opacity: 0;
+
+  ${({ loading }) => css`
+    ${loading &&
+    css`
+      opacity: 1;
+    `}
+  `}
+`
 
 const InitializeElement = ({ element }) => {
   const theme = useTheme()

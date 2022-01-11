@@ -1,11 +1,11 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Text, useMount } from '@vallista-land/core'
+import { Spinner, Text, useMount } from '@vallista-land/core'
 import { VFC, useRef, useState } from 'react'
 
 export const Comment: VFC = () => {
   const ref = useRef<HTMLDivElement>(null)
-  const [state, setState] = useState({ status: 'pending' })
+  const [state, setState] = useState<{ status: 'pending' | 'success' | 'failure' }>({ status: 'pending' })
 
   useMount(() => {
     const hasScript = ref.current?.children ?? []
@@ -13,8 +13,12 @@ export const Comment: VFC = () => {
     if (hasScript.length > 0) return
 
     const scriptEl = document.createElement('script')
-    scriptEl.onload = () => setState({ status: 'success' })
-    scriptEl.onerror = () => setState({ status: 'failed' })
+    scriptEl.onload = () => {
+      setState({ status: 'success' })
+    }
+    scriptEl.onerror = () => {
+      setState({ status: 'failure' })
+    }
     scriptEl.async = true
     scriptEl.src = 'https://utteranc.es/client.js'
     scriptEl.setAttribute('repo', 'Vallista/vallista.github.io')
@@ -29,6 +33,7 @@ export const Comment: VFC = () => {
       <Text size={24} weight={700}>
         댓글 :)
       </Text>
+      {state.status !== 'success' && <Spinner size={50} />}
       <div ref={ref}></div>
     </Wrapper>
   )

@@ -1,12 +1,13 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Container, Footer, FooterGroup, FooterLink, Spacer, Text } from '@vallista-land/core'
-import { graphql, Link, useStaticQuery } from 'gatsby'
+import { Container } from '@vallista-land/core'
+import { graphql, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
 import { IndexQuery } from '../../types/type'
 import { filteredByDraft } from '../../utils'
+import { Footer } from '../Footer'
 import { NavBar } from '../NavBar'
 import { Sidebar } from '../Sidebar'
 
@@ -44,39 +45,7 @@ export const Layout: FC = (props) => {
         <Header fold={fold} folding={handleFold} />
         <Main fold={fold}>
           <Article>{children}</Article>
-          <div>
-            <FooterBox>
-              <Footer>
-                <FooterGroup title='사이트 맵'>
-                  <FooterLink custom>
-                    <Link to='/'>홈</Link>
-                  </FooterLink>
-                  <FooterLink custom>
-                    <Link to='/posts'>포스트</Link>
-                  </FooterLink>
-                  <FooterLink custom>
-                    <Link to='/resume'>이력서</Link>
-                  </FooterLink>
-                </FooterGroup>
-                <FooterGroup title='관련 사이트'>
-                  <FooterLink href='https://vallista.tistory.com'>다른 블로그</FooterLink>
-                  <FooterLink href='https://career.woowahan.com/'>우아한형제들 채용</FooterLink>
-                  <FooterLink href='https://techblog.woowahan.com/'>우아한형제들 기술블로그</FooterLink>
-                </FooterGroup>
-              </Footer>
-            </FooterBox>
-            <FooterAllRightReserve>
-              <Text size={14}>
-                Copyright ⓒ 2021 <Link to='https://vallista.kr'>Vallista</Link> All rights reserved.
-              </Text>
-              <Spacer y={0.1} />
-              <Text size={14}>
-                Created by <Link to='https://vallista.kr'>@Vallista</Link>. Powered By{' '}
-                <a href='https://github.com/Vallista/vallista-land'>@Vallista-land</a>
-              </Text>
-              <Spacer y={0.5} />
-            </FooterAllRightReserve>
-          </div>
+          <Footer />
         </Main>
       </Container>
     </Wrapper>
@@ -87,24 +56,6 @@ export const Layout: FC = (props) => {
     setFold(flag)
   }
 }
-
-const FooterAllRightReserve = styled.p`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 60px;
-  ${({ theme }) => css`
-    background: ${theme.colors.PRIMARY.ACCENT_1};
-    color: ${theme.colors.PRIMARY.ACCENT_3};
-
-    & a {
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      text-decoration: none;
-    }
-  `}
-`
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -137,31 +88,6 @@ const Main = styled.main<{ fold: boolean }>`
     margin-top: 123px;
     width: 100%;
   }
-`
-
-const FooterBox = styled.div`
-  ${({ theme }) => css`
-    @media screen and (min-width: 1025px) {
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-
-      & > footer {
-        width: 900px;
-        box-sizing: border-box;
-        padding: 2rem 2rem 1rem 2rem;
-        border-top: none;
-
-        & > nav {
-          justify-content: flex-start;
-          gap: 2rem;
-        }
-      }
-      background: ${theme.colors.PRIMARY.ACCENT_1};
-    }
-  `}
 `
 
 const Article = styled.article`
