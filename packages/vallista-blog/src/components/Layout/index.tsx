@@ -69,7 +69,7 @@ const Main = styled.main<{ fold: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: calc(100% - 400px);
+  width: calc(100vw - 400px);
   min-height: calc(100vh - 43px);
   margin-top: 43px;
   margin-left: 400px;
@@ -78,7 +78,7 @@ const Main = styled.main<{ fold: boolean }>`
     background: ${theme.colors.PRIMARY.BACKGROUND};
     ${fold &&
     css`
-      width: calc(100% - 80px);
+      width: calc(100vw - 80px);
       margin-left: 80px;
     `}
   `}
