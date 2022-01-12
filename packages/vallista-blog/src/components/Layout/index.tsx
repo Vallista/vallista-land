@@ -92,7 +92,6 @@ const Main = styled.main<{ fold: boolean }>`
 
 const Article = styled.article`
   ${({ theme }) => css`
-    /* a */
     a {
       cursor: pointer;
       border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
