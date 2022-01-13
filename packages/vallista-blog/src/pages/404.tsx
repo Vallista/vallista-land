@@ -1,12 +1,34 @@
 import styled from '@emotion/styled'
+import { useLocation } from '@reach/router'
 import { Image, Spacer, Text } from '@vallista-land/core'
 import { Link } from 'gatsby'
-import { VFC } from 'react'
+import { useEffect, VFC } from 'react'
 
 import FailureImage from '../assets/images/failure.gif'
 
-// markup
 const NotFoundPage: VFC = () => {
+  const location = useLocation()
+
+  useEffect(() => {
+    const normalizeUrlArr = location.pathname
+      .split('/')
+      .filter((it) => !!it)
+      .map((it) => {
+        const result = Number(it)
+        if (isNaN(result)) return it
+        return result
+      })
+
+    const count = normalizeUrlArr.reduce<number>((acc, curr) => {
+      if (typeof curr === 'number') acc += 1
+      return acc
+    }, 0)
+
+    if (count > 2) {
+      window.location.href = `${location.origin}/${normalizeUrlArr.slice(3).join('/')}/`
+    }
+  }, [])
+
   return (
     <Center>
       <Image src={FailureImage as string} width={400} height={400} />

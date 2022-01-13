@@ -38,6 +38,7 @@ export const Seo: VFC<SeoProps> = ({ name, image, isPost = false }) => {
       {seo.title && <meta name='twitter:title' content={seo.title} />}
       {seo.description && <meta name='twitter:description' content={seo.description} />}
       {seo.image && <meta name='twitter:image' content={seo.image} />}
+      <meta name='google-site-verification' content='wPI09aIL9InuxJwKlMkLE-4mzzfbNhQqRCJ760C-8nQ' />
     </Helmet>
   )
 }
