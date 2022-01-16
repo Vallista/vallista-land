@@ -67,6 +67,7 @@ module.exports = {
               linkImagesToOriginal: false
             }
           },
+          `gatsby-remark-gifs`,
           {
             resolve: `gatsby-remark-vscode`,
             options: {

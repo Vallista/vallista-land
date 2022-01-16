@@ -247,6 +247,20 @@ const Contents = styled(Wrapper)`
 
     li {
       color: ${theme.colors.PRIMARY.FOREGROUND};
+
+      & code {
+        font-weight: 600;
+        color: ${theme.colors.HIGHLIGHT.PINK};
+        white-space: inherit;
+
+        & * span {
+          white-space: inherit;
+        }
+
+        & * span:not([class='grvsc-source']) {
+          padding-left: 0 !important;
+        }
+      }
     }
 
     /* iframe */

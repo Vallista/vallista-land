@@ -17,6 +17,7 @@ exports.createPages = async function ({ actions, graphql }) {
   const { createPage } = actions
 
   const postPage = path.resolve(`./src/template/post.tsx`)
+  const errorPage = path.resolve(`./src/pages/404.tsx`)
 
   const result = await graphql(`
     {
