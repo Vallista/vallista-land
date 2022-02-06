@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Spinner, Text, useMount } from '@vallista-land/core'
+import { Spinner, useMount } from '@vallista-land/core'
 import { VFC, useRef, useState } from 'react'
 
 export const Comment: VFC = () => {
@@ -30,9 +30,6 @@ export const Comment: VFC = () => {
 
   return (
     <Wrapper>
-      <Text size={24} weight={700}>
-        댓글 :)
-      </Text>
       {state.status !== 'success' && <Spinner size={50} />}
       <div ref={ref}></div>
     </Wrapper>
@@ -44,7 +41,8 @@ const Wrapper = styled.div`
   width: 100%;
   margin: 4rem auto;
   box-sizing: border-box;
-  padding: 0 2rem 2rem;
+  padding: 2rem 2rem;
+  border-top: 1px solid ${({ theme }) => theme.colors.PRIMARY.ACCENT_2};
 
   & > p {
     margin-bottom: 1.5rem;
