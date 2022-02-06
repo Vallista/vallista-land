@@ -3,8 +3,15 @@ import styled from '@emotion/styled'
 import { ThemeProvider, useTheme } from '@vallista-land/core'
 import React, { useEffect, useState } from 'react'
 
+import { onChangeThemeEvent, isDarkMode, localStorage } from './src/utils'
+
 import { Layout } from './src/components/Layout'
 
+/**
+ * 클라이언트 랜더링이 첫 시작될 때
+ *
+ * - Modal Root를 생성한다. 이 root는 모달을 관리하는데 쓰인다.
+ */
 export function onInitialClientRender() {
   let modalRoot = document?.getElementById('modal-root') || null
 
@@ -15,6 +22,7 @@ export function onInitialClientRender() {
   }
 }
 
+/** 서버사이드에서 전체 틀 요소를 제작할 때 호출 */
 export function wrapRootElement({ element }) {
   return (
     <ThemeProvider>
@@ -23,6 +31,7 @@ export function wrapRootElement({ element }) {
   )
 }
 
+/** 클라이언트 사이드에서 페이지 단위로 요소를 제작할 때 호출 */
 export function wrapPageElement({ element }) {
   return <InitializeElement element={element} />
 }
@@ -52,15 +61,28 @@ const Loading = styled.div`
 const InitializeElement = ({ element }) => {
   const theme = useTheme()
 
-  if (typeof window !== 'undefined') {
-    if (window.localStorage.getItem('theme') === 'light') {
-      document.body.style.backgroundColor = '#fff'
-      theme.state.changeTheme('light')
-    } else {
-      document.body.style.backgroundColor = '#000'
-      theme.state.changeTheme('dark')
-    }
+  if (!localStorage.get('theme') && isDarkMode()) {
+    localStorage.set('theme', 'dark')
   }
 
+  onChangeThemeEvent((themeType) => {
+    localStorage.set('theme', themeType)
+    changeTheme(theme)
+  })
+
+  changeTheme(theme)
+
   return <Layout>{element}</Layout>
+}
+
+const changeTheme = (theme) => {
+  if (typeof window === 'undefined') return
+
+  if (localStorage.get('theme') === 'light') {
+    document.body.style.backgroundColor = '#fff'
+    theme.state.changeTheme('light')
+  } else {
+    document.body.style.backgroundColor = '#000'
+    theme.state.changeTheme('dark')
+  }
 }
