@@ -1,4 +1,4 @@
-type KeyType = 'theme'
+type KeyType = 'search' | 'view-type' | 'sidebar-fold'
 
 function get(key: KeyType): string | null {
   if (typeof window === 'undefined') return null

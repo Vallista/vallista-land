@@ -6,7 +6,7 @@ import { FC, useEffect, useMemo, useState } from 'react'
 
 import { Header } from '../../components/Header'
 import { IndexQuery } from '../../types/type'
-import { filteredByDraft } from '../../utils'
+import { filteredByDraft, localStorage } from '../../utils'
 import { Footer } from '../Footer'
 import { NavBar } from '../NavBar'
 import { Sidebar } from '../Sidebar'
@@ -30,11 +30,11 @@ export const Layout: FC = (props) => {
   )
 
   useEffect(() => {
-    setFold(window.localStorage.getItem('sidebar-fold') === 'true')
+    setFold(localStorage.get('sidebar-fold') === 'true')
   }, [])
 
   useEffect(() => {
-    window.localStorage.setItem('sidebar-fold', String(fold))
+    localStorage.set('sidebar-fold', String(fold))
   }, [fold])
 
   return (

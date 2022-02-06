@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import { ThemeProvider, useTheme } from '@vallista-land/core'
 import React, { useEffect, useState } from 'react'
 
-import { onChangeThemeEvent, isDarkMode, localStorage } from './src/utils'
+import { onChangeThemeEvent, isDarkMode } from './src/utils'
 
 import { Layout } from './src/components/Layout'
 
@@ -58,27 +58,32 @@ const Loading = styled.div`
   `}
 `
 
+let firstRender = false
+
 const InitializeElement = ({ element }) => {
   const theme = useTheme()
 
-  if (!localStorage.get('theme') && isDarkMode()) {
-    localStorage.set('theme', 'dark')
+  if (!firstRender) {
+    if (isDarkMode()) {
+      changeTheme(theme, 'dark')
+    } else {
+      changeTheme(theme, 'light')
+    }
+
+    firstRender = true
   }
 
   onChangeThemeEvent((themeType) => {
-    localStorage.set('theme', themeType)
-    changeTheme(theme)
+    changeTheme(theme, themeType)
   })
-
-  changeTheme(theme)
 
   return <Layout>{element}</Layout>
 }
 
-const changeTheme = (theme) => {
+const changeTheme = (theme, type) => {
   if (typeof window === 'undefined') return
 
-  if (localStorage.get('theme') === 'light') {
+  if (type === 'light') {
     document.body.style.backgroundColor = '#fff'
     theme.state.changeTheme('light')
   } else {

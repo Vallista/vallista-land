@@ -161,6 +161,7 @@ const Icon = styled.button`
   border: none;
   border-radius: 15px;
   cursor: pointer;
+  padding: 0;
 
   ${({ theme }) => css`
     background: ${theme.colors.PRIMARY.FOREGROUND};

@@ -26,11 +26,11 @@ const isAnimationEnd = (state: ModalAnimationState): boolean => {
 }
 
 const Wrap = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>`
-  ${({ animationState }) =>
+  /* ${({ animationState }) =>
     animationState === ModalAnimationState.IDLE &&
     css`
       visibility: hidden;
-    `}
+    `} */
 `
 
 const animationOption = '0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards'
@@ -45,6 +45,7 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
   opacity: 0;
   pointer-events: none;
   animation: none;
+
   ${({ theme, animationState, onClickOutSide }) => css`
     z-index: ${theme.layers.MODAL - 1};
     background-color: #111;
@@ -60,7 +61,7 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
       left: -${theme.layers.CONCEAL}px;
     `}
 
-  ${isAnimationStart(animationState) &&
+   ${isAnimationStart(animationState) &&
     css`
       animation: ${FadeIn} ${animationOption};
 
@@ -69,7 +70,7 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
       }
     `}
 
-  ${isAnimationEnd(animationState) &&
+    ${isAnimationEnd(animationState) &&
     css`
       animation: ${FadeOut} ${animationOption};
 
@@ -112,6 +113,7 @@ const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>
 
     ${isAnimationStart(animationState) &&
     css`
+      transform: translate3d(0, 100%, 0);
       animation: ${FadeInWithDown} ${animationOption};
 
       @media (max-width: 600px) {

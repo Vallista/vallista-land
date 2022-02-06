@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import { Modal, Spacer, Text, Toggle, useTheme } from '@vallista-land/core'
 import { useEffect, useState, VFC } from 'react'
 
-import { isDarkMode, localStorage } from '../../utils'
+import { isDarkMode, onChangeThemeEvent } from '../../utils'
 
 interface HeaderProps {
   fold: boolean
@@ -17,16 +17,21 @@ export const Header: VFC<HeaderProps> = (props) => {
   const theme = useTheme()
   const [mode, setMode] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'light'
-    return localStorage.get('theme') || isDarkMode() ? 'dark' : 'light'
+    return isDarkMode() ? 'dark' : 'light'
   })
   const [popup, setPopup] = useState(false)
   const [textSize, setTextSize] = useState(16)
 
   useEffect(() => {
+    onChangeThemeEvent((theme) => {
+      setMode(theme)
+    })
+  }, [])
+
+  useEffect(() => {
     if (!mode) return
 
     theme.state.changeTheme(mode)
-    localStorage.set('theme', mode)
   }, [mode])
 
   useEffect(() => {

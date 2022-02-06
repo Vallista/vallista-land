@@ -6,6 +6,7 @@ import { navigate } from 'gatsby'
 import { useEffect, useMemo, useRef, useState, VFC } from 'react'
 
 import { SidebarPost } from '../../types/type'
+import { localStorage } from '../../utils'
 
 interface SidebarProps {
   posts: SidebarPost[]
@@ -18,11 +19,11 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
   const [search, setSearch] = useState(() => {
     if (typeof window === 'undefined') return ''
 
-    return window.localStorage.getItem('search') || ''
+    return localStorage.get('search') || ''
   })
   const [viewType, setViewType] = useState<'list' | 'card'>(() => {
     if (typeof window === 'undefined') return 'card'
-    return (window.localStorage.getItem('viewType') as 'list' | 'card') || 'card'
+    return (localStorage.get('view-type') as 'list' | 'card') || 'card'
   })
   const ref = useRef<HTMLDivElement>(null)
   const [hasVerticalScrollbar, setHasVerticalScrollbar] = useState(false)
@@ -135,17 +136,17 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
 
   function handleInput(target: string): void {
     setSearch(target)
-    window.localStorage.setItem('search', target)
+    localStorage.set('search', target)
   }
 
   function searchClear(): void {
     setSearch('')
-    window.localStorage.setItem('search', '')
+    localStorage.set('search', '')
   }
 
   function handleChangeViewType(): void {
     const type = viewType === 'card' ? 'list' : 'card'
-    window.localStorage.setItem('viewType', type)
+    localStorage.set('view-type', type)
     setViewType(type)
   }
 
