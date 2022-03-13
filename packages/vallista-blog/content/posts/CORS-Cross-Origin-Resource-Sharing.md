@@ -4,7 +4,7 @@ tags:
   - All
   - FrontEnd
 date: 2019-05-12 11:04:45
-draft: false
+draft: true
 info: false
 ---
 
@@ -12,7 +12,7 @@ CORS는 Cross-Origin Resource Sharing의 약자이다.
 
 기본적으로 HTTP 요청은 Cross-Site HTTP Request가 가능하다. 즉, `<script>`, `<link>` 태그를 통해 다양한 사이트의 리소스를 불러오는 작업이 가능하다.
 
-하지만 `<script></script>` 스크립트 태그 내부에서 생성된 HTTP Requests는[Same Origin Policy](https://www.notion.so/224ba591-c215-4d50-9f12-e29ad310ebbc) 를 적용 받기에 Cross-site HTTP Request가 불가능하다. 
+하지만 `<script></script>` 스크립트 태그 내부에서 생성된 HTTP Requests는[Same Origin Policy](https://www.notion.so/224ba591-c215-4d50-9f12-e29ad310ebbc) 를 적용 받기에 Cross-site HTTP Request가 불가능하다.
 
 이는 Node.js 기반의 JavaScript 개발 환경에서 문제가 되는데, Ajax가 널리 쓰여지게 되며 `<script></script>` 내부에서 생성되는 `XMLHTTPRequests` 도 Cross-site HTTP Request가 가능해야 한다는 요구가 늘어나게 되었다.
 

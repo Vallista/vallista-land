@@ -4,11 +4,11 @@ tags:
   - All
   - FrontEnd
 date: 2019-05-07 19:12:24
-draft: false
+draft: true
 info: false
 ---
 
-CSS는 앞서 말한 '**문맥 자유 문법**' 이므로 [BNF (Backus-Naur Form)](https://www.notion.so/97878963-961a-4ae6-b6d4-40849fb33020)로 표현할 수 있다. 
+CSS는 앞서 말한 '**문맥 자유 문법**' 이므로 [BNF (Backus-Naur Form)](https://www.notion.so/97878963-961a-4ae6-b6d4-40849fb33020)로 표현할 수 있다.
 
 웹킷은 CSS 문법 파일로부터 자동으로 파서를 생성하기 위해서 'flex', 'bison'을 사용한다. (파이어폭스는 직접 작성한 하향식 파서를 사용한다.) 두 경우 모두 각 CSS파일은 스타일시트에 객체로 파싱되며, 각 객체는 CSS 규칙을 포함한다. CSS 규칙 객체는 선택자와 선언 그리고 CSS 문법과 일치하는 다른 객체를 포함한다.
 
@@ -24,12 +24,12 @@ CSS는 앞서 말한 '**문맥 자유 문법**' 이므로 [BNF (Backus-Naur Form
     p span { display: none }
     img { float: right }
 
-위의 css를 처리하기 위해 아래의 과정을 진행한다. CSSOM을 만드는 작업은[DOM (Document Object Model)](https://www.notion.so/05b2fa44-e433-4bb2-9fc3-cd59110f6ddb) 과 Attachment를 쉽게 하기 위해서 비슷한 과정을 진행하게 된다. 
+위의 css를 처리하기 위해 아래의 과정을 진행한다. CSSOM을 만드는 작업은[DOM (Document Object Model)](https://www.notion.so/05b2fa44-e433-4bb2-9fc3-cd59110f6ddb) 과 Attachment를 쉽게 하기 위해서 비슷한 과정을 진행하게 된다.
 
 ![](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-construction.png?hl=ko)
 
 1. **변환:** 렌더링 엔진에서 OS의 네트워크 레이어나 디스크를 통해 데이터를 읽어와서 지정한 인코딩으로 (UTF-8) 개별 문자로 변환한다.
-2. **토큰화:** 개별 문자로 변환된 문자열을 [W3C 표준](https://www.w3.org/TR/html5/)에 지정된 고유한 토큰으로 변환한다. 각 토큰은 특별한 의미와 고유한 규칙을 가진다. (ex: 'html', 'head' 등) 
+2. **토큰화:** 개별 문자로 변환된 문자열을 [W3C 표준](https://www.w3.org/TR/html5/)에 지정된 고유한 토큰으로 변환한다. 각 토큰은 특별한 의미와 고유한 규칙을 가진다. (ex: 'html', 'head' 등)
 3. **렉싱**: 변환된 토큰을 속성 및 규칙을 정의하는 '객체'로 변환한다. (Node로 만듬)
 4. **CSSOM 에 링크**
 

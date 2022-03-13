@@ -4,19 +4,17 @@ tags:
   - All
   - FrontEnd
 date: 2019-05-04 19:04:34
-draft: false
+draft: true
 info: false
 ---
 
-Virtual DOM은[Vue.js](https://www.notion.so/a0a34ea8-52ad-44f8-b109-8ae1fb33bda1), [React.js](https://www.notion.so/a4b13e25-b67a-40af-87d3-c084a29c895c) 와 같은 SPA 프레임워크에서 사용된다. 
+Virtual DOM은[Vue.js](https://www.notion.so/a0a34ea8-52ad-44f8-b109-8ae1fb33bda1), [React.js](https://www.notion.so/a4b13e25-b67a-40af-87d3-c084a29c895c) 와 같은 SPA 프레임워크에서 사용된다.
 
 ## 사용하는 이유
 
-
-
 JavaScript로 DOM 조작을 하게 되면 브라우저의 렌더링 엔진에서 수많은 일들이 일어난다.
 
-[DOM (Document Object Model)](https://www.notion.so/05b2fa44-e433-4bb2-9fc3-cd59110f6ddb) [브라우저 렌더링 과정](https://www.notion.so/f83ac03f-8261-4f78-82a2-7d415fb9eda2) 
+[DOM (Document Object Model)](https://www.notion.so/05b2fa44-e433-4bb2-9fc3-cd59110f6ddb) [브라우저 렌더링 과정](https://www.notion.so/f83ac03f-8261-4f78-82a2-7d415fb9eda2)
 
 ### 1. Parsing
 
@@ -27,7 +25,7 @@ JavaScript로 DOM 조작을 하게 되면 브라우저의 렌더링 엔진에서
 
 ### 2. Attachment
 
-결과로 나온 DOM과 CSSOM을 대상으로 Attachment(결합)을 통해 [Create Rendering Tree](https://www.notion.so/0ee913e6-9ebe-44c5-821f-f43d1869fa59) 를 실시한다. 
+결과로 나온 DOM과 CSSOM을 대상으로 Attachment(결합)을 통해 [Create Rendering Tree](https://www.notion.so/0ee913e6-9ebe-44c5-821f-f43d1869fa59) 를 실시한다.
 
 ### 3. Layout
 
@@ -36,8 +34,6 @@ JavaScript로 DOM 조작을 하게 되면 브라우저의 렌더링 엔진에서
 ### 4. Paint
 
 해당 픽셀에 위치시킨 Render Tree Node에 해당하는 스타일을 입힌다.
-
-
 
 DOM 조작을 하면 1, 2, 3, 4 번의 동작을 반복한다. 그러므로 DOM을 조작할 때 마다 렌더링 엔진은 쉼없이 돌아간다는 것을 알 수 있다. DOM 조작을 16번 했다고 가정하면 저 위의 단계를 16번 거치게 되는데 Node가 클수록 연산이 매우 힘들어지는 걸 쉽게 예상할 수 있다.
 
@@ -54,8 +50,6 @@ Virtual DOM은 DOM과 동일한 가상의 DOM을 만든다. 가상의 DOM을 제
 - Virtual DOM의 중요한 역할은, DOM Fragment를 관리해준다. 또한 변화된 데이터 감지 및 묶는 작업을 자동화 해주며 사용자가 DOM에 접근하지 않고 Virtual DOM에서 작업해도 이런 작업을 자동으로 결과를 내서 DOM을 변경해준다.
 
 ## 환상
-
-
 
 **Virtual DOM ≠ 빠르다**
 

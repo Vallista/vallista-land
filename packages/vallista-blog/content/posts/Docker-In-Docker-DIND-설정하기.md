@@ -3,9 +3,10 @@ title: Docker In Docker (DIND) 설정하기
 tags:
   - All
 date: 2019-05-30 16:33:52
-draft: false
+draft: true
 info: false
 ---
+
 Docker in Docker를 설정하는 이유 첫 번째로 보안의 위험이 있다.
 
 특히나, Jenkins등의 CI를 사용하는 환경에서 Jenkins가 Docker를 실행할 때, Jenkins나 Docker가 해킹당하면 서버 전체의 권한이 뚫리는거랑 마찬가지이다. 그러므로 소스코드 유출 및 사용자에게 Serve 할 때 문제가 일어나게 된다. 그러므로 Docker로 한번 더 감싸서 Docker Wrapper에 권한을 하나 더 만든다. 그 다음 Docker Wrapper의 가상 환경에 jenkins와 docker 이미지를 만들고 가상 환경의 서버에서 jenkins와 docker 인스턴스를 실행시킨다. 이렇게 되면 jenkins, docker서버가 해킹당하더라도 docker wrapper instance만 해킹이 되기 때문에 안전하다.
@@ -16,8 +17,8 @@ jenkins와 docker가 단독으로 instance로써 작동할 때 서버가 꺼지�
 
 ## Docker In Docker(dind) 설정
 
-1) [jpetazzo/dind](https://github.com/jpetazzo/dind)
-2) [Jenkins를 이용한 Docker 빌드](http://seapy.com/2083)
+1. [jpetazzo/dind](https://github.com/jpetazzo/dind)
+2. [Jenkins를 이용한 Docker 빌드](http://seapy.com/2083)
 
 위의 자료를 참고했다. 프로젝트에 아래의 파일들을 적용한다.
 
@@ -222,5 +223,5 @@ exec /usr/bin/java -jar /usr/share/jenkins/jenkins.war
 
 ## 참고
 
-1) [Node.js 웹 앱의 도커라이징 | Node.js](https://nodejs.org/ko/docs/guides/nodejs-docker-webapp/)
-2) [초보를 위한 도커 안내서 - 도커란 무엇인가?](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)
+1. [Node.js 웹 앱의 도커라이징 | Node.js](https://nodejs.org/ko/docs/guides/nodejs-docker-webapp/)
+2. [초보를 위한 도커 안내서 - 도커란 무엇인가?](https://subicura.com/2017/01/19/docker-guide-for-beginners-1.html)

@@ -4,7 +4,7 @@ tags:
   - All
   - FrontEnd
 date: 2019-05-13 11:05:53
-draft: false
+draft: true
 info: false
 ---
 
@@ -18,6 +18,6 @@ HTTP의 포트는 80, HTTPS의 포트가 443 이므로 전혀 다른 URI로 접�
 
 1. HTTP와 HTTPS 두 프로토콜을 하나의 프로토콜 이전한다.
 2. URI를 가져올 때 Full Path를 포트 포함해서 입력해 갖고온다.
-ex) [vallista.kr:80/image](http://vallista.kr:80/image), [vallista.kr:443/image](http://vallista.kr:443/imager) 
+   ex) [vallista.kr:80/image](http://vallista.kr:80/image), [vallista.kr:443/image](http://vallista.kr:443/imager)
 3. HTTPS와 HTTP가 혼합해서 쓰이는 URL의 경우, 아래와 같이 경로를 지정하면 된다.
-앞에 `//도메인` 을 붙이면 현재 웹 페이지의 스키마를 적용해서 전달하게 된다. `<img src="//some.domain.com/img/background4.jpg"/>`
+   앞에 `//도메인` 을 붙이면 현재 웹 페이지의 스키마를 적용해서 전달하게 된다. `<img src="//some.domain.com/img/background4.jpg"/>`
