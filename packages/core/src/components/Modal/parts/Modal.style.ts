@@ -48,7 +48,7 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
 
   ${({ theme, animationState, onClickOutSide }) => css`
     z-index: ${theme.layers.MODAL - 1};
-    background-color: #111;
+    background-color: ${theme.colors.PRIMARY.ACCENT_4};
 
     ${onClickOutSide &&
     css`
