@@ -604,6 +604,10 @@
     "description": "활동",
     "list": [
       {
+        "title": "2022.02 ~ 2022.06 우아한 테크코스 프론트엔드 리뷰어 활동",
+        "url": "https://github.com/woowacourse"
+      },
+      {
         "title": "2021.03 ~ 2021.06 우아한 테크코스 프론트엔드 리뷰어 활동",
         "url": "https://github.com/woowacourse"
       },
@@ -666,7 +670,7 @@
     "description": "수상",
     "list": [
       {
-        "title": "2020 우아한형제들 올해의 우수사원",
+        "title": "2020 우아한형제들 우수사원",
         "url": null
       },
       {
