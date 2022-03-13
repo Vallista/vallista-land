@@ -111,7 +111,7 @@ const ResumePage: VFC = () => {
                     </Text>
                     <Spacer y={1} />
                     <div>
-                      {it.descriptions.map((it_, idx) => (
+                      {it.descriptions?.map((it_, idx) => (
                         <Text key={idx}>{it_}</Text>
                       ))}
                     </div>
@@ -128,14 +128,14 @@ const ResumePage: VFC = () => {
                         <Text size={16}>
                           {it_.startDate} ~ {it_.endDate}
                         </Text>
-                        {it_.descriptions.map((it__, idx) => (
+                        {it_.descriptions?.map((it__, idx) => (
                           <Text size={16} key={idx}>
                             {it__}
                           </Text>
                         ))}
                         <Spacer y={1} />
                         <ul>
-                          {it_.which.map((it__, idx) => (
+                          {it_.which?.map((it__, idx) => (
                             <li key={idx}>
                               <Text size={14}>{it__}</Text>
                             </li>
