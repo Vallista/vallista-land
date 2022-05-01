@@ -87,13 +87,21 @@ export const Layers = {
   CONCEAL: 9999
 }
 
-export const Shadows = {
-  SMALLEST: '0 2px 4px rgba(0,0,0,0.1)',
-  EXTRA_SMALL: '0 4px 8px rgba(0,0,0,0.12)',
-  SMALL: '0 5px 10px rgba(0,0,0,0.12)',
-  MEDIUM: '0 8px 30px rgba(0,0,0,0.12)',
-  LARGE: '0 30px 60px rgba(0,0,0,0.12)',
-  HOVER: '0 30px 60px rgba(0,0,0,0.12)'
+export const Shadows = (
+  isDark?: boolean
+): { SMALLEST: string; EXTRA_SMALL: string; SMALL: string; MEDIUM: string; LARGE: string; HOVER: string } => {
+  const rgb = isDark ? '255' : '0'
+  const smallColor = `rgba(${rgb}, ${rgb}, ${rgb}, 0.1)`
+  const otherColor = `rgba(${rgb}, ${rgb}, ${rgb}, 0.12)`
+
+  return {
+    SMALLEST: `0 2px 4px ${smallColor}`,
+    EXTRA_SMALL: `0 4px 8px ${otherColor}`,
+    SMALL: `0 5px 10px ${otherColor}`,
+    MEDIUM: `0 8px 30px ${otherColor}`,
+    LARGE: `0 30px 60px ${otherColor}`,
+    HOVER: `0 30px 60px ${otherColor}`
+  }
 }
 
 export type ColorType = typeof Colors
@@ -111,7 +119,7 @@ export type AvailablePickedColor = ColorType extends { [key: string]: infer T }
 export interface BaseTheme {
   colors: ColorType
   layers: LayerType
-  shadows: ShadowType
+  shadows: ReturnType<ShadowType>
 }
 
 export type BaseThemeMapper = Record<'light' | 'dark', BaseTheme>

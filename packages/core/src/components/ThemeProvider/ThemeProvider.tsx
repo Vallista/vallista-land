@@ -9,7 +9,7 @@ const Themes: BaseThemeMapper = {
   light: {
     colors: Colors,
     layers: Layers,
-    shadows: Shadows
+    shadows: Shadows()
   },
   dark: {
     colors: {
@@ -28,7 +28,7 @@ const Themes: BaseThemeMapper = {
       }
     },
     layers: Layers,
-    shadows: Shadows
+    shadows: Shadows(true)
   }
 }
 
