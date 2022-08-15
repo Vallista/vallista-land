@@ -6,8 +6,6 @@ date: 2022-05-01 21:21:57
 image: ./assets/1.png
 draft: false
 info: false
-series: 2022년 상반기 프로젝트 회고
-seriesPriority: 1
 ---
 
 ![이미지1](./assets/1.png)
