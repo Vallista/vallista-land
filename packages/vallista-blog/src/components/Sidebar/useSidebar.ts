@@ -17,6 +17,12 @@ export const useSidebar = <T extends SidebarProps>(props: T): ReturnUseSidebar &
   })
 
   const [viewState, setViewState] = useState<ViewStateType>(() => {
+    const viewType = localStorage.get('view-type') as string
+
+    if (viewType === 'list' || viewType === 'card') {
+      localStorage.set('view-type', viewType.toUpperCase())
+    }
+
     return (localStorage.get('view-type') as ViewStateType) || DEFAULT_VIEW_STATE
   })
 
