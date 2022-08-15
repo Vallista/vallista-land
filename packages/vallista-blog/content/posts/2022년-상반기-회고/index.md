@@ -1,6 +1,6 @@
 ---
 title: 2022년 상반기 회고
-image: ./assets/0.jpeg
+image: ./assets/0.png
 tags:
   - All
   - 회고
