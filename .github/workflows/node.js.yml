@@ -25,8 +25,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: npm install --force
-      - run: npm run bootstrap
-      - run: npm run build:core
-      - run: npm run build:blog
-      - run: npm run deploy:blog
+      - run: npm install -g yarn
+      - run: yarn
+      - run: yarn bootstrap
+      - run: yarn build:core
+      - run: yarn build:blog
+      - run: yarn deploy:blog
