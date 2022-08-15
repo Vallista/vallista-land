@@ -2,7 +2,7 @@
 title: TypeScript의 interface와 type alias
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2021-10-10 16:07:18
 draft: false
 info: false

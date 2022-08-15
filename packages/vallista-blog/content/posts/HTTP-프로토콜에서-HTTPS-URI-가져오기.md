@@ -2,7 +2,7 @@
 title: HTTP 프로토콜에서 HTTPS URI 가져오기
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2019-05-13 11:05:53
 draft: true
 info: false

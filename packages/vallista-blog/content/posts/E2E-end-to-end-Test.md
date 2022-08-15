@@ -2,7 +2,7 @@
 title: E2E (end to end) Test
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2017-07-01 18:41:35
 draft: true
 info: false

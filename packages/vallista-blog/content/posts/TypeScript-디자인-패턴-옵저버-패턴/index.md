@@ -3,7 +3,7 @@ title: TypeScript 디자인 패턴 - 옵저버 패턴
 image: ./assets/0.jpg
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2020-05-22 20:30:33
 draft: false
 info: false

@@ -2,7 +2,7 @@
 title: 'Jest, enzyme를 활용한 테스팅 환경'
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2019-05-13 11:08:23
 draft: true
 info: false

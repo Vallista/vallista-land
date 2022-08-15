@@ -4,7 +4,7 @@ date: 2020-04-26 15:19:08
 image: ./assets/0.jpg
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 draft: false
 info: false
 ---

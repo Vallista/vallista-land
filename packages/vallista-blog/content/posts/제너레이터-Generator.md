@@ -2,7 +2,7 @@
 title: 제너레이터 (Generator)
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2019-07-12 12:05:15
 draft: false
 info: false

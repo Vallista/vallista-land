@@ -2,7 +2,7 @@
 title: 첩첩산중, POS 시스템을 대응하자
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2021-12-19 13:25:37
 draft: false
 image: ./assets/1.png

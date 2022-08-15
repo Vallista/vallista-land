@@ -2,7 +2,7 @@
 title: 영수증, React 그리고 emotion
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2021-11-21 11:57:00
 draft: false
 image: ./assets/1.jpeg

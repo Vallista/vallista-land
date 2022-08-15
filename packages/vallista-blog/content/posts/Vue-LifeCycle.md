@@ -2,7 +2,7 @@
 title: Vue LifeCycle
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2018-01-15 18:40:06
 draft: true
 info: false

@@ -2,7 +2,7 @@
 title: 리듀스 (Reduce)
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 date: 2019-05-12 11:01:13
 draft: true
 info: false

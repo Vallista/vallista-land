@@ -2,7 +2,7 @@
 title: 컴포넌트 분리의 미학
 image: ./assets/1.jpeg
 tags:
-  - FrontEnd
+  - 프론트엔드
   - All
 date: 2020-03-29 15:28:01
 draft: false

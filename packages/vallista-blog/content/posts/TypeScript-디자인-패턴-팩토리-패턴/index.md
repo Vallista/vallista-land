@@ -4,7 +4,7 @@ date: 2020-05-05 20:44:56
 image: ./assets/0.jpg
 tags:
   - All
-  - FrontEnd
+  - 프론트엔드
 draft: false
 info: false
 series: TypeScript 디자인 패턴
