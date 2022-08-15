@@ -101,7 +101,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
   }
 
   function linkCopy(): void {
-    copy(location.href)
+    copy(decodeURIComponent(location.href))
     toast.success('링크를 복사했습니다.')
   }
 }
