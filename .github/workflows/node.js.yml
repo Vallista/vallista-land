@@ -26,6 +26,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: npm install -g yarn
+      - run: yarn config set workspaces-experimental true
       - run: yarn
       - run: yarn bootstrap
       - run: yarn build:core
