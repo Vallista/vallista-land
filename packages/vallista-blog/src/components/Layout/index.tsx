@@ -12,7 +12,7 @@ import * as Styled from './Layout.style'
 
 export const Layout: FC = (props) => {
   const { children } = props
-  const data: IndexQuery = useStaticQuery(layoutQuery)
+  const data: IndexQuery = useStaticQuery(allPostsQuery)
   const { nodes } = data.allMarkdownRemark
   // Sidebar Folding
   const [fold, setFold] = useState(false)
@@ -23,7 +23,8 @@ export const Layout: FC = (props) => {
         name: it.frontmatter.title,
         slug: it.fields.slug,
         series: it.frontmatter.series || null,
-        image: it.frontmatter.image?.publicURL || '/profile.png'
+        image: it.frontmatter.image?.publicURL || '/profile.png',
+        tags: it.frontmatter.tags || []
       })),
     [nodes]
   )
@@ -56,7 +57,7 @@ export const Layout: FC = (props) => {
   }
 }
 
-const layoutQuery = graphql`
+const allPostsQuery = graphql`
   query {
     allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
       nodes {
@@ -70,6 +71,7 @@ const layoutQuery = graphql`
             publicURL
           }
           draft
+          tags
         }
       }
     }

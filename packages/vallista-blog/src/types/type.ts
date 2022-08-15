@@ -54,4 +54,5 @@ export interface SidebarPost {
   slug: string
   series: string | null
   image: string | null
+  tags: string[]
 }
