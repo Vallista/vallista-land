@@ -28,7 +28,7 @@ jobs:
       - run: npm install -g yarn
       - run: yarn config set workspaces-experimental true
       - run: yarn
-      - run: yarn bootstrap
+      # - run: yarn bootstrap
       - run: yarn build:core
       - run: yarn build:blog
       - run: yarn deploy:blog
