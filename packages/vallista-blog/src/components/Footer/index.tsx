@@ -1,15 +1,15 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
 import { Footer as FooterWrapper, FooterGroup, FooterLink, Spacer, Text } from '@vallista-land/core'
 import { Link } from 'gatsby'
 import { VFC } from 'react'
+
+import * as Styled from './Footer.style'
 
 export const Footer: VFC = () => {
   const nowYear = new Date().getFullYear()
 
   return (
     <div>
-      <FooterBox>
+      <Styled._FooterBox>
         <FooterWrapper>
           <FooterGroup title='사이트 맵'>
             <FooterLink custom>
@@ -28,8 +28,8 @@ export const Footer: VFC = () => {
             <FooterLink href='https://techblog.woowahan.com/'>우아한형제들 기술블로그</FooterLink>
           </FooterGroup>
         </FooterWrapper>
-      </FooterBox>
-      <FooterAllRightReserve>
+      </Styled._FooterBox>
+      <Styled._FooterAllRightReserve>
         <Text size={12}>
           Copyright ⓒ {nowYear} <Link to='https://vallista.kr'>Vallista</Link> All rights reserved.
         </Text>
@@ -39,50 +39,7 @@ export const Footer: VFC = () => {
           <a href='https://github.com/Vallista/vallista-land'>@Vallista-land</a>
         </Text>
         <Spacer y={0.5} />
-      </FooterAllRightReserve>
+      </Styled._FooterAllRightReserve>
     </div>
   )
 }
-
-const FooterBox = styled.div`
-  ${({ theme }) => css`
-    @media screen and (min-width: 1025px) {
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-
-      & > footer {
-        width: 900px;
-        box-sizing: border-box;
-        padding: 2rem 2rem 1rem 2rem;
-        border-top: none;
-
-        & > nav {
-          justify-content: flex-start;
-          gap: 2rem;
-        }
-      }
-      background: ${theme.colors.PRIMARY.ACCENT_1};
-    }
-  `}
-`
-
-const FooterAllRightReserve = styled.p`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 60px;
-  ${({ theme }) => css`
-    background: ${theme.colors.PRIMARY.ACCENT_1};
-    color: ${theme.colors.PRIMARY.ACCENT_3};
-
-    & a {
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      text-decoration: none;
-    }
-  `}
-`

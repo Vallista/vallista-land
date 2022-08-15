@@ -1,11 +1,10 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
 import { useLocation } from '@reach/router'
 import { Text, Badge, Container, Spacer, Tooltip, copy, useToasts } from '@vallista-land/core'
 import { Link } from 'gatsby'
 import { FC } from 'react'
 
 import { getTime } from '../../utils'
+import * as Styled from './PostHeader.style'
 
 interface PostHeaderProps {
   title: string
@@ -24,9 +23,9 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
   const dateToString = `${year}년 ${Number(month)}월 ${Number(day)}일`
 
   return (
-    <Header>
-      <Wrapper>
-        <HeaderTitle>
+    <Styled._Header>
+      <Styled._Wrapper>
+        <Styled._HeaderTitle>
           <Text as='h1' size={40} weight={800}>
             {title}
           </Text>
@@ -41,8 +40,8 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
             </Container>
           )}
           <Spacer y={1} />
-          <BottomBox>
-            <TextContainer>
+          <Styled._BottomBox>
+            <Styled._TextContainer>
               <Text size={16} as='span'>
                 Written by <Link to='/'>{author}</Link>
               </Text>
@@ -50,10 +49,10 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
               <Text size={14} as='span'>
                 {dateToString} · {timeToRead} min read
               </Text>
-            </TextContainer>
-            <IconContainer>
+            </Styled._TextContainer>
+            <Styled._IconContainer>
               <Tooltip text='페이스북 공유' position='top'>
-                <Icon onClick={facebookShare}>
+                <Styled._Icon onClick={facebookShare}>
                   <svg
                     viewBox='0 0 24 24'
                     width='16'
@@ -67,10 +66,10 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
                   >
                     <path d='M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z' />
                   </svg>
-                </Icon>
+                </Styled._Icon>
               </Tooltip>
               <Tooltip text='링크 복사' position='top'>
-                <Icon onClick={linkCopy}>
+                <Styled._Icon onClick={linkCopy}>
                   <svg
                     viewBox='0 0 24 24'
                     width='16'
@@ -85,15 +84,15 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
                     <path d='M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71' />
                     <path d='M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71' />
                   </svg>
-                </Icon>
+                </Styled._Icon>
               </Tooltip>
-            </IconContainer>
-          </BottomBox>
-        </HeaderTitle>
+            </Styled._IconContainer>
+          </Styled._BottomBox>
+        </Styled._HeaderTitle>
         <Spacer y={1} />
-        <ChildrenWrapper>{children}</ChildrenWrapper>
-      </Wrapper>
-    </Header>
+        <Styled._ChildrenWrapper>{children}</Styled._ChildrenWrapper>
+      </Styled._Wrapper>
+    </Styled._Header>
   )
 
   function facebookShare(): void {
@@ -105,83 +104,3 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
     toast.success('링크를 복사했습니다.')
   }
 }
-
-const Header = styled.header`
-  text-align: center;
-`
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  max-width: 900px;
-  padding: 2rem;
-  margin-left: auto;
-  margin-right: auto;
-
-  @media screen and (max-width: 1024px) {
-    padding: 1.5rem 1rem;
-  }
-`
-
-const BottomBox = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-
-  @media screen and (max-width: 1024px) {
-    flex-direction: column-reverse;
-    align-items: flex-start;
-    justify-content: center;
-  }
-`
-
-const TextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-`
-
-const IconContainer = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-`
-
-const Icon = styled.button`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px;
-  height: 30px;
-  outline: none;
-  border: none;
-  border-radius: 15px;
-  cursor: pointer;
-  padding: 0;
-
-  ${({ theme }) => css`
-    background: ${theme.colors.PRIMARY.FOREGROUND};
-    color: ${theme.colors.PRIMARY.BACKGROUND};
-  `}
-`
-
-const HeaderTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 100%;
-  padding: 0 1.5rem;
-
-  & > h1 {
-    text-align: left;
-  }
-`
-
-const ChildrenWrapper = styled.div`
-  width: 100%;
-`
