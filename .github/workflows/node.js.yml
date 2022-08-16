@@ -27,15 +27,22 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: npm install -g yarn
-      - run: yarn config set workspaces-experimental true
-      - run: yarn
-      # - run: yarn bootstrap
-      - run: yarn build:core
-      - run: yarn build:blog
-      - run: git config --global user.email "mgh950714@gmail.com"
-      - run: git config --global user.name "vallista"
+      - name: yarn 설치
+        run: npm install -g yarn
+      - name: yarn workspaces 옵션 활성화
+        run: yarn config set workspaces-experimental true
+      - name: node.js 패키지 installation
+        run: yarn
+      - name: 코어 (디자인시스템) 빌드
+        run: yarn build:core
+      - name: 블로그 빌드
+        run: yarn build:blog
+      - name: git config 이메일 변경
+        run: git config --global user.email "mgh950714@gmail.com"
+      - name: git config 이름 변경
+        run: git config --global user.name "vallista"
       # vallista-blog 들어가서 deploy 스크립트에 TOKEN 주입해 실행
-      - run: |
+      - name: 디랙토리 이동 및 vallista.github.io 배포
+        run: |
           yarn directory:blog
           yarn deploy:blog-ex ${{ secrets.TOKEN }}
