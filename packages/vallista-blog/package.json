@@ -13,7 +13,7 @@
     "serve:blog": "gatsby serve",
     "clean:blog": "gatsby clean",
     "post:blog": "node ./scripts/create-post-file.js",
-    "deploy:blog": "gatsby build && node ./scripts/deploy.js"
+    "deploy:blog": "node ./scripts/deploy.js"
   },
   "dependencies": {
     "@emotion/react": "^11.4.1",
