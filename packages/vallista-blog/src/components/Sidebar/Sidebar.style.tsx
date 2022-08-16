@@ -240,23 +240,27 @@ export const _ListHeader = styled.div`
     padding: 0;
     margin: 0 0 6px 0;
     height: 30px;
-  `}
-
-  & > p {
-    margin-right: 2px;
-  }
+  `}/* & > div {
+    margin-right: 8px;
+  } */
 `
 
 export const _ListFoldIcon = styled.div<{ fold: boolean }>`
-  transition: transform 0.2s ease;
-  ${({ fold }) =>
-    fold
-      ? css`
-          transform: rotate(0);
-        `
-      : css`
-          transform: rotate(180deg);
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+
+  & > div {
+    & > svg {
+      position: relative;
+      ${({ fold }) =>
+        !fold &&
+        css`
+          top: -2px;
+          left: -2px;
         `}
+    }
+  }
 `
 
 export const _ListBody = styled.div<{ fold: boolean }>`
