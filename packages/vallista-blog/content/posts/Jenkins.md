@@ -1,7 +1,7 @@
 ---
 title: Jenkins
 tags:
-  - All
+
 date: 2019-05-28 11:11:30
 draft: true
 info: false

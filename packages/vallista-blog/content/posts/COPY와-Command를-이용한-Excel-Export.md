@@ -1,7 +1,7 @@
 ---
 title: COPY와 Command를 이용한 Excel Export
 tags:
-  - All
+
 date: 2019-01-29 18:00:08
 draft: false
 info: false

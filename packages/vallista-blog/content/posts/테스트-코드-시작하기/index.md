@@ -1,7 +1,7 @@
 ---
 title: 테스트 코드 시작하기
 tags:
-  - All
+
 date: 2022-03-13 14:11:18
 image: ./assets/1.jpeg
 draft: false

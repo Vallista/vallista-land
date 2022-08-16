@@ -2,7 +2,6 @@
 title: TypeScript에서 Redux, Redux Saga 아름답게 개발하기
 image: ./assets/0.png
 tags:
-  - All
   - React
 date: 2020-07-20 02:24:31
 draft: false

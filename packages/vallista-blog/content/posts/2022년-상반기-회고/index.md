@@ -2,7 +2,6 @@
 title: 2022년 상반기 회고
 image: ./assets/0.png
 tags:
-  - All
   - 회고
 date: 2022-08-09 00:14:19
 ---

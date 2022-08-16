@@ -1,7 +1,6 @@
 ---
 title: Redux
 tags:
-  - All
   - React
 date: 2019-05-15 11:16:29
 draft: true

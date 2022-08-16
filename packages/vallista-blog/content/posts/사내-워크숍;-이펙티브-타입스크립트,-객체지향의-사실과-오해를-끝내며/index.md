@@ -1,7 +1,7 @@
 ---
 title: 사내 워크숍; 이펙티브 타입스크립트, 객체지향의 사실과 오해를 끝내며
 tags:
-  - All
+
 date: 2022-03-27 13:27:40
 image: ./assets/1.jpeg
 draft: false

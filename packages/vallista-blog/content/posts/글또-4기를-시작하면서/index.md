@@ -2,7 +2,6 @@
 title: 글또 4기를 시작하면서
 image: ./assets/1.jpg
 tags:
-  - All
   - 잡담
 date: 2020-03-01 15:04:00
 draft: false

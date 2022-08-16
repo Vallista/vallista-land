@@ -2,7 +2,6 @@
 title: 2020년 상반기 회고
 image: ./assets/0.jpg
 tags:
-  - All
   - 회고
 date: 2020-07-11 23:57:59
 draft: false

@@ -1,7 +1,6 @@
 ---
 title: 이벤트 루프 (Event Loop)
 tags:
-  - All
   - 프론트엔드
 date: 2019-05-09 19:14:14
 draft: true

@@ -1,12 +1,11 @@
 ---
 title: 동시성과 병렬성 (Concurrency & Parallelism)
 tags:
-  - All
+
 date: 2019-12-28 16:42:00
 draft: false
 info: false
 ---
-
 
 ![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)
 
@@ -38,9 +37,9 @@ Thread는 지원하는 주체에 따라서 두 가지로 분류 될 수 있습�
 - 사용자 레벨 쓰레드 (User-Level Thread)
 
   사용자 쓰레드는 커널 영역의 상위, 어플리케이션 레이어에서 사용자가 구현한 라이브러리나 구현체로 제공되는 걸 일컫습니다.
-  
+
   동일한 메모리 영역에서 쓰레드가 생성 및 관리 되므로 속도가 빠르다는 장점이 있습니다. 하지만 여러개의 쓰레드가 작업될 때 하나의 쓰레드가 종료되면 모든 쓰레드도 중단되는 단점이 있습니다.
-  
+
   그 이유는, 커널에서 내부 쓰레드에 대해서 인지하지 못하여 해당 프로세스를 제거했기 때문입니다.
 
 - 커널 레벨 쓰레드 (Kernel-Level Thread)
@@ -77,5 +76,5 @@ Concurrency란 Parallelism의 어려움을 쉽게 풀어내기위해 소프트�
 
 - [Don’t be confused between Concurrency and Parallelism](https://medium.com/from-the-scratch/dont-be-confused-between-concurrency-and-parallelism-eac8e703943a)
 - [Concurrent Computing](https://en.wikipedia.org/wiki/Concurrent_computing)
-- [Concurrency (Computer Science)](https://en.wikipedia.org/wiki/Concurrency_(computer_science))
+- [Concurrency (Computer Science)](<https://en.wikipedia.org/wiki/Concurrency_(computer_science)>)
 - [Parallel Computing](https://en.wikipedia.org/wiki/Parallel_computing)

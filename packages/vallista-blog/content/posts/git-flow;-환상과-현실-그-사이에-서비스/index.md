@@ -1,7 +1,7 @@
 ---
 title: git flow; 환상과 현실 그 사이에 서비스
 tags:
-  - All
+
 date: 2022-02-13 17:30:08
 image: ./assets/0.png
 ---

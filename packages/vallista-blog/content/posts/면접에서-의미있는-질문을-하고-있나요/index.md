@@ -2,13 +2,11 @@
 title: 면접에서 의미있는 질문을 하고 있나요
 image: ./assets/0.jpg
 tags:
-  - All
   - 잡담
 date: 2020-06-14 21:14:12
 draft: false
 info: false
 ---
-
 
 ![image0](./assets/0.jpg)
 

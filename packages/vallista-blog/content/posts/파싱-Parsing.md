@@ -1,7 +1,7 @@
 ---
 title: 파싱 (Parsing)
 tags:
-  - All
+
 date: 2019-05-03 19:02:32
 draft: true
 info: false

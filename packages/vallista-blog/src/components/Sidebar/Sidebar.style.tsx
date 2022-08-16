@@ -275,9 +275,7 @@ export const _ListStyleItem = styled.a<Pick<CardStyleItemProps, 'isActive'>>`
   justify-content: flex-start;
   align-items: center;
   cursor: pointer;
-  padding: 6px 12px;
-  margin: 0 -12px;
-  border-radius: 6px;
+  padding: 6px 0;
   transition: border 0.2s ease;
 
   ${({ theme, isActive }) => css`

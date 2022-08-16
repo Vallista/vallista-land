@@ -1,7 +1,6 @@
 ---
 title: 블로그 리뉴얼 그리고 회고
 tags:
-  - All
   - 회고
 date: 2022-01-17 01:23:00
 image: ./assets/5.jpg

@@ -1,7 +1,6 @@
 ---
 title: 클로저 (Closure)
 tags:
-  - All
   - 프론트엔드
 date: 2019-05-11 10:55:07
 draft: true

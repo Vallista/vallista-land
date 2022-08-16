@@ -11,7 +11,7 @@ interface SidebarProps {
   fold: boolean
 }
 
-const BLACKLIST = ['All']
+const BLACKLIST: string[] = []
 
 export const Sidebar: VFC<SidebarProps> = (props) => {
   const sidebarProps = useSidebar(props)

@@ -1,7 +1,6 @@
 ---
 title: SSR (Server Side Rendering)
 tags:
-  - All
   - 프론트엔드
 date: 2019-05-05 19:07:15
 draft: true

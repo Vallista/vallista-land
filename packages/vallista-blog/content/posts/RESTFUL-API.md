@@ -1,7 +1,7 @@
 ---
 title: RESTFUL API
 tags:
-  - All
+
 date: 2019-05-02 18:46:16
 draft: true
 info: false

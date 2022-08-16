@@ -1,7 +1,6 @@
 ---
 title: DOM (Document Object Model)
 tags:
-  - All
   - 프론트엔드
 date: 2019-05-07 19:11:27
 draft: true

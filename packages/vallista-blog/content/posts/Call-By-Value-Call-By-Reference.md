@@ -1,7 +1,7 @@
 ---
 title: 'Call By Value, Call By Reference'
 tags:
-  - All
+
 date: 2019-05-10 19:14:14
 draft: true
 info: false

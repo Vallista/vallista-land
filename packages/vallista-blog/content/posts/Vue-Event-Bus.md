@@ -1,7 +1,6 @@
 ---
 title: Vue Event Bus
 tags:
-  - All
   - 프론트엔드
 date: 2018-01-14 18:38:29
 draft: true

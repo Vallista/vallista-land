@@ -2,7 +2,6 @@
 title: 웹 개발자의 지옥, 이메일 폼 개발하기
 image: ./assets/image1.png
 tags:
-  - All
   - 프론트엔드
 date: 2019-12-27 20:01:32
 draft: false

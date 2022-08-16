@@ -1,7 +1,7 @@
 ---
 title: 덕 타이핑과 구조적 타이핑
 tags:
-  - All
+
 date: 2021-08-19 19:09:51
 draft: false
 image: ./assets/1.png

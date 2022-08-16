@@ -1,7 +1,6 @@
 ---
 title: Virtual DOM
 tags:
-  - All
   - 프론트엔드
 date: 2019-05-04 19:04:34
 draft: true

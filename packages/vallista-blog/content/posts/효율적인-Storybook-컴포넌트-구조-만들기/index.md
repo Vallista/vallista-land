@@ -3,7 +3,6 @@ title: 효율적인 Storybook 컴포넌트 구조 만들기
 date: 2020-04-26 15:19:08
 image: ./assets/0.jpg
 tags:
-  - All
   - 프론트엔드
 draft: false
 info: false

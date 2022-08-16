@@ -2,7 +2,6 @@
 title: 글또 6기를 시작하며
 image: ./assets/1.png
 tags:
-  - All
   - 잡담
 date: 2021-07-13 22:39:25
 draft: false

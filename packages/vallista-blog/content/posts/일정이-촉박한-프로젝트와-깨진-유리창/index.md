@@ -1,7 +1,7 @@
 ---
 title: 일정이 촉박한 프로젝트와 깨진 유리창
 tags:
-  - All
+
 date: 2022-05-01 21:21:57
 image: ./assets/1.png
 draft: false

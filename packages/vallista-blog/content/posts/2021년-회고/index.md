@@ -2,7 +2,6 @@
 title: 2021년 회고
 image: ./assets/0.jpeg
 tags:
-  - All
   - 회고
 date: 2022-01-09 02:30:00
 ---
