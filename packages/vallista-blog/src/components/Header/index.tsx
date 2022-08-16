@@ -2,7 +2,7 @@ import { Modal, Spacer, Text, Toggle } from '@vallista-land/core'
 import { VFC } from 'react'
 
 import * as Styled from './Header.style'
-import { HeaderProps, HeaderDialogType, HeaderDialogVariableType } from './Header.type'
+import { HeaderProps, HeaderDialogVariableType } from './Header.type'
 import { useHeader } from './useHeader'
 
 const fontSizeControllerMapper = [14, 16, 18, 20]

@@ -11,6 +11,7 @@ export type TaggedPosts = Record<string, SidebarPost[]>
 
 export interface ReturnUseSidebar {
   posts: TaggedPosts
+  totalPosts: number
   scrollState: ScrollStateType
   viewState: ViewStateType
   search: string

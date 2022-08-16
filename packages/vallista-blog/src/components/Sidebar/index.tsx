@@ -13,7 +13,8 @@ interface SidebarProps {
 
 export const Sidebar: VFC<SidebarProps> = (props) => {
   const sidebarProps = useSidebar(props)
-  const { posts, search, viewState, changeScrollState, changeSearch, changeLocation, isNowPage } = sidebarProps
+  const { posts, totalPosts, search, viewState, changeScrollState, changeSearch, changeLocation, isNowPage } =
+    sidebarProps
 
   const ref = useRef<HTMLDivElement>(null)
 
@@ -28,7 +29,7 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
           <Text>
             글{' '}
             <Text as='span' color={Colors.PRIMARY.ACCENT_4}>
-              ({posts.length})
+              ({totalPosts})
             </Text>
           </Text>
           {/* <Button onClick={handleChangeViewType}>

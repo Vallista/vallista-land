@@ -82,6 +82,7 @@ export const useSidebar = <T extends SidebarProps>(props: T): ReturnUseSidebar &
   return {
     ...props,
     posts: filteredTaggedPosts,
+    totalPosts: posts.length,
     scrollState,
     viewState,
     search,
