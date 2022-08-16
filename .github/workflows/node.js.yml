@@ -31,4 +31,6 @@ jobs:
       # - run: yarn bootstrap
       - run: yarn build:core
       - run: yarn build:blog
+      - run: git config --global user.email "mgh950714@gmail.com"
+      - run: git config --global user.name "Vallista"
       - run: yarn deploy:blog
