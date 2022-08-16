@@ -1,4 +1,4 @@
-type KeyType = 'search' | 'view-type' | 'sidebar-fold'
+type KeyType = 'search' | 'view-type' | 'sidebar-fold' | 'text-size'
 
 function get(key: KeyType): string | null {
   if (typeof window === 'undefined') return null

@@ -1,48 +1,15 @@
-import { Modal, Spacer, Text, Toggle, useTheme } from '@vallista-land/core'
-import { useEffect, useState, VFC } from 'react'
+import { Modal, Spacer, Text, Toggle } from '@vallista-land/core'
+import { VFC } from 'react'
 
-import { isDarkMode, onChangeThemeEvent } from '../../utils'
 import * as Styled from './Header.style'
-
-interface HeaderProps {
-  fold: boolean
-  folding: () => void
-}
+import { HeaderProps, HeaderDialogType, HeaderDialogVariableType } from './Header.type'
+import { useHeader } from './useHeader'
 
 const fontSizeControllerMapper = [14, 16, 18, 20]
 
 export const Header: VFC<HeaderProps> = (props) => {
-  const { fold, folding } = props
-  const theme = useTheme()
-  const [mode, setMode] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light'
-    return isDarkMode() ? 'dark' : 'light'
-  })
-  const [popup, setPopup] = useState(false)
-  const [textSize, setTextSize] = useState(16)
-
-  useEffect(() => {
-    onChangeThemeEvent((theme) => {
-      setMode(theme)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!mode) return
-
-    theme.state.changeTheme(mode)
-  }, [mode])
-
-  useEffect(() => {
-    if (!document?.body?.parentElement) return
-    if (textSize === 16) {
-      const { fontSize, ...otherProps } = document.body.parentElement.style
-      ;(document.body.parentElement as any).style = otherProps
-      return
-    }
-
-    document.body.parentElement.style.fontSize = `${textSize}px`
-  }, [textSize])
+  const { fold, folding, dialog, textSize, mode, openDialog, closeDialog, changeTheme, changeTextSize } =
+    useHeader(props)
 
   return (
     <Styled._Container fold={fold}>
@@ -64,7 +31,7 @@ export const Header: VFC<HeaderProps> = (props) => {
           </svg>
         </Styled._FoldingButton>
         <Spacer />
-        <Styled._SettingButton popup={popup} onClick={() => setPopup(!popup)}>
+        <Styled._SettingButton popup={dialog.visible} onClick={() => changeDialogVisible('SETTING')}>
           <svg
             viewBox='0 0 24 24'
             width='18'
@@ -103,7 +70,7 @@ export const Header: VFC<HeaderProps> = (props) => {
           <path d='M4.22 19.78l1.42-1.42' />
           <path d='M18.36 5.64l1.42-1.42' />
         </svg>
-        <Toggle toggle={mode === 'dark'} size='medium' onChange={handleDarkModeToggle} color='pink' />
+        <Toggle toggle={mode === 'DARK'} size='medium' onChange={handleDarkModeToggle} color='pink' />
         <svg
           viewBox='0 0 24 24'
           width='18'
@@ -118,7 +85,7 @@ export const Header: VFC<HeaderProps> = (props) => {
           <path d='M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z' />
         </svg>
       </Styled._ThemeToggleContainer>
-      <Modal.Modal active={popup}>
+      <Modal.Modal active={dialog.visible}>
         <Modal.Body>
           <Modal.Header>
             <Modal.Title>설정</Modal.Title>
@@ -141,7 +108,7 @@ export const Header: VFC<HeaderProps> = (props) => {
           </Modal.Header>
         </Modal.Body>
         <Modal.Actions>
-          <Modal.Action onClick={() => setPopup(false)}>
+          <Modal.Action onClick={() => changeDialogVisible('SETTING')}>
             <Text>닫기</Text>
           </Modal.Action>
         </Modal.Actions>
@@ -151,13 +118,18 @@ export const Header: VFC<HeaderProps> = (props) => {
 
   function handleDarkModeToggle(state: boolean): void {
     if (state) {
-      setMode('dark')
+      changeTheme('DARK')
     } else {
-      setMode('light')
+      changeTheme('LIGHT')
     }
   }
 
   function changeREM(size: number): void {
-    setTextSize(size)
+    changeTextSize(size)
+  }
+
+  function changeDialogVisible(type: HeaderDialogVariableType): void {
+    if (dialog.visible) closeDialog()
+    else openDialog(type)
   }
 }

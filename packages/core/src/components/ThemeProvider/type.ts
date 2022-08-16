@@ -122,4 +122,4 @@ export interface BaseTheme {
   shadows: ReturnType<ShadowType>
 }
 
-export type BaseThemeMapper = Record<'light' | 'dark', BaseTheme>
+export type BaseThemeMapper = Record<'LIGHT' | 'DARK', BaseTheme>

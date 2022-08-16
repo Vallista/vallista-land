@@ -184,7 +184,7 @@ const Themes: BaseThemeMapper = {
 테마의 경우 PRIMARY에 있는 색만 수정하면 되도록 테마 단위의 설정을 격리했고, 다크모드 시 PRIMARY 컬러를 역순으로 배치했다.
 
 ```tsx {numberLines}
-export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'light', children }) => {
+export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'LIGHT', children }) => {
   const [themeState, setThemeState] = useState(theme)
 
   return (
@@ -196,7 +196,7 @@ export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'light', chil
     </Context>
   )
 
-  function changeTheme(state: 'light' | 'dark'): void {
+  function changeTheme(state: 'LIGHT' | 'DARK'): void {
     setThemeState(state)
   }
 }

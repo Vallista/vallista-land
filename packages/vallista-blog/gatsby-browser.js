@@ -65,9 +65,9 @@ const InitializeElement = ({ element }) => {
 
   if (!firstRender) {
     if (isDarkMode()) {
-      changeTheme(theme, 'dark')
+      changeTheme(theme, 'DARK')
     } else {
-      changeTheme(theme, 'light')
+      changeTheme(theme, 'LIGHT')
     }
 
     firstRender = true
@@ -83,11 +83,11 @@ const InitializeElement = ({ element }) => {
 const changeTheme = (theme, type) => {
   if (typeof window === 'undefined') return
 
-  if (type === 'light') {
+  if (type === 'LIGHT') {
     document.body.style.backgroundColor = '#fff'
-    theme.state.changeTheme('light')
+    theme.state.changeTheme('LIGHT')
   } else {
     document.body.style.backgroundColor = '#000'
-    theme.state.changeTheme('dark')
+    theme.state.changeTheme('DARK')
   }
 }

@@ -6,12 +6,12 @@ import { ToastProvider } from '../Toast'
 import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
 
 const Themes: BaseThemeMapper = {
-  light: {
+  LIGHT: {
     colors: Colors,
     layers: Layers,
     shadows: Shadows()
   },
-  dark: {
+  DARK: {
     colors: {
       ...Colors,
       PRIMARY: {
@@ -35,7 +35,7 @@ const Themes: BaseThemeMapper = {
 type ThemeKeys = keyof typeof Themes
 
 const [Context, useContext] = createContext<{
-  changeTheme: (theme: 'light' | 'dark') => void
+  changeTheme: (theme: 'LIGHT' | 'DARK') => void
 }>()
 
 /**
@@ -51,7 +51,7 @@ const [Context, useContext] = createContext<{
  * </ThemeProvider>
  * ```
  */
-export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'light', children }) => {
+export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'LIGHT', children }) => {
   const [themeState, setThemeState] = useState(theme)
 
   return (
@@ -63,7 +63,7 @@ export const ThemeProvider: FC<{ theme?: ThemeKeys }> = ({ theme = 'light', chil
     </Context>
   )
 
-  function changeTheme(state: 'light' | 'dark'): void {
+  function changeTheme(state: 'LIGHT' | 'DARK'): void {
     setThemeState(state)
   }
 }
