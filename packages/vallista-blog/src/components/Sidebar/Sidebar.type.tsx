@@ -7,8 +7,10 @@ export interface SidebarProps {
 
 export type ScrollStateType = 'SHOW' | 'HIDE'
 export type ViewStateType = 'LIST' | 'CARD'
+export type TaggedPosts = Record<string, SidebarPost[]>
 
 export interface ReturnUseSidebar {
+  posts: TaggedPosts
   scrollState: ScrollStateType
   viewState: ViewStateType
   search: string

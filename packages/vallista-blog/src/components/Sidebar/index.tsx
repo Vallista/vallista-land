@@ -11,76 +11,11 @@ interface SidebarProps {
   fold: boolean
 }
 
-const BLACKLIST: string[] = []
-
 export const Sidebar: VFC<SidebarProps> = (props) => {
   const sidebarProps = useSidebar(props)
-  const {
-    posts,
-    // fold,
-    search,
-    // scrollState,
-    viewState,
-    changeScrollState,
-    // changeViewState,
-    changeSearch,
-    changeLocation,
-    isNowPage
-  } = sidebarProps
+  const { posts, search, viewState, changeScrollState, changeSearch, changeLocation, isNowPage } = sidebarProps
 
   const ref = useRef<HTMLDivElement>(null)
-
-  // 사용되고 있는 모든 테그를 가져온다.
-  const allTags = useMemo(() => {
-    return (
-      posts
-        // 중복되지 않은 태그들만 추출한다.
-        .reduce<string[]>((acc, curr) => {
-          curr.tags.forEach((it) => {
-            const hasTag = acc.find((it_) => it === it_)
-            if (!hasTag) acc.push(it)
-          })
-
-          return acc
-        }, [])
-        // 블랙리스트에 있는 내용은 제외한다.
-        .filter((it) => !BLACKLIST.includes(it))
-        // 오브젝트 형태로 변환한다.
-        .reduce<Record<string, SidebarPost[]>>((acc, curr) => {
-          acc[curr] = []
-
-          return acc
-        }, {})
-    )
-  }, [])
-
-  // 태그 형태로 변환된 포스트 목록
-  const taggedPosts = useMemo(
-    () =>
-      // 오브젝트 형태로 변환된 태그를 기준으로 포스트를 각 태그에 맞게 넣는다.
-      posts.reduce((acc, curr) => {
-        curr.tags
-          .filter((it) => !BLACKLIST.includes(it))
-          .forEach((it) => {
-            acc[it].push(curr)
-          })
-        return acc
-      }, allTags),
-    [allTags]
-  )
-
-  const filteredTaggedPosts = useMemo(() => {
-    return Object.entries(taggedPosts).reduce<Record<string, SidebarPost[]>>((acc, curr) => {
-      acc[curr[0]] = curr[1].filter((it) => it.name.toLocaleUpperCase().includes(search.toLocaleUpperCase()))
-
-      return acc
-    }, {})
-  }, [search, taggedPosts])
-
-  // const filteredPosts = useMemo(
-  //   () => posts.filter((it) => it.name.toLocaleUpperCase().includes(search.toLocaleUpperCase())),
-  //   [search, posts]
-  // )
 
   useEffect(() => {
     changeScrollState(ref.current?.scrollHeight, ref.current?.clientHeight)
@@ -139,10 +74,10 @@ export const Sidebar: VFC<SidebarProps> = (props) => {
       <Styled._SidebarContainer ref={ref} {...sidebarProps}>
         <Styled._Categories>
           <Container>
-            {Object.entries(filteredTaggedPosts).map(([title, posts]) => (
+            {Object.entries(posts).map(([title, _posts]) => (
               <CategoryList
                 title={title}
-                posts={posts}
+                posts={_posts}
                 moveToLocation={moveToLocation}
                 isNowPage={isNowPage}
                 viewState={viewState}
