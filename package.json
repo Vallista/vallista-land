@@ -27,7 +27,9 @@
     "build:blog": "lerna run build:blog",
     "clean:blog": "cd packages/vallista-blog && gatsby clean",
     "post:blog": "cd packages/vallista-blog && yarn post:blog",
-    "deploy:blog": "cd packages/vallista-blog && yarn deploy:blog"
+    "deploy:blog": "cd packages/vallista-blog && yarn deploy:blog",
+    "directory:blog": "cd packages/vallista-blog",
+    "deploy:blog-ex": "yarn deploy:blog"
   },
   "workspaces": {
     "packages": [
