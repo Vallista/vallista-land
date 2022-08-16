@@ -111,7 +111,7 @@ interface CategoryListProps {
 }
 
 const CategoryList: VFC<CategoryListProps> = ({ viewState, posts, title, isNowPage, moveToLocation }) => {
-  const [fold, setFold] = useState(false)
+  const [fold, setFold] = useState(!posts.find((it) => isNowPage(it.slug)))
 
   const List = useMemo(() => (viewState === 'CARD' ? Styled._CardStyle : Styled._ListStyle), [viewState])
   const ListItem = useMemo(() => (viewState === 'CARD' ? Styled._CardStyleItem : Styled._ListStyleItem), [viewState])
