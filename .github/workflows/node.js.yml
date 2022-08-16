@@ -36,6 +36,5 @@ jobs:
       - run: git config --global user.email "mgh950714@gmail.com"
       - run: git config --global user.name "vallista"
       # vallista-blog 들어가서 deploy 스크립트에 TOKEN 주입해 실행
-      - run: ll
       - run: cd ./packages/vallista-blog
       - run: node ./scripts/deploy.js ${{ secrets.TOKEN }}
