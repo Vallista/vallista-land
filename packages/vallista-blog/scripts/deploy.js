@@ -1,5 +1,5 @@
-const TOKEN = process.argv[0] || null
-console.log(TOKEN)
+const TOKEN = process.argv[2] || null
+console.log(process.argv)
 
 const ghpages = require('gh-pages')
 
