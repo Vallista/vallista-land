@@ -71,10 +71,10 @@ Webpack, Rollup, Browserify, esm는 전통적으로 유명했으니 제외하고
 
 결론적으로 말하자면, Microbundle로 변경하면서 에러가 발생했다. 그런데, 에러가 어디서 나는지 갈피를 잡을수가 없었다. 거기다 microbundle의 이슈만 해도 50개가 넘었고, 나의 에러에 해당하는 부분을 찾아도 나오지도 않았다. 한 번 간단하게 써보려다 큰 삽질을 하게 될 것 같아서 parcel로 방향을 바꾸게 되었다.
 
-#### Parcel
+#### Parcel ...?
 
-parcel은 [문서가 진짜 미친듯이 잘 정리 되어있다](https://parceljs.org/getting-started/webapp/) 그래서 순탄하게 변경했으나, monorepo에서 라이브러리들이 충돌나온 것인지... 이번에도 에러를 봉착하게 되었다.
+parcel은 [문서가 진짜 미친듯이 잘 정리 되어있다](https://parceljs.org/getting-started/webapp/) 그래서 순탄하게 변경했으나, monorepo에서 라이브러리들이 충돌나온 것인지... 이번에도 에러를 봉착하게 되었다. 그런데 찾아보니까 [parcel은 이슈가 675개가 있고](https://github.com/parcel-bundler/parcel/issues) [yarn workspace 의 위치를 제대로 알아오지 못하는](https://github.com/parcel-bundler/parcel/issues/7579) 문제가 있었다. 그래서 이번에도 결국 parcel은 적합치 못한 것으로...
 
----
+#### 돌고 돌아서 esbuild
 
-오늘 하루는 삽질만 하루종일 한 듯..?
+결국 많이 돌고 돌았는데, esbuild로 가게 되었고, 내일은 esbuild 삽질과 npm packages에 넣는걸로 진행해보려한다.
