@@ -10,6 +10,9 @@ date: 2022-08-17 20:23:34
 
 ## 오늘 한 일
 
+- @Vallista-land/core library 배포하는 삽질
+- 그 외, 푹 쉬었다..
+
 ## @Vallista-land/core library 배포하기
 
 @Vallista-land의 core는 yarn workspace로 하여금 빌드된 결과물을 각 모노레포간 사용할 수 있도록 제공한다. 그러기 위해 workspace 설정을 해주어야하는데, 이는 내 블로그의 설정에서 볼 수도 있고 [링크](https://classic.yarnpkg.com/lang/en/docs/workspaces/)에서 볼 수도 있다.
