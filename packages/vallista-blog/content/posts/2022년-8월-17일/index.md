@@ -11,6 +11,7 @@ date: 2022-08-17 20:23:34
 ## 오늘 한 일
 
 - @Vallista-land/core library 배포하는 삽질
+- 회사 인터널 앱을 만들기 위한 커뮤니케이션 여정 (은 실패)
 - 그 외, 푹 쉬었다..
 
 ## @Vallista-land/core library 배포하기
