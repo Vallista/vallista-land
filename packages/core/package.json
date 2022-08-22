@@ -1,7 +1,15 @@
 {
-  "name": "@vallista-land/core",
-  "version": "0.1.0",
+  "name": "@vallista/core",
+  "version": "0.5.4",
   "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vallista/vallista-land"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://npm.pkg.github.com/"
+  },
   "files": [
     "lib"
   ],
@@ -26,7 +34,7 @@
   },
   "scripts": {
     "run:core": "tsc --watch",
-    "build:core": "tsc"
+    "build:core": "rm -rf lib && tsc"
   },
   "dependencies": {
     "@testing-library/react-hooks": "^7.0.2"

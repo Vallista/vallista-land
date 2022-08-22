@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Button, Modal, useModal, Text } from '@vallista-land/core'
+import { Button, Modal, useModal, Text } from '@vallista/core'
 import { VFC } from 'react'
 
 const ModalPlayground: VFC = () => {

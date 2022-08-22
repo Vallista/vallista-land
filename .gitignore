@@ -26,3 +26,7 @@ yarn-error.log*
 lib
 tsconfig.tsbuildinfo
 .credentials.json
+
+.npmrc
+
+packages/core/tsconfig.tsbuildinfo

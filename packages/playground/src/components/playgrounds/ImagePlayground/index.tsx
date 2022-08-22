@@ -1,4 +1,4 @@
-import { Container, Image } from '@vallista-land/core'
+import { Container, Image } from '@vallista/core'
 import { VFC } from 'react'
 
 const ImagePlayground: VFC = () => {

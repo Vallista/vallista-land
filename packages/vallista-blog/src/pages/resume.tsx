@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Button, Container, Spacer, Text } from '@vallista-land/core'
+import { Button, Container, Spacer, Text } from '@vallista/core'
 import { VFC } from 'react'
 
 import { Seo } from '../components/Seo'

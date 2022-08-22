@@ -1,4 +1,4 @@
-import { Container, Snippet } from '@vallista-land/core'
+import { Container, Snippet } from '@vallista/core'
 import { VFC } from 'react'
 
 const SnippetPlayground: VFC = () => {

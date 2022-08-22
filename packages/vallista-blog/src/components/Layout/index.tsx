@@ -1,4 +1,4 @@
-import { Container } from '@vallista-land/core'
+import { Container } from '@vallista/core'
 import { graphql, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
 

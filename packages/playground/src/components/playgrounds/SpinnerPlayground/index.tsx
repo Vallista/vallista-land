@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Spinner } from '@vallista-land/core'
+import { Spinner } from '@vallista/core'
 import { VFC } from 'react'
 
 const SpinnerPlayground: VFC = () => {

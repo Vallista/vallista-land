@@ -1,4 +1,4 @@
-import { Video, Container } from '@vallista-land/core'
+import { Video, Container } from '@vallista/core'
 import { VFC } from 'react'
 
 const VideoPlayground: VFC = () => {

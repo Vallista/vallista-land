@@ -1,4 +1,4 @@
-import { Container, Collapse, Text, CollapseGroup } from '@vallista-land/core'
+import { Container, Collapse, Text, CollapseGroup } from '@vallista/core'
 import { VFC } from 'react'
 
 const TogglePlayground: VFC = () => {

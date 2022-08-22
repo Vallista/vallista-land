@@ -1,4 +1,4 @@
-import { Button, Container } from '@vallista-land/core'
+import { Button, Container } from '@vallista/core'
 import { VFC } from 'react'
 
 const ButtonPlayground: VFC = () => {

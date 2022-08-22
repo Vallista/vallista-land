@@ -1,4 +1,4 @@
-import { Container, Footer, FooterGroup, FooterLink } from '@vallista-land/core'
+import { Container, Footer, FooterGroup, FooterLink } from '@vallista/core'
 import { VFC } from 'react'
 
 const FooterPlayground: VFC = () => {

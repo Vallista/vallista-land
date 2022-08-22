@@ -1,4 +1,4 @@
-import { Button, Colors, Container, Progress, Spacer } from '@vallista-land/core'
+import { Button, Colors, Container, Progress, Spacer } from '@vallista/core'
 import { useState, VFC } from 'react'
 
 const ProgressPlayground: VFC = () => {

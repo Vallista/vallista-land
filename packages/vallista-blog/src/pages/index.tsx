@@ -1,6 +1,6 @@
 import { keyframes } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Button, Container, Text } from '@vallista-land/core'
+import { Button, Container, Text } from '@vallista/core'
 import { graphql, navigate } from 'gatsby'
 import { VFC } from 'react'
 

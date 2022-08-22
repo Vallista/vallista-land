@@ -1,4 +1,4 @@
-import { Container, Icon, Input } from '@vallista-land/core'
+import { Container, Icon, Input } from '@vallista/core'
 import { VFC } from 'react'
 import { SearchInput } from '../../../../../core/src/components/Input/SearchInput'
 

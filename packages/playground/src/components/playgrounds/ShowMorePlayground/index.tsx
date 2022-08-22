@@ -1,4 +1,4 @@
-import { Container, ShowMore } from '@vallista-land/core'
+import { Container, ShowMore } from '@vallista/core'
 import { useState, VFC } from 'react'
 
 const TogglePlayground: VFC = () => {

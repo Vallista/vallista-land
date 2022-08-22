@@ -20,7 +20,7 @@
     "@emotion/styled": "^11.3.0",
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
-    "@vallista-land/core": "0.1.0",
+    "@vallista/core": "0.5.4",
     "cross-env": "^7.0.3",
     "gatsby": "^4.4.0",
     "gatsby-plugin-advanced-sitemap": "^2.0.0",

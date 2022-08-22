@@ -1,4 +1,4 @@
-import { Container, Tags, Tag } from '@vallista-land/core'
+import { Container, Tags, Tag } from '@vallista/core'
 import { useState, VFC } from 'react'
 
 const TogglePlayground: VFC = () => {

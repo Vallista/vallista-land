@@ -20,6 +20,7 @@
     "bootstrap": "lerna bootstrap --hoist",
     "run:core": "lerna run run:core --stream",
     "build:core": "lerna run build:core",
+    "publish:core": "lerna run publish:core",
     "run:playground": "lerna run run:playground --stream",
     "build:playground": "lerna run build:playground",
     "clean:playground": "cd packages/playground && gatsby clean",

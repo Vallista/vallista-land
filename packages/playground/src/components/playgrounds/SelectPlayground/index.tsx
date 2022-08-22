@@ -1,4 +1,4 @@
-import { Container, Select, Icon } from '@vallista-land/core'
+import { Container, Select, Icon } from '@vallista/core'
 import { useEffect, useState, VFC } from 'react'
 
 const SelectPlayground: VFC = () => {

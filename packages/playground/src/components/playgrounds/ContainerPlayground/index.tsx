@@ -1,4 +1,4 @@
-import { Container, Text } from '@vallista-land/core'
+import { Container, Text } from '@vallista/core'
 import { VFC } from 'react'
 
 import { BlueContainer } from '../../../components/BlueContainer'
