@@ -3,7 +3,6 @@ title: 2022년 8월 24일
 image: ./assets/splash.jpg
 tags:
   - TIL
-
 date: 2022-08-24 15:55:03
 draft: true
 ---
