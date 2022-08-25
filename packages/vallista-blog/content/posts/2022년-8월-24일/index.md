@@ -4,7 +4,6 @@ image: ./assets/splash.jpg
 tags:
   - TIL
 date: 2022-08-24 15:55:03
-draft: true
 ---
 
 ![로고](assets/splash.jpg)
