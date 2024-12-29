@@ -2,6 +2,8 @@ const TOKEN = process.argv[2] || null
 
 const ghpages = require('gh-pages')
 
+let isError = false
+
 ghpages.publish(
   'public',
   {
@@ -12,5 +14,10 @@ ghpages.publish(
   },
   function (err) {
     console.log(err)
+    isError = true
   }
 )
+
+if (!isError) {
+  console.log('배포 성공!')
+}
