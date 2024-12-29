@@ -4,9 +4,8 @@
     "role": "Software Engineer",
     "bio": [
       "웹 프론트엔드에 관심이 많은 <string>소프트웨어 엔지니어</string>",
-      "우아한형제들 커머스웹프론트개발팀 팀장",
-      "커머스 <string>웹 프론트 전반 아키텍쳐 설계 및 서비스 개발</string>",
-      "팀, 아울러 실 단위의 운영/개발하는 팀원을 위한 다양한 툴 개발"
+      "우아한형제들 배민공통서비스웹프론트개발팀장",
+      "우아한형제들 <string>웹 프론트 전반 아키텍쳐 설계 및 공통 서비스 개발</string>"
     ],
     "github": "https://github.com/vallista",
     "email": "mgh950714@gmail.com"
@@ -16,39 +15,61 @@
     "list": [
       {
         "name": "우아한형제들",
-        "position": "Software Engineer / Manager",
+        "position": "Senior Staff Software Engineer",
+        "department": "웹 프론트엔드",
+        "startDate": "2024.02",
+        "endDate": null,
+        "descriptions": ["우아한형제들 배민공통서비스웹프론트개발팀 리드"],
+        "projects": [
+          {
+            "name": "배민 공통 서비스 웹 프론트 리드",
+            "descriptions": [
+              "배민의 모든 서비스에서 사용하는 공통 서비스를 개발 및 운영",
+              "푸드/커머스/공통 영역에서 사용되는 모바일 웹 프론트 아키텍처 설계 / 리드",
+              "팀원 일정 관리 및 조율"
+            ],
+            "startDate": "2024.02",
+            "endDate": null,
+            "which": ["여러 도메인의 서비스 운영 및 개발 경험, 시스템 설계"]
+          }
+        ]
+      },
+      {
+        "name": "우아한형제들",
+        "position": "Senior Software Engineer",
         "department": "웹 프론트엔드",
         "startDate": "2019.09",
-        "endDate": null,
+        "endDate": "2024.01",
         "descriptions": [
+          "커머스 전반 웹 리드",
           "테크리드 및 매니징 업무 진행",
           "B마트/배민스토어/배민쇼핑라이브 커머스 웹 프론트 전반 설계/구축 및 운영",
           "SUS, 서비스 피쳐 개발 업무 싱크업 및 정리"
         ],
         "projects": [
           {
-            "name": "매니저",
+            "name": "커머스 웹 매니징",
             "descriptions": [
               "커머스 웹 전반 고도화 및 사용성 강화를 위한 웹 프론트 과제 바텀업",
               "팀원 일정 관리 및 조율",
               "유관부서 커뮤니케이션 및 일정 조율, 담당자 선정"
             ],
             "startDate": "2020.12",
-            "endDate": null,
+            "endDate": "2024.01",
             "which": [
               "주도적인 디자인팀 커뮤니케이션을 통한 웹 컴포넌트 고도화, 서비스 역제안",
               "여러 TF 진행, 웹 프론트 구성원 일정 관리 및 조율"
             ]
           },
           {
-            "name": "테크 리더",
+            "name": "커머스 웹 테크리드",
             "descriptions": [
               "여러 서비스를 공통적으로 관리할 수 있는 아키텍처 수립 및 개발",
               "TF등 일정 내 효율적으로 협업할 수 있는 아키텍처 구축",
               "장애 컨트롤 및 고도화에 열려있는 프로덕트 구축"
             ],
             "startDate": "2019.09",
-            "endDate": null,
+            "endDate": "2024.01",
             "which": [
               "웹 프론트 아키텍쳐 설계",
               "전사 단위 기술 제안, 객체지향/타입스크립트/등 기본기 역량 강화",
@@ -57,12 +78,10 @@
             ]
           },
           {
-            "name": "프로덕트 설계",
+            "name": "커머스 프로덕트 설계",
             "startDate": "2019.09",
-            "endDate": null,
-            "descriptions": [
-              "구축한 아키텍처 범위 내 프로덕트 설계"
-            ],
+            "endDate": "2024.01",
+            "descriptions": ["구축한 아키텍처 범위 내 프로덕트 설계"],
             "which": [
               "공통 컴포넌트, 비즈니스, 데이터를 쉽게 관리하기 위한 계층 설계",
               "서비스와 어드민을 대응할 수 있는 디자인 시스템 레이어 설계",
@@ -75,9 +94,9 @@
             ]
           },
           {
-            "name": "서비스 운영",
+            "name": "커머스 서비스 운영",
             "startDate": "2019.09",
-            "endDate": null,
+            "endDate": "2024.01",
             "descriptions": [
               "B마트/배민스토어/배민쇼핑라이브 모바일 프론트 서비스 운영",
               "전사 통합 셀러오피스, 어드민 프론트 서비스 운영"
@@ -92,9 +111,9 @@
             ]
           },
           {
-            "name": "비즈니스 개발",
+            "name": "커머스 비즈니스 개발",
             "startDate": "2019.09",
-            "endDate": null,
+            "endDate": "2024.01",
             "descriptions": [
               "주문, 결제, 커머스 전반 비즈니스 플로우에 대한 이해",
               "물류 시스템에 대한 웹 프론트 이해",
@@ -110,13 +129,10 @@
             ]
           },
           {
-            "name": "인프라",
+            "name": "커머스 웹 인프라 구축/구성",
             "startDate": "2019.09",
-            "endDate": null,
-            "descriptions": [
-              "웹 서비스를 지탱하는 인프라 설정/사용",
-              "팀 내 데브옵스 구축"
-            ],
+            "endDate": "2024.01",
+            "descriptions": ["웹 서비스를 지탱하는 인프라 설정/사용", "팀 내 데브옵스 구축"],
             "which": [
               "AWS Elastic Beanstalk + Code deploy를 사용한 Blue-green 무중단 배포",
               "S3 - Cloud Front를 이용한 정적 리소스 비용 절감 및 CDN 사용",
@@ -140,46 +156,23 @@
         "projects": [
           {
             "name": "와인포인트 웹 프론트엔드 개발",
-            "descriptions": [
-              "와인포인트 웹 버전 프론트엔드를 개발하였습니다. (비오픈)"
-            ],
+            "descriptions": ["와인포인트 웹 버전 프론트엔드를 개발하였습니다. (비오픈)"],
             "startDate": "2019.03",
             "endDate": "2019.08",
-            "which": [
-              "와인포인트 와인 상세페이지 웹 컨버팅",
-              "와인포인트 앱 비밀번호 변경 페이지 개발"
-            ],
-            "techStacks": [
-              "React.js",
-              "TypeScript",
-              "Redux"
-            ]
+            "which": ["와인포인트 와인 상세페이지 웹 컨버팅", "와인포인트 앱 비밀번호 변경 페이지 개발"],
+            "techStacks": ["React.js", "TypeScript", "Redux"]
           },
           {
             "name": "와인포인트 데이터 어드민 개발",
-            "descriptions": [
-              "와인을 등록할 수 있는 어드민 페이지를 개발하였습니다."
-            ],
+            "descriptions": ["와인을 등록할 수 있는 어드민 페이지를 개발하였습니다."],
             "startDate": "2018.02",
             "endDate": "2019.08",
-            "which": [
-              "대쉬보드 데이터 시각화 작업",
-              "JWT를 이용한 인증",
-              "와인 등록 기능 개발"
-            ],
-            "techStacks": [
-              "Vue",
-              "JavaScript",
-              "PostgreSQL",
-              "Express.js",
-              "knex.js"
-            ]
+            "which": ["대쉬보드 데이터 시각화 작업", "JWT를 이용한 인증", "와인 등록 기능 개발"],
+            "techStacks": ["Vue", "JavaScript", "PostgreSQL", "Express.js", "knex.js"]
           },
           {
             "name": "와인포인트 주문 어드민 개발",
-            "descriptions": [
-              "오프라인 매장 및 물류창고에서 사용하는 어드민을 개발하였습니다."
-            ],
+            "descriptions": ["오프라인 매장 및 물류창고에서 사용하는 어드민을 개발하였습니다."],
             "startDate": "2018.03",
             "endDate": "2019.08",
             "which": [
@@ -190,28 +183,15 @@
               "바코드 인식 기능 추가",
               "배달현황 기능 추가"
             ],
-            "techStacks": [
-              "Vue",
-              "JavaScript",
-              "PostgreSQL",
-              "Express.js",
-              "knex.js"
-            ]
+            "techStacks": ["Vue", "JavaScript", "PostgreSQL", "Express.js", "knex.js"]
           },
           {
             "name": "와인포인트 랜딩 페이지 개발",
-            "descriptions": [
-              "와인포인트 초창기 랜딩 페이지를 개발하였습니다."
-            ],
+            "descriptions": ["와인포인트 초창기 랜딩 페이지를 개발하였습니다."],
             "startDate": "2018.07",
             "endDate": "2018.07",
-            "which": [
-              "디자인 작업",
-              "마크업 작업"
-            ],
-            "techStacks": [
-              "Vue"
-            ]
+            "which": ["디자인 작업", "마크업 작업"],
+            "techStacks": ["Vue"]
           }
         ]
       },
@@ -229,19 +209,11 @@
         "projects": [
           {
             "name": "Review Republic",
-            "descriptions": [
-              "Review Republic은 최대 동시 접속자수가 4000명까지 있었던 리뷰 커뮤니티 서비스입니다."
-            ],
+            "descriptions": ["Review Republic은 최대 동시 접속자수가 4000명까지 있었던 리뷰 커뮤니티 서비스입니다."],
             "startDate": "2017.07",
             "endDate": "2017.12",
-            "which": [
-              "React 기반 커뮤니티 사이트 유지보수 및 개발"
-            ],
-            "techStacks": [
-              "React.js",
-              "JavaScript",
-              "Meteor.js"
-            ]
+            "which": ["React 기반 커뮤니티 사이트 유지보수 및 개발"],
+            "techStacks": ["React.js", "JavaScript", "Meteor.js"]
           }
         ]
       },
@@ -265,21 +237,12 @@
             ],
             "startDate": "2016.11",
             "endDate": "2017.06",
-            "which": [
-              "Vive VR + Unity3D를 이용한 3D 게임 개발"
-            ],
-            "techStacks": [
-              "Vive VR",
-              "Unity 3D",
-              "Serial Port 통신",
-              "Perception Neuron"
-            ]
+            "which": ["Vive VR + Unity3D를 이용한 3D 게임 개발"],
+            "techStacks": ["Vive VR", "Unity 3D", "Serial Port 통신", "Perception Neuron"]
           },
           {
             "name": "Pandaria Dash",
-            "descriptions": [
-              "러닝 장르 게임으로써 장애물을 피하고 코인을 모으는 게임"
-            ],
+            "descriptions": ["러닝 장르 게임으로써 장애물을 피하고 코인을 모으는 게임"],
             "startDate": "2015.11",
             "endDate": "2016.12",
             "which": [
@@ -287,69 +250,45 @@
               "폰의 사양에 따라서 텍스쳐 크기를 작게 컨버트해서 메모리 최적화",
               "Terrain이 퍼포먼스 최적화를 위한 Model fbx파일을 Unity로 옮겨와서 bake 진행"
             ],
-            "techStacks": [
-              "Unity3D"
-            ]
+            "techStacks": ["Unity3D"]
           },
           {
             "name": "Tile Road",
-            "descriptions": [
-              "꼬리와 머리를 클리어 존에 배치시키는 퍼즐게임",
-              "iOS, AOS 동시 런칭"
-            ],
+            "descriptions": ["꼬리와 머리를 클리어 존에 배치시키는 퍼즐게임", "iOS, AOS 동시 런칭"],
             "startDate": "2016.02",
             "endDate": "2016.07",
             "which": [
               "맵툴, 인게임 요소를 제작",
               "AdColony, Vungle, Google Play Games, Unity Ads, Google Ads, EveryDay 등의 수많은 dependency 포함하여 충돌나는 문제 해결"
             ],
-            "techStacks": [
-              "Unity3D"
-            ]
+            "techStacks": ["Unity3D"]
           },
           {
             "name": "TabBrick",
-            "descriptions": [
-              "장애물을 피하면서 가장 위로 올라가는 점수를 내는 게임"
-            ],
+            "descriptions": ["장애물을 피하면서 가장 위로 올라가는 점수를 내는 게임"],
             "startDate": "2015.03",
             "endDate": "2016.02",
-            "which": [
-              "맵툴, 인게임 요소를 제작"
-            ],
-            "techStacks": [
-              "Unity3D"
-            ]
+            "which": ["맵툴, 인게임 요소를 제작"],
+            "techStacks": ["Unity3D"]
           },
           {
             "name": "4D Gunslinger",
-            "descriptions": [
-              "승마 헬스 기계를 탑승하여 말의 속도와, 총을 들고 진행하는 4D 게임"
-            ],
+            "descriptions": ["승마 헬스 기계를 탑승하여 말의 속도와, 총을 들고 진행하는 4D 게임"],
             "startDate": "2014.06",
             "endDate": "2015.03",
             "which": [
               "아두이노를 통해 승마 기계와의 시리얼 포트 통신을 해서 신호를 조작",
               "레이싱 맵 제작할 수 있는 에디터 개발"
             ],
-            "techStacks": [
-              "Unity3D"
-            ]
+            "techStacks": ["Unity3D"]
           },
           {
             "name": "4D BIGWAR",
-            "descriptions": [
-              "4D 체감형 머신을 탑승하고 그 위에서 조작을 통해서 발칸을 발사하여 게임을 진행"
-            ],
+            "descriptions": ["4D 체감형 머신을 탑승하고 그 위에서 조작을 통해서 발칸을 발사하여 게임을 진행"],
             "startDate": "2014.02",
             "endDate": "2015.03",
-            "which": [
-              "3D 광원 효과 및 지형 모델 최적화",
-              "Unity3D 에디터 작업"
-            ],
-            "techStacks": [
-              "Unity3D"
-            ]
+            "which": ["3D 광원 효과 및 지형 모델 최적화", "Unity3D 에디터 작업"],
+            "techStacks": ["Unity3D"]
           }
         ]
       }
@@ -382,15 +321,11 @@
           },
           {
             "title": "여러 브라우저를 지원할 수 있습니다.",
-            "subTitle": [
-              "Chrome, Safari, Firefox등 여러 브라우저들을 지원하는 앱을 만들 수 있습니다."
-            ]
+            "subTitle": ["Chrome, Safari, Firefox등 여러 브라우저들을 지원하는 앱을 만들 수 있습니다."]
           },
           {
             "title": "favicon, Open Graph protocol, SEO 등의 적용 경험이 있습니다.",
-            "subTitle": [
-              "네이버, 구글등 Robot.txt를 통해 검색되도록 지원해본 경험이 있습니다."
-            ]
+            "subTitle": ["네이버, 구글등 Robot.txt를 통해 검색되도록 지원해본 경험이 있습니다."]
           }
         ]
       },
@@ -399,21 +334,15 @@
         "descriptions": [
           {
             "title": "TypeScript를 이용한 React 코딩에 익숙합니다.",
-            "subTitle": [
-              "다양한 프로젝트 경험으로 코드 리딩 및 작성이 가능합니다."
-            ]
+            "subTitle": ["다양한 프로젝트 경험으로 코드 리딩 및 작성이 가능합니다."]
           },
           {
             "title": "문법을 잘 활용하며, 적절한 타입을 사용합니다.",
-            "subTitle": [
-              "객체지향 프로그래밍에 익숙하기 때문에 상속 등을 통한 클래스 타입에도 강점을 지닙니다."
-            ]
+            "subTitle": ["객체지향 프로그래밍에 익숙하기 때문에 상속 등을 통한 클래스 타입에도 강점을 지닙니다."]
           },
           {
             "title": "Generic에 익숙합니다.",
-            "subTitle": [
-              "Generic과 더불어 다양한 문법들 ex) Overloading, Tuple 등을 이용한 코딩을 할 수 있습니다."
-            ]
+            "subTitle": ["Generic과 더불어 다양한 문법들 ex) Overloading, Tuple 등을 이용한 코딩을 할 수 있습니다."]
           }
         ]
       },
@@ -422,9 +351,7 @@
         "descriptions": [
           {
             "title": "ES2015 이후의 JavaScript 문법에 익숙합니다.",
-            "subTitle": [
-              "JavaScript ES2015 이상의 문법을 수월하게 작성하거나 읽을 수 있습니다."
-            ]
+            "subTitle": ["JavaScript ES2015 이상의 문법을 수월하게 작성하거나 읽을 수 있습니다."]
           },
           {
             "title": "Vanilla JavaScript를 통해 DOM을 다루는데 익숙합니다.",
@@ -445,9 +372,7 @@
         "descriptions": [
           {
             "title": "크거나 작은 규모의 웹 프로그램을 설계할 수 있습니다.",
-            "subTitle": [
-              "모바일 웹앱, PC, 어드민 등 다양한 프로젝트를 리딩하고 개발한 경험이 있습니다."
-            ]
+            "subTitle": ["모바일 웹앱, PC, 어드민 등 다양한 프로젝트를 리딩하고 개발한 경험이 있습니다."]
           },
           {
             "title": "React hooks를 사용하여 적절하게 데이터를 분배합니다.",
@@ -491,9 +416,7 @@
           },
           {
             "title": "PostgreSQL 9, 10 버전을 사용할 수 있으며 쿼리 작성이 가능합니다.",
-            "subTitle": [
-              "transaction 처리, window function 등을 사용하여 PostgreSQL만의 표현을 사용할 수 있습니다."
-            ]
+            "subTitle": ["transaction 처리, window function 등을 사용하여 PostgreSQL만의 표현을 사용할 수 있습니다."]
           },
           {
             "title": "JWT 인증을 사용하여 브라우저 쿠키에 저장하고 세션 처리를 할 수 있습니다.",
@@ -506,9 +429,7 @@
         "descriptions": [
           {
             "title": "자동화 프로세스를 만들어서 팀 내 생산성을 높힙니다.",
-            "subTitle": [
-              "코드리뷰 자동화 프로세스"
-            ]
+            "subTitle": ["코드리뷰 자동화 프로세스"]
           },
           {
             "title": "AWS EC2, ECS, S3 등의 인프라 요소를 사용해본 경험이 있습니다.",
@@ -537,9 +458,7 @@
         "descriptions": [
           {
             "title": "Git을 능숙하게 다룰 수 있습니다.",
-            "subTitle": [
-              "git flow, github flow, gitlab flow를 회사에서 적용해본 경험이 있습니다."
-            ]
+            "subTitle": ["git flow, github flow, gitlab flow를 회사에서 적용해본 경험이 있습니다."]
           }
         ]
       }
