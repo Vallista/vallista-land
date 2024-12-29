@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "watch": "npx kill-port 8000 && gatsby develop",
-    "build": "cross-env GATSBY_EXPERIMENTAL_PAGE_BUILD_ON_DATA_CHANGES=true gatsby build --log-pages",
+    "build": "gatsby build --no-uglify --verbose --log-pages",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
     "post": "node ./scripts/create-post-file.js",
