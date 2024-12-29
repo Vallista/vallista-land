@@ -1,5 +1,5 @@
 import { graphql } from 'gatsby'
-import { useCallback, VFC } from 'react'
+import { useCallback, FC } from 'react'
 import { PageProps, PostQuery } from 'types/type'
 
 import { Comment } from '../components/Comment'
@@ -9,17 +9,20 @@ import { Seo } from '../components/Seo'
 import { Series } from '../components/Series'
 import { useConfig } from '../hooks/useConfig'
 
-const Post: VFC<PageProps<PostQuery>> = (props) => {
-  const { profile } = useConfig()
-  const { allMarkdownRemark } = props.data
-  const { nodes, group: seriesGroup } = allMarkdownRemark
-  const { timeToRead, html } = props.data.markdownRemark
-  const { title, date, image, tags, series } = props.data.markdownRemark.frontmatter
+const Post: FC<PageProps<PostQuery>> = (props) => {
+  const { location, data } = props
 
-  const cachedFilterSeries = useCallback(getFilteredSeries, [props.data])
+  const { profile } = useConfig()
+  const { allMarkdownRemark } = data
+  const { href, hash } = location
+  const { nodes, group: seriesGroup } = allMarkdownRemark
+  const { timeToRead, html } = data.markdownRemark
+  const { title, date, image, tags, series } = data.markdownRemark.frontmatter
+
+  const cachedFilterSeries = useCallback(getFilteredSeries, [data])
 
   return (
-    <div>
+    <>
       <Seo name={title} image={image?.publicURL} isPost />
       <PostHeader
         title={title}
@@ -28,13 +31,14 @@ const Post: VFC<PageProps<PostQuery>> = (props) => {
         tags={tags}
         timeToRead={timeToRead}
         author={profile.author}
+        href={href}
       >
         {series && seriesGroup && <Series name={series} posts={cachedFilterSeries()} />}
       </PostHeader>
-      <Markdown html={html} />
+      <Markdown html={html} hash={hash} />
       <section id='comments'></section>
       <Comment />
-    </div>
+    </>
   )
 
   function getFilteredSeries(): { name: string; timeToRead: number; slug: string }[] {

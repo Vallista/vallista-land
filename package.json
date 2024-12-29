@@ -14,9 +14,6 @@
     "typescript": "~5.6.2"
   },
   "scripts": {
-    "watch:core": "pnpm --filter @vallista/core run watch",
-    "build:core": "pnpm --filter @vallista/core run build",
-    "publish:core": "pnpm --filter @vallista/core run publish",
     "watch:ds": "pnpm --filter @vallista/design-system run watch",
     "build:ds": "pnpm --filter @vallista/design-system run build",
     "publish:ds": "pnpm --filter @vallista/design-system run publish",
@@ -29,8 +26,7 @@
     "post:blog": "pnpm --filter @vallista/blog run post",
     "deploy:blog": "pnpm --filter @vallista/blog run deploy",
     "directory:blog": "cd services/blog",
-    "deploy:blog-ex": "pnpm --filter @vallista/blog run deploy",
-    "watch:blog2": "pnpm --filter new-blog run watch"
+    "deploy:blog-ex": "pnpm --filter @vallista/blog run deploy"
   },
   "husky": {
     "hooks": {

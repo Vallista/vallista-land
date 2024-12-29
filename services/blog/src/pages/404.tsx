@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { useLocation } from '@reach/router'
-import { Image, Spacer, Text } from '@vallista/core'
+import { Image, Spacer, Text } from '@vallista/design-system'
 import { Link } from 'gatsby'
 import { useEffect, VFC } from 'react'
 

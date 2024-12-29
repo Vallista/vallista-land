@@ -8,6 +8,7 @@ interface ActionProps {
   type?: 'button' | 'submit'
   disabled?: boolean
   onClick: (() => void) | (() => Promise<void>)
+  children: React.ReactNode
 }
 
 /**

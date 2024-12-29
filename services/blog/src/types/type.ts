@@ -32,6 +32,7 @@ export interface PostQuery extends IndexQuery {
 }
 
 export interface PageProps<T> {
+  location: Location
   data: T
 }
 

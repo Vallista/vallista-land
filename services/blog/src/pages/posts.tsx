@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Container, Spacer, Text, SearchInput } from '@vallista/core'
+import { Container, Spacer, Text, SearchInput } from '@vallista/design-system'
 import { graphql } from 'gatsby'
 import { useMemo, useState, VFC } from 'react'
 

@@ -1,4 +1,4 @@
-import { Container, Spacer, Text } from '@vallista/core'
+import { Container, Spacer, Text } from '@vallista/design-system'
 import { navigate } from 'gatsby'
 import { VFC } from 'react'
 

@@ -1,4 +1,4 @@
-import { useTheme } from '@vallista/core'
+import { useTheme } from '@vallista/design-system'
 import { useEffect, useState } from 'react'
 
 import { isDarkMode, localStorage, onChangeThemeEvent } from '../../utils'

@@ -1,4 +1,4 @@
-import { Image } from '@vallista/core'
+import { Image } from '@vallista/design-system'
 
 import { NavCategoryType, NavFooterType } from '../src/components/NavBar/type'
 import profile from '../static/profile.png'

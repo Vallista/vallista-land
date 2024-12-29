@@ -1,4 +1,4 @@
-import { Spinner, useMount } from '@vallista/core'
+import { Spinner, useMount } from '@vallista/design-system'
 import { VFC, useRef, useState } from 'react'
 
 import * as Styled from './Comment.style'

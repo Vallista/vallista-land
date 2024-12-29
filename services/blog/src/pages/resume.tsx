@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Button, Container, Spacer, Text } from '@vallista/core'
+import { Button, Container, Spacer, Text } from '@vallista/design-system'
 import { VFC } from 'react'
 
 import { Seo } from '../components/Seo'
@@ -110,11 +110,7 @@ const ResumePage: VFC = () => {
                       {it.department}
                     </Text>
                     <Spacer y={1} />
-                    <div>
-                      {it.descriptions?.map((it_, idx) => (
-                        <Text key={idx}>{it_}</Text>
-                      ))}
-                    </div>
+                    <div>{it.descriptions?.map((it_, idx) => <Text key={idx}>{it_}</Text>)}</div>
                   </div>
                 </Container>
                 <Container>

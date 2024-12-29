@@ -1,4 +1,4 @@
 node_modules/
 .cache/
 public
-.credentials.json
+src/gatsby-types.d.ts

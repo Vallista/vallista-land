@@ -1,4 +1,4 @@
-import { Container } from '@vallista/core'
+import { Container } from '@vallista/design-system'
 import { graphql, useStaticQuery } from 'gatsby'
 import { FC, useEffect, useMemo, useState } from 'react'
 
@@ -10,7 +10,7 @@ import { NavBar } from '../NavBar'
 import { Sidebar } from '../Sidebar'
 import * as Styled from './Layout.style'
 
-export const Layout: FC = (props) => {
+export const Layout: FC<{ children: React.ReactNode }> = (props) => {
   const { children } = props
   const data: IndexQuery = useStaticQuery(allPostsQuery)
   const { nodes } = data.allMarkdownRemark

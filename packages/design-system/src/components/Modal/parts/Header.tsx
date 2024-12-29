@@ -12,7 +12,7 @@ import { useModalContext } from '../context'
  * <Modal.Header>This is a modal</Modal.Header>
  * ```
  */
-const Header: FC = (props) => {
+const Header: FC<{ children: React.ReactNode }> = (props) => {
   const { children } = useModalContext(props)
 
   return (

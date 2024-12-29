@@ -1,5 +1,4 @@
-import { useLocation } from '@reach/router'
-import { Text, Badge, Container, Spacer, Tooltip, copy, useToasts } from '@vallista/core'
+import { Text, Badge, Container, Spacer, Tooltip, copy, useToasts } from '@vallista/design-system'
 import { Link } from 'gatsby'
 import { FC } from 'react'
 
@@ -13,12 +12,13 @@ interface PostHeaderProps {
   date: string
   author: string
   timeToRead: number
+  href: string
+  children: React.ReactNode
 }
 
 export const PostHeader: FC<PostHeaderProps> = (props) => {
-  const { title, tags, date, author, timeToRead, children } = props
+  const { title, tags, date, author, timeToRead, href, children } = props
   const [year, month, day] = getTime(date)
-  const location = useLocation()
   const toast = useToasts()
   const dateToString = `${year}년 ${Number(month)}월 ${Number(day)}일`
 
@@ -100,7 +100,7 @@ export const PostHeader: FC<PostHeaderProps> = (props) => {
   }
 
   function linkCopy(): void {
-    copy(decodeURIComponent(location.href))
+    copy(decodeURIComponent(href))
     toast.success('링크를 복사했습니다.')
   }
 }
