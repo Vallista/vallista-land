@@ -15,21 +15,24 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [20]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.TOKEN }}
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+      - name: Install node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - name: pnpm 설치
-        run: npm install -g pnpm
-      - name: node.js 패키지 installation
+          cache: 'pnpm'
+      - name: Install dependencies
         run: pnpm i
       - name: 코어 (디자인시스템) 빌드
         run: pnpm build:ds
