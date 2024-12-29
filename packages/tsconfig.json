@@ -1,8 +1,0 @@
-{
-  "files": [],
-  "references": [
-    // { "path": "@vallista-land/core" },
-    // { "path": "@vallista-land/playground" },
-    { "path": "@vallista-land/blog" }
-  ]
-}

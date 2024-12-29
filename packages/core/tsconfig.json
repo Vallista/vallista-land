@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.settings.json",
+  "extends": "./tsconfig.settings.json",
   "compilerOptions": {
     "rootDir": "src",
     "baseUrl": "src",
@@ -15,7 +15,6 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true,
     "declaration": true,
     "declarationMap": true,
     "allowSyntheticDefaultImports": true

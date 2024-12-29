@@ -2,40 +2,35 @@
   "name": "root",
   "private": true,
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.5.0",
-    "@typescript-eslint/parser": "^5.5.0",
-    "cross-env": "^7.0.3",
-    "eslint": "^7.11.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-import-resolver-typescript": "^2.5.0",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.4",
-    "lerna": "^4.0.0",
-    "lint-staged": "^12.1.2",
-    "prettier": "^2.5.0",
-    "typescript": "^4.5.2"
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.4.2",
+    "typescript": "~5.6.2"
   },
   "scripts": {
-    "bootstrap": "lerna bootstrap --hoist",
-    "run:core": "lerna run run:core --stream",
-    "build:core": "lerna run build:core",
-    "publish:core": "lerna run publish:core",
-    "run:playground": "lerna run run:playground --stream",
-    "build:playground": "lerna run build:playground",
-    "clean:playground": "cd packages/playground && gatsby clean",
-    "run:blog": "lerna run run:blog --stream",
-    "build:blog": "lerna run build:blog",
-    "clean:blog": "cd packages/vallista-blog && gatsby clean",
-    "post:blog": "cd packages/vallista-blog && yarn post:blog",
-    "deploy:blog": "cd packages/vallista-blog && yarn deploy:blog",
-    "directory:blog": "cd packages/vallista-blog",
-    "deploy:blog-ex": "yarn deploy:blog"
-  },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ]
+    "watch:core": "pnpm --filter @vallista/core run watch",
+    "build:core": "pnpm --filter @vallista/core run build",
+    "publish:core": "pnpm --filter @vallista/core run publish",
+    "watch:ds": "pnpm --filter @vallista/design-system run watch",
+    "build:ds": "pnpm --filter @vallista/design-system run build",
+    "publish:ds": "pnpm --filter @vallista/design-system run publish",
+    "watch:playground": "pnpm --filter @vallista/playground run watch",
+    "build:playground": "pnpm --filter @vallista/playground run build",
+    "clean:playground": "cd services/playground && gatsby clean",
+    "watch:blog": "pnpm --filter @vallista/blog run watch",
+    "build:blog": "pnpm --filter @vallista/blog run build",
+    "clean:blog": "pnpm --filter @vallista/blog run clean",
+    "post:blog": "pnpm --filter @vallista/blog run post",
+    "deploy:blog": "pnpm --filter @vallista/blog run deploy",
+    "directory:blog": "cd services/blog",
+    "deploy:blog-ex": "pnpm --filter @vallista/blog run deploy",
+    "watch:blog2": "pnpm --filter new-blog run watch"
   },
   "husky": {
     "hooks": {
