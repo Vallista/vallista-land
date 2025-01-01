@@ -9,23 +9,19 @@ export function useCollapse<T extends Pick<Partial<CollapseProps>, 'defaultExpan
   const { defaultExpanded = true, size = 'medium', card = false, title } = props
   const [expanded, setExpanded] = useState(defaultExpanded)
 
-  try {
-    const { state } = useCollapseContext()
+  const { state } = useCollapseContext()
 
-    useEffect(() => {
-      if (expanded) {
-        state.setExpandedTarget(title || '')
-      }
-    }, [expanded])
+  useEffect(() => {
+    if (expanded) {
+      state.setExpandedTarget(title || '')
+    }
+  }, [expanded, state, title])
 
-    useEffect(() => {
-      if (state.expandedTarget !== title) {
-        setExpanded(false)
-      }
-    }, [state.expandedTarget])
-  } catch (err) {
-    // 에러 아님
-  }
+  useEffect(() => {
+    if (state.expandedTarget !== title) {
+      setExpanded(false)
+    }
+  }, [state.expandedTarget, title])
 
   return {
     ...props,
