@@ -1,5 +1,5 @@
 import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
-import { FC, ReactNode, useState, VFC } from 'react'
+import { FC, ReactNode, useState } from 'react'
 
 import { createContext } from '../../utils/createContext'
 import { ToastProvider } from '../Toast'
@@ -70,7 +70,7 @@ export const ThemeProvider: FC<{ theme?: ThemeKeys; children: ReactNode }> = ({ 
 
 export const useTheme = useContext
 
-const Reset: VFC = () => {
+const Reset: FC = () => {
   return (
     <Global
       styles={css`
@@ -90,13 +90,12 @@ const Reset: VFC = () => {
 
           @media screen and (max-width: 1024px) {
             font-size: 14px;
+            /** ios safari fixed bottom 대응 */
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
           }
-
-          /** ios safari fixed bottom 대응 */
-          height: 100%;
-          overflow-x: hidden;
-          overflow-y: scroll;
-          -webkit-overflow-scrolling: touch;
 
           /** 파이어폭스 스크롤 대응 */
           scrollbar-width: 8px;

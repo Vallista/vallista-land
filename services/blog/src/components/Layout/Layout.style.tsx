@@ -9,13 +9,16 @@ export const _Wrapper = styled.div`
   `}
 `
 
+const DEFINE_SIDEBAR_HEADER_HEIGHT = 43
+
 export const _Main = styled.main<{ fold: boolean }>`
+  position: relative;
+  top: ${DEFINE_SIDEBAR_HEADER_HEIGHT}px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: calc(100vw - 400px);
-  min-height: calc(100vh - 43px);
-  margin-top: 43px;
+  height: calc(100vh - ${DEFINE_SIDEBAR_HEADER_HEIGHT}px);
   margin-left: 400px;
 
   ${({ theme, fold }) => css`
@@ -31,6 +34,11 @@ export const _Main = styled.main<{ fold: boolean }>`
     margin-left: 0;
     margin-top: 123px;
     width: 100%;
+  }
+
+  @media screen and (min-width: 1025px) {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
   }
 `
 
