@@ -7,7 +7,6 @@ import { localStorage } from '../../utils'
 import { ReturnUseSidebar, ScrollStateType, SidebarProps, ViewStateType } from './Sidebar.type'
 
 const DEFAULT_SEARCH_VALUE = ''
-const DEFAULT_VIEW_STATE: ViewStateType = 'LIST'
 const DEFAULT_SCROLL_STATE: ScrollStateType = 'HIDE'
 
 const BLACKLIST: string[] = []
@@ -16,20 +15,13 @@ export const useSidebar = <T extends SidebarProps>(props: T): ReturnUseSidebar &
   const { posts } = props
   const location = useLocation()
 
+  // MEMO: Post 검색
   const [search, setSearch] = useState(() => {
     return localStorage.get('search') || DEFAULT_SEARCH_VALUE
   })
 
-  const [viewState, setViewState] = useState<ViewStateType>(() => {
-    const viewType = localStorage.get('view-type') as string
-
-    if (viewType === 'list' || viewType === 'card') {
-      localStorage.set('view-type', viewType.toUpperCase())
-    }
-
-    return (localStorage.get('view-type') as ViewStateType) || DEFAULT_VIEW_STATE
-  })
-
+  // MEMO: 블로그를 태그 단위로 볼 것인지, 리스트로 볼 것인지
+  const [viewState, setViewState] = useState<ViewStateType>('LIST')
   const [scrollState, setScrollState] = useState<ScrollStateType>(DEFAULT_SCROLL_STATE)
 
   // 사용되고 있는 모든 테그를 가져온다.
@@ -81,7 +73,8 @@ export const useSidebar = <T extends SidebarProps>(props: T): ReturnUseSidebar &
 
   return {
     ...props,
-    posts: filteredTaggedPosts,
+    posts,
+    taggedPosts: filteredTaggedPosts,
     totalPosts: posts.length,
     scrollState,
     viewState,
@@ -102,7 +95,7 @@ export const useSidebar = <T extends SidebarProps>(props: T): ReturnUseSidebar &
   }
 
   function changeViewState(): void {
-    const type = viewState === 'CARD' ? 'LIST' : 'CARD'
+    const type = viewState === 'TAGS' ? 'LIST' : 'TAGS'
     localStorage.set('view-type', type)
     setViewState(type)
   }

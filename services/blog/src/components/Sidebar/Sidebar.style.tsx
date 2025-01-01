@@ -3,11 +3,15 @@ import styled from '@emotion/styled'
 
 import { CommonLayoutProps } from './Sidebar.type'
 
+const DEFINE_SIDEBAR_HEADER_HEIGHT = 43
+const DEFINE_SIDEBAR_SEARCH_HEIGHT = 38
+const DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT = DEFINE_SIDEBAR_HEADER_HEIGHT + DEFINE_SIDEBAR_SEARCH_HEIGHT
+
 export const _SidebarContainer = styled.div<CommonLayoutProps>`
   position: fixed;
   width: 320px;
-  height: 100vh;
-  top: 0;
+  height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
+  top: ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px;
   left: 80px;
   overflow-x: hidden;
   overflow-y: hidden;
@@ -84,7 +88,6 @@ export const _Header = styled.div<CommonLayoutProps>`
   left: 80px;
   transform: translate3d(0, 0, 1);
   width: 320px;
-  padding-bottom: 14px;
 
   ${({ theme, fold }) => css`
     z-index: ${theme.layers.AFTER_STANDARD};
@@ -128,20 +131,20 @@ export const _Button = styled.button`
 export const _Title = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  height: 35px;
+  align-items: center;
+  height: 43px;
   font-weight: 600;
   font-size: 14px;
   padding: 0 28px 2px;
 
-  & > button {
-    margin: 0;
+  & > p {
+    padding-top: 3px;
   }
 `
 
 export const _SearchBox = styled.div`
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   height: 38px;
   padding: 0 24px;
   max-width: 100%;
@@ -152,7 +155,6 @@ export const _SearchBox = styled.div`
 `
 
 export const _Categories = styled.div`
-  margin-top: 73px;
   padding: 16px 24px 32px;
 `
 
@@ -312,5 +314,31 @@ export const _ListStyleItem = styled.a<Pick<CardStyleItemProps, 'isActive'>>`
   & > svg {
     width: 20px;
     height: 20px;
+  }
+`
+
+export const _ChangeListButton = styled.button`
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  height: 18px;
+  transition: color 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
+
+  ${({ theme }) => css`
+    &:hover {
+      color: ${theme.colors.PRIMARY.FOREGROUND};
+    }
+    color: ${theme.colors.PRIMARY.ACCENT_4};
+  `}
+
+  @media screen and (max-width: 1024px) {
+    display: none;
+
+    & + span {
+      display: none;
+    }
   }
 `

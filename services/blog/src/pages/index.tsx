@@ -2,14 +2,14 @@ import { keyframes } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Button, Container, Text } from '@vallista/design-system'
 import { graphql, navigate } from 'gatsby'
-import { VFC } from 'react'
+import { FC } from 'react'
 
 import { ListTable } from '../components/ListTable'
 import { Seo } from '../components/Seo'
 import { IndexQuery, PageProps, Post } from '../types/type'
 import { filteredByDraft, getTime } from '../utils'
 
-const IndexPage: VFC<PageProps<IndexQuery>> = (props) => {
+const IndexPage: FC<PageProps<IndexQuery>> = (props) => {
   const { data } = props
   const { nodes } = data.allMarkdownRemark
 
