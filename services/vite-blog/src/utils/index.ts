@@ -39,5 +39,4 @@ export function toSnakeCase(str: string): string {
 }
 
 export * as localStorage from './storage'
-export * from './mdx'
 export * from './theme'

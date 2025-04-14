@@ -34,12 +34,12 @@ export const Layout = () => {
   //   [nodes]
   // )
 
-  const posts: SidebarPost[] = filteredArticles.map((it) => ({
-    name: it.data.title,
-    slug: it.data.slug,
-    series: it.data.series || null,
-    image: it.data.image || '/profile.png',
-    tags: it.data.tags || []
+  const posts: SidebarPost[] = filteredArticles.map(() => ({
+    name: '', //it.data.title,
+    slug: '', //it.data.slug,
+    series: '', // it.data.series || null,
+    image: '', //it.data.image || '/profile.png',
+    tags: [] as string[] // it.data.tags || []
   }))
 
   useEffect(() => {

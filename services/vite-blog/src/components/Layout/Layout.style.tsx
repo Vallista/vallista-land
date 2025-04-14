@@ -3,9 +3,9 @@ import styled from '@emotion/styled'
 
 export const _Wrapper = styled.div`
   min-height: 100vh;
-  ${({ theme }) => css`
-    color: ${theme.colors.PRIMARY.FOREGROUND};
-    background: ${theme.colors.PRIMARY.BACKGROUND};
+  ${(params) => css`
+    color: ${params.theme.colors.PRIMARY.FOREGROUND};
+    background: ${params.theme.colors.PRIMARY.BACKGROUND};
   `}
 `
 
@@ -23,11 +23,13 @@ export const _Main = styled.main<{ fold: boolean }>`
 
   ${({ theme, fold }) => css`
     background: ${theme.colors.PRIMARY.BACKGROUND};
-    ${fold &&
-    css`
+    ${
+      fold &&
+      css`
       width: calc(100vw - 80px);
       margin-left: 80px;
-    `}
+    `
+    }
   `}
 
   @media screen and (max-width: 1024px) {

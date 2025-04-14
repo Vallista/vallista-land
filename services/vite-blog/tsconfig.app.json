@@ -23,5 +23,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "exclude": ["node_modules"],
+  "include": ["src", "src/types/type.d.ts", "src/types/emotion.d.ts", "config/**/*.ts|tsx"]
 }
