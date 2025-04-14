@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Children, FC, useEffect, useMemo, useRef, useState } from 'react'
+import { Children, ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 
 import { createContext } from '../../utils/createContext'
 import { CollapseProps, CollapseSizeType } from './type'
@@ -23,7 +23,7 @@ import { useCollapse } from './useCollapse'
   </Collapse>
  * ```
  */
-export const Collapse: FC<Partial<CollapseProps>> = (props) => {
+export const Collapse = (props: Partial<CollapseProps>) => {
   const { title, subtitle, fold, expanded, size, card, children } = useCollapse(props)
   const contentRef = useRef<HTMLDivElement>(null)
   const [contentHeight, setContentHeight] = useState(0)
@@ -75,6 +75,10 @@ const [CollapseContext, useContext] = createContext<{
 
 export const useCollapseContext = useContext
 
+interface CollapseGroupProps {
+  children: React.ReactNode
+}
+
 /**
  * # CollapseGroup
  * 
@@ -101,10 +105,10 @@ export const useCollapseContext = useContext
   </CollapseGroup>
  * ```
  */
-export const CollapseGroup: FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CollapseGroup = ({ children }: CollapseGroupProps) => {
   const collapses = useMemo(() => {
     const result: { key: string; expanded: boolean }[] = []
-    Children.forEach(children, (c) => {
+    Children.forEach(children as ReactElement<CollapseProps>, (c: ReactElement<CollapseProps>) => {
       if (!!c && typeof c === 'object' && 'props' in c) {
         result.push({ key: c.props?.title, expanded: c.props?.defaultExpanded || true })
       }
@@ -203,10 +207,9 @@ const HeaderContents = styled.span<{ size?: CollapseSizeType }>`
           padding: 1.5rem 0;
         `}
 
-  ${({ theme }) =>
-    css`
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-    `};
+  ${({ theme }) => css`
+    color: ${theme.colors.PRIMARY.FOREGROUND};
+  `};
 `
 
 const Arrow = styled.span<{ expanded: boolean }>`

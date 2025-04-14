@@ -1,12 +1,12 @@
 import { css, Theme } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { AvailablePickedColor } from '../../components/ThemeProvider'
 import { TooltipPosition, TooltipType, TooltipProps } from './type'
 import { useTooltip } from './useTooltip'
 
-export const Tooltip: FC<TooltipProps> = (props) => {
+export const Tooltip = (props: TooltipProps) => {
   const { text, position, type, children } = useTooltip(props)
   const childrenRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)

@@ -1,6 +1,5 @@
 import { css, Theme } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { AvailablePickedColor } from '../ThemeProvider/type'
 import { BadgeProps, BadgeType } from './type'
@@ -33,7 +32,7 @@ import { BadgeProps, BadgeType } from './type'
     </Badge>
  * ```
  */
-export const Badge: FC<Partial<BadgeProps>> = (props) => {
+export const Badge = (props: Partial<BadgeProps>) => {
   const { size = 'normal', type = 'primary', variant = 'primary', children, ...otherProps } = props
 
   return (
@@ -54,8 +53,8 @@ const BadgeColorMapper = (
     background: params.outline
       ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? theme.colors.PRIMARY.FOREGROUND
-      : theme.colors.PRIMARY.FOREGROUND,
+        ? theme.colors.PRIMARY.FOREGROUND
+        : theme.colors.PRIMARY.FOREGROUND,
     border: theme.colors.PRIMARY.FOREGROUND,
     color: params.outline ? theme.colors.PRIMARY.FOREGROUND : theme.colors.PRIMARY.BACKGROUND
   },
@@ -63,66 +62,66 @@ const BadgeColorMapper = (
     background: params.outline
       ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? theme.colors.PRIMARY.ACCENT_2
-      : theme.colors.PRIMARY.ACCENT_5,
+        ? theme.colors.PRIMARY.ACCENT_2
+        : theme.colors.PRIMARY.ACCENT_5,
     border: theme.colors.PRIMARY.ACCENT_5,
     color: params.outline
       ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? theme.colors.PRIMARY.ACCENT_7
-      : theme.colors.PRIMARY.BACKGROUND
+        ? theme.colors.PRIMARY.ACCENT_7
+        : theme.colors.PRIMARY.BACKGROUND
   },
   success: {
     background: params.outline
       ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? theme.colors.SUCCESS.LIGHTER
-      : theme.colors.SUCCESS.DEFAULT,
+        ? theme.colors.SUCCESS.LIGHTER
+        : theme.colors.SUCCESS.DEFAULT,
     border: theme.colors.SUCCESS.DEFAULT,
     color: params.outline
       ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? theme.colors.SUCCESS.DARK
-      : theme.colors.PRIMARY.BACKGROUND
+        ? theme.colors.SUCCESS.DARK
+        : theme.colors.PRIMARY.BACKGROUND
   },
   error: {
     background: params.outline
       ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? theme.colors.ERROR.LIGHTER
-      : theme.colors.ERROR.DEFAULT,
+        ? theme.colors.ERROR.LIGHTER
+        : theme.colors.ERROR.DEFAULT,
     border: theme.colors.ERROR.DEFAULT,
     color: params.outline
       ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? theme.colors.ERROR.DARK
-      : theme.colors.PRIMARY.BACKGROUND
+        ? theme.colors.ERROR.DARK
+        : theme.colors.PRIMARY.BACKGROUND
   },
   warning: {
     background: params.outline
       ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? theme.colors.WARNING.LIGHTER
-      : theme.colors.WARNING.DEFAULT,
+        ? theme.colors.WARNING.LIGHTER
+        : theme.colors.WARNING.DEFAULT,
     border: theme.colors.WARNING.DEFAULT,
     color: params.outline
       ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? theme.colors.WARNING.DARK
-      : theme.colors.PRIMARY.BACKGROUND
+        ? theme.colors.WARNING.DARK
+        : theme.colors.PRIMARY.BACKGROUND
   },
   violet: {
     background: params.outline
       ? theme.colors.PRIMARY.BACKGROUND
       : params.variant === 'contrast'
-      ? theme.colors.VIOLET.LIGHTER
-      : theme.colors.VIOLET.DEFAULT,
+        ? theme.colors.VIOLET.LIGHTER
+        : theme.colors.VIOLET.DEFAULT,
     border: theme.colors.VIOLET.DEFAULT,
     color: params.outline
       ? theme.colors.PRIMARY.FOREGROUND
       : params.variant === 'contrast'
-      ? theme.colors.VIOLET.DARK
-      : theme.colors.PRIMARY.BACKGROUND
+        ? theme.colors.VIOLET.DARK
+        : theme.colors.PRIMARY.BACKGROUND
   }
 })
 

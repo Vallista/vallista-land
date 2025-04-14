@@ -190,7 +190,9 @@ const Side = styled.span<{ size: InputSizeType; styling: boolean }>`
     padding: 0 12px;
     display: flex;
     align-items: center;
-    transition: border-color 0.15s ease, color 0.15s ease;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease;
 
     ${size === 'small' &&
     css`

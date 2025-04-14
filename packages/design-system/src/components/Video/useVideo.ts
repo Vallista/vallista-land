@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
 
 import { VideoProps, NeedVideoProp, ReturningUseVideo } from './type'
 
@@ -24,7 +24,8 @@ export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo =
 
   const onPlay = useCallback(() => {
     setPlay(!isPlay)
-    !isPlay ? videoRef?.current?.play() : videoRef?.current?.pause()
+    if (isPlay) videoRef?.current?.play()
+    else videoRef?.current?.pause()
   }, [isPlay])
 
   const setMouseSeek = useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -34,7 +35,7 @@ export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo =
 
     const videoElement = videoRef?.current
     const moveTime = (videoElement?.duration || 0) * dragPercent
-    videoElement && (videoElement.currentTime = moveTime)
+    if (videoElement) videoElement.currentTime = moveTime
     setPercent(dragPercent * 100)
   }, [])
 
@@ -46,15 +47,15 @@ export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo =
 
       setCurrentTime(toVideoTime(time))
       setPercent((time / duration) * 100)
-      time >= duration && setPlay(false)
+      if (time >= duration) setPlay(false)
     })
-    props.autoPlay && onPlay()
+    if (props.autoPlay) onPlay()
   }, [])
 
   return {
     ...initProps,
     ...props,
-    videoRef,
+    videoRef: videoRef as RefObject<HTMLVideoElement>,
     width: props.width ? `${props.width}px` : '100%',
     height: props.height ? `${props.height}px` : '100%',
     percent,
@@ -67,10 +68,13 @@ export const useVideo = <T extends NeedVideoProp>(props: T): ReturningUseVideo =
     dragArea: {
       onMouseDown: () => setMouseDown(true),
       onMouseUp: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        mouseDown && (setMouseSeek(event), setMouseDown(false))
+        if (mouseDown) {
+          setMouseSeek(event)
+          setMouseDown(false)
+        }
       },
       onMouseMove: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        mouseDown && setMouseSeek(event)
+        if (mouseDown) setMouseSeek(event)
       },
       onMouseLeave: () => setMouseDown(false)
     }

@@ -1,8 +1,7 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { VFC } from 'react'
 
-import { useUniqueId } from '../../hooks/useUniqueId'
+import { createUniqueId } from '../../hooks/useUniqueId'
 import { SwitchItem, SwitchProps, NeedSwitchProp } from './type'
 import { useSwitch } from './useSwitch'
 
@@ -35,12 +34,12 @@ import { useSwitch } from './useSwitch'
  * />
  * ```
  */
-export const Switch: VFC<NeedSwitchProp> = (props) => {
+export const Switch = (props: NeedSwitchProp) => {
   const { items, onChange, ...otherProps } = useSwitch(props)
   return (
     <Group {...otherProps}>
       {items?.map((item) => {
-        const uniqueId = useUniqueId()
+        const uniqueId = createUniqueId()
         return (
           <Button key={`${uniqueId}`} {...otherProps} {...item} onClick={() => onChange(item.value)}>
             {item.name}

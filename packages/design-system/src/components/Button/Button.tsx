@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { Spinner } from '../Spinner'
 import { ButtonProps, ReturningUseButton } from './type'
@@ -19,7 +18,7 @@ import { useButton } from './useButton'
  * <Button type={Colors.HIGHLIGHT.PINK} size="small" variant="shadow" disabled>Hello World!</Button>
  * ```
  */
-export const Button: FC<Partial<ButtonProps>> = (props) => {
+export const Button = (props: Partial<ButtonProps>) => {
   const { children, prefix, suffix, disabled, loading, onClick, ...otherProps } = useButton(props)
   return (
     <Element disabled={disabled || loading} {...otherProps} onClick={onClick}>

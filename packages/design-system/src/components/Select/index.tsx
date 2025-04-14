@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { ChangeEvent, FC } from 'react'
+import { ChangeEvent } from 'react'
 
 import { SelectProps } from './type'
 import { useSelect } from './useSelect'
@@ -22,7 +22,7 @@ import { useSelect } from './useSelect'
  * ```
  * 
  */
-export const Select: FC<Partial<SelectProps>> = (props) => {
+export const Select = (props: Partial<SelectProps>) => {
   const { children, onChange, icon, isAnotherIcon, ...otherProps } = useSelect(props)
 
   return (
@@ -62,7 +62,10 @@ const _Wrapper = styled.div<Partial<Pick<SelectProps, 'disabled'>>>`
   position: relative;
   overflow: hidden;
   border-radius: 4px;
-  transition: border 0.2s, color 0.2s ease-out, box-shadow 0.2s ease;
+  transition:
+    border 0.2s,
+    color 0.2s ease-out,
+    box-shadow 0.2s ease;
   white-space: nowrap;
   line-height: 0;
   height: calc(9 * 4px);

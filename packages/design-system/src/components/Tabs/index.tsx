@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { VFC } from 'react'
 
 import { NeedTabsProps } from './type'
 import { useTabs } from './useTabs'
@@ -8,7 +7,7 @@ import { useTabs } from './useTabs'
 /**
  *
  */
-export const Tabs: VFC<NeedTabsProps> = (props) => {
+export const Tabs = (props: NeedTabsProps) => {
   const { selected, setSelected, tabs, disabled } = useTabs(props)
 
   return (

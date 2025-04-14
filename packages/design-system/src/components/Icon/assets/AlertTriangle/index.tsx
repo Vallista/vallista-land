@@ -1,10 +1,8 @@
-import { FC } from 'react'
-
 import Svg from '../../Svg'
 import { IconProps } from '../../type'
 import { useIcon } from '../../useIcon'
 
-export const AlertTriangle: FC<Partial<IconProps>> = (props) => {
+export const AlertTriangle = (props: Partial<IconProps>) => {
   const { size, color, fill, ...otherProps } = useIcon(props)
 
   const stokeColor = color

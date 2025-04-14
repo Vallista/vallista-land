@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { useRef, VFC } from 'react'
+import { useRef } from 'react'
 
 import { Colors } from '../ThemeProvider/type'
 import { SnippetMapperType, SnippetProps, SnippetType } from './type'
@@ -17,7 +17,7 @@ import { useSnippet } from './useSnippet'
  * <Snippet text='npm init next-app' width='300px' type='success' fill />
  * ```
  */
-export const Snippet: VFC<Partial<SnippetProps>> = (props) => {
+export const Snippet = (props: Partial<SnippetProps>) => {
   const { width = '300px', text, handleCopy, fill, ...otherProps } = useSnippet(props)
   const ref = useRef<HTMLDivElement>(null)
 

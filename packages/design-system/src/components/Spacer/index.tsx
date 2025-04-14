@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 interface SpacerProps {
   x: number
@@ -35,7 +34,7 @@ interface SpacerProps {
     </Container>
  * ```
  */
-export const Spacer: FC<Partial<SpacerProps>> = (props) => {
+export const Spacer = (props: Partial<SpacerProps>) => {
   const { x = 1, y = 1 } = props
 
   return <Space x={x} y={y} />

@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { useModalContext } from '../context'
 
@@ -22,7 +21,7 @@ interface ActionProps {
  * <Modal.Action onClick={() => void 0}>Button</Modal.Action>
  * ```
  */
-const Action: FC<ActionProps> = (props) => {
+const Action = (props: ActionProps) => {
   const { children, type = 'button', disabled, onClick } = useModalContext(props)
 
   return (

@@ -1,5 +1,5 @@
 import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
-import { FC, ReactNode, useState } from 'react'
+import { ReactNode, useState } from 'react'
 
 import { createContext } from '../../utils/createContext'
 import { ToastProvider } from '../Toast'
@@ -51,7 +51,7 @@ const [Context, useContext] = createContext<{
  * </ThemeProvider>
  * ```
  */
-export const ThemeProvider: FC<{ theme?: ThemeKeys; children: ReactNode }> = ({ theme = 'LIGHT', children }) => {
+export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys; children: ReactNode }) => {
   const [themeState, setThemeState] = useState(theme)
 
   return (
@@ -70,7 +70,7 @@ export const ThemeProvider: FC<{ theme?: ThemeKeys; children: ReactNode }> = ({ 
 
 export const useTheme = useContext
 
-const Reset: FC = () => {
+const Reset = () => {
   return (
     <Global
       styles={css`

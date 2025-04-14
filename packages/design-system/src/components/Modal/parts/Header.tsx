@@ -1,7 +1,10 @@
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { useModalContext } from '../context'
+
+interface ModalHeaderProps {
+  children: React.ReactNode
+}
 
 /**
  * # Modal.Header
@@ -12,7 +15,7 @@ import { useModalContext } from '../context'
  * <Modal.Header>This is a modal</Modal.Header>
  * ```
  */
-const Header: FC<{ children: React.ReactNode }> = (props) => {
+const Header = (props: ModalHeaderProps) => {
   const { children } = useModalContext(props)
 
   return (

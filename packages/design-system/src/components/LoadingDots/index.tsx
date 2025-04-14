@@ -1,11 +1,10 @@
 import { css, keyframes, Theme } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { LoadingDotsProps } from './type'
 import { useLoadingDots } from './useLoadingDots'
 
-export const LoadingDots: FC<Partial<LoadingDotsProps>> = (props) => {
+export const LoadingDots = (props: Partial<LoadingDotsProps>) => {
   const { size, children } = useLoadingDots(props)
 
   return (

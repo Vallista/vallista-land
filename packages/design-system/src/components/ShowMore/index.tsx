@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { MouseEvent, VFC } from 'react'
+import { MouseEvent } from 'react'
 
 interface ShowMoreProps {
   expanded: boolean
@@ -21,7 +21,7 @@ interface ShowMoreProps {
  * ```
  *
  */
-export const ShowMore: VFC<ShowMoreProps> = (props) => {
+export const ShowMore = (props: ShowMoreProps) => {
   const { expanded, onClick } = props
 
   return (

@@ -1,10 +1,8 @@
-import { FC } from 'react'
-
 import Svg from '../../Svg'
 import { IconProps } from '../../type'
 import { useIcon } from '../../useIcon'
 
-export const CheckCircle: FC<Partial<IconProps>> = (props) => {
+export const CheckCircle = (props: Partial<IconProps>) => {
   const { size, color, ...otherProps } = useIcon(props)
 
   return (

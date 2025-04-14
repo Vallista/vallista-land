@@ -1,12 +1,11 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { X } from '../Icon/assets'
 import { ReturningUseTag, TagProps } from './type'
 import { useTag } from './useTag'
 
-export const Tag: FC<Partial<TagProps>> = (props) => {
+export const Tag = (props: Partial<TagProps>) => {
   const { children, onRemove, id, ...otherProps } = useTag(props)
 
   return (
@@ -67,7 +66,10 @@ const Button = styled.button`
     margin: 0;
     outline: 0;
     padding: 0 4px;
-    transition: background-color 0.2s ease, border 0.2s ease, color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      border 0.2s ease,
+      color 0.2s ease;
 
     &:hover {
       background-color: ${theme.colors.ERROR.DEFAULT};

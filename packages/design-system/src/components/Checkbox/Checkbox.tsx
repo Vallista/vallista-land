@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { CheckboxProps, ReturningUseCheckbox } from './type'
 import { useCheckbox } from './useCheckbox'
@@ -20,7 +19,7 @@ import { useCheckbox } from './useCheckbox'
 
  * ```
  */
-export const Checkbox: FC<Partial<CheckboxProps>> = (props) => {
+export const Checkbox = (props: Partial<CheckboxProps>) => {
   const { label, marker, children, onChange, ...otherProps } = useCheckbox(props)
 
   return (
@@ -120,7 +119,9 @@ const Input = styled.input`
   outline: none;
   /* ${({ theme }) => css`
     &:focus ~ div {
-      box-shadow: 0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND}, 0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
+      box-shadow:
+        0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND},
+        0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
     }
   `} */
 `

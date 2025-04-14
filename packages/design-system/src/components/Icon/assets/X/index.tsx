@@ -1,10 +1,8 @@
-import { FC } from 'react'
-
 import Svg from '../../Svg'
 import { IconProps } from '../../type'
 import { useIcon } from '../../useIcon'
 
-export const X: FC<Partial<IconProps>> = (props) => {
+export const X = (props: Partial<IconProps>) => {
   const { size, ...otherProps } = useIcon(props)
 
   return (

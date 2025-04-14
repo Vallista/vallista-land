@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { FontSizeType } from '.'
 import { TextProps, ReturningUseText } from './type'
@@ -19,10 +18,10 @@ import { useText } from './useText'
  * <Text color={Colors.HIGHLIGHT.PINK} size={20} as='h1'>Hello World!</Text>
  * ```
  */
-export const Text: FC<Partial<TextProps>> = (props) => {
+export const Text = (props: Partial<TextProps>) => {
   const { as, children, ...otherProps } = useText(props)
 
-  const Render = Element.withComponent(as as keyof JSX.IntrinsicElements)
+  const Render = Element.withComponent(as as keyof React.JSX.IntrinsicElements)
   return <Render {...otherProps}>{children}</Render>
 }
 

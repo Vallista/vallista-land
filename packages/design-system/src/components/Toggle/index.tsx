@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { VFC } from 'react'
 
 import { StyleParams, ToggleProps } from './type'
 import { useToggle } from './useToggle'
@@ -20,7 +19,7 @@ import { useToggle } from './useToggle'
  * <Toggle size="small" toggle={state} onChange={setState} />
  * ```
  */
-export const Toggle: VFC<Partial<ToggleProps>> = (props) => {
+export const Toggle = (props: Partial<ToggleProps>) => {
   const { size = 'small', color = 'blue', onChange, ...otherProps } = useToggle(props)
 
   return (
@@ -103,7 +102,9 @@ const Circle = styled.div<StyleParams>`
     background: ${theme.colors.PRIMARY.BACKGROUND};
     cursor: pointer;
     border-radius: 50%;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 20%), 0 1px 3px 0 rgb(0 0 0 / 10%);
+    box-shadow:
+      0 1px 2px 0 rgb(0 0 0 / 20%),
+      0 1px 3px 0 rgb(0 0 0 / 10%);
     border: 1px solid transparent;
 
     ${disabled &&

@@ -1,6 +1,5 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { VFC } from 'react'
 
 import { VideoProps } from './type'
 import { NeedVideoProp } from './type'
@@ -20,7 +19,7 @@ import { useVideo } from './useVideo'
 
  * ```
  */
-export const Video: VFC<NeedVideoProp> = (props) => {
+export const Video = (props: NeedVideoProp) => {
   const {
     videoRef,
     percent,
@@ -61,20 +60,20 @@ export const Video: VFC<NeedVideoProp> = (props) => {
   )
 }
 
-const PlaySVG: VFC = () => (
+const PlaySVG = () => (
   <svg viewBox='0 0 24 24' width='14' height='14' stroke='currentColor' strokeWidth='1.5'>
     <polygon points='5 3 19 12 5 21 5 3' fill='var(--geist-fill)'></polygon>
   </svg>
 )
 
-const PauseSVG: VFC = () => (
+const PauseSVG = () => (
   <svg viewBox='0 0 24 24' width='14' height='14' stroke='currentColor'>
     <rect x='6' y='4' width='4' height='16' fill='var(--geist-fill)'></rect>
     <rect x='14' y='4' width='4' height='16' fill='var(--geist-fill)'></rect>
   </svg>
 )
 
-const FullscreenSVG: VFC = () => (
+const FullscreenSVG = () => (
   <svg viewBox='0 0 24 24' width='18' height='18' stroke='currentColor' strokeWidth='1.5'>
     <path d='M15 3h6m0 0v6m0-6l-7 7M9 21H3m0 0v-6m0 6l7-7M3 9V3m0 0h6M3 3l7 7m11 5v6m0 0h-6m6 0l-7-7'></path>
   </svg>

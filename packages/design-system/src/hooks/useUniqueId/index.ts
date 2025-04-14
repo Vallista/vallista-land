@@ -15,6 +15,10 @@ let count = 0
  * ```
  */
 export function useUniqueId(): string {
-  const name = useMemo(() => `${uniquePrefix}-${count++}`, [])
+  const name = useMemo(createUniqueId, [])
   return name
+}
+
+export function createUniqueId(): string {
+  return `${uniquePrefix}-${count++}`
 }

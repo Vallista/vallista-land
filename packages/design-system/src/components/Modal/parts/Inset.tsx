@@ -1,10 +1,13 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { useModalContext } from '../context'
 
-const Inset: FC<{ children: React.ReactNode }> = (props) => {
+interface ModalInsetProps {
+  children: React.ReactNode
+}
+
+const Inset = (props: ModalInsetProps) => {
   const { children } = useModalContext(props)
 
   return <Wrapper>{children}</Wrapper>

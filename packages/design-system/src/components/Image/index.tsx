@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { useEffect, useRef, useState, VFC } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { raiseDecimalPoint } from '../../utils/math'
 import { ImageProps } from './type'
@@ -33,7 +33,7 @@ import { ImageProps } from './type'
   />
  * ```
  */
-export const ImageComponent: VFC<ImageProps> = (props) => {
+export const ImageComponent = (props: ImageProps) => {
   const { caption, captionSpacing, src, ...otherProps } = props
 
   const ref = useRef<HTMLImageElement>(null)

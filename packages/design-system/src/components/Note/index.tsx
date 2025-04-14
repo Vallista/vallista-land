@@ -1,11 +1,10 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { Colors } from '../ThemeProvider/type'
 import { NoteProps, NoteMapperType } from './type'
 
-export const Note: FC<Partial<NoteProps>> = (props) => {
+export const Note = (props: Partial<NoteProps>) => {
   const {
     label = 'Note',
     fill = false,

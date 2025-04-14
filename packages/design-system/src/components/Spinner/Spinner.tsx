@@ -1,6 +1,5 @@
 import { css, keyframes } from '@emotion/react'
 import styled from '@emotion/styled'
-import { FC } from 'react'
 
 import { Colors } from '../ThemeProvider/type'
 import { SpinnerProps, ReturningUseSpinner } from './type'
@@ -19,7 +18,7 @@ import { useSpinner } from './useSpinner'
  * <Spinner size={30} />
  * ```
  */
-export const Spinner: FC<Partial<SpinnerProps>> = (props) => {
+export const Spinner = (props: Partial<SpinnerProps>) => {
   const { size } = useSpinner(props)
 
   return (
