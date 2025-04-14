@@ -1,0 +1,49 @@
+<p>HTML에서 onClick와 같은 이벤트를 등록하여 버튼을 클릭하면 해당 이벤트가 나오도록 할 수 있다.</p>
+<p>단, 아래와 같은 상황에서는 이벤트가 전파 된다.</p>
+<pre><code class="language-javascript">&#x3C;div onclick='functionA'>
+  &#x3C;div onclick='functionB'>
+    &#x3C;div onclick='functionC'>&#x3C;/div>
+  &#x3C;/div>
+&#x3C;/div>
+</code></pre>
+<p>functionA, functionB, functionC를 <code>이벤트 등록</code>했다.</p>
+<h2>이벤트 버블링</h2>
+<p>이벤트 버블링은 아래와 같이 이벤트가 전파되는 행위를 일컫는다.</p>
+<p>FunctionC → FunctionB → FunctionA</p>
+<p>즉, 가장 하위의 자식 노드의 이벤트부터, 최상단의 부모 노드 순으로 실행된다.</p>
+<h2>이벤트 캡처링</h2>
+<p>이벤트 캡처링은 아래와 같이 이벤트가 전파되는 행위를 일컫는다.</p>
+<p><code>functionA</code> → <code>functionB</code> → <code>functionC</code></p>
+<p>즉, 최상단의 부모 노드부터 최하단의 자식 노드까지 실행된다.</p>
+<p>이벤트 캡처링을 하기 위해서, addEventListener의 API에서 설정해야 한다.</p>
+<pre><code class="language-javascript">addEventListener('click', event, {
+  capture: true
+})
+</code></pre>
+<h2>이벤트 전파 중지</h2>
+<p>이벤트 전파를 중지하고 싶을 때가 존재한다.</p>
+<p>event API의 stopPropagation() 메서드로 해당 함수 실행 이후의 자식, 부모 노드의 이벤트를 중지한다.</p>
+<pre><code class="language-javascript">addEventListener('click', (e) => {
+  e.stopPropagation()
+})
+</code></pre>
+<h2>이벤트 위임</h2>
+<p>이벤트를 최초 1회만 등록하고 새로운 노드를 추가 시킬 때 새로운 노드에도 이벤트를 유지하고 싶을 때가 있다.</p>
+<p>그때 사용하는 게 이벤트 위임이다.</p>
+<pre><code class="language-javascript">;&#x3C;ul class='item'>
+  &#x3C;li>
+    &#x3C;input type='checkbox' />
+  &#x3C;/li>
+  &#x3C;li>
+    &#x3C;input type='checkbox' />
+  &#x3C;/li>
+  &#x3C;li>
+    &#x3C;input type='checkbox' />
+  &#x3C;/li>
+&#x3C;/ul>
+
+document.querySelector('.item').addEventListener('click', () => {
+  console.log('123')
+})
+</code></pre>
+<p>이렇게 하면 하위의 모든 click 이벤트에 이벤트가 위임되는 걸 알 수 있다.</p>

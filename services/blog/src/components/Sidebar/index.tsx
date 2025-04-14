@@ -47,6 +47,7 @@ export const Sidebar: FC<SidebarProps> = (props) => {
         ))
       : posts.map((it) => (
           <PostItem
+            key={it.slug}
             name={it.name}
             isActive={isNowPage(it.slug)}
             slug={it.slug}
