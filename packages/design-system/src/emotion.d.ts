@@ -11,5 +11,3 @@ declare module 'react' {
     '--loading-dots-size'?: string
   }
 }
-
-export * from './index'

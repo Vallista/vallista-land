@@ -54,6 +54,8 @@ const [Context, useContext] = createContext<{
 export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys; children: ReactNode }) => {
   const [themeState, setThemeState] = useState(theme)
 
+  console.log(Themes, themeState, Themes[themeState])
+
   return (
     <Context state={{ changeTheme }}>
       <Reset />

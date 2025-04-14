@@ -54,7 +54,7 @@ export const Select = (props: Partial<SelectProps>) => {
 
   function handleChange(e: ChangeEvent<HTMLSelectElement>): void {
     const { selectedIndex, options } = e.target
-    onChange?.(options?.[selectedIndex]?.innerText)
+    onChange?.(options[selectedIndex]?.innerHTML ?? '')
   }
 }
 
@@ -84,8 +84,9 @@ const _Wrapper = styled.div<Partial<Pick<SelectProps, 'disabled'>>>`
     user-select: none;
     font-weight: 100;
 
-    ${disabled
-      ? css`
+    ${
+      disabled
+        ? css`
           background: ${theme.colors.PRIMARY.ACCENT_1};
 
           & > select {
@@ -93,12 +94,13 @@ const _Wrapper = styled.div<Partial<Pick<SelectProps, 'disabled'>>>`
             cursor: not-allowed;
           }
         `
-      : css`
+        : css`
           &:hover,
           &:focus-within {
             border-color: ${theme.colors.PRIMARY.ACCENT_5};
           }
-        `}
+        `
+    }
   `}
 `
 

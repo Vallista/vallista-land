@@ -416,5 +416,5 @@ const colorVariantSets = {
 }
 
 export const createColorSets = (variant: ButtonVariant, theme: Theme, color: ButtonColor): ButtonStateColors => {
-  return colorVariantSets[variant](theme)[color]
+  return colorVariantSets[variant](theme)[color]!
 }
