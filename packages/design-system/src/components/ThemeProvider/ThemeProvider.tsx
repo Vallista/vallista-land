@@ -54,8 +54,6 @@ const [Context, useContext] = createContext<{
 export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys; children: ReactNode }) => {
   const [themeState, setThemeState] = useState(theme)
 
-  console.log(Themes, themeState, Themes[themeState])
-
   return (
     <Context state={{ changeTheme }}>
       <Reset />
@@ -79,8 +77,9 @@ const Reset = () => {
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-          --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-            'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          --font-family:
+            'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+            'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
           --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
           --scrollbar-background: #1e1e1e;
           --scrollbar-thumb: #666;

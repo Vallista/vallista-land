@@ -1,6 +1,8 @@
 import fs from 'fs'
-import { createFolder } from '../utils'
+import { createFolder, PUBLIC_PATH } from '../utils'
 import { transformMdxFileToHTML } from './html'
+import { transformMdxFrontMatterJson } from './mdx'
+import { JSON_FILE_NAME } from '../utils'
 
 interface MdxToHTMLReturns {
   success: boolean
@@ -14,6 +16,7 @@ type FileMdxToHTMlType = (contentPath: string, resultPath: string, changeFile: s
 export const transformAllMdxToHTML: MdxToHTMLType = async (contentPath: string, resultPath: string) => {
   try {
     const categories = fs.readdirSync(contentPath)
+    const jsonData: Record<string, Record<string, unknown>> = {}
 
     // NOTE: 카테고리 폴더 순회
     categories.forEach(async (category) => {
@@ -43,13 +46,17 @@ export const transformAllMdxToHTML: MdxToHTMLType = async (contentPath: string, 
           // NOTE: 폴더가 존재하는 경우 > 폴더 내의 mdx 파일을 HTML로 변환
           // NOTE: 패턴) assets 폴더가 존재할 수 있고, mdx 파일은 항상 존재함.
           files.forEach(async (file) => {
+            if (file.includes('.DS_Store')) {
+              return
+            }
+
             await createFolder(resultFolderPath)
 
             if (file.includes('assets')) {
               const assetsPath = `${contentPath}/${file}`
               const resultAssetsPath = `${resultFolderPath}/${file}`
 
-              await createFolder(`${resultAssetsPath}/assets`)
+              if (!resultFolderPath.includes('assets')) await createFolder(`${resultFolderPath}/assets`)
 
               const readAssets = fs.readdirSync(assetsPath)
 
@@ -61,12 +68,24 @@ export const transformAllMdxToHTML: MdxToHTMLType = async (contentPath: string, 
               return
             }
 
-            await transformMdxFileToHTML(file, contentPath, resultFolderPath)
+            const slug = postName
+            const path = `${resultFolderPath}/${file}`.split(PUBLIC_PATH)[1].replace('.md', '.html')
+
+            const mdx = await transformMdxFileToHTML(file, contentPath, resultFolderPath, slug, path)
+            jsonData[postName] = await transformMdxFrontMatterJson(slug, category, path, mdx)
+            fs.writeFileSync(`${resultPath}/${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
           })
         } else {
           const resultFolderPath = `${resultCategoryPath}/${postName}`.split('/').slice(0, -1).join('/')
           const filePath = contentPath.replace(postName, '')
-          await transformMdxFileToHTML(postName, filePath, resultFolderPath)
+          const fileName = postName.split('.')[0]
+
+          const slug = fileName
+          const path = `${resultCategoryPath}/${postName}`.split(PUBLIC_PATH)[1].replace('.md', '.html')
+
+          const mdx = await transformMdxFileToHTML(postName, filePath, resultFolderPath, slug, path)
+          jsonData[fileName] = await transformMdxFrontMatterJson(slug, category, path, mdx)
+          fs.writeFileSync(`${resultPath}/${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
         }
       })
     })
@@ -102,11 +121,18 @@ export const transformFileMdxToHTML: FileMdxToHTMlType = async (
     // NOTE: 변경된 파일이 있는 경우
     const filePath = changeFile.split('/').slice(0, -1).join('/') // 파일명과 확장자 제거
     const fileName = changeFile.split('/').slice(-1).join('/') // 파일명과 확장자
+    let originalFileName = fileName.split('.')[0] // 파일명만
 
     // NOTE: changeFile을 resultPath에 맞게 변환
     const resultFilePathWithFileName = changeFile.replace(contentPath, resultPath)
     const resultFilePath = resultFilePathWithFileName.split('/').slice(0, -1).join('/') // 파일명과 확장자 제거
     await createFolder(resultFilePath) // result path에 폴더가 존재하지 않는 경우 생성
+
+    const category = resultFilePathWithFileName.split(PUBLIC_PATH)[1].split('/')[2] // 카테고리 이름
+
+    if (fileName === 'index.md') {
+      originalFileName = filePath.split('/').slice(-1).join('/')
+    }
 
     // NOTE: assets 폴더가 존재하는 경우
     const assetsPath = `${filePath}/assets`
@@ -122,8 +148,17 @@ export const transformFileMdxToHTML: FileMdxToHTMlType = async (
       })
     }
 
+    const slug = originalFileName
+    const path = resultFilePathWithFileName.split(PUBLIC_PATH)[1].replace('.md', '.html')
+
     // NOTE: mdx 파일을 HTML로 변환
-    await transformMdxFileToHTML(fileName, filePath, resultFilePath)
+    const mdx = await transformMdxFileToHTML(fileName, filePath, resultFilePath, slug, path)
+    const resultJsonFileName = `${resultPath}/${JSON_FILE_NAME}`
+    const loadJsonData = fs.readFileSync(resultJsonFileName, 'utf-8')
+    const jsonData = JSON.parse(loadJsonData)
+    jsonData[originalFileName] = await transformMdxFrontMatterJson(slug, category, path, mdx)
+    fs.writeFileSync(resultJsonFileName, JSON.stringify(jsonData), 'utf-8')
+
     return {
       success: true,
       message: `MDX 파일을 HTML로 변환했습니다.`

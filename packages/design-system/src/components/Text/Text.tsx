@@ -38,7 +38,7 @@ const fontSizeMapper: Record<FontSizeType, number> = {
 }
 
 const Element = styled.p<ReturningUseText>`
-  ${({ size, lineHeight, color, weight, align, wrap }) => css`
+  ${({ size, lineHeight, color, weight, align, textWrap }) => css`
     color: ${color || 'inherit'};
     font-size: ${fontSizeMapper[size ?? 16]}rem;
     line-height: ${lineHeight ? `${lineHeight}px` : 1.5};
@@ -56,7 +56,7 @@ const Element = styled.p<ReturningUseText>`
       `
     };
     ${
-      !wrap &&
+      !textWrap &&
       css`
         white-space: nowrap;
       `

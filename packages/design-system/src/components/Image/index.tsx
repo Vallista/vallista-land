@@ -60,9 +60,7 @@ export const ImageComponent = (props: ImageProps) => {
   return (
     <Container {...onlyProps} {...otherProps} show={!!imgSrc}>
       <Main width={otherProps.width}>
-        <Wrapper height={height}>
-          <Img ref={ref} decoding='async' src={imgSrc ?? ''} />
-        </Wrapper>
+        <Wrapper height={height}>{imgSrc && <Img ref={ref} decoding='async' src={imgSrc ?? ''} />}</Wrapper>
         {caption && <Caption style={{ marginTop: `${captionSpacing}px` }}>{caption}</Caption>}
       </Main>
     </Container>

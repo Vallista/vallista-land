@@ -12,7 +12,7 @@ export interface TextProps {
   transform: 'capitalize' | 'uppercase' | 'lowercase'
   align: 'left' | 'center' | 'right'
   color: AvailablePickedColor
-  wrap: boolean
+  textWrap: boolean
   children: React.ReactNode
 }
 
