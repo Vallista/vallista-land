@@ -48,16 +48,15 @@ export const NavBar = () => {
         <Styled._Wrapper>
           {footer.map((it) => {
             if (it.link === '') return undefined
-            const Icon = it.icon as any
 
             return (
               <Styled._Category key={it.name} onClick={() => moveToLocation(it.link, true)}>
                 {visibleTooltip ? (
                   <Tooltip text={<Text>{it.name}</Text>} position='right'>
-                    {Icon}
+                    {it.icon}
                   </Tooltip>
                 ) : (
-                  Icon
+                  it.icon
                 )}
               </Styled._Category>
             )

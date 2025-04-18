@@ -49,11 +49,3 @@ export interface StaticQuery {
   }
   markdownRemark: Post
 }
-
-export interface SidebarPost {
-  name: string
-  slug: string
-  series: string | null
-  image: string | null
-  tags: string[]
-}

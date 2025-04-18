@@ -2,10 +2,12 @@ import { useTheme } from '@vallista/design-system'
 import { useEffect, useState } from 'react'
 
 import { isDarkMode, localStorage, onChangeThemeEvent } from '../../utils'
-import { HeaderDialogType, HeaderProps, ReturnUseHeader, HeaderDialogVariableType, ThemeModeType } from './Header.type'
+import { HeaderDialogType, HeaderDialogVariableType, ThemeModeType } from './Header.type'
+import { useGlobalProvider } from '@/context/useProvider'
 
-export const useHeader = <T extends HeaderProps>(props: T): ReturnUseHeader & T => {
+export const useHeader = () => {
   const theme = useTheme()
+  const { state, dispatch } = useGlobalProvider()
   const [mode, setMode] = useState<ThemeModeType>(() => {
     if (typeof window === 'undefined') return 'LIGHT'
     return isDarkMode() ? 'DARK' : 'LIGHT'
@@ -34,13 +36,13 @@ export const useHeader = <T extends HeaderProps>(props: T): ReturnUseHeader & T 
   useEffect(() => {
     if (!mode) return
     theme.state.changeTheme(mode)
-  }, [mode])
+  }, [mode, theme.state])
 
   useEffect(() => {
     if (!document?.body?.parentElement) return
     if (textSize === 16) {
-      const { fontSize, ...otherProps } = document.body.parentElement.style
-      ;(document.body.parentElement as any).style = otherProps
+      const { ...otherProps } = document.body.parentElement.style
+      Object.assign(document.body.parentElement.style, otherProps)
       return
     }
 
@@ -65,7 +67,8 @@ export const useHeader = <T extends HeaderProps>(props: T): ReturnUseHeader & T 
   }
 
   return {
-    ...props,
+    fold: state.fold,
+    changeFold: () => dispatch({ type: 'changeFold', fold: !state.fold }),
     mode,
     textSize,
     dialog,

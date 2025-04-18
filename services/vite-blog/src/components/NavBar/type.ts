@@ -1,6 +1,6 @@
-import { FC, ReactPortal, SVGProps } from 'react'
+import { ReactElement } from 'react'
 
-type IconType = SVGProps<SVGSVGElement> | FC
+type IconType = ReactElement
 
 export interface NavCategoryProperties {
   name: string

@@ -1,14 +1,13 @@
 import { Modal, Spacer, Text, Toggle } from '@vallista/design-system'
 
 import * as Styled from './Header.style'
-import { HeaderProps, HeaderDialogVariableType } from './Header.type'
+import { HeaderDialogVariableType } from './Header.type'
 import { useHeader } from './useHeader'
 
 const fontSizeControllerMapper = [14, 16, 18, 20]
 
-export const Header = (props: HeaderProps) => {
-  const { fold, folding, dialog, textSize, mode, openDialog, closeDialog, changeTheme, changeTextSize } =
-    useHeader(props)
+export const Header = () => {
+  const { fold, changeFold, dialog, textSize, mode, openDialog, closeDialog, changeTheme, changeTextSize } = useHeader()
 
   const handleDarkModeToggle = (state: boolean) => {
     if (state) {
@@ -30,7 +29,7 @@ export const Header = (props: HeaderProps) => {
   return (
     <Styled._Container fold={fold}>
       <div>
-        <Styled._FoldingButton fold={fold} onClick={folding}>
+        <Styled._FoldingButton fold={fold} onClick={changeFold}>
           <svg
             viewBox='0 0 24 24'
             width='18'

@@ -7,28 +7,31 @@ import ArticlePage from './pages/contents/articles'
 import ResumePage from './pages/resume'
 import ProjectPage from './pages/contents/projects'
 import NotePage from './pages/contents/notes'
+import { GlobalProvider } from './context'
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path='/' element={<Layout />}>
-          <Route index element={<AboutMePage />} />
-          <Route path='resume' element={<ResumePage />} />
-          <Route path='contents'>
-            <Route path='projects'>
-              <Route path=':id' element={<ProjectPage />} />
-            </Route>
-            <Route path='articles'>
-              <Route path=':id' element={<ArticlePage />} />
-            </Route>
-            <Route path='notes'>
-              <Route path=':id' element={<NotePage />} />
+    <GlobalProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<Layout />}>
+            <Route index element={<AboutMePage />} />
+            <Route path='resume' element={<ResumePage />} />
+            <Route path='contents'>
+              <Route path='projects'>
+                <Route path=':id' element={<ProjectPage />} />
+              </Route>
+              <Route path='articles'>
+                <Route path=':id' element={<ArticlePage />} />
+              </Route>
+              <Route path='notes'>
+                <Route path=':id' element={<NotePage />} />
+              </Route>
             </Route>
           </Route>
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </GlobalProvider>
   )
 }
 
