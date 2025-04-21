@@ -1,7 +1,7 @@
-import { Colors, Container, Image, Text } from '@vallista/design-system'
+import { Colors, Container, Text } from '@vallista/design-system'
 import * as Styled from './index.style'
 
-import EmptyImage from '@/assets/images/empty.png'
+import EmptyImage from '@/assets/images/empty.svg?react'
 
 import { SidebarContent } from '../types'
 import { useContents } from './useContents'
@@ -71,7 +71,7 @@ export const Contents = (props: ContentsProps) => {
 const EmptyContents = () => {
   return (
     <Styled._EmptyContents>
-      <Image src={EmptyImage} width={200} height={200} />
+      <EmptyImage width={200} height={200} />
       <Text size={14} weight={600} color={Colors.PRIMARY.ACCENT_4}>
         콘텐츠가 없어요!
       </Text>

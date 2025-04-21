@@ -1,58 +1,29 @@
-import { keyframes } from '@emotion/react'
+import { DEFINE_CONTENTS_HEADER_PADDING_TOP, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
+
 import styled from '@emotion/styled'
-
-const HandAnimation = keyframes`
-  0% {
-    transform: rotateZ(0);
-  }
-
-  50% {
-    transform: rotateZ(30deg);
-  }
-
-  100% {
-    transform: rotateZ(0deg);
-  }
-`
+import { DEFINE_HEADER_HEIGHT } from '../layout/components/Header/utils'
 
 export const Wrapper = styled.div`
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 900px;
-  padding: 2rem;
+  padding: 28px;
 `
 
 export const Header = styled.header`
-  padding: 2rem 0;
+  margin-top: ${DEFINE_HEADER_HEIGHT + DEFINE_CONTENTS_HEADER_PADDING_TOP}px;
+  width: ${DEFINE_CONTENTS_WIDTH}px;
 `
 
 export const Title = styled.div`
-  margin-bottom: 1.5rem;
-  max-width: 550px;
+  margin-bottom: 3rem;
 
-  & > span:first-of-type {
+  & > span,
+  & > h1 {
     position: relative;
-
-    &::after {
-      position: absolute;
-      right: -4rem;
-      top: -0.5rem;
-      content: '✋';
-      display: block;
-      animation: ${HandAnimation} 1s ease-in-out infinite;
-    }
+    line-height: 1.4;
+    letter-spacing: -1px;
   }
 `
 
 export const SubTitle = styled.div`
   max-width: 550px;
   margin-bottom: 2rem;
-`
-
-export const Contents = styled.section`
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 900px;
-  padding: 2rem;
 `
