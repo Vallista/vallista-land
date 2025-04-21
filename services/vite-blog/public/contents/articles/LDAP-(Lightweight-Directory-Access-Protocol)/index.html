@@ -59,19 +59,18 @@ IDM 프로토콜은 TCP를 통한 ISO 전송과 프로토콜 데이터그램을 
 <p>기본적으로 LDAP은 SSL을 이용한 636포트를 사용한다.</p>
 <h3>디렉토리 구조</h3>
 <p>위에서 X.500의 DIT를 설명했다. 대다수는 비슷하며 몇 가지가 다르다. LDAP 자체는 바이너리 프로토콜이며, LDIF(LDAP Data Interchange Format)으로 나타내면 다음과 같다.</p>
-<pre><code class="language-bash"> dn: cn=John Doe,dc=example,dc=com
- cn: John Doe
- givenName: John
- sn: Doe
- telephoneNumber: +1 888 555 6789
- telephoneNumber: +1 888 555 1232
- mail: john@example.com
- manager: cn=Barbara Doe,dc=example,dc=com
- objectClass: inetOrgPerson
- objectClass: organizationalPerson
- objectClass: person
- objectClass: top
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="bash" data-theme="one-dark-pro"><code data-language="bash" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF"> dn:</span><span style="color:#98C379"> cn=John</span><span style="color:#98C379"> Doe,dc=example,dc=com</span></span>
+<span data-line=""><span style="color:#61AFEF"> cn:</span><span style="color:#98C379"> John</span><span style="color:#98C379"> Doe</span></span>
+<span data-line=""><span style="color:#61AFEF"> givenName:</span><span style="color:#98C379"> John</span></span>
+<span data-line=""><span style="color:#61AFEF"> sn:</span><span style="color:#98C379"> Doe</span></span>
+<span data-line=""><span style="color:#61AFEF"> telephoneNumber:</span><span style="color:#98C379"> +1</span><span style="color:#D19A66"> 888</span><span style="color:#D19A66"> 555</span><span style="color:#D19A66"> 6789</span></span>
+<span data-line=""><span style="color:#61AFEF"> telephoneNumber:</span><span style="color:#98C379"> +1</span><span style="color:#D19A66"> 888</span><span style="color:#D19A66"> 555</span><span style="color:#D19A66"> 1232</span></span>
+<span data-line=""><span style="color:#61AFEF"> mail:</span><span style="color:#98C379"> john@example.com</span></span>
+<span data-line=""><span style="color:#61AFEF"> manager:</span><span style="color:#98C379"> cn=Barbara</span><span style="color:#98C379"> Doe,dc=example,dc=com</span></span>
+<span data-line=""><span style="color:#61AFEF"> objectClass:</span><span style="color:#98C379"> inetOrgPerson</span></span>
+<span data-line=""><span style="color:#61AFEF"> objectClass:</span><span style="color:#98C379"> organizationalPerson</span></span>
+<span data-line=""><span style="color:#61AFEF"> objectClass:</span><span style="color:#98C379"> person</span></span>
+<span data-line=""><span style="color:#61AFEF"> objectClass:</span><span style="color:#98C379"> top</span></span></code></pre></figure>
 <ul>
 <li><code>dn</code>은 항목의 고유 이름이다.</li>
 <li><code>cn=John Doe</code>은 항목의 RDN(Relative Distinguished Name)이다.</li>

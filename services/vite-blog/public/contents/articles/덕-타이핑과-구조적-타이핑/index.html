@@ -7,34 +7,33 @@
 (위의 사진으로 설명 끝)</p>
 <p>덕 타이핑은 객체의 변수, 메소드의 집합이 객체의 타입을 결정하는 것을 말한다. 즉, 위의 사진처럼 콘센트나 돼지코냐 "이름"은 중요하지 않다. 꽃을 수 있는가 없는가 꽃을 수 있으면 그것은 콘센트라고 부를 수 있다.</p>
 <p>아래의 자바스크립트 코드를 보면, 아래와 같다 (이하 예제는 자바스크립트와 타입스크립트를 기준으로 설명한다)</p>
-<pre><code class="language-js">class Duck {
-  quack() {
-    console.log('꽥!')
-  }
-
-  feathers() {
-    console.log('깃털은 검정색과 흰색')
-  }
-}
-
-class Human {
-  quack() {
-    console.log('사람인데요? 꽥!')
-  }
-
-  feathers() {
-    console.log('사람이라 깃털은 없어요. 하지만 털은 있습니다.')
-  }
-}
-
-function inTheForest(duck) {
-  duck.quack()
-  duck.feathers()
-}
-
-inTheForest(new Duck())
-inTheForest(new Human())
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="js" data-theme="one-dark-pro"><code data-language="js" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Duck</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  quack</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'꽥!'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  feathers</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'깃털은 검정색과 흰색'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Human</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  quack</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'사람인데요? 꽥!'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  feathers</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'사람이라 깃털은 없어요. 하지만 털은 있습니다.'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> inTheForest</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">duck</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">  duck</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">quack</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#E5C07B">  duck</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">feathers</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">inTheForest</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">new</span><span style="color:#61AFEF"> Duck</span><span style="color:#ABB2BF">())</span></span>
+<span data-line=""><span style="color:#61AFEF">inTheForest</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">new</span><span style="color:#61AFEF"> Human</span><span style="color:#ABB2BF">())</span></span></code></pre></figure>
 <p><code>inTheForest</code> 함수는 duck(오리)을 parameter로 받는다. 오리의 울음소리와 날개를 가지면 숲속의 오리라고 생각하는 함수이다. 그래서 숲속의 오리는 quack()으로 소리를 내고, feathers()로 깃털을 보인다. 그렇기 때문에 duck이라고 생각할 수 있다. 하지만 위의 예제를 보면, Human과 Duck 두 클래스의 메소드로 quack과 feather를 선언했고 두 클래스의 인스턴스를 만들어 inTheForest에 넣어주었다. 동일하게 두 객체는 각각 해당하는 콘솔 로그를 실행한다.</p>
 <p>여기서 주의깊게 봐야할 부분은 두 군데이다. 하나는 duck이라고 하는 인자를 받는 inTheForest 함수선언부이고, 하나는 inTheForest에 Duck과 Human의 인스턴스를 넣어 실행하는 함수실행부이다.</p>
 <h3>함수선언부와 함수실행부?</h3>
@@ -82,24 +81,23 @@ inTheForest(new Human())
 </ol>
 <h2>구조적 타이핑 (Structural-Typing)</h2>
 <p>구조적 타이핑은 <strong>구조적 타입 시스템(Structural Type System)</strong> 이라고도 불린다. 실제 구조와 정의에 의해 결정되는 타입 시스템의 한 종류이다. 명시적 선언이나 이름을 기반으로 하는 <strong>명목적 타입 시스템(Nominal Type System)</strong> 인 Java, C#등과 다르고, 런타임에 타입을 체크하는 덕 타이핑과 다르다.</p>
-<pre><code class="language-ts">interface Vector2D {
-  x: number
-  y: number
-}
-
-interface NamedVector {
-  name: string
-  x: number
-  y: number
-}
-
-function calculateLength(v: Vector2D) {
-  return Math.sqrt(v.x * v.x + v.y * v.y)
-}
-
-const v: NamedVector = { x: 3, y: 4, name: 'mgh' }
-calculateLength(v)
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="ts" data-theme="one-dark-pro"><code data-language="ts" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> Vector2D</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  x</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">number</span></span>
+<span data-line=""><span style="color:#E06C75">  y</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">number</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> NamedVector</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  name</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""><span style="color:#E06C75">  x</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">number</span></span>
+<span data-line=""><span style="color:#E06C75">  y</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">number</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> calculateLength</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">v</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Vector2D</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#E5C07B"> Math</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">sqrt</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">v</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">x</span><span style="color:#56B6C2"> *</span><span style="color:#E5C07B"> v</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">x</span><span style="color:#56B6C2"> +</span><span style="color:#E5C07B"> v</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">y</span><span style="color:#56B6C2"> *</span><span style="color:#E5C07B"> v</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">y</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> v</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">NamedVector</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">x</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">3</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">y</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">4</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'mgh'</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""><span style="color:#61AFEF">calculateLength</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">v</span><span style="color:#ABB2BF">)</span></span></code></pre></figure>
 <p>위 예제는 명목적 타입 시스템을 기준으로 Vector2D를 사용하도록 의도한 코드일 것이다. 하지만 구조적 타이핑 언어에서는 전혀 다른 개념으로 이해해야 한다. <strong>Vector2D의 속성에 해당하는 값이 값을 넣는 타입에 속성으로 존재하는가</strong>가 로 이해해야 한다. 이 개념은 집합과 관계가 있는데, 구조적 타이핑은 명목적 타이핑과 같은 명확한 상속 관계(A - B)를 지향하기보다 집합으로 포함한다는 개념을 지향하기 때문이다.</p>
 <blockquote>
 <p>Cook, W.R.; Hill, W.L.; Canning, P.S. (January 1990). "Inheritance is not subtyping". Proceedings of the Seventeenth Annual ACM Symposium on Principles of Programming Languages. San Francisco, California: 125–135. doi:10.1145/96709.96721. ISBN 978-0897913430.

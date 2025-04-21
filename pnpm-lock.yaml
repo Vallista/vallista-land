@@ -145,6 +145,9 @@ importers:
       '@types/jest':
         specifier: ^26.0.15
         version: 26.0.24
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/node':
         specifier: ^22.10.2
         version: 22.14.1

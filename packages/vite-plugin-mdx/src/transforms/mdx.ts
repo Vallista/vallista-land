@@ -7,6 +7,9 @@ import { unified } from 'unified'
 import { VFile } from 'vfile'
 import { extractFrontmatter } from '../plugins/extractFrontmatter'
 import { changeImageUrl } from '../plugins/changeImageUrl'
+import { remarkAutoHighlight } from '../plugins/remarkAutoHighlight'
+import rehypePrettyCode from 'rehype-pretty-code'
+import { rehypePrettyCodeOptions } from '../plugins'
 
 /**
  * Convert MDX(MD) to HTML
@@ -19,7 +22,9 @@ async function mdxToHTML(mdx: string, path: string, slug: string) {
     .use(changeImageUrl(path, slug))
     .use(remarkFrontmatter)
     .use(remarkGfm)
+    .use(remarkAutoHighlight)
     .use(remarkRehype)
+    .use(rehypePrettyCode, rehypePrettyCodeOptions)
     .use(rehypeStringify)
     .process(mdx)
 

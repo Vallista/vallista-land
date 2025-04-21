@@ -74,12 +74,98 @@ const Reset = () => {
   return (
     <Global
       styles={css`
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 900;
+          font-display: swap;
+          src:
+            local('Pretendard Black'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-Black.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-Black.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 800;
+          font-display: swap;
+          src:
+            local('Pretendard ExtraBold'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-ExtraBold.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-ExtraBold.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 700;
+          font-display: swap;
+          src:
+            local('Pretendard Bold'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-Bold.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-Bold.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 600;
+          font-display: swap;
+          src:
+            local('Pretendard SemiBold'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-SemiBold.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-SemiBold.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 500;
+          font-display: swap;
+          src:
+            local('Pretendard Medium'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-Medium.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-Medium.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 400;
+          font-display: swap;
+          src:
+            local('Pretendard Regular'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-Regular.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-Regular.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 300;
+          font-display: swap;
+          src:
+            local('Pretendard Light'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-Light.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-Light.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 200;
+          font-display: swap;
+          src:
+            local('Pretendard ExtraLight'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-ExtraLight.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-ExtraLight.subset.woff) format('woff');
+        }
+
+        @font-face {
+          font-family: 'Pretendard';
+          font-weight: 100;
+          font-display: swap;
+          src:
+            local('Pretendard Thin'),
+            url(/fonts/pretendard/woff2-subset/Pretendard-Thin.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/woff-subset/Pretendard-Thin.subset.woff) format('woff');
+        }
 
         :root {
-          --font-family:
-            'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
-            'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+          --font-family: 'Pretendard', -apple-system, sans-serif;
           --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
           --scrollbar-background: #1e1e1e;
           --scrollbar-thumb: #666;
@@ -87,7 +173,7 @@ const Reset = () => {
         }
 
         html {
-          font-size: 16px;
+          font-size: 14px;
 
           @media screen and (max-width: 1024px) {
             font-size: 14px;

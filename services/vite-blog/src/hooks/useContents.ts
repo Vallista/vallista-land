@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import * as API from '../apis'
 import { Article, Content, ContentType, ContentWithRaw, Note, Project } from '../types'
+import { useGlobalProvider } from '@/context/useProvider'
 
 /**
  * 콘텐츠를 가져오는 훅입니다.
  */
 export const useContents = () => {
+  const { state } = useGlobalProvider()
   const [contents, setContents] = useState<Content[]>([])
 
   useEffect(() => {
@@ -94,12 +96,29 @@ export const useContents = () => {
     }
   }
 
+  const selectedCategory = state.selectedCategory.slice(0, -1).toUpperCase()
+  const resultContents = contents
+    .filter((it) => selectedCategory === it.type)
+    .sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime()
+    })
+
+  const findSeries = (seriesName: string) =>
+    contents
+      .filter((it) => it.type === 'ARTICLE')
+      .filter((it) => it.series)
+      .filter((it) => it.series?.name === seriesName)
+      .sort((a, b) => {
+        return (a.series?.priority || 0) - (b.series?.priority || 0)
+      })
+
   return {
-    contents: contents,
+    contents: resultContents,
     articles,
     notes,
     projects,
     findContent,
-    findContentWithRaw
+    findContentWithRaw,
+    findSeries
   }
 }

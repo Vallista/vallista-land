@@ -20,17 +20,16 @@ First-class continuations(1등급 연속체)는 명령의 실행 순서를 완�
 <p>하단의 소스코드는 JavaScript를 기준으로 설명한다.</p>
 </blockquote>
 <p>먼저, 일반적인 반복문을 보자</p>
-<pre><code class="language-javascript">for (let i = 0; i &#x3C; 10; i++) {
-  console.log(i)
-}
-
-const arr = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // Symbol.iterator
-
-for (const val of arr) {
-  // ES6 for ... of
-  console.log(val)
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">for</span><span style="color:#ABB2BF"> (</span><span style="color:#C678DD">let</span><span style="color:#E06C75"> i</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">i</span><span style="color:#56B6C2"> &#x3C;</span><span style="color:#D19A66"> 10</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">i</span><span style="color:#56B6C2">++</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">i</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> arr</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> [</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">1</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">2</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">3</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">4</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">5</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">6</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">7</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">8</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">9</span><span style="color:#ABB2BF">] </span><span style="color:#7F848E;font-style:italic">// Symbol.iterator</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">for</span><span style="color:#ABB2BF"> (</span><span style="color:#C678DD">const</span><span style="color:#E5C07B"> val</span><span style="color:#C678DD"> of</span><span style="color:#E06C75"> arr</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  // ES6 for ... of</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">val</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>동일한 값을 출력하지만, for ... of 문법은 Symbol.iterator 속성을 가지는 컬렉션에 대해서 반복을 할 수 있다는 특징이 있다. 즉 iterable한 객체에 대해서 사용할 수 있다는 뜻이다. JavaScript에서 Iterable한 객체는 <code>Symbol.iterator</code>를 속성으로 가지고 있고 iterator를 반환하는 객체를 뜻한다.</p>
 <blockquote>
 <p>JavaScript에서는 <code>Symbol.iterator</code>로 정의하여 사용했지만 다른 언어에서는 언어 내의 스펙이 따로 있을 것이다.</p>
@@ -40,236 +39,227 @@ for (const val of arr) {
 <p>앞서 말한대로 Symbol.iterator를 속성으로 가지고 있으며, Iterator를 반환하는 객체를 Iterable 객체라고 한다.</p>
 <p><code>[Symbol.iterator]()</code> 객체로 반환하는 iterator 객체는 <code>next</code> 메소드를 가지고 있으며, <code>next</code> 메소드는 반환값으로 iterator 종료가 되었는가에 대한 플래그인 <code>done</code>과 값을 나타내는 <code>value</code> 두 가지를 반환한다. 이런 규칙을 <code>Iterator Protocol (이터레이터 프로토콜)</code>이라고 한다.</p>
 <p>일반적으로 아래와 같이 하나의 객체에 Iterator Protocol과 Iterable Protocol을 구현한다.</p>
-<pre><code class="language-javascript">const iterator = {
-  // iterator 객체
-  [Symbol.iterator]: function () {
-    // iterable 객체
-    return this // iterator 객체를 반환
-  },
-  next: function () {
-    // iterator 객체는 next 함수를 내장하고 있어야 한다.
-    return { done: false, value: 'Hello' } // iterator protocol 규칙
-  }
-}
-
-console.log(iterator[Symbol.iterator]()) // this 반환
-console.log(iterator.next()) // { done: false, value: 'Hello' }
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> iterator</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  // iterator 객체</span></span>
+<span data-line=""><span style="color:#ABB2BF">  [</span><span style="color:#E5C07B">Symbol</span><span style="color:#E06C75">.iterator</span><span style="color:#ABB2BF">]: </span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // iterable 객체</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#E5C07B"> this</span><span style="color:#7F848E;font-style:italic"> // iterator 객체를 반환</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#61AFEF">  next</span><span style="color:#ABB2BF">: </span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // iterator 객체는 next 함수를 내장하고 있어야 한다.</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">done</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">false</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">value</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'Hello'</span><span style="color:#ABB2BF"> } </span><span style="color:#7F848E;font-style:italic">// iterator protocol 규칙</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">iterator</span><span style="color:#ABB2BF">[</span><span style="color:#E5C07B">Symbol</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">iterator</span><span style="color:#ABB2BF">]()) </span><span style="color:#7F848E;font-style:italic">// this 반환</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 'Hello' }</span></span></code></pre></figure>
 <p>해당 소스는 종료 시점 없이 계속 값으로 'Hello'를 반환하는 예제이다.</p>
 <p>Iterator의 장점은 다양한 Iterable 객체에 대해 하나의 Iterator Protocol을 구현하여 순회할 수 있다는 장점이 있다.</p>
 <h2>Generator Function</h2>
 <p>왜 Generator를 설명하는 곳에서 Iterator를 설명했는가? 그 이유는 1) Iterable과 Iterator를 알아야 이해할 수 있기 때문이며 2) JavaScript의 Generator는 위에서 설명한 일련의 과정을 쉽게 만드는 방법이기 때문이다.</p>
 <h3>Create</h3>
 <p>예시로 덧셈과 곱셈을 하는 프로세스를 이터레이터로 구현해보자.</p>
-<pre><code class="language-javascript">class calculatingIterator {
-  constructor(start, dest) {
-    this.value = 1
-    this.start = start
-    this.dest = dest
-  }
-
-  [Symbol.iterator]() {
-    // Iterable Protocol
-    return this
-  }
-
-  next() {
-    let value = this.value
-    this.start++
-
-    if (this.start > this.dest) {
-      return { done: true, value: undefined }
-    }
-
-    if (this.start === 2) this.value *= 10
-    else this.value += 1
-
-    return { done: false, value }
-  }
-}
-
-const iterator = new calculatingIterator(0, 3)
-
-console.log(iterator.next()) // { done: false, value: 1 }
-console.log(iterator.next()) // { done: false, value: 2 }
-console.log(iterator.next()) // { done: false, value: 20 }
-console.log(iterator.next()) // { done: true, value: undefined }
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> calculatingIterator</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">start</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">dest</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">value</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 1</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">start</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> start</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">dest</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> dest</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">  [</span><span style="color:#E5C07B">Symbol</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">iterator</span><span style="color:#ABB2BF">]() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // Iterable Protocol</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#E5C07B"> this</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  next</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    let</span><span style="color:#E06C75"> value</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">value</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">start</span><span style="color:#56B6C2">++</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">start</span><span style="color:#56B6C2"> ></span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">dest</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">      return</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">done</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">true</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">value</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">undefined</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">start</span><span style="color:#56B6C2"> ===</span><span style="color:#D19A66"> 2</span><span style="color:#ABB2BF">) </span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">value</span><span style="color:#56B6C2"> *=</span><span style="color:#D19A66"> 10</span></span>
+<span data-line=""><span style="color:#C678DD">    else</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">value</span><span style="color:#56B6C2"> +=</span><span style="color:#D19A66"> 1</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">done</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">false</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">value</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> iterator</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> calculatingIterator</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">3</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 1 }</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 2 }</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 20 }</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: true, value: undefined }</span></span></code></pre></figure>
 <p>이 코드를 ES6의 제너레이터를 사용하여 변경해보도록 하자.</p>
-<pre><code class="language-javascript">function* calculatingGenerator(start, dest) {
-  let value = 0
-
-  for (let i = start; i &#x3C; dest; i++) {
-    if (i == 2) value *= 10
-    else value += 1
-
-    yield value
-  }
-}
-
-const iterator = calculatingGenerator(0, 3)
-
-console.log(iterator.next()) // { done: false, value: 1 }
-console.log(iterator.next()) // { done: false, value: 2 }
-console.log(iterator.next()) // { done: false, value: 20 }
-console.log(iterator.next()) // { done: true, value: undefined }
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function*</span><span style="color:#61AFEF"> calculatingGenerator</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">start</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">dest</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">  let</span><span style="color:#E06C75"> value</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  for</span><span style="color:#ABB2BF"> (</span><span style="color:#C678DD">let</span><span style="color:#E06C75"> i</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> start</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">i</span><span style="color:#56B6C2"> &#x3C;</span><span style="color:#E06C75"> dest</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">i</span><span style="color:#56B6C2">++</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">i</span><span style="color:#56B6C2"> ==</span><span style="color:#D19A66"> 2</span><span style="color:#ABB2BF">) </span><span style="color:#E06C75">value</span><span style="color:#56B6C2"> *=</span><span style="color:#D19A66"> 10</span></span>
+<span data-line=""><span style="color:#C678DD">    else</span><span style="color:#E06C75"> value</span><span style="color:#56B6C2"> +=</span><span style="color:#D19A66"> 1</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    yield</span><span style="color:#E06C75"> value</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> iterator</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> calculatingGenerator</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">3</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 1 }</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 2 }</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: false, value: 20 }</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { done: true, value: undefined }</span></span></code></pre></figure>
 <p>제너레이터의 소스코드를 보면, 직접 iterable protocol과 iterator protocol를 구현한 객체처럼 결과가 나오는 걸 볼 수 있다. 그렇다면 Generator를 효과적으로 사용할 수 있는 비동기 예제를 통해서 사용 예를 조금 더 보도록 하자.</p>
 <h3>Asynchronous Processing</h3>
 <p>메인 페이지에서 세션체크 후 포스트, 인기있는 포스트, 이 달의 포스트를 가져오려고 한다. 이럴 때 구상할 수 있는 방법은 아래와 같다.</p>
-<pre><code class="language-javascript">function getSessionCheck() { /* 비동기 처리 */ }
-function getPostList() { /* 비동기 처리 */ }
-function getFavoritePostList() { /* 비동기 처리 */ }
-function getMontlyPostList() { /* 비동기 처리 */ }
-
-function loadMainPage() {
-  getSessionCheck() // 세션 체크
-  getPostList() // 전체 포스트
-  getFavoritePostList() // 인기있는 포스트
-  getMontlyPostList() // 이 달의 포스트
-
-  ...
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">() { </span><span style="color:#7F848E;font-style:italic">/* 비동기 처리 */</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">() { </span><span style="color:#7F848E;font-style:italic">/* 비동기 처리 */</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">() { </span><span style="color:#7F848E;font-style:italic">/* 비동기 처리 */</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">() { </span><span style="color:#7F848E;font-style:italic">/* 비동기 처리 */</span><span style="color:#ABB2BF"> }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> loadMainPage</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#61AFEF">  getSessionCheck</span><span style="color:#ABB2BF">() </span><span style="color:#7F848E;font-style:italic">// 세션 체크</span></span>
+<span data-line=""><span style="color:#61AFEF">  getPostList</span><span style="color:#ABB2BF">() </span><span style="color:#7F848E;font-style:italic">// 전체 포스트</span></span>
+<span data-line=""><span style="color:#61AFEF">  getFavoritePostList</span><span style="color:#ABB2BF">() </span><span style="color:#7F848E;font-style:italic">// 인기있는 포스트</span></span>
+<span data-line=""><span style="color:#61AFEF">  getMontlyPostList</span><span style="color:#ABB2BF">() </span><span style="color:#7F848E;font-style:italic">// 이 달의 포스트</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">  ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>세션체크가 끝나고 포스트리스트 부르기, 그 다음 인기있는 포스트, 그 다음...
 순차적인 진행을 의도했으나 JavaScript에서 위와 같은 구문은 제대로 실행되지 않는다.
 각 변수에는 올바른 값이 들어가지 않는 이유는 네트워크를 처리 하기 전에 반환이 되기 때문이다.</p>
 <p>그렇다면 이를 해결할 수 있는 방법은 무엇일까? ES6에는 Promise라는 문법이 존재한다.</p>
 <h4>Promise를 이용해서 비동기 처리</h4>
 <p>Promise를 이용해서 비동기 처리 코드를 작성해보자.</p>
-<pre><code class="language-javascript">function getSessionCheck() {
-  /* 비동기 처리 */
-} // promise 객체 반환
-function getPostList() {
-  /* 비동기 처리 */
-} // promise 객체 반환
-function getFavoritePostList() {
-  /* 비동기 처리 */
-} // promise 객체 반환
-function getMontlyPostList() {
-  /* 비동기 처리 */
-} // promise 객체 반환
-
-const loadMainPage = () => new Promise((resolve) => resolve(getSessionCheck()))
-
-loadMainPage().then(getPostList()).then(getFavoritePostList()).than(getMontlyPostList())
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> loadMainPage</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#C678DD"> new</span><span style="color:#E5C07B"> Promise</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">resolve</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#61AFEF"> resolve</span><span style="color:#ABB2BF">(</span><span style="color:#61AFEF">getSessionCheck</span><span style="color:#ABB2BF">()))</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">loadMainPage</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">(</span><span style="color:#61AFEF">getPostList</span><span style="color:#ABB2BF">()).</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">(</span><span style="color:#61AFEF">getFavoritePostList</span><span style="color:#ABB2BF">()).</span><span style="color:#61AFEF">than</span><span style="color:#ABB2BF">(</span><span style="color:#61AFEF">getMontlyPostList</span><span style="color:#ABB2BF">())</span></span></code></pre></figure>
 <p>promise를 사용하게 되면, than을 통해서 동기로 실행할 수 있다. 동기로 실행할 수 있다는 말은 네트워크 작업이 처리되고, 그 이후 순차적으로 다음 함수를 방문하여 일을 처리한다는 말이다.
 즉, <code>loadMainPage</code>는 <code>resolve(getSessionCheck())</code>를 반환하므로 Promise function이 되었고 해당 함수를 실행후 <code>.then</code>을 통해 <code>getPostList()</code> 그 다음은 <code>getFavoritePostList()</code> 그 다음은 <code>getMontlyPostList()</code>를 실행하게 된다.</p>
 <p>하지만 위의 호출 flow는 우리가 생각했던 그런 구조와 다른 방향으로써의 해결이라는 생각이 든다. 왜냐하면 Promise를 통해 <code>.then</code>을 호출해서 다음 함수를 호출하게 되면 다음 함수에 대한 제어권이 없어지기 때문이다. 또한 실행되는 환경이 다르기 때문에 클로저나 멤버변수를 사용하기 힘들어진다.</p>
 <h4>Generator를 이용해서 비동기 처리</h4>
 <p>그렇다면 Promise가 아닌, Generator를 사용하여 처리해보자. 위의 문제점을 generator는 해결할 수 있으며 오히려 더 직관적으로 보이게 코딩할 수 있다.</p>
-<pre><code class="language-javascript">function getSessionCheck() {
-  /* 비동기 처리 */
-}
-function getPostList() {
-  /* 비동기 처리 */
-}
-function getFavoritePostList() {
-  /* 비동기 처리 */
-}
-function getMontlyPostList() {
-  /* 비동기 처리 */
-}
-
-function* loadMainPage() {
-  yield getSessionCheck()
-  yield getPostList()
-  yield getFavoritePostList()
-  yield getMontlyPostList()
-}
-
-const iterator = loadMainPage()
-
-console.log(iterator.next()) // { value: getSessionCheck()값, done: false }
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function*</span><span style="color:#61AFEF"> loadMainPage</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> iterator</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> loadMainPage</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// { value: getSessionCheck()값, done: false }</span></span></code></pre></figure>
 <p>처음 우리가 설계했던대로 얼추 비슷하게 코딩이 되었다. 그런데 조금 다른 부분이 보인다.
 generator는 iterator를 반환하는 함수인데, 반환하기 위해서는 <code>.next()</code>함수를 통해 다음으로 넘어가야하는 문제가 있다.</p>
 <p>그렇다면 이 부분을 해결할 수 있는 방법이 무엇일까?</p>
 <ol>
 <li>함수 내 호출</li>
 </ol>
-<pre><code class="language-javascript">function getSessionCheck(itr) {
-  /* 비동기 처리 */
-  itr.next()
-} // promise 객체 반환
-
-function getPostList() {
-  /* 비동기 처리 */
-  itr.next()
-} // promise 객체 반환
-
-function getFavoritePostList() {
-  /* 비동기 처리 */
-  itr.next()
-} // promise 객체 반환
-
-function getMontlyPostList() {
-  /* 비동기 처리 */
-  itr.next()
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">itr</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#E5C07B">  itr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#E5C07B">  itr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#E5C07B">  itr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">} </span><span style="color:#7F848E;font-style:italic">// promise 객체 반환</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#E5C07B">  itr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>심플하다. 함수를 사용하고 끝나면 next()를 함수 내에서 호출해준다.
 하지만 이렇게되면 함수간에 의존성이 생기므로 별로 좋은 코딩으로 보이지 않는다.</p>
 <ol start="2">
 <li>재귀호출</li>
 </ol>
-<pre><code class="language-javascript">function getSessionCheck() {
-  /* 비동기 처리 */
-}
-function getPostList() {
-  /* 비동기 처리 */
-}
-function getFavoritePostList() {
-  /* 비동기 처리 */
-}
-function getMontlyPostList() {
-  /* 비동기 처리 */
-}
-
-function* loadMainPage() {
-  yield getSessionCheck()
-  yield getPostList()
-  yield getFavoritePostList()
-  yield getMontlyPostList()
-}
-
-function runner(generator) {
-  const iterator = generator()
-
-  ;(function repeatIterator({ done, value }) {
-    if (done) return value // done이 true가 될 때 까지
-    repeatIterator(iterator.next()) //다음 iterator 호출
-  })(iterator.next()) // 시작
-}
-
-runner(loadMainPage)
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function*</span><span style="color:#61AFEF"> loadMainPage</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  yield</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> runner</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">generator</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> iterator</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> generator</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">  ;(</span><span style="color:#C678DD">function</span><span style="color:#61AFEF"> repeatIterator</span><span style="color:#ABB2BF">({ </span><span style="color:#E06C75;font-style:italic">done</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">value</span><span style="color:#ABB2BF"> }) {</span></span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">done</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">return</span><span style="color:#E06C75"> value</span><span style="color:#7F848E;font-style:italic"> // done이 true가 될 때 까지</span></span>
+<span data-line=""><span style="color:#61AFEF">    repeatIterator</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">//다음 iterator 호출</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })(</span><span style="color:#E5C07B">iterator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">next</span><span style="color:#ABB2BF">()) </span><span style="color:#7F848E;font-style:italic">// 시작</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">runner</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">loadMainPage</span><span style="color:#ABB2BF">)</span></span></code></pre></figure>
 <p>재귀호출을 통해, 해당 generator에 맞는 컨디션을 제작하여 한번 호출시 연속해서 실행 할 수 있는 로직을 구현할 수 있다.</p>
 <h4>번외 - Async/Await를 이용하여 좀 더 normalize하기</h4>
 <p>한편, Generator는 caller와 callee가 명확하게 구분되어 있어 동기적 프로그래밍을 하기위해서 위의 runner를 만들어 줬는데, 이는 ES6의 Async/Await를 사용하여 우리가 궁극적으로 추구하던 방향과 비슷하게 코딩을 할 수 있다.</p>
-<pre><code class="language-javascript">function getSessionCheck() {
-  /* 비동기 처리 */
-}
-function getPostList() {
-  /* 비동기 처리 */
-}
-function getFavoritePostList() {
-  /* 비동기 처리 */
-}
-function getMontlyPostList() {
-  /* 비동기 처리 */
-}
-
-async function loadMainPage() {
-  await getSessionCheck()
-  await getPostList()
-  await getFavoritePostList()
-  await getMontlyPostList()
-}
-
-loadMainPage()
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  /* 비동기 처리 */</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">async</span><span style="color:#C678DD"> function</span><span style="color:#61AFEF"> loadMainPage</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">  await</span><span style="color:#61AFEF"> getSessionCheck</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  await</span><span style="color:#61AFEF"> getPostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  await</span><span style="color:#61AFEF"> getFavoritePostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">  await</span><span style="color:#61AFEF"> getMontlyPostList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">loadMainPage</span><span style="color:#ABB2BF">()</span></span></code></pre></figure>
 <p>Javascript ES6부터 Async/Await 구문을 지원하게 되었다. 문법을 사용하여 async function, 즉 일종의 코루틴 함수로 만든다.
 <code>loadMainPage()</code>을 호출하면 순차적으로 <code>getSessionCheck()</code>, <code>getPostList()</code>, <code>getFavoritePostList()</code>, <code>getMontlyPostList()</code>를 호출한다.</p>
 <h2>Finish</h2>

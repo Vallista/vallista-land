@@ -59,67 +59,65 @@ Facebook의 React 개발자인 Dan Abramov의 데이터 컴포넌트, 레이아�
 <p>컨테이너 컴포넌트 영역과 프레젠테이션 영역을 분리했습니다. 분리를 해놓으니 좀 더 명확해보이네요. 데이터를 수정해야할 때는 데이터 영역을 만지면 되고, 레이아웃 수정해야할 때는 레이아웃 영역만 수정하기 위해 찾으면 되니 찾는데도 더 효율적입니다.</p>
 <p>코드상으로는 다음과 같습니다.</p>
 <p><strong>TweetListContainer.jsx</strong></p>
-<pre><code class="language-jsx">import React from 'react'
-import axios from 'axios'
-
-import TweetList from '../../presentationals/TweetList'
-
-const http = axios.create({
-  baseURI: 'http://blahblah.net/api',
-  timeout: 10000
-})
-
-class TweetListContainer extends React.Component {
-  state = {
-    list: []
-  }
-
-  componentWillMount() {
-    const { userId } = this.props
-
-    http.get(`/users/${userId}/timeline`).then((res) => {
-      this.setState({
-        list: res.data
-      })
-    })
-  }
-
-  render() {
-    return &#x3C;TweetList list={this.list} />
-  }
-}
-
-export default TweetListContainer
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> axios</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'axios'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> TweetList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../presentationals/TweetList'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> http</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> axios</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">create</span><span style="color:#ABB2BF">({</span></span>
+<span data-line=""><span style="color:#E06C75">  baseURI</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'http://blahblah.net/api'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  timeout</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">10000</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> TweetListContainer</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> React</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">Component</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  state</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    list</span><span style="color:#ABB2BF">: []</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  componentWillMount</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">userId</span><span style="color:#ABB2BF"> } </span><span style="color:#56B6C2">=</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">props</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">    http</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">get</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">`/users/</span><span style="color:#C678DD">${</span><span style="color:#E06C75">userId</span><span style="color:#C678DD">}</span><span style="color:#98C379">/timeline`</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">res</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">      this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">setState</span><span style="color:#ABB2BF">({</span></span>
+<span data-line=""><span style="color:#E06C75">        list</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">res</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">data</span></span>
+<span data-line=""><span style="color:#ABB2BF">      })</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#ABB2BF"> &#x3C;</span><span style="color:#E5C07B">TweetList</span><span style="color:#D19A66;font-style:italic"> list</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">list</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> TweetListContainer</span></span></code></pre></figure>
 <p>TweetListContainer 에서는 TweetList를 HoC 하고 있습니다. TweetListContainer를 사용하면 TweetList에 데이터가 바인딩 된 채로 내려가는 것이죠.</p>
 <p><strong>TweetList.jsx</strong></p>
-<pre><code class="language-jsx">import React from 'react'
-
-const TweetList = ({ list }) => {
-  const Tweet = ({ user, description }) => (
-    &#x3C;div>
-      &#x3C;div>
-        &#x3C;span>{user.name}&#x3C;/span>
-        &#x3C;span>{user.nickname}&#x3C;/span>
-        &#x3C;span>{user.date}&#x3C;/span>
-      &#x3C;/div>
-      &#x3C;div>
-        &#x3C;p>{description}&#x3C;/p>
-      &#x3C;/div>
-    &#x3C;/div>
-  )
-
-  return (
-    &#x3C;div>
-      {list.map((tweet) => (
-        &#x3C;Tweet {...tweet} />
-      ))}
-    &#x3C;/div>
-  )
-}
-
-export default TweetList
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> TweetList</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">list</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> Tweet</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">user</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">description</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E5C07B">user</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">name</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E5C07B">user</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">nickname</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E5C07B">user</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">date</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E06C75">description</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">      {</span><span style="color:#E5C07B">list</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">map</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">tweet</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">Tweet</span><span style="color:#C678DD"> {</span><span style="color:#ABB2BF">...</span><span style="color:#E06C75">tweet</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">      ))</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> TweetList</span></span></code></pre></figure>
 <p>TweetList는 다음과 같이 내부 데이터는 하나도 없고, Props로 받은 데이터만 가지고 있습니다.</p>
 <h3>구현 방법의 차이</h3>
 <p>기존 방법과 다른점은 Container Component에서 데이터를 바인딩하고, Presentational Component 로 데이터를 내려주고 있습니다. 이러한 행위를 <code>Prop Drilling</code> 이라고 합니다. Props를 통해 불변하는 데이터만 던져주기 때문이죠.</p>
@@ -158,41 +156,40 @@ organisms, molecules, atoms를 가지고 있는 레이아웃 컴포넌트를 이
 </ul>
 <p>코드 레벨에서 접근해서 예제를 보도록 해요.</p>
 <p><strong>templates/TweetList.jsx</strong></p>
-<pre><code class="language-jsx">import React from 'react'
-
-import P, { TextAlign } from '../../atoms/P'
-import Span, { TextColor, TextWeight } from '../../atoms/Span'
-import Block, { Direction, Sort } from '../../molecules/Block'
-
-const TweetList = ({ list }) => {
-  const Tweet = ({ user, description }) => (
-    &#x3C;Block direction={Direction.COLUMN}>
-      &#x3C;Block sort={Sort.LEFT_CENTER} margin={[0, 0, 24, 0]}>
-        &#x3C;Span weight={TextWeight.BOLD} color={TextColor.GRAY}>
-          {user.name}
-        &#x3C;/Span>
-        &#x3C;Span color={TextColor.GRAY}>{user.nickname}&#x3C;/Span>
-        &#x3C;Span color={TextColor.GRAY}>{user.date}&#x3C;/Span>
-      &#x3C;/Block>
-      &#x3C;Block sort={Sort.LEFT_CENTER}>
-        &#x3C;P align={TextAlign.LEFT} color={TextColor.GRAY}>
-          {description}
-        &#x3C;/P>
-      &#x3C;/Block>
-    &#x3C;/Block>
-  )
-
-  return (
-    &#x3C;Block direction={Direction.COLUMN}>
-      {list.map((tweet) => (
-        &#x3C;Tweet {...tweet} />
-      ))}
-    &#x3C;/Block>
-  )
-}
-
-export default TweetList
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> P</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">TextAlign</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../../atoms/P'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Span</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">TextColor</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">TextWeight</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../../atoms/Span'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Block</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">Direction</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">Sort</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../../molecules/Block'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> TweetList</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">list</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> Tweet</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">user</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">description</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E5C07B">Block</span><span style="color:#D19A66;font-style:italic"> direction</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">Direction</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">COLUMN</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">Block</span><span style="color:#D19A66;font-style:italic"> sort</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">Sort</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">LEFT_CENTER</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> margin</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#ABB2BF">[</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">24</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">]</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">Span</span><span style="color:#D19A66;font-style:italic"> weight</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">TextWeight</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">BOLD</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> color</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">TextColor</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">GRAY</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">          {</span><span style="color:#E5C07B">user</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">name</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;/</span><span style="color:#E5C07B">Span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">Span</span><span style="color:#D19A66;font-style:italic"> color</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">TextColor</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">GRAY</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E5C07B">user</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">nickname</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E5C07B">Span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">Span</span><span style="color:#D19A66;font-style:italic"> color</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">TextColor</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">GRAY</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E5C07B">user</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">date</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E5C07B">Span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E5C07B">Block</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">Block</span><span style="color:#D19A66;font-style:italic"> sort</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">Sort</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">LEFT_CENTER</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">P</span><span style="color:#D19A66;font-style:italic"> align</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">TextAlign</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">LEFT</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> color</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">TextColor</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">GRAY</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">          {</span><span style="color:#E06C75">description</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;/</span><span style="color:#E5C07B">P</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E5C07B">Block</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E5C07B">Block</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E5C07B">Block</span><span style="color:#D19A66;font-style:italic"> direction</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">Direction</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">COLUMN</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">      {</span><span style="color:#E5C07B">list</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">map</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">tweet</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">Tweet</span><span style="color:#C678DD"> {</span><span style="color:#ABB2BF">...</span><span style="color:#E06C75">tweet</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">      ))</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E5C07B">Block</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> TweetList</span></span></code></pre></figure>
 <p>위의 코드에서 일반적인 tag는 안쓰이는 걸 볼 수 있습니다. 이 방법의 장점과 단점을 살펴보겠습니다.</p>
 <h3>장점</h3>
 <ul>
@@ -222,121 +219,116 @@ _
 <h3>React Hooks 사용</h3>
 <p>16.8 버전부터 제공하기 시작한 React Hooks는 중복되는 상태를 관리하기에 좋은 형태를 지니고 있습니다.</p>
 <p><strong>useMountedState.tsx</strong></p>
-<pre><code class="language-jsx">import { useCallback, useEffect, useRef } from 'react'
-
-function useMountedState() {
-  const mountedRef = useRef(false)
-  const my = useCallback(() => mountedRef.current, [])
-
-  useEffect(() => {
-    mountedRef.current = true
-
-    return () => {
-      mountedRef.current = false
-    }
-  })
-
-  return my
-}
-
-export default useMountedState
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">useCallback</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">useEffect</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">useRef</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> useMountedState</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> mountedRef</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> useRef</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">false</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> my</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> useCallback</span><span style="color:#ABB2BF">(() </span><span style="color:#C678DD">=></span><span style="color:#E5C07B"> mountedRef</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">current</span><span style="color:#ABB2BF">, [])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  useEffect</span><span style="color:#ABB2BF">(() </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    mountedRef</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">current</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> true</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">      mountedRef</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">current</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> false</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#E06C75"> my</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> useMountedState</span></span></code></pre></figure>
 <p>Hooks API로 제공되는 useEffect, useState, useCallback 등의 API를 사용해 Reactive 프로그래밍을 가능하도록 제공하며 이는 굳이 React Component가 아니더라도 제공합니다.</p>
 <p>Hooks API를 사용하여 위의 TweetListContainer를 hooks스럽게 변경해보겠습니다.</p>
 <p><strong>containers/TweetListContainer.jsx</strong></p>
-<pre><code class="language-jsx">import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-
-import TweetList from '../../presentationals/templates/TweetList'
-
-const http = axios.create({
-  baseURI: 'http://blahblah.net/api',
-  timeout: 10000
-})
-
-const TweetListContainer = ({ userId }) => {
-  const { tweetList, setTweetList } = useState([])
-
-  useEffect(() => {
-    http.get(`/users/${userId}/timeline`).then((res) => {
-      setTweetList(res.data)
-    })
-  }, [])
-
-  return &#x3C;TweetList list={tweetList} />
-}
-
-export default TweetList
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">useState</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">useEffect</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> axios</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'axios'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> TweetList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../presentationals/templates/TweetList'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> http</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> axios</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">create</span><span style="color:#ABB2BF">({</span></span>
+<span data-line=""><span style="color:#E06C75">  baseURI</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'http://blahblah.net/api'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  timeout</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">10000</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> TweetListContainer</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">userId</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">tweetList</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">setTweetList</span><span style="color:#ABB2BF"> } </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useState</span><span style="color:#ABB2BF">([])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  useEffect</span><span style="color:#ABB2BF">(() </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    http</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">get</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">`/users/</span><span style="color:#C678DD">${</span><span style="color:#E06C75">userId</span><span style="color:#C678DD">}</span><span style="color:#98C379">/timeline`</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">res</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">      setTweetList</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">res</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">data</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }, [])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> &#x3C;</span><span style="color:#E5C07B">TweetList</span><span style="color:#D19A66;font-style:italic"> list</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">tweetList</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> TweetList</span></span></code></pre></figure>
 <p>코드를 변경해보았습니다. 하지만 전혀 Hooks스럽다고 표현할 수 없네요. Functional Component로 변경하면서 Hooks API를 사용했을 뿐이지 전혀 재사용에 대한 고려도 되어있지 않습니다.</p>
 <h3>Custom Hooks 사용</h3>
 <p>React Hooks에는 Custom 하게 Hooks를 사용하는 방법이 있습니다. 말 그대로 임의의 훅을 제작하는건데요, 아래와 같습니다.</p>
 <p><strong>hooks/useTweetList.jsx</strong></p>
-<pre><code class="language-jsx">import axios from 'axios'
-
-const http = axios.create({
-  baseURI: 'http://blahblah.net/api',
-  timeout: 10000
-})
-
-const useTweetList = (userId) => {
-  const { tweetList, setTweetList } = useState([])
-
-  useEffect(() => {
-    http.get(`/users/${userId}/timeline`).then((res) => {
-      setTweetList(res.data)
-    })
-  }, [])
-
-  return {
-    tweetList
-  }
-}
-
-export default useTweetList
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> axios</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'axios'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> http</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> axios</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">create</span><span style="color:#ABB2BF">({</span></span>
+<span data-line=""><span style="color:#E06C75">  baseURI</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'http://blahblah.net/api'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  timeout</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">10000</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> useTweetList</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">userId</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">tweetList</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">setTweetList</span><span style="color:#ABB2BF"> } </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useState</span><span style="color:#ABB2BF">([])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  useEffect</span><span style="color:#ABB2BF">(() </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    http</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">get</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">`/users/</span><span style="color:#C678DD">${</span><span style="color:#E06C75">userId</span><span style="color:#C678DD">}</span><span style="color:#98C379">/timeline`</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">res</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">      setTweetList</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">res</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">data</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }, [])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    tweetList</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> useTweetList</span></span></code></pre></figure>
 <p>API 로직을 custom hooks로 만들어 빼냈습니다.</p>
 <p><strong>containers/TweetListContainer.jsx</strong></p>
-<pre><code class="language-jsx">import React, { useState, useEffect } from 'react'
-
-import TweetList from '../../presentationals/templates/TweetList'
-
-import useTweetList from '../../hooks/useTweetList'
-
-const TweetListContainer = ({ userId }) => {
-  const { tweetList } = useTweetList(userId)
-
-  return &#x3C;TweetList list={tweetList} />
-}
-
-export default TweetList
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">useState</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">useEffect</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> TweetList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../presentationals/templates/TweetList'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> useTweetList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../hooks/useTweetList'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> TweetListContainer</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">userId</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">tweetList</span><span style="color:#ABB2BF"> } </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useTweetList</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">userId</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> &#x3C;</span><span style="color:#E5C07B">TweetList</span><span style="color:#D19A66;font-style:italic"> list</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">tweetList</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> TweetList</span></span></code></pre></figure>
 <p>별도로 분리한 useTweetList를 사용합니다.</p>
 <p>이렇게 구현을 하고 나니, 굳이 Container 컴포넌트가 있을 필요가 없어졌습니다. HoC를 이용해 데이터를 주입하지 않아도 Hooks를 이용해서 데이터만 전달하면 되므로, Container를 제거하고 page에서 바로 데이터를 주입하도록 구현해볼 수 있습니다.</p>
 <p><strong>Home.jsx</strong></p>
-<pre><code class="language-jsx">import React from 'react'
-
-import Sidebar from '../../containers/Sidebar'
-import TweetList from '../../containers/TweetList'
-import Modal from '../../containers/ModalContainer'
-
-import useTweetList from '../../hooks/useTweetList'
-
-const Home = ({ history }) => {
-  const userId = history.params.userId
-  const { tweetList } = useTweetList(userId)
-
-  return (
-    &#x3C;div>
-      &#x3C;SidebarContainer />
-      &#x3C;TweetList list={tweetList} />
-      &#x3C;ModalContainer />
-    &#x3C;/div>
-  )
-}
-
-export default Home
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Sidebar</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../containers/Sidebar'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> TweetList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../containers/TweetList'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Modal</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../containers/ModalContainer'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> useTweetList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../../hooks/useTweetList'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> Home</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">history</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> userId</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> history</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">params</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">userId</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">tweetList</span><span style="color:#ABB2BF"> } </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useTweetList</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">userId</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">SidebarContainer</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">TweetList</span><span style="color:#D19A66;font-style:italic"> list</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">tweetList</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">ModalContainer</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Home</span></span></code></pre></figure>
 <p>더이상 Container Component가 필요없음을 알게 되었습니다. HoC를 통해 데이터를 내려주지 않으니 뎁스가 줄어들어서 리펙토링시에도 용이합니다.</p>
 <p>그렇다면 폴더 구조에서 Container가 필요 없어지므로 변경할 수 있습니다.</p>
 <p><img src="/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/11.png" alt="이미지11"></p>

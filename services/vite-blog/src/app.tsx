@@ -1,12 +1,12 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 
-import { Layout } from './components/Layout'
+import { Layout } from './apps/layout'
 
-import AboutMePage from './pages/about-me'
-import ArticlePage from './pages/contents/articles'
-import ResumePage from './pages/resume'
-import ProjectPage from './pages/contents/projects'
-import NotePage from './pages/contents/notes'
+import AboutMePage from './apps/about-me'
+import ArticlePage from './apps/contents/articles'
+import ResumePage from './apps/resume'
+import ProjectPage from './apps/contents/projects'
+import NotePage from './apps/contents/notes'
 import { GlobalProvider } from './context'
 
 const App = () => {

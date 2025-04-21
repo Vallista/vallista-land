@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- 문서 테두리 -->
+  <rect x="12" y="8" width="40" height="48" rx="4" ry="4" fill="none" stroke="currentColor" stroke-width="3"/>
+  <!-- 가로줄 -->
+  <line x1="20" y1="20" x2="44" y2="20" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+  <line x1="20" y1="30" x2="44" y2="30" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+  <line x1="20" y1="40" x2="36" y2="40" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+</svg>

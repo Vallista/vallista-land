@@ -143,9 +143,8 @@ const Container = styled.div<{ card?: boolean }>`
     ${card &&
     css`
       padding: 1.5rem;
-      box-shadow: ${theme.shadows.SMALL};
       border-radius: 5px;
-      border: none;
+      border: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
     `}
   `}
 `
@@ -201,10 +200,10 @@ const HeaderContents = styled.span<{ size?: CollapseSizeType }>`
   ${({ size }) =>
     size === 'small'
       ? css`
-          padding: 0.75rem 0;
+          padding: 0 0 0.75rem 0;
         `
       : css`
-          padding: 1.5rem 0;
+          padding: 0 0 1.5rem 0;
         `}
 
   ${({ theme }) => css`

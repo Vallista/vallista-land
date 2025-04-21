@@ -10,68 +10,65 @@
 <p>typescript에서 타입 추론하기 위한 디렉토리 구조는 잘 만들어지는데, 그 외 나머지는 잘 제공이 되지 않았다. 그래서 다시 tsc로 변경을 하고 npm publish로 빌드했다.</p>
 <h2>package.json의 repository가 없으면 publish가 되지 않는다</h2>
 <p>그렇게 다시 tsc로 리셋을 하면서 문제가 되었다. <a href="https://vallista.kr/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/">이전 포스팅</a>에서 npm publish를 할 때 다루지 않아, 리셋을 하고 다시 삽질을 했다. 왜 안되는가 계속 찾다가 <a href="https://stackoverflow.com/a/61021072">스택오버플로우</a>의 글을 보고 뇌에 스치는 것이 있었다. 그래서 repository를 바로 다음과 같이 수정했다.</p>
-<pre><code class="language-json">{
-  "name": "@vallista/core",
-  "version": "0.5.4",
-  "private": false,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/vallista/vallista-land"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "files": ["lib"],
-  "main": "./lib/index.js",
-  "types": "./lib/types.d.ts",
-  "peerDependencies": {
-    "@emotion/react": "^11.4.1",
-    "@emotion/styled": "^11.3.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
-  },
-  "devDependencies": {
-    "@emotion/babel-plugin": "^11.3.0",
-    "@emotion/react": "^11.4.1",
-    "@emotion/styled": "^11.3.0",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
-  },
-  "scripts": {
-    "run:core": "tsc --watch",
-    "build:core": "rm -rf lib &#x26;&#x26; tsc"
-  },
-  "dependencies": {
-    "@testing-library/react-hooks": "^7.0.2"
-  }
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">{</span></span>
+<span data-line=""><span style="color:#E06C75">  "name"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"@vallista/core"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "version"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"0.5.4"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "private"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">false</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "repository"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "type"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"git"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "url"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"https://github.com/vallista/vallista-land"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "publishConfig"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "access"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"public"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "registry"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"https://npm.pkg.github.com/"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "files"</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">"lib"</span><span style="color:#ABB2BF">],</span></span>
+<span data-line=""><span style="color:#E06C75">  "main"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/index.js"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "types"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/types.d.ts"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "peerDependencies"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "@emotion/react"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^11.4.1"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@emotion/styled"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^11.3.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "react"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^17.0.1"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "react-dom"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^17.0.1"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "devDependencies"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "@emotion/babel-plugin"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^11.3.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@emotion/react"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^11.4.1"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@emotion/styled"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^11.3.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@types/jest"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^26.0.15"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@types/node"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^12.0.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@types/react"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^17.0.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "@types/react-dom"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^17.0.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "react"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^17.0.1"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "react-dom"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^17.0.1"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "scripts"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "run:core"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"tsc --watch"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "build:core"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"rm -rf lib &#x26;&#x26; tsc"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "dependencies"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "@testing-library/react-hooks"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^7.0.2"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>여기서 중요한 점은 다음 부분이다.</p>
-<pre><code class="language-json">{
-  "name": "@vallista/core",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/vallista/vallista-land"
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com/"
-  }
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">{</span></span>
+<span data-line=""><span style="color:#E06C75">  "name"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"@vallista/core"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "repository"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "type"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"git"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "url"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"https://github.com/vallista/vallista-land"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "publishConfig"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "access"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"public"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "registry"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"https://npm.pkg.github.com/"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <ul>
 <li>name: npm으로 publish할 이름이며, org-name (레포지토리의 위치 ex: Vallista/vallista-land)와 이름을 적어야 한다. 매칭되지 않으면 에러가 나타난다.</li>
 <li>repository: url을 명시하지 않으면 해당 레포지토리를 체크하지 못해 문제가 생긴다</li>
 <li>publishConfig: <code>https://npm.pkg.github.com/</code>를 registry에 적어주어야 한다.</li>
 </ul>
 <p>또한, <code>.npmrc</code> 파일도 맞춰주어야 한다.</p>
-<pre><code class="language-{numberLines}">@Vallista:registry=https://npm.pkg.github.com/:_authToken={TOKEN}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="{numberLines}" data-theme="one-dark-pro"><code data-language="{numberLines}" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span>@Vallista:registry=https://npm.pkg.github.com/:_authToken={TOKEN}</span></span></code></pre></figure>
 <h2>tsc로 npm publish 하기</h2>
 <p>위에서 이야기 했듯, 파일별 위계상 js 파일이 만들어지지 않아서, microbundle로 삽질을 했지만, 문제가 있어서 결론적으로 tsc로 변경을 했다. 그래서 tsc로 변경하고 나서 bundle을 올리고, <code>npm install @vallista/core@0.5.4</code> 을 진행해서 실행했다. 이전엔 정상적으로 실행이 되지 않았지만 이번엔 제대로 실행이 되었다.</p>
 <p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-22%EC%9D%BC/assets/1.png" alt="이미지1"></p>

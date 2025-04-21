@@ -59,40 +59,34 @@ const Input = styled.input`
   outline: none;
 `
 
-const Wrapper = styled.span<StyleParams>`
+const Wrapper = styled.div<StyleParams>`
   ${({ theme, size, toggle, disabled, color }) => css`
     display: inline-block;
     width: ${sizeMapper[size].wrap[0]}px;
     height: ${sizeMapper[size].wrap[1]}px;
     transition: background 0.15s cubic-bezier(0, 0, 0.2, 1);
-    background: ${
-      toggle
+    background: ${toggle
+      ? color === 'blue'
+        ? theme.colors.SUCCESS.DEFAULT
+        : theme.colors.HIGHLIGHT.PINK
+      : theme.colors.PRIMARY.ACCENT_2};
+    border: 1px solid
+      ${toggle
         ? color === 'blue'
           ? theme.colors.SUCCESS.DEFAULT
           : theme.colors.HIGHLIGHT.PINK
-        : theme.colors.PRIMARY.ACCENT_2
-    };
-    border: 1px solid
-      ${
-        toggle
-          ? color === 'blue'
-            ? theme.colors.SUCCESS.DEFAULT
-            : theme.colors.HIGHLIGHT.PINK
-          : theme.colors.PRIMARY.ACCENT_2
-      };
+        : theme.colors.PRIMARY.ACCENT_2};
     border-radius: 14px;
     cursor: pointer;
     position: relative;
     box-sizing: border-box;
 
-    ${
-      disabled &&
-      css`
+    ${disabled &&
+    css`
       background: ${theme.colors.PRIMARY.ACCENT_1};
       border-color: ${theme.colors.PRIMARY.ACCENT_2};
       cursor: not-allowed;
-    `
-    }
+    `}
   `}
 `
 
@@ -113,13 +107,11 @@ const Circle = styled.div<StyleParams>`
       0 1px 3px 0 rgb(0 0 0 / 10%);
     border: 1px solid transparent;
 
-    ${
-      disabled &&
-      css`
+    ${disabled &&
+    css`
       background: ${theme.colors.PRIMARY.ACCENT_2};
       cursor: not-allowed;
-    `
-    }
+    `}
   `}
 `
 

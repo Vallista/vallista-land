@@ -18,85 +18,82 @@ _ > [<a href="https://story.pxd.co.kr/1434%5D(%EB%94%94%EC%9E%90%EC%9D%B8">https
 <p><a href="https://github.com/Vallista/DesignSystem#issue">Create React App에서 Storybook 추가하는 방법</a>을 참고하시면 쉬운 환경설정을 하실 수 있습니다.</p>
 <p>Storybook은 <a href="https://github.com/Vallista/DesignSystem/blob/master/src/products/Blog/Card/index.stories.tsx">Stories 파일</a>에 작업을 해서 Storybook에서 보일 수 있게 설정할 수 있으며 링크를 달아놓은 Stories 파일을 클릭해 들어가보시면, 아래와 같은 코드가 나오게 됩니다.</p>
 <p><strong>Card/index.stories.tsx</strong></p>
-<pre><code class="language-jsx">import React from 'react'
-import { withKnobs, text, number } from '@storybook/addon-knobs'
-
-import Card, { ITheme } from './index'
-import { ColorPalette } from '../../../models/color'
-
-import { Background } from '../_common'
-
-export default {
-  title: 'Card',
-  component: Card
-}
-
-export const Default = () => {
-  const title = text('타이틀', '컴포넌트 관리 기법')
-  const description = text('설명', '안녕하세요 오늘은 컴포넌트 관리에 대해서 알아볼 것이에요')
-  const image = text(
-    '이미지',
-    'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg'
-  )
-  const viewCount = number('열람 수', 5)
-
-  return (
-    &#x3C;Background>
-      &#x3C;Card title={title} description={description} image={image} viewCount={viewCount} />
-    &#x3C;/Background>
-  )
-}
-
-export const White = () => {
-  const theme: ITheme = {
-    backgroundColor: ColorPalette.White.WHITE,
-    textColor: {
-      title: ColorPalette.Black.LIGHT,
-      description: ColorPalette.Gray.DARK,
-      viewCount: ColorPalette.Black.LIGHT
-    }
-  }
-
-  const title = text('타이틀', '컴포넌트 관리 기법')
-  const description = text('설명', '안녕하세요 오늘은 컴포넌트 관리에 대해서 알아볼 것이에요')
-  const image = text(
-    '이미지',
-    'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg'
-  )
-  const viewCount = number('열람 수', 5)
-
-  return (
-    &#x3C;Background background={ColorPalette.Gradient.RED_TO_YELLOW}>
-      &#x3C;Card title={title} description={description} image={image} viewCount={viewCount} theme={theme} />
-    &#x3C;/Background>
-  )
-}
-
-Default.story = {
-  name: 'Default',
-  decorators: [withKnobs]
-}
-
-White.story = {
-  name: 'White',
-  decorators: [withKnobs]
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">withKnobs</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">number</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '@storybook/addon-knobs'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Card</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">ITheme</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> './index'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">ColorPalette</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../../../models/color'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">Background</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../_common'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  title</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'Card'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  component</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">Card</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> const</span><span style="color:#61AFEF"> Default</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> title</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> text</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'타이틀'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'컴포넌트 관리 기법'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> description</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> text</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'설명'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'안녕하세요 오늘은 컴포넌트 관리에 대해서 알아볼 것이에요'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> image</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> text</span><span style="color:#ABB2BF">(</span></span>
+<span data-line=""><span style="color:#98C379">    '이미지'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#98C379">    'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg'</span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> viewCount</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> number</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'열람 수'</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">5</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E5C07B">Background</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">Card</span><span style="color:#D19A66;font-style:italic"> title</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">title</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> description</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">description</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> image</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">image</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> viewCount</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">viewCount</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E5C07B">Background</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> const</span><span style="color:#61AFEF"> White</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> theme</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ITheme</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    backgroundColor</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ColorPalette</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">White</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">WHITE</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    textColor</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">      title</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ColorPalette</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">Black</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">LIGHT</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">      description</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ColorPalette</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">Gray</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">DARK</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">      viewCount</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ColorPalette</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">Black</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">LIGHT</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> title</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> text</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'타이틀'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'컴포넌트 관리 기법'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> description</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> text</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'설명'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'안녕하세요 오늘은 컴포넌트 관리에 대해서 알아볼 것이에요'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> image</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> text</span><span style="color:#ABB2BF">(</span></span>
+<span data-line=""><span style="color:#98C379">    '이미지'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#98C379">    'http://img.lifestyler.co.kr/uploads/program/1/1765/menu/2/html/f131755988183457049(0).jpg'</span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> viewCount</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> number</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'열람 수'</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">5</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E5C07B">Background</span><span style="color:#D19A66;font-style:italic"> background</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">ColorPalette</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">Gradient</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">RED_TO_YELLOW</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">Card</span><span style="color:#D19A66;font-style:italic"> title</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">title</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> description</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">description</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> image</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">image</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> viewCount</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">viewCount</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> theme</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">theme</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E5C07B">Background</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">Default</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">story</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'Default'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  decorators</span><span style="color:#ABB2BF">: [</span><span style="color:#E06C75">withKnobs</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">White</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">story</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'White'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  decorators</span><span style="color:#ABB2BF">: [</span><span style="color:#E06C75">withKnobs</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>이렇게 코드를 작성하면 아래와 같은 이미지로 스토리북에서 출력됩니다.</p>
 <p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/2.png" alt="이미지2"></p>
 <h3>Component Story Format (CSF)</h3>
 <p>위 스토리북 코드는 기존 스토리북을 사용하셨던 분이라면, 익숙하지 않을 소스일텐데요. 최근 스토리북 5.2 버전 이상에서는 <a href="https://storybook.js.org/docs/formats/component-story-format/">Component Story Format (CSF)</a> 형식으로 stories를 작성하도록 권장하고 있습니다.</p>
 <p><strong>기존 스토리북 사용법</strong></p>
-<pre><code class="language-jsx">storiesOf('Button', module).addDecorator(withKnobs).addParameters({ notes: someNotes })
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">storiesOf</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Button'</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">module</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">addDecorator</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">withKnobs</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">addParameters</span><span style="color:#ABB2BF">({ </span><span style="color:#E06C75">notes</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">someNotes</span><span style="color:#ABB2BF"> })</span></span></code></pre></figure>
 <p><strong>변경된 스토리북 사용법</strong></p>
-<pre><code class="language-jsx">export default {
-  title: 'Button',
-  component: module,
-  decorators: [withKnobs],
-  parameters: [{ notes: someNotes }]
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  title</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'Button'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  component</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">module</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  decorators</span><span style="color:#ABB2BF">: [</span><span style="color:#E06C75">withKnobs</span><span style="color:#ABB2BF">],</span></span>
+<span data-line=""><span style="color:#E06C75">  parameters</span><span style="color:#ABB2BF">: [{ </span><span style="color:#E06C75">notes</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">someNotes</span><span style="color:#ABB2BF"> }]</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>변경이 되면서 기존 스토리북을 사용하던때와 달리, JS 친화적으로 변경된 걸 볼 수 있습니다. 기존에 문제였었던, component 안에 인라인 ReactNode가 들어가거나 Decorator가 많아져서 행이 추가되는 문제점이 사라져 가독성이 좋아지는 효과를 얻을 수 있었습니다.</p>
 <h2>컴포넌트 관리</h2>
 <p>Storybook을 사용해서 디자인 시스템을 구현하다보면 컴포넌트가 점점 많아져서 분리가 필요합니다. 이 분리라는 것은 컴포넌트를 물리적으로 분리하는 것도 있지만 가시적으로도 분리가 되어 보이도록 구현을 해야합니다.</p>
@@ -108,103 +105,101 @@ White.story = {
 <p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/5.png" alt="이미지5"></p>
 <p>내장 컴포넌트는 스토리북에서 보여지지 않지만, <strong>외장 컴포넌트에서 사용되는 재사용 가능한 레이아웃 컴포넌트 요소</strong>를 일컫습니다. 이 요소들은 레이아웃 단위로 재사용되기 때문에 <strong>Atomic Design</strong>을 사용하여 분리하면 효율적입니다.</p>
 <p><strong><a href="https://github.com/Vallista/DesignSystem/blob/master/src/components/molecules/Block/index.tsx">component/molecules/Block/index.tsx</a></strong></p>
-<pre><code class="language-jsx">import React from 'react'
-import classNames from 'classnames'
-
-import { IComponentProps } from 'models/common'
-import { CalculateBox } from 'utils'
-
-import styles from './style.module.scss'
-
-export enum Direction {
-  ROW = 'row',
-  ...
-}
-
-export enum Sort {
-  TOP_LEFT = 11,
-  ...
-}
-
-interface IProps extends IComponentProps {
-  children: React.ReactNode
-  direction?: Direction
-  sort?: Sort
-}
-
-const CalculateSort = (sort: Sort): string[] => {
-  const horizontalNumber = sort % 10
-  ...
-  return [ horizontal, vertical ]
-}
-
-const Block: React.FC&#x3C;IProps> = ({
-  children,
-  className,
-  direction = Direction.ROW,
-  sort = Sort.CENTER_CENTER,
-  margin = [ 0 ],
-  padding = [ 0 ],
-  style
-}) => {
-  const classProps = classNames(styles.default, className)
-  ...
-
-  return (
-    &#x3C;div className={classProps} style={styleProps}>
-      {children}
-    &#x3C;/div>
-  )
-}
-
-export default Block
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> classNames</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'classnames'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">IComponentProps</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'models/common'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">CalculateBox</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'utils'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> styles</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> './style.module.scss'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> enum</span><span style="color:#E5C07B"> Direction</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  ROW</span><span style="color:#56B6C2"> =</span><span style="color:#98C379"> 'row'</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#ABB2BF">  ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> enum</span><span style="color:#E5C07B"> Sort</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  TOP_LEFT</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 11</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#ABB2BF">  ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> IProps</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> IComponentProps</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  children</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">React</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">ReactNode</span></span>
+<span data-line=""><span style="color:#E06C75">  direction</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Direction</span></span>
+<span data-line=""><span style="color:#E06C75">  sort</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Sort</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> CalculateSort</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">sort</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Sort</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">[] </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> horizontalNumber</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> sort</span><span style="color:#56B6C2"> %</span><span style="color:#D19A66"> 10</span></span>
+<span data-line=""><span style="color:#ABB2BF">  ...</span></span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> [ </span><span style="color:#E06C75">horizontal</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">vertical</span><span style="color:#ABB2BF"> ]</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> Block</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">React</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">FC</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">IProps</span><span style="color:#ABB2BF">> </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> ({</span></span>
+<span data-line=""><span style="color:#E06C75">  children</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  className</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  direction</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Direction</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ROW</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  sort</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Sort</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">CENTER_CENTER</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  margin</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> [ </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF"> ],</span></span>
+<span data-line=""><span style="color:#E06C75">  padding</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> [ </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF"> ],</span></span>
+<span data-line=""><span style="color:#E06C75">  style</span></span>
+<span data-line=""><span style="color:#ABB2BF">}) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> classProps</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> classNames</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">styles</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">default</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">className</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  ...</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">classProps</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> style</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">styleProps</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">      {</span><span style="color:#E06C75">children</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Block</span></span></code></pre></figure>
 <p>위 코드는 레이아웃에 대한 정렬 및 위치 조정을 담당하는 Block 컴포넌트 입니다. 해당 컴포넌트는 외장 컴포넌트에서 배치를 효율적으로 하는데 도움을 줍니다</p>
 <h4>외장 컴포넌트</h4>
 <p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/4.png" alt="이미지4"></p>
 <p>외장 컴포넌트는 스토리북에서 보여지는 컴포넌트를 일컫습니다. 위의 사진에서 왼쪽의 Sidebar에 Libraries, Products로 분리가 되어있는걸 볼 수 있는데요. Libraries와 Products 분리는 조금 있다가 다루도록하고, 중요하게 봐야하는 점은 보여지는 컴포넌트들이 <strong>외장 컴포넌트</strong> 라는 것 입니다.</p>
 <p>이 컴포넌트는 실제 프로덕트 레벨에서 사용되는 컴포넌트이며, 디자인 요소가 완성된 컴포넌트입니다. 추후에 rollup 등의 패키지 매니저들로 export 되어 사용됩니다.</p>
 <p><strong><a href="https://github.com/Vallista/DesignSystem/blob/master/src/products/Blog/Card/index.tsx">products/Card/index.tsx</a></strong></p>
-<pre><code class="language-jsx">import React from 'react'
-import classNames from 'classnames'
-...
-import Block, { Direction, Sort } from 'components/molecules/Block'
-...
-
-const BlogCard: React.FC&#x3C;IProps> = ({
-  className,
-  image,
-  title,
-  description,
-  viewCount,
-  theme = defaultTheme,
-  margin
-}) => {
-  ...
-
-  return (
-    &#x3C;Card className={classProps} style={styleProps} radius={[ 12 ]} margin={margin}>
-      &#x3C;Block
-        className={styles.card}
-        direction={Direction.COLUMN}
-        padding={isWhiteTheme ? [ 42, 12, 24, 12 ] : [ 24 ]}
-        style={{ background: backgroundColor }}
-        sort={isWhiteTheme ? Sort.SPACE_BETWEEN_CENTER : Sort.BOTTOM_LEFT}
-      >
-        &#x3C;Block className={styles.header}>
-          &#x3C;img className={styles.watchIcon} src={isWhiteTheme ? WatchIconBlack : WatchIcon} alt='watch-icon' />
-          &#x3C;Span className={styles.watchCount} color={theme.textColor.viewCount} size={16} weight={500} lineHeight={1.4}>
-            {viewCount}
-          &#x3C;/Span>
-        &#x3C;/Block>
-        ...
-      &#x3C;/Block>
-    &#x3C;/Card>
-  )
-}
-
-export default BlogCard
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> classNames</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'classnames'</span></span>
+<span data-line=""><span style="color:#ABB2BF">...</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Block</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">Direction</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">Sort</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'components/molecules/Block'</span></span>
+<span data-line=""><span style="color:#ABB2BF">...</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> BlogCard</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">React</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">FC</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">IProps</span><span style="color:#ABB2BF">> </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> ({</span></span>
+<span data-line=""><span style="color:#E06C75">  className</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  image</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  title</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  description</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  viewCount</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  theme</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> defaultTheme</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  margin</span></span>
+<span data-line=""><span style="color:#ABB2BF">}) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  ...</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E5C07B">Card</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">classProps</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> style</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">styleProps</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> radius</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#ABB2BF">[ </span><span style="color:#D19A66">12</span><span style="color:#ABB2BF"> ]</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> margin</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">margin</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">Block</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">        className</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">styles</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">card</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">        direction</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">Direction</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">COLUMN</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">        padding</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">isWhiteTheme</span><span style="color:#C678DD"> ?</span><span style="color:#ABB2BF"> [ </span><span style="color:#D19A66">42</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">12</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">24</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">12</span><span style="color:#ABB2BF"> ] </span><span style="color:#C678DD">:</span><span style="color:#ABB2BF"> [ </span><span style="color:#D19A66">24</span><span style="color:#ABB2BF"> ]</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">        style</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#ABB2BF">{ </span><span style="color:#E06C75">background</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">backgroundColor</span><span style="color:#ABB2BF"> }</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">        sort</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">isWhiteTheme</span><span style="color:#C678DD"> ?</span><span style="color:#E5C07B"> Sort</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">SPACE_BETWEEN_CENTER</span><span style="color:#C678DD"> :</span><span style="color:#E5C07B"> Sort</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">BOTTOM_LEFT</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">      ></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">Block</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">styles</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">header</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">          &#x3C;</span><span style="color:#E06C75">img</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">styles</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">watchIcon</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> src</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">isWhiteTheme</span><span style="color:#C678DD"> ?</span><span style="color:#E06C75"> WatchIconBlack</span><span style="color:#C678DD"> :</span><span style="color:#E06C75"> WatchIcon</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> alt</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'watch-icon'</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">          &#x3C;</span><span style="color:#E5C07B">Span</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">styles</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">watchCount</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> color</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">theme</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">textColor</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">viewCount</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> size</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#D19A66">16</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> weight</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#D19A66">500</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> lineHeight</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#D19A66">1.4</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">            {</span><span style="color:#E06C75">viewCount</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">          &#x3C;/</span><span style="color:#E5C07B">Span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;/</span><span style="color:#E5C07B">Block</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E5C07B">Block</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E5C07B">Card</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> BlogCard</span></span></code></pre></figure>
 <p>내장 컴포넌트를 적극적으로 사용하여 외장 컴포넌트를 제작하였습니다.</p>
 <h4>결과</h4>
 <p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/6.png" alt="이미지6"></p>

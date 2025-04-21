@@ -3,6 +3,8 @@ import path from 'path'
 import chalk from 'chalk'
 import { Plugin } from 'vite'
 import { transformAllMdxToHTML, transformFileMdxToHTML } from '../transforms'
+import { Options } from 'rehype-pretty-code'
+import { remarkAutoHighlight } from './remarkAutoHighlight'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -24,6 +26,27 @@ async function transformMdxToHTML(contentPath: string, resultPath: string, chang
   }
 }
 
+export const rehypePrettyCodeOptions: Options = {
+  theme: 'one-dark-pro',
+  keepBackground: false,
+
+  onVisitLine(node) {
+    if (node.children.length === 0) {
+      node.children = [{ type: 'text', value: ' ' }]
+    }
+  },
+
+  onVisitHighlightedLine(node) {
+    node.properties.className ??= []
+    node.properties.className.push('highlighted')
+  },
+
+  onVisitHighlightedChars(node) {
+    node.properties.className ??= []
+    node.properties.className.push('word')
+  }
+}
+
 export default async (options: PluginOptions): Promise<Plugin> => {
   const { contentPath, resultPath } = options
 
@@ -36,8 +59,8 @@ export default async (options: PluginOptions): Promise<Plugin> => {
   const mdxPlugin = mdx({
     providerImportSource: '@mdx-js/react',
     jsxImportSource: '@emotion/react',
-    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
-    rehypePlugins: [rehypePrettyCode]
+    remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkAutoHighlight],
+    rehypePlugins: [[rehypePrettyCode, rehypePrettyCodeOptions]]
   })
 
   return {

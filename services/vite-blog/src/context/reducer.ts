@@ -1,7 +1,8 @@
 import { State, Actions } from './type'
 
 export const initialState: State = {
-  fold: false
+  fold: false,
+  selectedCategory: 'articles'
 }
 
 export const reducer = (state: State, action: Actions): State => {
@@ -10,6 +11,11 @@ export const reducer = (state: State, action: Actions): State => {
       return {
         ...state,
         fold: action.fold
+      }
+    case 'changeSelectedCategory':
+      return {
+        ...state,
+        selectedCategory: action.category
       }
     default:
       return state

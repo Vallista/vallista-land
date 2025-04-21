@@ -20,17 +20,16 @@
 <p>Jest는 내장</p>
 <h2>문법</h2>
 <p>Test Tool은 기본적으로 비슷한 문법을 공유하는데, 아래를 보면 쉽게 알 수 있다.</p>
-<pre><code class="language-javascript">describe('Local State', () => {
-  it ('state의 counter가 하나 올려짐', () => {
-    ...
-  })
-
-  it ('state의 Counter가 하나 줄여짐', () => {
-    ...
-  })
-
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Local State'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  it</span><span style="color:#ABB2BF"> (</span><span style="color:#98C379">'state의 counter가 하나 올려짐'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">    ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  it</span><span style="color:#ABB2BF"> (</span><span style="color:#98C379">'state의 Counter가 하나 줄여짐'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">    ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <ul>
 <li>describe</li>
 </ul>
@@ -42,13 +41,12 @@
 <p>it 블록에서 테스트를 할 때 보통 세 단계를 거친다. 값을 정의(arrage), 실행(act), 단언(assert)한다.</p>
 <h2>Enzyme를 이용한 React 컴포넌트 테스팅</h2>
 <p>enzyme를 이용해 react component를 단위, 통합 테스팅을 할 수 있다.</p>
-<pre><code class="language-javascript">describe('App Component', () => {
-  it('Counter 래퍼 그려낸다', () => {
-    const wrapper = shallow(&#x3C;App />)
-    expect(wrapper.find(Counter)).to.have.length(1)
-  })
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'App Component'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  it</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Counter 래퍼 그려낸다'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> wrapper</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> shallow</span><span style="color:#ABB2BF">(&#x3C;</span><span style="color:#E5C07B">App</span><span style="color:#ABB2BF"> />)</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">wrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">find</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">Counter</span><span style="color:#ABB2BF">)).</span><span style="color:#E5C07B">to</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">have</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">length</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">1</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <ul>
 <li>
 <p>shallow
@@ -62,24 +60,23 @@ expect는 shallow등으로 가져온 element의 갯수 및 데이터를 확인�
 </ul>
 <p>위 두 개의 함수로 컴포넌트 단위를 그려서 단위 테스트를 할 수 있는 반면, 더 넓은 범위로 통합 테스트도 가능하다.</p>
 <p>예를 들어, 단순히 HTML 태그가 제대로 그려졌는지 확인하는 행위 뿐만 아니라 컴포넌트에 정확하게 속성이 전달되었는지 확인할 수 있다.</p>
-<pre><code class="language-javascript">describe('App Component', () => {
-  it('Counter 래퍼를 그려낸다', () => {
-    const wrapper = shallow(&#x3C;App />)
-    expect(wrapper.find(Counter)).to.have.length(1)
-  })
-
-  it('Counter 래퍼에 있는 모든 Prop이 전달된다', () => {
-    const wrapper = shallow(&#x3C;App />)
-    let counterWrapper = wrapper.find(Counter)
-
-    expect(counterWrapper.props().counter).to.equal(0)
-
-    wrapper.setState({ counter: -1 })
-
-    counterWrapper = wrapper.find(Counter)
-    expect(counterWrapper.props().counter).to.equal(-1)
-  })
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'App Component'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  it</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Counter 래퍼를 그려낸다'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> wrapper</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> shallow</span><span style="color:#ABB2BF">(&#x3C;</span><span style="color:#E5C07B">App</span><span style="color:#ABB2BF"> />)</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">wrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">find</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">Counter</span><span style="color:#ABB2BF">)).</span><span style="color:#E5C07B">to</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">have</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">length</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">1</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  it</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Counter 래퍼에 있는 모든 Prop이 전달된다'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> wrapper</span><span style="color:#56B6C2"> =</span><span style="color:#61AFEF"> shallow</span><span style="color:#ABB2BF">(&#x3C;</span><span style="color:#E5C07B">App</span><span style="color:#ABB2BF"> />)</span></span>
+<span data-line=""><span style="color:#C678DD">    let</span><span style="color:#E06C75"> counterWrapper</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> wrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">find</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">Counter</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">counterWrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">props</span><span style="color:#ABB2BF">().</span><span style="color:#E06C75">counter</span><span style="color:#ABB2BF">).</span><span style="color:#E5C07B">to</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">equal</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">    wrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">setState</span><span style="color:#ABB2BF">({ </span><span style="color:#E06C75">counter</span><span style="color:#ABB2BF">: </span><span style="color:#56B6C2">-</span><span style="color:#D19A66">1</span><span style="color:#ABB2BF"> })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E06C75">    counterWrapper</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> wrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">find</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">Counter</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">counterWrapper</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">props</span><span style="color:#ABB2BF">().</span><span style="color:#E06C75">counter</span><span style="color:#ABB2BF">).</span><span style="color:#E5C07B">to</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">equal</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">-</span><span style="color:#D19A66">1</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>예제 두 개를 보면서 단위 테스트와 통합 테스트의 경계가 애매할 수 있다. 하지만 이번 테스트는 두 컴포넌트 사이의 기능이 제대로 동작 하는지 체크하는 테스트이므로 통합 테스트로 볼 수 있다.</p>
 <p>위의 예제와 비슷하게 상태 변화를 테스트 하면서, 상태 변화에 따라 렌더링이 변경되는 부분은 렌더링이 되어 있는지 되어있지 않은 지 테스트 할 수 있다.</p>

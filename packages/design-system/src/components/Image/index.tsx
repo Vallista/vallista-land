@@ -34,7 +34,7 @@ import { ImageProps } from './type'
  * ```
  */
 export const ImageComponent = (props: ImageProps) => {
-  const { caption, captionSpacing, src, ...otherProps } = props
+  const { caption, captionSpacing, src, objectFit, objectPosition, ...otherProps } = props
 
   const ref = useRef<HTMLImageElement>(null)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
@@ -60,7 +60,11 @@ export const ImageComponent = (props: ImageProps) => {
   return (
     <Container {...onlyProps} {...otherProps} show={!!imgSrc}>
       <Main width={otherProps.width}>
-        <Wrapper height={height}>{imgSrc && <Img ref={ref} decoding='async' src={imgSrc ?? ''} />}</Wrapper>
+        <Wrapper height={height}>
+          {imgSrc && (
+            <Img ref={ref} decoding='async' src={imgSrc ?? ''} objectFit={objectFit} objectPosition={objectPosition} />
+          )}
+        </Wrapper>
         {caption && <Caption style={{ marginTop: `${captionSpacing}px` }}>{caption}</Caption>}
       </Main>
     </Container>
@@ -95,12 +99,22 @@ const Wrapper = styled.div<{ height: number }>`
   `}
 `
 
-const Img = styled.img`
+const Img = styled.img<Pick<ImageProps, 'objectFit' | 'objectPosition'>>`
   height: 100%;
   left: 0;
   position: absolute;
   top: 0;
   width: 100%;
+  ${({ objectFit }) =>
+    objectFit &&
+    css`
+      object-fit: ${objectFit};
+    `}
+  ${({ objectPosition }) =>
+    objectPosition &&
+    css`
+      object-position: center;
+    `}
 `
 
 const Caption = styled.p`

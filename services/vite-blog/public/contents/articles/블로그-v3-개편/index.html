@@ -83,51 +83,49 @@
 <p>크게 TypeScript의 역할은 두 개로 나눌 수 있는데, Type Checker와 Transpiler이다. 그래서 Core라고 불리는 디자인 컴포넌트 라이브러리는 웹팩등의 번들러를 쓰지 않고 tsc를 사용하여 ES5 문법으로 코드를 뽑아냈다. 다만 tsc의 transpile 기능이 매우 구리기 때문에.. hot reload를 rebase 하거나 merge 등의 작업으로 tsbuildinfo 파일이 아에 변경되거나 감지를 못하도록 없어지면 제대로 인식을 하지 못한다. 그래서 중간중간 tsbuildinfo 파일을 지워줘야 하는 문제가 발생한다. 여러명이서 개발하는 경우 esbuild나 웹팩등 지원이 잘 되는 라이브러리를 사용해서 개발하는걸 추천한다. 또한 tsc는 트리셰이킹이 제대로 안되므로, 이 점도 생각하는게 좋다.</p>
 <h4>다크모드 지원</h4>
 <p>이번 디자인 컴포넌트 라이브러리에선 다크모드 지원을 위한 테마 정책을 구성했다.</p>
-<pre><code class="language-tsx">const Themes: BaseThemeMapper = {
-  light: {
-    colors: Colors,
-    layers: Layers,
-    shadows: Shadows
-  },
-  dark: {
-    colors: {
-      ...Colors,
-      PRIMARY: {
-        ACCENT_1: Colors.PRIMARY.ACCENT_8,
-        ACCENT_2: Colors.PRIMARY.ACCENT_7,
-        ACCENT_3: Colors.PRIMARY.ACCENT_6,
-        ACCENT_4: Colors.PRIMARY.ACCENT_5,
-        ACCENT_5: Colors.PRIMARY.ACCENT_4,
-        ACCENT_6: Colors.PRIMARY.ACCENT_3,
-        ACCENT_7: Colors.PRIMARY.ACCENT_2,
-        ACCENT_8: Colors.PRIMARY.ACCENT_1,
-        BACKGROUND: Colors.PRIMARY.FOREGROUND,
-        FOREGROUND: Colors.PRIMARY.BACKGROUND
-      }
-    },
-    layers: Layers,
-    shadows: Shadows
-  }
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="tsx" data-theme="one-dark-pro"><code data-language="tsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> Themes</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">BaseThemeMapper</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  light</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    colors</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">Colors</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    layers</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">Layers</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    shadows</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">Shadows</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  dark</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    colors</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#ABB2BF">      ...</span><span style="color:#E06C75">Colors</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">      PRIMARY</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_1</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_8</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_2</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_7</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_3</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_6</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_4</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_5</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_5</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_4</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_6</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_3</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_7</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_2</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        ACCENT_8</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ACCENT_1</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        BACKGROUND</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">FOREGROUND</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">        FOREGROUND</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Colors</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">PRIMARY</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">BACKGROUND</span></span>
+<span data-line=""><span style="color:#ABB2BF">      }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    },</span></span>
+<span data-line=""><span style="color:#E06C75">    layers</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">Layers</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    shadows</span><span style="color:#ABB2BF">: </span><span style="color:#E06C75">Shadows</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>테마의 경우 PRIMARY에 있는 색만 수정하면 되도록 테마 단위의 설정을 격리했고, 다크모드 시 PRIMARY 컬러를 역순으로 배치했다.</p>
-<pre><code class="language-tsx">export const ThemeProvider: FC&#x3C;{ theme?: ThemeKeys }> = ({ theme = 'LIGHT', children }) => {
-  const [themeState, setThemeState] = useState(theme)
-
-  return (
-    &#x3C;Context state={{ changeTheme }}>
-      &#x3C;Reset />
-      &#x3C;BaseThemeProvider theme={Themes[themeState]}>
-        &#x3C;ToastProvider>{children}&#x3C;/ToastProvider>
-      &#x3C;/BaseThemeProvider>
-    &#x3C;/Context>
-  )
-
-  function changeTheme(state: 'LIGHT' | 'DARK'): void {
-    setThemeState(state)
-  }
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="tsx" data-theme="one-dark-pro"><code data-language="tsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> const</span><span style="color:#61AFEF"> ThemeProvider</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">FC</span><span style="color:#ABB2BF">&#x3C;{ </span><span style="color:#E06C75">theme</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ThemeKeys</span><span style="color:#ABB2BF"> }> </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">theme</span><span style="color:#56B6C2"> =</span><span style="color:#98C379"> 'LIGHT'</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">children</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> [</span><span style="color:#E5C07B">themeState</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">setThemeState</span><span style="color:#ABB2BF">] </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useState</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">theme</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E5C07B">Context</span><span style="color:#D19A66;font-style:italic"> state</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#ABB2BF">{ </span><span style="color:#E06C75">changeTheme</span><span style="color:#ABB2BF"> }</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">Reset</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E5C07B">BaseThemeProvider</span><span style="color:#D19A66;font-style:italic"> theme</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">Themes</span><span style="color:#ABB2BF">[</span><span style="color:#E06C75">themeState</span><span style="color:#ABB2BF">]</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E5C07B">ToastProvider</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E06C75">children</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E5C07B">ToastProvider</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E5C07B">BaseThemeProvider</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E5C07B">Context</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  function</span><span style="color:#61AFEF"> changeTheme</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">state</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'LIGHT'</span><span style="color:#ABB2BF"> | </span><span style="color:#98C379">'DARK'</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">void</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    setThemeState</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">state</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>그리고 <code>ThemeProvider</code>를 감싸면 컬러팩등을 사용할 수 있도록 제공했고 (emotion.js의 ThemeProvider를 래핑해서 구현) 기본 theme은 light 설정으로 지정했다. 그리고, RootContext를 만들어서 해당 Context를 custom hook으로 찔러 테마를 변경할 수 있게 제공했다.</p>
 <p><img src="/contents/articles/%EB%B8%94%EB%A1%9C%EA%B7%B8-v3-%EA%B0%9C%ED%8E%B8/assets/12.gif" alt="다크모드 지원"></p>
 <h3>반응형 지원</h3>
@@ -135,16 +133,15 @@
 <p>반응형은 3가지를 지원했다. 모바일, 태블릿, PC (너무 당연한 이야기지만) 조금 더 상세히 이야기하면 <strong>PC, 모버일, PC와 모바일 사이의 이상한 것</strong> 으로 코딩을 했다. 사실 태블릿의 점유율은 매우 낮기 때문이다.</p>
 <p><img src="/contents/articles/%EB%B8%94%EB%A1%9C%EA%B7%B8-v3-%EA%B0%9C%ED%8E%B8/assets/14.png" alt="빈약한 태블릿 점유율"></p>
 <p>약 40000개의 노출수 대비 232이면 1%도 되지 않는다! 하지만, 1%를 위해 대응해야하는게 인지상정, 그래서 PC와 모바일을 주요로 코딩하고, PC와 모바일 사이에 이상한 것으로 코딩을 했다.</p>
-<pre><code class="language-css">/* 넓은 PC */
-@media screen and (min-width: 1350px) {
-}
-/* 태블릿 겸 PC */
-@media screen and (min-width: 1025px) {
-}
-/* 모바일 */
-@media screen and (max-width: 1024px) {
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#7F848E;font-style:italic">/* 넓은 PC */</span></span>
+<span data-line=""><span style="color:#C678DD">@media</span><span style="color:#ABB2BF"> screen </span><span style="color:#56B6C2">and</span><span style="color:#ABB2BF"> (min-width: </span><span style="color:#D19A66">1350</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">/* 태블릿 겸 PC */</span></span>
+<span data-line=""><span style="color:#C678DD">@media</span><span style="color:#ABB2BF"> screen </span><span style="color:#56B6C2">and</span><span style="color:#ABB2BF"> (min-width: </span><span style="color:#D19A66">1025</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">/* 모바일 */</span></span>
+<span data-line=""><span style="color:#C678DD">@media</span><span style="color:#ABB2BF"> screen </span><span style="color:#56B6C2">and</span><span style="color:#ABB2BF"> (max-width: </span><span style="color:#D19A66">1024</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>사이드바 관련된 부분은 1024px 미만으로 내려가면 숨기고, navbar를 위로 올리는 형태로 구현했다. 이렇게 한 이유는 컨텐츠의 크기가 최소 600px 이상은 유지되기 바랏기 때문이다. 좌측 영역은 400px정도 되므로, 1024px이면 624px까진 지원한다는 이야기다.</p>
 <h3>트러블 슈팅</h3>
 <p>여러 트러블 슈팅을 한 경험을 빼놓고 말할 순 없는데, 트러블 슈팅을 경험한 사례는 다음과 같다</p>

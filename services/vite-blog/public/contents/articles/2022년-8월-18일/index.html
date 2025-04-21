@@ -10,47 +10,44 @@
 <h3>microbundle</h3>
 <p>microbundle은 사용하기 굉장히 쉽다. 그만큼 간단한 프로젝트에서 쉽게 사용하도록 잘 되어있는데, 이슈는 많은 편이라 상세한 조절이 조금 어렵다는 문제가 있다.</p>
 <h4>installation</h4>
-<pre><code class="language-shall">$ lerna add --dev microbundle --scope=@vallista/core
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="shall" data-theme="one-dark-pro"><code data-language="shall" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span>$ lerna add --dev microbundle --scope=@vallista/core</span></span></code></pre></figure>
 <p>lerna를 사용하므로 다음과 같이 실행했다.</p>
 <h4>package.json 수정하기</h4>
-<pre><code class="language-json">{
-  "name": "@vallista/core",
-  "version": "0.1.0",
-  "private": false,
-  "files": ["lib"],
-  "type": "module",
-  "source": "./src/index.ts",
-  "main": "./lib/index.js",
-  "umd:main": "./lib/index.umd.js",
-  "module": "./lib/index.js",
-  "types": "./lib/types.d.ts",
-  "exports": {
-    "require": "./lib/index.js",
-    "default": "./lib/index.modern.mjs"
-  },
-  "scripts": {
-    "run:core": "microbundle watch --jsx react  -f es,cjs",
-    "build:core": "microbundle --jsx react -f es,cjs"
-  }
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">{</span></span>
+<span data-line=""><span style="color:#E06C75">  "name"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"@vallista/core"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "version"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"0.1.0"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "private"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">false</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "files"</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">"lib"</span><span style="color:#ABB2BF">],</span></span>
+<span data-line=""><span style="color:#E06C75">  "type"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"module"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "source"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./src/index.ts"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "main"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/index.js"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "umd:main"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/index.umd.js"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "module"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/index.js"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "types"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/types.d.ts"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "exports"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "require"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/index.js"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "default"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib/index.modern.mjs"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "scripts"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "run:core"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"microbundle watch --jsx react  -f es,cjs"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "build:core"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"microbundle --jsx react -f es,cjs"</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>microbundle은 쉽게 package.json의 수정만으로 빌드 결과물을 낼 수 있다.</p>
 <h4>tsconfig.json 수정하기</h4>
-<pre><code class="language-json">{
-  "extends": "../tsconfig.settings.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "baseUrl": "src",
-    "outDir": "./lib",
-    "jsxImportSource": "@emotion/react",
-    "suppressImplicitAnyIndexErrors": true,
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["lib", "node_modules", "build", "scripts", "acceptance-tests", "webpack", "jest", "src/setupTests.ts"]
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">{</span></span>
+<span data-line=""><span style="color:#E06C75">  "extends"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"../tsconfig.settings.json"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  "compilerOptions"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">    "rootDir"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"src"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "baseUrl"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"src"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "outDir"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"./lib"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "jsxImportSource"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"@emotion/react"</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "suppressImplicitAnyIndexErrors"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">true</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    "allowSyntheticDefaultImports"</span><span style="color:#ABB2BF">: </span><span style="color:#D19A66">true</span></span>
+<span data-line=""><span style="color:#ABB2BF">  },</span></span>
+<span data-line=""><span style="color:#E06C75">  "include"</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">"src/**/*"</span><span style="color:#ABB2BF">],</span></span>
+<span data-line=""><span style="color:#E06C75">  "exclude"</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">"lib"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"node_modules"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"build"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"scripts"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"acceptance-tests"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"webpack"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"jest"</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">"src/setupTests.ts"</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>환경에 맞게 설정해주었다. emotion을 사용하므로 jsxImportSource를 수정하고, suppressImplicitAnyIndexErrors와 allowSyntheticDefaultImports를 통해 기존에 허용하던 설정을 다시 풀어준다.</p>
 <h4>의존성 재설치하기</h4>
 <p>yarn workspace는 모든 npm 모듈을 root로 올려서 교차에 있는 의존성 중복을 줄이고, 용량을 최적화한다. 그렇기 때문에 microbundle에서 사용하는 babel 버전과 블로그에서 쓰이고 있는 babel 버전등이 달라서 터질수도 있으므로, 해당 의존성을 다시 계산할 수 있도록 node_mobules와 cache 데이터를 삭제하고 다시 installation을 진행한다. <code>lerna bootstrap</code>을 진행해도 괜찮지만, yarn workspace를 사용하므로 <code>yarn</code> 키워드 하나면 모두 계산되어 동작된다.</p>
@@ -69,8 +66,7 @@
 <ol>
 <li>이미지상에서 하단에 write:packages와 상단의 repo 설정을 허용하고, 발급받으면 다음 페이지에서 키를 받을 수 있다. 해당 키를 저장한 후, 다음과 같이 로컬에서 입력해준다.</li>
 </ol>
-<pre><code class="language-bash">$ npm login --scope=@Vallista --registry=https://npm.pkg.github.com
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="bash" data-theme="one-dark-pro"><code data-language="bash" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">$</span><span style="color:#98C379"> npm</span><span style="color:#98C379"> login</span><span style="color:#D19A66"> --scope=@Vallista</span><span style="color:#D19A66"> --registry=https://npm.pkg.github.com</span></span></code></pre></figure>
 <ol start="2">
 <li>
 <p>입력한 후 username은 github username을 입력하고, password엔 복사한 토큰값을 붙여넣어주자.</p>
@@ -79,15 +75,13 @@
 <p>그 후 packages.json에 아래의 코드를 입력한다.</p>
 </li>
 </ol>
-<pre><code class="language-json">"publishConfig": {
-  "registry": "https://npm.pkg.github.com/"
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#98C379">"publishConfig"</span><span style="color:#ABB2BF">: {</span></span>
+<span data-line=""><span style="color:#E06C75">  "registry"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"https://npm.pkg.github.com/"</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <ol start="4">
 <li>.npmrc 파일을 설정한다.</li>
 </ol>
-<pre><code class="language-{numberLines}">@Vallista:registry=https://npm.pkg.github.com/:_authToken={TOKEN}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="{numberLines}" data-theme="one-dark-pro"><code data-language="{numberLines}" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span>@Vallista:registry=https://npm.pkg.github.com/:_authToken={TOKEN}</span></span></code></pre></figure>
 <ol start="5">
 <li>그리고 로컬에서 npm publish를 진행하면 된다.</li>
 </ol>
@@ -102,8 +96,7 @@
 <p>vallista-land에 core가 추가된 걸 확인할 수 있다. <a href="https://github.com/Vallista/vallista-land/packages/1602376">주소</a></p>
 <h4>실제 환경에 잇기</h4>
 <p>기존에 사용하고 있던 패키지를 변경하고, core와 blog의 의존성을 끊으면 된다.</p>
-<pre><code class="language-json">"@vallista/core": "^0.3.0",
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#98C379">"@vallista/core"</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">"^0.3.0"</span><span style="color:#ABB2BF">,</span></span></code></pre></figure>
 <p>하지만.. 에러가 발생하고 있다. 그 원인은 <code>core/lib/index.js</code> 가 나오지 않기 때문이다. 그래서 <code>.d.ts</code> 는 나오기 때문에 타입 추론은 되지만, 런타임은 제대로 동작하지 않는다. 그렇기 때문에 .cjs로 만들어지는 것을 .js로 변경해야 한다. 이 부분은 내일 하는 것으로.</p>
 <h2>프로그래머의 뇌 3장 - 프로그래밍 문법 빠르게 배우기</h2>
 <p>오늘은 프로그래머의 뇌 3장으로 오전을 시작했다. 결론적으로 사람의 뇌는 연관된 기억들로 저장한다. 그렇기에 적절한 시간의 텀을 주고 의도적으로 생각하도록 하는 <strong>부호화</strong> 라는 과정을 거쳐서 LTM에 정확한 정보를 오랜시간동안 기억하도록 노력해야 한다. 이렇게 하는 이유는 뇌는 저장과 인출 강도가 존재하는데, 저장은 많이해도 인출을 제대로 못하면 의미가 없기 때문이다.</p>

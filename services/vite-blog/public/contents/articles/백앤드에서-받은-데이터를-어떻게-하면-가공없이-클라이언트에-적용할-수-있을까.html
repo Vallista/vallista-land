@@ -34,16 +34,14 @@
 <p>저희가 쿼리 결과를 가공하는데 사용할 Window Function은 <code>row_to_json</code> <code>array_to_json</code> 이렇게 두 가지 입니다.</p>
 <h4>row_to_json Function</h4>
 <p><code>row_to_json</code>은 column 단위로 쪼개진 데이터를 json 포맷으로 묶어줍니다.</p>
-<pre><code class="language-sql">console> SELECT row_to_json(order_user.*) FROM order_user
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#ABB2BF">console</span><span style="color:#56B6C2">></span><span style="color:#C678DD"> SELECT</span><span style="color:#ABB2BF"> row_to_json(order_user.*) </span><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> order_user</span></span></code></pre></figure>
 <pre><code>|         row_to_json         |
 -------------------------------
 | { id: 1, name: "vallista" } |
 </code></pre>
 <h4>array_to_json Function</h4>
 <p><code>array_to_json</code>은 array 형태의 데이터를 json 포맷으로 바꿔줍니다.</p>
-<pre><code class="language-sql">console> SELECT array_to_json(array_agg(row_to_json(order_user.*))) FROM order_user
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#ABB2BF">console</span><span style="color:#56B6C2">></span><span style="color:#C678DD"> SELECT</span><span style="color:#ABB2BF"> array_to_json(array_agg(row_to_json(order_user.*))) </span><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> order_user</span></span></code></pre></figure>
 <pre><code>|         array_to_json         |
 ---------------------------------
 | [{ id: 1, name: "vallista" }] |
@@ -60,35 +58,33 @@ array가 아닌 값을 array로 만들어 줍니다.</p>
 * 각 결과는 시작 날짜와 종료 날짜 사이의 일 단위 매출의 합산 결과가 있어야 함.
   * 매출 합산 결과는 판매처가 총 두 곳이 있어서 두 곳의 결과를 나누어 보여줘야 함.
 </code></pre>
-<pre><code class="language-json">** 프론트앤드에서 받는 포맷
-{
-  sales: ?,
-  result: [
-    {
-      date: ?
-      a: ?,
-      b: ?
-    },
-    {
-      date: ?,
-      a: ?,
-      b: ?
-    },
-    {
-      date: ?,
-      a: ?,
-      b: ?
-    },
-    ...
-  ]
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="json" data-theme="one-dark-pro"><code data-language="json" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">** 프론트앤드에서 받는 포맷</span></span>
+<span data-line=""><span style="color:#ABB2BF">{</span></span>
+<span data-line=""><span style="color:#FFFFFF">  sales</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#FFFFFF">  result</span><span style="color:#ABB2BF">: [</span></span>
+<span data-line=""><span style="color:#ABB2BF">    {</span></span>
+<span data-line=""><span style="color:#FFFFFF">      date</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span></span>
+<span data-line=""><span style="color:#FFFFFF">      a:</span><span style="color:#FFFFFF"> ?</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#FFFFFF">      b</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span></span>
+<span data-line=""><span style="color:#ABB2BF">    },</span></span>
+<span data-line=""><span style="color:#ABB2BF">    {</span></span>
+<span data-line=""><span style="color:#FFFFFF">      date</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#FFFFFF">      a</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#FFFFFF">      b</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span></span>
+<span data-line=""><span style="color:#ABB2BF">    },</span></span>
+<span data-line=""><span style="color:#ABB2BF">    {</span></span>
+<span data-line=""><span style="color:#FFFFFF">      date</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#FFFFFF">      a</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#FFFFFF">      b</span><span style="color:#ABB2BF">: </span><span style="color:#FFFFFF">?</span></span>
+<span data-line=""><span style="color:#ABB2BF">    },</span></span>
+<span data-line=""><span style="color:#FFFFFF">    ...</span></span>
+<span data-line=""><span style="color:#ABB2BF">  ]</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>포맷을 보니 그렇게 복잡하지는 않으나, 처음 접해보는 입장에서는 여간 곤란한게 아닙니다. 단순히 일차원적인 결과값만 보내다가 다른 복잡한 쿼리를 날려보내니 당황스럽기 그지없습니다. 하나하나 천천히 해결해보도록 하겠습니다.</p>
 <h4>1. sales와 result 각기 다른 타입으로 나누기</h4>
 <p>처음으로 진행해 볼 작업은 가장 바깥의 결과값을 나누는 작업입니다. 작성을 할 때 기간 설정은 고려하지 않고 먼저 짜보도록 하겠습니다.</p>
 <p>sales는 전체 영역에 대해 매출을 더한 값을 가져오도록 하고 result는 일단 빈 배열을 반환해 보도록 하겠습니다.</p>
-<pre><code class="language-sql">console> SELECT SUM(price) AS sales, ARRAY[null] AS result FROM item_order
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#ABB2BF">console</span><span style="color:#56B6C2">></span><span style="color:#C678DD"> SELECT</span><span style="color:#56B6C2"> SUM</span><span style="color:#ABB2BF">(price) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> sales, </span><span style="color:#C678DD">ARRAY</span><span style="color:#E06C75">[null]</span><span style="color:#C678DD"> AS</span><span style="color:#ABB2BF"> result </span><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> item_order</span></span></code></pre></figure>
 <pre><code>|   sales    |      result       |
 ----------------------------------
 |  13304000  |      {NULL}       |
@@ -99,15 +95,14 @@ array가 아닌 값을 array로 만들어 줍니다.</p>
 <p>간단하네요! 이제 result에 데이터를 넣으면 될 것 같습니다.</p>
 <h4>2. result에 들어가는 Object 형태의 데이터를 만들기.</h4>
 <p>result에 바로 배열값을 넣기 전에, 먼저 내부를 이루는 요소들을 제작해보도록 하겠습니다. 배열 요소 하나에 들어가는 데이터는 <code>date</code>, <code>a</code>, <code>b</code> 총 3개 입니다.</p>
-<pre><code class="language-sql">console>
-SELECT
-	date_trunc('days', item_order.created_at) AS date,
-	COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'a' THEN 1 ELSE 0 END), 0) AS a,
-	COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'b' THEN 1 ELSE 0 END), 0) AS b
-FROM item_order
-JOIN pickup_place ON item_order.pickup_place_id = pickup_place.id
-GROUP BY date
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#ABB2BF">console</span><span style="color:#56B6C2">></span></span>
+<span data-line=""><span style="color:#C678DD">SELECT</span></span>
+<span data-line=""><span style="color:#ABB2BF">	date_trunc(</span><span style="color:#98C379">'days'</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">created_at</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#C678DD"> date</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#56B6C2">	COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'a'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> a,</span></span>
+<span data-line=""><span style="color:#56B6C2">	COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'b'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> b</span></span>
+<span data-line=""><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> item_order</span></span>
+<span data-line=""><span style="color:#C678DD">JOIN</span><span style="color:#ABB2BF"> pickup_place </span><span style="color:#C678DD">ON</span><span style="color:#D19A66"> item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">pickup_place_id</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">id</span></span>
+<span data-line=""><span style="color:#C678DD">GROUP BY</span><span style="color:#C678DD"> date</span></span></code></pre></figure>
 <pre><code>|          date          | a       | b        |
 -----------------------------------------------
 | 2018-03-30 00:00:00+09 | 621000  | 0        |
@@ -140,16 +135,15 @@ GROUP BY date
 </ul>
 <h4>3. 데이터 결과를 json 포맷으로 하나로 묶기</h4>
 <p>result에서 가져오는 데이터의 형태는 json 포맷을 배열로 감싼 형태입니다. 그러므로 각각의 결과를 json 포맷으로 묶어주어야 합니다.</p>
-<pre><code class="language-sql">console>
-SELECT row_to_json(sales_array.*)
-FROM (SELECT
-	date_trunc('days', item_order.created_at) AS date,
-	COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'a' THEN 1 ELSE 0 END), 0) AS a,
-	COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'b' THEN 1 ELSE 0 END), 0) AS b
-FROM item_order
-JOIN pickup_place ON item_order.pickup_place_id = pickup_place.id
-GROUP BY date) AS sales_array
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#ABB2BF">console</span><span style="color:#56B6C2">></span></span>
+<span data-line=""><span style="color:#C678DD">SELECT</span><span style="color:#ABB2BF"> row_to_json(sales_array.*)</span></span>
+<span data-line=""><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> (</span><span style="color:#C678DD">SELECT</span></span>
+<span data-line=""><span style="color:#ABB2BF">	date_trunc(</span><span style="color:#98C379">'days'</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">created_at</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#C678DD"> date</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#56B6C2">	COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'a'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> a,</span></span>
+<span data-line=""><span style="color:#56B6C2">	COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'b'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> b</span></span>
+<span data-line=""><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> item_order</span></span>
+<span data-line=""><span style="color:#C678DD">JOIN</span><span style="color:#ABB2BF"> pickup_place </span><span style="color:#C678DD">ON</span><span style="color:#D19A66"> item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">pickup_place_id</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">id</span></span>
+<span data-line=""><span style="color:#C678DD">GROUP BY</span><span style="color:#C678DD"> date</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> sales_array</span></span></code></pre></figure>
 <pre><code>| row_to_json                                                |
 --------------------------------------------------------------
 | {"date":"2018-03-30T00:00:00+09:00","a":621000,"b":0}      |
@@ -171,19 +165,18 @@ GROUP BY date) AS sales_array
 </ul>
 <h4>4. 배열화 하기</h4>
 <p>result에서는 배열로 가져오기 때문에 배열로 묶어야 합니다. 그러므로 json화 한 값을 배열로 하나로 묶어줘야합니다. 묶어주고 최종 값에 대입해보겠습니다.</p>
-<pre><code class="language-sql">console>
-SELECT SUM(price) AS sales,
-array(
-  SELECT row_to_json(sales_array.*)
-  FROM (SELECT
-  	date_trunc('days', item_order.created_at) AS date,
-  	COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'a' THEN 1 ELSE 0 END), 0) AS a,
-  	COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'b' THEN 1 ELSE 0 END), 0) AS b
-  FROM item_order
-  JOIN pickup_place ON item_order.pickup_place_id = pickup_place.id
-  GROUP BY date) AS sales_array
-) AS result
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#ABB2BF">console</span><span style="color:#56B6C2">></span></span>
+<span data-line=""><span style="color:#C678DD">SELECT</span><span style="color:#56B6C2"> SUM</span><span style="color:#ABB2BF">(price) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> sales,</span></span>
+<span data-line=""><span style="color:#C678DD">array</span><span style="color:#ABB2BF">(</span></span>
+<span data-line=""><span style="color:#C678DD">  SELECT</span><span style="color:#ABB2BF"> row_to_json(sales_array.*)</span></span>
+<span data-line=""><span style="color:#C678DD">  FROM</span><span style="color:#ABB2BF"> (</span><span style="color:#C678DD">SELECT</span></span>
+<span data-line=""><span style="color:#ABB2BF">  	date_trunc(</span><span style="color:#98C379">'days'</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">created_at</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#C678DD"> date</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#56B6C2">  	COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'a'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> a,</span></span>
+<span data-line=""><span style="color:#56B6C2">  	COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'b'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> b</span></span>
+<span data-line=""><span style="color:#C678DD">  FROM</span><span style="color:#ABB2BF"> item_order</span></span>
+<span data-line=""><span style="color:#C678DD">  JOIN</span><span style="color:#ABB2BF"> pickup_place </span><span style="color:#C678DD">ON</span><span style="color:#D19A66"> item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">pickup_place_id</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">id</span></span>
+<span data-line=""><span style="color:#C678DD">  GROUP BY</span><span style="color:#C678DD"> date</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> sales_array</span></span>
+<span data-line=""><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> result</span></span></code></pre></figure>
 <pre><code>|   sales   |	                                 result
 -----------------------------------------------------------------------------------------
 | 13304000 |	{"{\"date\":\"2018-03-30T00:00:00+09:00\",\"a\":621000,\"b\":0}","...
@@ -193,23 +186,22 @@ array(
 </ul>
 <h4>5. array 데이터를 json 포맷으로 변경</h4>
 <p>결과값이 json형태로 나오지 않다보니 깔끔하게 데이터가 잘려 나오지 않습니다. 이를 array_to_json으로 다시 한번 감싸줘야 할 것 같아 보입니다.</p>
-<pre><code class="language-sql">SELECT SUM(price) AS sales,
-array_to_json(
-	array(
-		SELECT row_to_json(sales_array.*)
-		FROM (
-			SELECT
-				date_trunc('days', item_order.created_at) AS date,
-				COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'a' THEN 1 ELSE 0 END), 0) AS a,
-				COALESCE(SUM (item_order.price * CASE pickup_place.type WHEN 'b' THEN 1 ELSE 0 END), 0) AS b
-			FROM item_order
-			JOIN pickup_place ON item_order.pickup_place_id = pickup_place.id
-			GROUP BY date
-		) AS sales_array
-	)
-) AS result
-FROM item_order
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="sql" data-theme="one-dark-pro"><code data-language="sql" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#C678DD">SELECT</span><span style="color:#56B6C2"> SUM</span><span style="color:#ABB2BF">(price) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> sales,</span></span>
+<span data-line=""><span style="color:#ABB2BF">array_to_json(</span></span>
+<span data-line=""><span style="color:#C678DD">	array</span><span style="color:#ABB2BF">(</span></span>
+<span data-line=""><span style="color:#C678DD">		SELECT</span><span style="color:#ABB2BF"> row_to_json(sales_array.*)</span></span>
+<span data-line=""><span style="color:#C678DD">		FROM</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#C678DD">			SELECT</span></span>
+<span data-line=""><span style="color:#ABB2BF">				date_trunc(</span><span style="color:#98C379">'days'</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">created_at</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#C678DD"> date</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#56B6C2">				COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'a'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> a,</span></span>
+<span data-line=""><span style="color:#56B6C2">				COALESCE</span><span style="color:#ABB2BF">(</span><span style="color:#56B6C2">SUM</span><span style="color:#ABB2BF"> (</span><span style="color:#D19A66">item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">price</span><span style="color:#ABB2BF"> * </span><span style="color:#C678DD">CASE</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">type</span><span style="color:#C678DD"> WHEN</span><span style="color:#98C379"> 'b'</span><span style="color:#C678DD"> THEN</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD"> ELSE</span><span style="color:#D19A66"> 0</span><span style="color:#C678DD"> END</span><span style="color:#ABB2BF">), </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> b</span></span>
+<span data-line=""><span style="color:#C678DD">			FROM</span><span style="color:#ABB2BF"> item_order</span></span>
+<span data-line=""><span style="color:#C678DD">			JOIN</span><span style="color:#ABB2BF"> pickup_place </span><span style="color:#C678DD">ON</span><span style="color:#D19A66"> item_order</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">pickup_place_id</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> pickup_place</span><span style="color:#ABB2BF">.</span><span style="color:#D19A66">id</span></span>
+<span data-line=""><span style="color:#C678DD">			GROUP BY</span><span style="color:#C678DD"> date</span></span>
+<span data-line=""><span style="color:#ABB2BF">		) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> sales_array</span></span>
+<span data-line=""><span style="color:#ABB2BF">	)</span></span>
+<span data-line=""><span style="color:#ABB2BF">) </span><span style="color:#C678DD">AS</span><span style="color:#ABB2BF"> result</span></span>
+<span data-line=""><span style="color:#C678DD">FROM</span><span style="color:#ABB2BF"> item_order</span></span></code></pre></figure>
 <pre><code>|   sales   |	                                 result
 -----------------------------------------------------------------------------------------
 |  13304000 |	[{"date":"2018-03-30T00:00:00+09:00","a":621000,"b":0},...

@@ -5,4 +5,6 @@ export interface ImageProps {
   margin?: number
   caption?: string
   captionSpacing?: number
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
+  objectPosition?: string
 }

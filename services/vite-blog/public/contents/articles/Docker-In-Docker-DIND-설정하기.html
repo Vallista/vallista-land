@@ -11,199 +11,196 @@
 <ul>
 <li>Dockerfile</li>
 </ul>
-<pre><code class="language-bash">FROM jenkins:2.60.3
-MAINTAINER jerome.petazzoni@docker.com
-
-USER root
-
-# Let's start with some basic stuff.
-RUN apt-get update -qq &#x26;&#x26; apt-get install -qqy \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    lxc \
-    iptables \
-    ca-certificates
-
-# Install Docker from Docker Inc. repositories.
-RUN curl -sSL https://get.docker.com/ | sh
-
-# Install the magic wrapper.
-ADD ./wrapdocker /usr/local/bin/wrapdocker
-RUN chmod +x /usr/local/bin/wrapdocker
-
-# Define additional metadata for our image.
-VOLUME /var/lib/docker
-
-ENV JAVA_ARGS -Xms512m -Xmx1024m
-
-CMD ["/usr/local/bin/wrapdocker"]
-
-ADD jenkins_dind.sh /usr/local/bin/jenkins_dind.sh
-RUN chmod +x /usr/local/bin/jenkins_dind.sh
-
-CMD ["/usr/local/bin/jenkins_dind.sh"]
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="bash" data-theme="one-dark-pro"><code data-language="bash" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF">FROM</span><span style="color:#98C379"> jenkins:2.60.3</span></span>
+<span data-line=""><span style="color:#61AFEF">MAINTAINER</span><span style="color:#98C379"> jerome.petazzoni@docker.com</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">USER</span><span style="color:#98C379"> root</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Let's start with some basic stuff.</span></span>
+<span data-line=""><span style="color:#61AFEF">RUN</span><span style="color:#98C379"> apt-get</span><span style="color:#98C379"> update</span><span style="color:#D19A66"> -qq</span><span style="color:#ABB2BF"> &#x26;&#x26; </span><span style="color:#61AFEF">apt-get</span><span style="color:#98C379"> install</span><span style="color:#D19A66"> -qqy</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#98C379">    apt-transport-https</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#98C379">    ca-certificates</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#98C379">    curl</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#98C379">    lxc</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#98C379">    iptables</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#98C379">    ca-certificates</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Install Docker from Docker Inc. repositories.</span></span>
+<span data-line=""><span style="color:#61AFEF">RUN</span><span style="color:#98C379"> curl</span><span style="color:#D19A66"> -sSL</span><span style="color:#98C379"> https://get.docker.com/</span><span style="color:#ABB2BF"> | </span><span style="color:#61AFEF">sh</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Install the magic wrapper.</span></span>
+<span data-line=""><span style="color:#61AFEF">ADD</span><span style="color:#98C379"> ./wrapdocker</span><span style="color:#98C379"> /usr/local/bin/wrapdocker</span></span>
+<span data-line=""><span style="color:#61AFEF">RUN</span><span style="color:#98C379"> chmod</span><span style="color:#98C379"> +x</span><span style="color:#98C379"> /usr/local/bin/wrapdocker</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Define additional metadata for our image.</span></span>
+<span data-line=""><span style="color:#61AFEF">VOLUME</span><span style="color:#98C379"> /var/lib/docker</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">ENV</span><span style="color:#98C379"> JAVA_ARGS</span><span style="color:#D19A66"> -Xms512m</span><span style="color:#D19A66"> -Xmx1024m</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">CMD</span><span style="color:#ABB2BF"> [</span><span style="color:#98C379">"/usr/local/bin/wrapdocker"</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">ADD</span><span style="color:#98C379"> jenkins_dind.sh</span><span style="color:#98C379"> /usr/local/bin/jenkins_dind.sh</span></span>
+<span data-line=""><span style="color:#61AFEF">RUN</span><span style="color:#98C379"> chmod</span><span style="color:#98C379"> +x</span><span style="color:#98C379"> /usr/local/bin/jenkins_dind.sh</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">CMD</span><span style="color:#ABB2BF"> [</span><span style="color:#98C379">"/usr/local/bin/jenkins_dind.sh"</span><span style="color:#ABB2BF">]</span></span></code></pre></figure>
 <ul>
 <li>wrapdocker</li>
 </ul>
-<pre><code class="language-bash">#!/bin/bash
-
-# Ensure that all nodes in /dev/mapper correspond to mapped devices currently loaded by the device-mapper kernel driver
-dmsetup mknodes
-
-# First, make sure that cgroups are mounted correctly.
-CGROUP=/sys/fs/cgroup
-: {LOG:=stdio}
-
-[ -d $CGROUP ] ||
-        mkdir $CGROUP
-
-mountpoint -q $CGROUP ||
-        mount -n -t tmpfs -o uid=0,gid=0,mode=0755 cgroup $CGROUP || {
-                echo "Could not make a tmpfs mount. Did you use --privileged?"
-                exit 1
-        }
-
-if [ -d /sys/kernel/security ] &#x26;&#x26; ! mountpoint -q /sys/kernel/security
-then
-    mount -t securityfs none /sys/kernel/security || {
-        echo "Could not mount /sys/kernel/security."
-        echo "AppArmor detection and --privileged mode might break."
-    }
-fi
-
-# Mount the cgroup hierarchies exactly as they are in the parent system.
-for SUBSYS in $(cut -d: -f2 /proc/1/cgroup)
-do
-        [ -d $CGROUP/$SUBSYS ] || mkdir $CGROUP/$SUBSYS
-        mountpoint -q $CGROUP/$SUBSYS ||
-                mount -n -t cgroup -o $SUBSYS cgroup $CGROUP/$SUBSYS
-
-        # The two following sections address a bug which manifests itself
-        # by a cryptic "lxc-start: no ns_cgroup option specified" when
-        # trying to start containers withina container.
-        # The bug seems to appear when the cgroup hierarchies are not
-        # mounted on the exact same directories in the host, and in the
-        # container.
-
-        # Named, control-less cgroups are mounted with "-o name=foo"
-        # (and appear as such under /proc/&#x3C;pid>/cgroup) but are usually
-        # mounted on a directory named "foo" (without the "name=" prefix).
-        # Systemd and OpenRC (and possibly others) both create such a
-        # cgroup. To avoid the aforementioned bug, we symlink "foo" to
-        # "name=foo". This shouldn't have any adverse effect.
-        echo $SUBSYS | grep -q ^name= &#x26;&#x26; {
-                NAME=$(echo $SUBSYS | sed s/^name=//)
-                ln -s $SUBSYS $CGROUP/$NAME
-        }
-
-        # Likewise, on at least one system, it has been reported that
-        # systemd would mount the CPU and CPU accounting controllers
-        # (respectively "cpu" and "cpuacct") with "-o cpuacct,cpu"
-        # but on a directory called "cpu,cpuacct" (note the inversion
-        # in the order of the groups). This tries to work around it.
-        [ $SUBSYS = cpuacct,cpu ] &#x26;&#x26; ln -s $SUBSYS $CGROUP/cpu,cpuacct
-done
-
-# Note: as I write those lines, the LXC userland tools cannot setup
-# a "sub-container" properly if the "devices" cgroup is not in its
-# own hierarchy. Let's detect this and issue a warning.
-grep -q :devices: /proc/1/cgroup ||
-        echo "WARNING: the 'devices' cgroup should be in its own hierarchy."
-grep -qw devices /proc/1/cgroup ||
-        echo "WARNING: it looks like the 'devices' cgroup is not mounted."
-
-# Now, close extraneous file descriptors.
-pushd /proc/self/fd >/dev/null
-for FD in *
-do
-        case "$FD" in
-        # Keep stdin/stdout/stderr
-        [012])
-                ;;
-        # Nuke everything else
-        *)
-                eval exec "$FD>&#x26;-"
-                ;;
-        esac
-done
-popd >/dev/null
-
-
-# If a pidfile is still around (for example after a container restart),
-# delete it so that docker can start.
-rm -rf /var/run/docker.pid
-
-# If we were given a PORT environment variable, start as a simple daemon;
-# otherwise, spawn a shell as well
-if [ "$PORT" ]
-then
-        exec dockerd -H 0.0.0.0:$PORT -H unix:///var/run/docker.sock \
-                $DOCKER_DAEMON_ARGS
-else
-        if [ "$LOG" == "file" ]
-        then
-                dockerd $DOCKER_DAEMON_ARGS &#x26;>/var/log/docker.log &#x26;
-        else
-                dockerd $DOCKER_DAEMON_ARGS &#x26;
-        fi
-        (( timeout = 60 + SECONDS ))
-        until docker info >/dev/null 2>&#x26;1
-        do
-                if (( SECONDS >= timeout )); then
-                        echo 'Timed out trying to connect to internal docker host.' >&#x26;2
-                        break
-                fi
-                sleep 1
-        done
-        [[ $1 ]] &#x26;&#x26; exec "$@"
-        exec bash --login
-fi
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="bash" data-theme="one-dark-pro"><code data-language="bash" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#7F848E;font-style:italic">#!/bin/bash</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Ensure that all nodes in /dev/mapper correspond to mapped devices currently loaded by the device-mapper kernel driver</span></span>
+<span data-line=""><span style="color:#61AFEF">dmsetup</span><span style="color:#98C379"> mknodes</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># First, make sure that cgroups are mounted correctly.</span></span>
+<span data-line=""><span style="color:#E06C75">CGROUP</span><span style="color:#56B6C2">=</span><span style="color:#98C379">/sys/fs/cgroup</span></span>
+<span data-line=""><span style="color:#56B6C2">:</span><span style="color:#98C379"> {LOG:=stdio}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">[ </span><span style="color:#56B6C2">-d</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF"> ] ||</span></span>
+<span data-line=""><span style="color:#61AFEF">        mkdir</span><span style="color:#E06C75"> $CGROUP</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">mountpoint</span><span style="color:#D19A66"> -q</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF"> ||</span></span>
+<span data-line=""><span style="color:#61AFEF">        mount</span><span style="color:#D19A66"> -n</span><span style="color:#D19A66"> -t</span><span style="color:#98C379"> tmpfs</span><span style="color:#D19A66"> -o</span><span style="color:#98C379"> uid=0,gid=0,mode=</span><span style="color:#D19A66">0755</span><span style="color:#98C379"> cgroup</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF"> || {</span></span>
+<span data-line=""><span style="color:#56B6C2">                echo</span><span style="color:#98C379"> "Could not make a tmpfs mount. Did you use --privileged?"</span></span>
+<span data-line=""><span style="color:#56B6C2">                exit</span><span style="color:#D19A66"> 1</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">if</span><span style="color:#ABB2BF"> [ </span><span style="color:#56B6C2">-d</span><span style="color:#ABB2BF"> /sys/kernel/security ] &#x26;&#x26; ! </span><span style="color:#61AFEF">mountpoint</span><span style="color:#D19A66"> -q</span><span style="color:#98C379"> /sys/kernel/security</span></span>
+<span data-line=""><span style="color:#C678DD">then</span></span>
+<span data-line=""><span style="color:#61AFEF">    mount</span><span style="color:#D19A66"> -t</span><span style="color:#98C379"> securityfs</span><span style="color:#98C379"> none</span><span style="color:#98C379"> /sys/kernel/security</span><span style="color:#ABB2BF"> || {</span></span>
+<span data-line=""><span style="color:#56B6C2">        echo</span><span style="color:#98C379"> "Could not mount /sys/kernel/security."</span></span>
+<span data-line=""><span style="color:#56B6C2">        echo</span><span style="color:#98C379"> "AppArmor detection and --privileged mode might break."</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#C678DD">fi</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Mount the cgroup hierarchies exactly as they are in the parent system.</span></span>
+<span data-line=""><span style="color:#C678DD">for</span><span style="color:#E06C75"> SUBSYS</span><span style="color:#C678DD"> in</span><span style="color:#ABB2BF"> $(</span><span style="color:#61AFEF">cut</span><span style="color:#D19A66"> -d:</span><span style="color:#D19A66"> -f2</span><span style="color:#98C379"> /proc/1/cgroup</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">do</span></span>
+<span data-line=""><span style="color:#ABB2BF">        [ </span><span style="color:#56B6C2">-d</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF">/</span><span style="color:#E06C75">$SUBSYS</span><span style="color:#ABB2BF"> ] || </span><span style="color:#61AFEF">mkdir</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$SUBSYS</span></span>
+<span data-line=""><span style="color:#61AFEF">        mountpoint</span><span style="color:#D19A66"> -q</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$SUBSYS</span><span style="color:#ABB2BF"> ||</span></span>
+<span data-line=""><span style="color:#61AFEF">                mount</span><span style="color:#D19A66"> -n</span><span style="color:#D19A66"> -t</span><span style="color:#98C379"> cgroup</span><span style="color:#D19A66"> -o</span><span style="color:#E06C75"> $SUBSYS</span><span style="color:#98C379"> cgroup</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$SUBSYS</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # The two following sections address a bug which manifests itself</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # by a cryptic "lxc-start: no ns_cgroup option specified" when</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # trying to start containers withina container.</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # The bug seems to appear when the cgroup hierarchies are not</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # mounted on the exact same directories in the host, and in the</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # container.</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # Named, control-less cgroups are mounted with "-o name=foo"</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # (and appear as such under /proc/&#x3C;pid>/cgroup) but are usually</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # mounted on a directory named "foo" (without the "name=" prefix).</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # Systemd and OpenRC (and possibly others) both create such a</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # cgroup. To avoid the aforementioned bug, we symlink "foo" to</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # "name=foo". This shouldn't have any adverse effect.</span></span>
+<span data-line=""><span style="color:#56B6C2">        echo</span><span style="color:#E06C75"> $SUBSYS</span><span style="color:#ABB2BF"> | </span><span style="color:#61AFEF">grep</span><span style="color:#D19A66"> -q</span><span style="color:#98C379"> ^name=</span><span style="color:#ABB2BF"> &#x26;&#x26; {</span></span>
+<span data-line=""><span style="color:#E06C75">                NAME</span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF">$(</span><span style="color:#56B6C2">echo</span><span style="color:#E06C75"> $SUBSYS</span><span style="color:#ABB2BF"> | </span><span style="color:#61AFEF">sed</span><span style="color:#98C379"> s/^name=//</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#61AFEF">                ln</span><span style="color:#D19A66"> -s</span><span style="color:#E06C75"> $SUBSYS</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$NAME</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # Likewise, on at least one system, it has been reported that</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # systemd would mount the CPU and CPU accounting controllers</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # (respectively "cpu" and "cpuacct") with "-o cpuacct,cpu"</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # but on a directory called "cpu,cpuacct" (note the inversion</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # in the order of the groups). This tries to work around it.</span></span>
+<span data-line=""><span style="color:#ABB2BF">        [ </span><span style="color:#E06C75">$SUBSYS</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> cpuacct,cpu ] &#x26;&#x26; </span><span style="color:#61AFEF">ln</span><span style="color:#D19A66"> -s</span><span style="color:#E06C75"> $SUBSYS</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/cpu,cpuacct</span></span>
+<span data-line=""><span style="color:#C678DD">done</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Note: as I write those lines, the LXC userland tools cannot setup</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># a "sub-container" properly if the "devices" cgroup is not in its</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># own hierarchy. Let's detect this and issue a warning.</span></span>
+<span data-line=""><span style="color:#61AFEF">grep</span><span style="color:#D19A66"> -q</span><span style="color:#98C379"> :devices:</span><span style="color:#98C379"> /proc/1/cgroup</span><span style="color:#ABB2BF"> ||</span></span>
+<span data-line=""><span style="color:#56B6C2">        echo</span><span style="color:#98C379"> "WARNING: the 'devices' cgroup should be in its own hierarchy."</span></span>
+<span data-line=""><span style="color:#61AFEF">grep</span><span style="color:#D19A66"> -qw</span><span style="color:#98C379"> devices</span><span style="color:#98C379"> /proc/1/cgroup</span><span style="color:#ABB2BF"> ||</span></span>
+<span data-line=""><span style="color:#56B6C2">        echo</span><span style="color:#98C379"> "WARNING: it looks like the 'devices' cgroup is not mounted."</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Now, close extraneous file descriptors.</span></span>
+<span data-line=""><span style="color:#ABB2BF">pushd /proc/self/fd >/dev/null</span></span>
+<span data-line=""><span style="color:#C678DD">for</span><span style="color:#E06C75"> FD</span><span style="color:#C678DD"> in</span><span style="color:#98C379"> *</span></span>
+<span data-line=""><span style="color:#C678DD">do</span></span>
+<span data-line=""><span style="color:#C678DD">        case</span><span style="color:#98C379"> "</span><span style="color:#E06C75">$FD</span><span style="color:#98C379">"</span><span style="color:#C678DD"> in</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # Keep stdin/stdout/stderr</span></span>
+<span data-line=""><span style="color:#E06C75">        [012]</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">                ;;</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # Nuke everything else</span></span>
+<span data-line=""><span style="color:#ABB2BF">        *)</span></span>
+<span data-line=""><span style="color:#56B6C2">                eval</span><span style="color:#98C379"> exec</span><span style="color:#98C379"> "</span><span style="color:#E06C75">$FD</span><span style="color:#98C379">>&#x26;-"</span></span>
+<span data-line=""><span style="color:#ABB2BF">                ;;</span></span>
+<span data-line=""><span style="color:#C678DD">        esac</span></span>
+<span data-line=""><span style="color:#C678DD">done</span></span>
+<span data-line=""><span style="color:#ABB2BF">popd >/dev/null</span></span>
+<span data-line=""> </span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># If a pidfile is still around (for example after a container restart),</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># delete it so that docker can start.</span></span>
+<span data-line=""><span style="color:#61AFEF">rm</span><span style="color:#D19A66"> -rf</span><span style="color:#98C379"> /var/run/docker.pid</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># If we were given a PORT environment variable, start as a simple daemon;</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># otherwise, spawn a shell as well</span></span>
+<span data-line=""><span style="color:#C678DD">if</span><span style="color:#ABB2BF"> [ </span><span style="color:#98C379">"</span><span style="color:#E06C75">$PORT</span><span style="color:#98C379">"</span><span style="color:#ABB2BF"> ]</span></span>
+<span data-line=""><span style="color:#C678DD">then</span></span>
+<span data-line=""><span style="color:#56B6C2">        exec</span><span style="color:#98C379"> dockerd</span><span style="color:#D19A66"> -H</span><span style="color:#98C379"> 0.0.0.0:</span><span style="color:#E06C75">$PORT</span><span style="color:#D19A66"> -H</span><span style="color:#98C379"> unix:///var/run/docker.sock</span><span style="color:#56B6C2"> \</span></span>
+<span data-line=""><span style="color:#E06C75">                $DOCKER_DAEMON_ARGS</span></span>
+<span data-line=""><span style="color:#C678DD">else</span></span>
+<span data-line=""><span style="color:#C678DD">        if</span><span style="color:#ABB2BF"> [ </span><span style="color:#98C379">"</span><span style="color:#E06C75">$LOG</span><span style="color:#98C379">"</span><span style="color:#56B6C2"> ==</span><span style="color:#98C379"> "file"</span><span style="color:#ABB2BF"> ]</span></span>
+<span data-line=""><span style="color:#C678DD">        then</span></span>
+<span data-line=""><span style="color:#61AFEF">                dockerd</span><span style="color:#E06C75"> $DOCKER_DAEMON_ARGS</span><span style="color:#ABB2BF"> &#x26;>/var/log/docker.log &#x26;</span></span>
+<span data-line=""><span style="color:#C678DD">        else</span></span>
+<span data-line=""><span style="color:#61AFEF">                dockerd</span><span style="color:#E06C75"> $DOCKER_DAEMON_ARGS</span><span style="color:#ABB2BF"> &#x26;</span></span>
+<span data-line=""><span style="color:#C678DD">        fi</span></span>
+<span data-line=""><span style="color:#ABB2BF">        (( </span><span style="color:#E06C75">timeout</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 60</span><span style="color:#56B6C2"> +</span><span style="color:#E06C75"> SECONDS</span><span style="color:#ABB2BF"> ))</span></span>
+<span data-line=""><span style="color:#C678DD">        until</span><span style="color:#61AFEF"> docker</span><span style="color:#98C379"> info</span><span style="color:#ABB2BF"> ></span><span style="color:#98C379">/dev/null</span><span style="color:#ABB2BF"> 2>&#x26;1</span></span>
+<span data-line=""><span style="color:#C678DD">        do</span></span>
+<span data-line=""><span style="color:#C678DD">                if</span><span style="color:#ABB2BF"> (( </span><span style="color:#E06C75">SECONDS</span><span style="color:#56B6C2"> >=</span><span style="color:#E06C75"> timeout</span><span style="color:#ABB2BF"> )); </span><span style="color:#C678DD">then</span></span>
+<span data-line=""><span style="color:#56B6C2">                        echo</span><span style="color:#98C379"> 'Timed out trying to connect to internal docker host.'</span><span style="color:#ABB2BF"> >&#x26;2</span></span>
+<span data-line=""><span style="color:#C678DD">                        break</span></span>
+<span data-line=""><span style="color:#C678DD">                fi</span></span>
+<span data-line=""><span style="color:#61AFEF">                sleep</span><span style="color:#D19A66"> 1</span></span>
+<span data-line=""><span style="color:#C678DD">        done</span></span>
+<span data-line=""><span style="color:#ABB2BF">        [[ </span><span style="color:#E06C75;font-style:italic">$1</span><span style="color:#ABB2BF"> ]] &#x26;&#x26; </span><span style="color:#56B6C2">exec</span><span style="color:#98C379"> "</span><span style="color:#E06C75;font-style:italic">$@</span><span style="color:#98C379">"</span></span>
+<span data-line=""><span style="color:#56B6C2">        exec</span><span style="color:#98C379"> bash</span><span style="color:#D19A66"> --login</span></span>
+<span data-line=""><span style="color:#C678DD">fi</span></span></code></pre></figure>
 <ul>
 <li>jenkins_dind.sh</li>
 </ul>
-<pre><code class="language-bash">#!/bin/bash
-
-CGROUP=/sys/fs/cgroup
-
-[ -d $CGROUP ] ||
-  mkdir $CGROUP
-
-mountpoint -q $CGROUP ||
-  mount -n -t tmpfs -o uid=0,gid=0,mode=0755 cgroup $CGROUP || {
-    echo "Could not make a tmpfs mount. Did you use -privileged?"
-    exit 1
-  }
-
-# Mount the cgroup hierarchies exactly as they are in the parent system.
-for SUBSYS in $(cut -d: -f2 /proc/1/cgroup)
-do
-  [ -d $CGROUP/$SUBSYS ] || mkdir $CGROUP/$SUBSYS
-  mountpoint -q $CGROUP/$SUBSYS ||
-    mount -n -t cgroup -o $SUBSYS cgroup $CGROUP/$SUBSYS
-done
-
-# Now, close extraneous file descriptors.
-pushd /proc/self/fd
-for FD in *
-do
-  case "$FD" in
-  # Keep stdin/stdout/stderr
-  [012])
-    ;;
-  # Nuke everything else
-  *)
-    eval exec "$FD>&#x26;-"
-    ;;
-  esac
-done
-popd
-
-docker -d &#x26;
-exec /usr/bin/java -jar /usr/share/jenkins/jenkins.war
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="bash" data-theme="one-dark-pro"><code data-language="bash" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#7F848E;font-style:italic">#!/bin/bash</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E06C75">CGROUP</span><span style="color:#56B6C2">=</span><span style="color:#98C379">/sys/fs/cgroup</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">[ </span><span style="color:#56B6C2">-d</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF"> ] ||</span></span>
+<span data-line=""><span style="color:#61AFEF">  mkdir</span><span style="color:#E06C75"> $CGROUP</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">mountpoint</span><span style="color:#D19A66"> -q</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF"> ||</span></span>
+<span data-line=""><span style="color:#61AFEF">  mount</span><span style="color:#D19A66"> -n</span><span style="color:#D19A66"> -t</span><span style="color:#98C379"> tmpfs</span><span style="color:#D19A66"> -o</span><span style="color:#98C379"> uid=0,gid=0,mode=</span><span style="color:#D19A66">0755</span><span style="color:#98C379"> cgroup</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF"> || {</span></span>
+<span data-line=""><span style="color:#56B6C2">    echo</span><span style="color:#98C379"> "Could not make a tmpfs mount. Did you use -privileged?"</span></span>
+<span data-line=""><span style="color:#56B6C2">    exit</span><span style="color:#D19A66"> 1</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Mount the cgroup hierarchies exactly as they are in the parent system.</span></span>
+<span data-line=""><span style="color:#C678DD">for</span><span style="color:#E06C75"> SUBSYS</span><span style="color:#C678DD"> in</span><span style="color:#ABB2BF"> $(</span><span style="color:#61AFEF">cut</span><span style="color:#D19A66"> -d:</span><span style="color:#D19A66"> -f2</span><span style="color:#98C379"> /proc/1/cgroup</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">do</span></span>
+<span data-line=""><span style="color:#ABB2BF">  [ </span><span style="color:#56B6C2">-d</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#ABB2BF">/</span><span style="color:#E06C75">$SUBSYS</span><span style="color:#ABB2BF"> ] || </span><span style="color:#61AFEF">mkdir</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$SUBSYS</span></span>
+<span data-line=""><span style="color:#61AFEF">  mountpoint</span><span style="color:#D19A66"> -q</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$SUBSYS</span><span style="color:#ABB2BF"> ||</span></span>
+<span data-line=""><span style="color:#61AFEF">    mount</span><span style="color:#D19A66"> -n</span><span style="color:#D19A66"> -t</span><span style="color:#98C379"> cgroup</span><span style="color:#D19A66"> -o</span><span style="color:#E06C75"> $SUBSYS</span><span style="color:#98C379"> cgroup</span><span style="color:#E06C75"> $CGROUP</span><span style="color:#98C379">/</span><span style="color:#E06C75">$SUBSYS</span></span>
+<span data-line=""><span style="color:#C678DD">done</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic"># Now, close extraneous file descriptors.</span></span>
+<span data-line=""><span style="color:#ABB2BF">pushd /proc/self/fd</span></span>
+<span data-line=""><span style="color:#C678DD">for</span><span style="color:#E06C75"> FD</span><span style="color:#C678DD"> in</span><span style="color:#98C379"> *</span></span>
+<span data-line=""><span style="color:#C678DD">do</span></span>
+<span data-line=""><span style="color:#C678DD">  case</span><span style="color:#98C379"> "</span><span style="color:#E06C75">$FD</span><span style="color:#98C379">"</span><span style="color:#C678DD"> in</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  # Keep stdin/stdout/stderr</span></span>
+<span data-line=""><span style="color:#E06C75">  [012]</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    ;;</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  # Nuke everything else</span></span>
+<span data-line=""><span style="color:#ABB2BF">  *)</span></span>
+<span data-line=""><span style="color:#56B6C2">    eval</span><span style="color:#98C379"> exec</span><span style="color:#98C379"> "</span><span style="color:#E06C75">$FD</span><span style="color:#98C379">>&#x26;-"</span></span>
+<span data-line=""><span style="color:#ABB2BF">    ;;</span></span>
+<span data-line=""><span style="color:#C678DD">  esac</span></span>
+<span data-line=""><span style="color:#C678DD">done</span></span>
+<span data-line=""><span style="color:#ABB2BF">popd</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">docker</span><span style="color:#D19A66"> -d</span><span style="color:#ABB2BF"> &#x26;</span></span>
+<span data-line=""><span style="color:#56B6C2">exec</span><span style="color:#98C379"> /usr/bin/java</span><span style="color:#D19A66"> -jar</span><span style="color:#98C379"> /usr/share/jenkins/jenkins.war</span></span></code></pre></figure>
 <h2>참고</h2>
 <ol>
 <li><a href="https://nodejs.org/ko/docs/guides/nodejs-docker-webapp/">Node.js 웹 앱의 도커라이징 | Node.js</a></li>

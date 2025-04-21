@@ -38,28 +38,27 @@
 <p>JavaScript에서 함수를 실행하는 방식을 Run-to-Completion 라고 말한다.</p>
 <p>이는, function을 실행해서 작업이 끝날 때까지 다른 작업을 하지 못한다는 의미이다.</p>
 <p>JavaScript를 처리하는 JavaScrfipt Engine은 단일 호출 스택으로 하나의 작업만 처리하기 때문에 현재 스택에 쌓여있는 모든 함수들이 실행이 끝나서 스택에서 제거되기 전까지는 다른 함수도 실행될 수 없다. 9</p>
-<pre><code class="language-javascript">function delay() {
-  for (var i = 0; i &#x3C; 10000000; i++);
-}
-
-function foo() {
-  delay()
-  bar()
-  console.log('foo!')
-}
-
-function bar() {
-  delay()
-  console.log('bar!')
-}
-
-function baz() {
-  console.log('baz')
-}
-
-setTimeout(baz, 10)
-foo()
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> delay</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">  for</span><span style="color:#ABB2BF"> (</span><span style="color:#C678DD">var</span><span style="color:#E06C75"> i</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">i</span><span style="color:#56B6C2"> &#x3C;</span><span style="color:#D19A66"> 10000000</span><span style="color:#ABB2BF">; </span><span style="color:#E06C75">i</span><span style="color:#56B6C2">++</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> foo</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#61AFEF">  delay</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">  bar</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'foo!'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> bar</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#61AFEF">  delay</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'bar!'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> baz</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'baz'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">setTimeout</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">baz</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">10</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#61AFEF">foo</span><span style="color:#ABB2BF">()</span></span></code></pre></figure>
 <p>예제는 JavaScript의 Run-to-Completion을 확인할 수 있는 간단한 예제이다.</p>
 <ul>
 <li>delay 함수는 1000만회 반복하는 for loop</li>
@@ -82,10 +81,9 @@ foo()
 <p>Web API의 setTimeout 함수가 어떤 과정으로 실행이 마지막에 되는지 보면, Task Queue와 Event Loop와 밀접한 관련이 있다.</p>
 <p>Task Queue는 Web API에서 호출한 함수들을 담아놓는 FIFO 형태의 Stack으로 이루어져 있다. 그래서, JavaScript Engine에서 전달받은 API 함수를 보관하고 있다가, 현재 stack frame이 끝나면 Event Loop가 현재 JavaScript Engine 내의 Executation Context Stack에 어떤 작업이 처리 되는 지 확인하고 작업이 비어 있다면 Task Queue의 작업을 꺼내와서 실행한다.</p>
 <p>이벤트 루프는 간단하게 아래와 같이 되어있다.</p>
-<pre><code class="language-javascript">while (queue.waitForMessage()) {
-  queue.processNextMessage()
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">while</span><span style="color:#ABB2BF"> (</span><span style="color:#E5C07B">queue</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">waitForMessage</span><span style="color:#ABB2BF">()) {</span></span>
+<span data-line=""><span style="color:#E5C07B">  queue</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">processNextMessage</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>waitForMessage() 메소드는 현재 실행중인 태스크가 없을 때 다음 태스크가 큐에 추가될 때 까지 대기한다.</p>
 <p>'현재 실행중인 태스크가 없는지', '태스크 큐에 태스크가 있는지'를 반복적으로 확인한다.</p>
 <ul>
@@ -94,18 +92,17 @@ foo()
 </ul>
 <p><img src="https://image.toast.com/aaaadh/real/2018/techblog/eventloop.jpg" alt=""></p>
 <h2>비동기 API와 try-catch</h2>
-<pre><code class="language-javascript">$('.btn').click(function () {
-  // A
-  try {
-    $.getJSON('/api/members', function (res) {
-      // B
-      // 에러 발생!
-    })
-  } catch (err) {
-    console.log('Error : ' + e.message)
-  }
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">$</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'.btn'</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">click</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  // A</span></span>
+<span data-line=""><span style="color:#C678DD">  try</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    $</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getJSON</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'/api/members'</span><span style="color:#ABB2BF">, </span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">res</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">      // B</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">      // 에러 발생!</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  } </span><span style="color:#C678DD">catch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">err</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Error : '</span><span style="color:#56B6C2"> +</span><span style="color:#E5C07B"> e</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>click시 네트워크 통신을 하는 간단한 소스인데, 이 소스의 네트워크 callback 내부에서 에러가 났다면 try catch로 잡히지 않는다.</p>
 <ol>
 <li>A 함수가 실행될 때 <code>$.getJSON</code> 함수를 통해 <code>/api/members</code> 로 <code>XMLHttpRequest</code> 를 요청한다. call stack에서 A 함수는 삭제된다.</li>
@@ -115,36 +112,33 @@ foo()
 <li>하지만 에러를 반환하지 않는다. 그 이유는 A함수의 내부에서 try와 catch를 해줬으나 A의 환경에서 구동되는게 아닌, task queue를 지나 javascript engine의 call stack에 등록되어서 새로운 환경에서 작동된다.</li>
 </ol>
 <h3>해결 방법</h3>
-<pre><code class="language-javascript">$('.btn').click(function () {
-  // A
-  try {
-    $.getJSON('/api/members', function (res) {
-      // B
-      try {
-      } catch (err) {}
-    })
-  } catch (err) {
-    console.log('Error : ' + e.message)
-  }
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">$</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'.btn'</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">click</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  // A</span></span>
+<span data-line=""><span style="color:#C678DD">  try</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    $</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getJSON</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'/api/members'</span><span style="color:#ABB2BF">, </span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">res</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">      // B</span></span>
+<span data-line=""><span style="color:#C678DD">      try</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">      } </span><span style="color:#C678DD">catch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">err</span><span style="color:#ABB2BF">) {}</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  } </span><span style="color:#C678DD">catch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">err</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Error : '</span><span style="color:#56B6C2"> +</span><span style="color:#E5C07B"> e</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>해결 방법은 B 함수 내부에도 try catch를 설치하는 방법이다. 하지만 이와 같은 경우에도 네트워크 에러나 서버 에러는 따로 error callback을 통해 잡아야 한다.</p>
 <h3>setTimeout(fn, 0)</h3>
 <p>setTimeout 함수를 활용하면 무궁무진한 일을 할 수 있다. 이는 setTimeout 뿐만 아니라, 다양한 Web API로도 가능하다.</p>
-<pre><code class="language-javascript">setTimeout(function () {
-  console.log('1')
-}, 0)
-console.log('2')
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">setTimeout</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'1'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'2'</span><span style="color:#ABB2BF">)</span></span></code></pre></figure>
 <p>위 소스를 실행하면 이제는 2가 찍힌 후, 1이 찍힌다는 걸 알 수 있다.</p>
 <p>그렇다면 이걸 이용해서 다음 코드를 수정해보자.</p>
-<pre><code class="language-javascript">$('.btn').click(function () {
-  showWaitingMessage()
-  longTakingProcess()
-  hideWaitingMessage()
-  showResult()
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">$</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'.btn'</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">click</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#61AFEF">  showWaitingMessage</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">  longTakingProcess</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">  hideWaitingMessage</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">  showResult</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <ul>
 <li>showWaitingMessage : 로딩을 브라우저에 띄우는 함수</li>
 <li>longTakingProcess : 매우 긴 (동기) 작업</li>
@@ -167,32 +161,30 @@ console.log('2')
 </ol>
 <p>결과를 봤을 때 showWaitingMessage와 hideWaitingMessage는 원하는 시점에 실행이 되지 않는다.</p>
 <p>그러므로 아래와 같이 바꾸면 해결할 수 있다.</p>
-<pre><code class="language-javascript">$('.btn').click(function () {
-  showWaitingMessage()
-  setTimeout(function () {
-    longTakingProcess()
-    hideWaitingMessage()
-    showResult()
-  }, 0)
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">$</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'.btn'</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">click</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#61AFEF">  showWaitingMessage</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">  setTimeout</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#61AFEF">    longTakingProcess</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">    hideWaitingMessage</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">    showResult</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>이렇게 실행하게 되면, showWaitingMessage() 의 WebAPI 호출이 task queue에 추가되고, 그 후 setTimeout으로 추가된 익명함수가 showWaitingMessage() WebAPI 호출 다음의 task queue에 호출되므로 순차적으로 작업이 일어난다.</p>
 <p>꼭 렌더링 관련이 아니어도, setTimeout으로 작업 단위를 나눠 주면 좋다.</p>
 <p>여기서 한 가지 팁은, setTimeout(fn, 0)은 실제로 바로 실행을 하는게 아니다. 브라우저 내부 타이머는 최소 단위를 정하여 관리하기 때문에 실제로 그 단위를 지나야 실행된다. 크롬의 경우 기본적으로 4ms를 가지므로, setTimeout(fn, 4)와 동일하다.</p>
 <p>이런 문제를 해결하기 위해, IE10애서 지원되는 setImmediate라는 API가 제안되었으나 표준은 되지 못했다.</p>
 <h2>Promise와 Event Loop</h2>
 <p>이런 Event Loop 개념은 <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loops">HTML 공식문서</a>에 정의 되어 있다. 문서를 보면, 도중에 마이크로 태스크(micro task)라는 단어가 보이는데, 이 단어는 Promise같은 비동기 이벤트에서 쓰이는 task를 일컫는다.</p>
-<pre><code class="language-javascript">setTimeout(function () {
-  console.log('1')
-}, 0)
-Promise.resolve()
-  .then(function () {
-    console.log('2')
-  })
-  .then(function () {
-    console.log('3')
-  })
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">setTimeout</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#E5C07B">  console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'1'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">}, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">Promise</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">resolve</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">  .</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'2'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  .</span><span style="color:#61AFEF">then</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
+<span data-line=""><span style="color:#E5C07B">    console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'3'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span></code></pre></figure>
 <p>이 코드에서 실행 순서는 어떻게 될 지 예상할 수 있는가?</p>
 <p>예상 프로세스를 생각해보면 아래와 같다.</p>
 <ol>

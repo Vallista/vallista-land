@@ -6,29 +6,25 @@
 <p>저번 시간에는 자주 나오는 레이아웃 깨지는 이슈에 대응하는 방법을 알아보았습니다. 이번 시간에는 자주 나오지는 않지만 한번 나오면 대응하기 힘든 이슈와 자주 사용하는 HTML, CSS 코드 이야기를 하려고 합니다.</p>
 <h2>이미지를 디바이스 크기 상관없이 대응하는 두 가지 방법</h2>
 <p>반응형 웹을 개발할 때, 이미지를 fill(가득 채우는) 처리를 해야할 상황이 항상 오기 마련입니다. 그럴때 아래와 같은 방법을 자주 사용했습니다.</p>
-<pre><code class="language-html">&#x3C;div class="title-image">&#x3C;/div>
-</code></pre>
-<pre><code class="language-css">/* CSS 축약 사용 */
-.title-image {
-  background: black url('example.png') no-repeat cover center;
-}
-
-/* 모든 Property 사용 */
-.title-image {
-  background-image: url('example.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"title-image"</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#7F848E;font-style:italic">/* CSS 축약 사용 */</span></span>
+<span data-line=""><span style="color:#D19A66">.title-image</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background: </span><span style="color:#D19A66">black</span><span style="color:#56B6C2"> url</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'example.png'</span><span style="color:#ABB2BF">) </span><span style="color:#D19A66">no-repeat</span><span style="color:#D19A66"> cover</span><span style="color:#D19A66"> center</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">/* 모든 Property 사용 */</span></span>
+<span data-line=""><span style="color:#D19A66">.title-image</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-image: </span><span style="color:#56B6C2">url</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'example.png'</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-repeat: </span><span style="color:#D19A66">no-repeat</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-size: </span><span style="color:#D19A66">cover</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-position: </span><span style="color:#D19A66">center</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p><code>background</code> Property를 사용한 방법은 과거부터 전통적으로 웹 프론트엔드를 개발하면서 사용되던 형태입니다. 하지만 이 방법은 <code>Semantic Web(시맨틱 웹)</code>이 대두되면서 html을 작성하는 명확한 방법이 아니게 되어 현재 와서는 권장이 되지 않고 있습니다. 그래서 아래와 같은 방법을 사용합니다.</p>
-<pre><code class="language-html">&#x3C;img src="example.png" class="title-image" />
-</code></pre>
-<pre><code class="language-css">.title-image {
-  object-fit: cover;
-  object-position: center;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">img</span><span style="color:#D19A66"> src</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"example.png"</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"title-image"</span><span style="color:#ABB2BF"> /></span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.title-image</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  object-fit: </span><span style="color:#D19A66">cover</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  object-position: </span><span style="color:#D19A66">center</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>이 형태의 작성 방법은 <code>Semantic Web(시멘틱 웹)</code>을 보장함과 동시에, CSS 코드도 간결해진다는 장점을 가지고 있습니다. 하지만, 이 방법에도 단점이 존재합니다.</p>
 <p><img src="/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image2.png" alt="image2">
 모든 브라우저가 지원하지 않는다.</p>
@@ -50,224 +46,215 @@ Polyfill은 개발자가 특정 기능이 지원되지 않는 브라우저를 �
 <p>아래와 같은 레이아웃을 구현한다고 가정해봅시다.</p>
 <p><img src="/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image3.jpeg" alt="image3"></p>
 <p>이 레이아웃을 구현하는 여러가지 방법이 존재할텐데 그 중에서 한 가지 방법을 이야기 해보겠습니다.</p>
-<pre><code class="language-html">&#x3C;div class="container">
-  &#x3C;div class="left-area">
-    &#x3C;img src="image" />
-  &#x3C;/div>
-  &#x3C;div class="right-area">
-    &#x3C;div class="price-wrapper">
-      &#x3C;span class="gray">(1,690원)&#x3C;/span>
-      &#x3C;span class="black">1,690원&#x3C;/span>
-    &#x3C;/div>
-    &#x3C;div class="box">&#x3C;/div>
-  &#x3C;/div>
-  
-&#x3C;/div>
-</code></pre>
-<pre><code class="language-css">.container {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 200px;
-  box-sizing: border-box;
-  padding: 24px 12px 24px 12px;
-}
-
-.left-area {
-  width: 140px;
-  height: 140px;
-}
-
-.image {
-  border-radius: 6px;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"container"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"left-area"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">img</span><span style="color:#D19A66"> src</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"image"</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"right-area"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"price-wrapper"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"gray"</span><span style="color:#ABB2BF">>(1,690원)&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"black"</span><span style="color:#ABB2BF">>1,690원&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"box"</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  </span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.container</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  display: </span><span style="color:#D19A66">flex</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  flex-direction: </span><span style="color:#D19A66">row</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  justify-content: </span><span style="color:#D19A66">center</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  align-items: </span><span style="color:#D19A66">center</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vw</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">200</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  box-sizing: </span><span style="color:#D19A66">border-box</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  padding: </span><span style="color:#D19A66">24</span><span style="color:#E06C75">px</span><span style="color:#D19A66"> 12</span><span style="color:#E06C75">px</span><span style="color:#D19A66"> 24</span><span style="color:#E06C75">px</span><span style="color:#D19A66"> 12</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.left-area</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">140</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">140</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.image</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  border-radius: </span><span style="color:#D19A66">6</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>구글 크롬 및 데스크톱에서는 코드가 제대로 동작하는 걸 확인할 수 있습니다. 하지만 갤럭시 S3와 같은 디바이스에서 코드를 실행시키면, <code>right-area</code>에 있는 레이아웃이 이미지 영역으로 침범하게 됩니다. 그렇다면 어떻게 해야할까요? 바로, CSS의 <code>Calc</code>를 사용하면 됩니다. CSS에서 아래와 같이 추가를 해주세요.</p>
-<pre><code class="language-css">... .right-area {
-  width: calc(100% - 140px);
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">... </span><span style="color:#D19A66">.right-area</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#56B6C2">calc</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">100</span><span style="color:#E06C75">%</span><span style="color:#56B6C2"> -</span><span style="color:#D19A66"> 140</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p><code>right-area</code>에 <code>width: calc(100% - 140px)</code>를 추가하면 영역을 침범하지 않고 정상적으로 출력되는 걸 볼 수 있습니다.</p>
 <blockquote>
 <p><code>&#x3C;img/></code>태그를 사용하여 HTML 코드를 작성할 때, width와 height중 한 값은 기본적으로 설정하는 게 좋습니다. (width를 설정하고 height를 auto로 설정하는게 무난합니다.)</p>
 </blockquote>
 <h2>overflow: scroll; 옵션이 iOS에서 적용이 안되는 이슈</h2>
 <p>스크롤이 되는 레이아웃을 작성해야할 때, 아래와 비슷한 형태의 코드를 입력하여 구현합니다.</p>
-<pre><code class="language-html">&#x3C;div class="overflow-layer">
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-  &#x3C;div class="row">
-    &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-    &#x3C;p>&#x3C;/p>
-  &#x3C;/div>
-&#x3C;/div>
-</code></pre>
-<pre><code class="language-css">.overflow-layer {
-  width: 100%;
-  height: 400px;
-  overflow: scroll;
-}
-
-.row {
-  color: #e6e6e6;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"overflow-layer"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.overflow-layer</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">400</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  overflow: </span><span style="color:#D19A66">scroll</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.row</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  color: </span><span style="color:#D19A66">#e6e6e6</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>이렇게 작성하여 데스크톱 웹에서 동작시키면 정상적으로 동작하는 걸 볼 수 있습니다. 하지만 iOS에서 동작시키면 <code>400px</code>의 레이어 안에 엄청 조밀하게 텍스트가 중첩되어 나오는 걸 확인할 수 있습니다.</p>
 <p>이는 제대로 <code>overflow: scroll;</code> 옵션이 적용이 안되었기 때문이 아닙니다. iOS에서는 기본적으로 Scroll Layer를 구현 해야할 때 리스트 형태를 권장하기 때문입니다. 아래와 같이 코드를 변경해주세요.</p>
-<pre><code class="language-html">&#x3C;div class="overflow-layer">
-  &#x3C;ul>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-    &#x3C;li class="row">
-      &#x3C;p>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/p>
-      &#x3C;p>&#x3C;/p>
-    &#x3C;/li>
-  &#x3C;/ul>
-  &#x3C;div>&#x3C;/div>
-&#x3C;/div>
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"overflow-layer"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">ul</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">li</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"row"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>블라블라블라블라블라블라블라블라블라블라블라블라&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">li</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">ul</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
 <p>ios에서는 스크롤 영역을 지정할 때 list-item 기준으로 content 사이즈를 지정합니다. 그렇기 때문에 ul, li 와 같은 list 태그들로 감싸주어야 column 형태의 스크롤 레이아웃이 생성됩니다.</p>
 <h2>Position Property의 Relative와 Absolute</h2>
 <p>CSS의 Position Property는 CSS 요소가 화면에 어떻게 배치될 지를 설정하는 역할을 합니다. 옵션 중 저번 글에서 언급했던 <code>display: fixed</code> 옵션은 iOS에서 제대로 된 동작을 하지 않기 때문에 absolute와 relative 두 요소를 제일 많이 사용할 것 입니다. 아래의 사용 예제를 보도록 합시다.</p>
-<pre><code class="language-html">&#x3C;div class="modal-layer">
-  &#x3C;div class="modal-wrapper">
-    &#x3C;div class="modal">
-      &#x3C;p>안녕하세요.&#x3C;/p>
-    &#x3C;/div>
-  &#x3C;/div>
-&#x3C;/div>
-</code></pre>
-<pre><code class="language-css">.modal-layer {
-  width: 100vw;
-  height: 100vh;
-}
-
-.modal-wrapper {
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
-  z-index: 50;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"modal-layer"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"modal-wrapper"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"modal"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>안녕하세요.&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.modal-layer</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vw</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vh</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.modal-wrapper</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vw</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vh</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-color: </span><span style="color:#56B6C2">rgba</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0.5</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.modal</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  position: </span><span style="color:#D19A66">absolute</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  left: </span><span style="color:#D19A66">50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  top: </span><span style="color:#D19A66">50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  transform: </span><span style="color:#56B6C2">translate</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">-50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">-50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">200</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">200</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  z-index: </span><span style="color:#D19A66">50</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>absolute는 기존에 있는 요소의 z-index를 부여하여 더 높은 우선순위로 그려지도록 설정합니다. 그렇기 때문에 modal과 같은 안내 레이아웃에 적합한 Property 입니다. 그렇다면 위의 예제를 실행해볼까요? Desktop 크롬에서는 제대로 나오겠지만 안드로이드, iOS에서는 제대로 된 위치에서 그려지지 않을겁니다. 그렇기 때문에 아래와 같이 작성해주어야 합니다.</p>
-<pre><code class="language-css">.modal-layer {
-  width: 100vw;
-  height: 100vh;
-}
-
-.modal-wrapper {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 50;
-}
-
-.modal {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
-  z-index: 51;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.modal-layer</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vw</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vh</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.modal-wrapper</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  position: </span><span style="color:#D19A66">relative</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vw</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">vh</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-color: </span><span style="color:#56B6C2">rgba</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">0.5</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">  z-index: </span><span style="color:#D19A66">50</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.modal</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  position: </span><span style="color:#D19A66">absolute</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  left: </span><span style="color:#D19A66">50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  top: </span><span style="color:#D19A66">50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  transform: </span><span style="color:#56B6C2">translate</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">-50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">, </span><span style="color:#D19A66">-50</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">);</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">200</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">200</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  z-index: </span><span style="color:#D19A66">51</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p><code>modal-wrapper</code> class에 <code>position: relative;</code> Property를 추가해주었습니다. 어떤가요? 제대로 동작하는 걸 볼 수 있습니다. 그렇다면 왜 안되었을까요? 안된 이유를 알기 위해서 relative와 absolute를 알아야 합니다.</p>
 <h3>position: relative;</h3>
 <p>relative는 '상대적인' 이라는 뜻입니다. relative를 사용하면 현재 element를 상대적인 position을 갖도록 지정할 수 있습니다. 그러므로 이 relative를 기준으로 가장 가까운 absolute를 상대하는 의미로 보시면 됩니다. 즉, absolute의 기준을 잡기위해 relative 옵션을 사용한다고 보면 됩니다.</p>
@@ -284,12 +271,11 @@ Polyfill은 개발자가 특정 기능이 지원되지 않는 브라우저를 �
 <p>간혹 안드로이드 폰을 보면 (특히 갤럭시 S10+) 이미지가 확대되어 나오는 경우가 존재합니다. width는 고정이 되어있는데, height가 크게 늘어나 이미지가 안이쁘게 보이는 형태입니다.</p>
 <p>이러한 문제를 야기하는 이유는 위에서 언급했듯 <code>&#x3C;img/></code>태그에 고정적인 크기를 지정해주지 않았기 때문입니다. 특히나 최신 브라우저는 Property를 빼먹으면 기본 데이터로 초기화 해주는 반면, 구버전의 브라우저는 그렇지 않습니다. (또한 다양한 브라우저가 그럼)</p>
 <p>그래서 <code>&#x3C;img/></code> 태그를 사용하거나 <code>&#x3C;div>&#x3C;/div></code>를 이용해 <code>background</code> Property를 사용했을 경우, width만 지정했는지 확인해주세요. height가 지정이 안되어있다면 아래와 같이 설정해주세요.</p>
-<pre><code class="language-css">img,
-div {
-  width: 100%;
-  height: auto;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#E06C75">img</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">div</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  width: </span><span style="color:#D19A66">100</span><span style="color:#E06C75">%</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  height: </span><span style="color:#D19A66">auto</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <h2>웹뷰내에서 웹뷰를 생성하는 버튼 연속 클릭 시 여러번 생성되는 이슈</h2>
 <p>모바일 웹에서는 웹뷰 안에서 App Scheme을 호출하여 다른 웹뷰로 이동하거나 웹뷰 위에 새로운 웹뷰를 생성시키는 다양한 요구 조건이 존재합니다. 여러가지 요구 조건 중에 새로운 웹뷰를 생성시키는 요구 조건은 조심해서 구현을 해야하는데요, 자칫 잘못하면 두 개 이상의 웹뷰가 생성될 수 있기 때문입니다.</p>
 <p>우리가 생각하는 만큼 유저는 순수하지 않습니다. 이 앱을 사용하는 방법은 저마다 다르기 때문에 최소한의 규칙이나 안전장치를 확보해놓아야 합니다. 특히, 새로운 웹뷰가 생성되는 것은 생성되기 전 버튼을 연타하면 여러개의 웹뷰가 생성될 수 있다는 걸 의미합니다.</p>

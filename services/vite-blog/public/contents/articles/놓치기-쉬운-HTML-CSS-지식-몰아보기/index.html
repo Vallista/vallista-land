@@ -20,102 +20,99 @@
 <p>Div는 요소를 묶는 역할과 동시에 구분하는 역할로도 사용되요. 아까 봤던 이미지를 한번 더 보실께요.</p>
 <p><img src="/contents/articles/%EB%86%93%EC%B9%98%EA%B8%B0-%EC%89%AC%EC%9A%B4-HTML-CSS-%EC%A7%80%EC%8B%9D-%EB%AA%B0%EC%95%84%EB%B3%B4%EA%B8%B0/assets/image3.png" alt="image3"></p>
 <p>위의 레이아웃은 아래의 코드와 같습니다.</p>
-<pre><code class="language-html">&#x3C;div>
-  &#x3C;h2>인재채용&#x3C;/h2>
-  &#x3C;p>우아한형제들과 함께 성장할 수 있는 기회!&#x3C;br />&#x3C;em class="highlight">지금이 바로 그 때&#x3C;/em>입니다.&#x3C;/p>
-
-  &#x3C;table style="margin-top:40px">
-    &#x3C;caption>
-      개발직군 채용
-    &#x3C;/caption>
-    &#x3C;tbody data-role="bind" data-name="recruits_develop" data-type="main-recruit-tech-item">
-      &#x3C;tr>
-        &#x3C;th>개발/서버&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10571">[배민마켓] 백엔드 애플리케이션 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-
-      &#x3C;tr>
-        &#x3C;th>개발/업무시스템&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10567">업무시스템 서버 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-
-      &#x3C;tr>
-        &#x3C;th>개발/서버&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10698">[배민아카데미] 서버 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-    &#x3C;/tbody>
-  &#x3C;/table>
-  &#x3C;div class="btn-area-table">
-    &#x3C;a href="#/recruit/tech" class="btn">개발직군 공고 더보기&#x3C;/a>
-  &#x3C;/div>
-&#x3C;/div>
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">h2</span><span style="color:#ABB2BF">>인재채용&#x3C;/</span><span style="color:#E06C75">h2</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>우아한형제들과 함께 성장할 수 있는 기회!&#x3C;</span><span style="color:#E06C75">br</span><span style="color:#ABB2BF"> />&#x3C;</span><span style="color:#E06C75">em</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"highlight"</span><span style="color:#ABB2BF">>지금이 바로 그 때&#x3C;/</span><span style="color:#E06C75">em</span><span style="color:#ABB2BF">>입니다.&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">table</span><span style="color:#D19A66"> style</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"margin-top:40px"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">caption</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      개발직군 채용</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">caption</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">tbody</span><span style="color:#D19A66"> data-role</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"bind"</span><span style="color:#D19A66"> data-name</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"recruits_develop"</span><span style="color:#D19A66"> data-type</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"main-recruit-tech-item"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/서버&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10571"</span><span style="color:#ABB2BF">>[배민마켓] 백엔드 애플리케이션 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/업무시스템&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10567"</span><span style="color:#ABB2BF">>업무시스템 서버 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/서버&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10698"</span><span style="color:#ABB2BF">>[배민아카데미] 서버 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">tbody</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">table</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"btn-area-table"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"#/recruit/tech"</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"btn"</span><span style="color:#ABB2BF">>개발직군 공고 더보기&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
 <p>위의 소스는 하나의 큰 Div에 여러가지 요소가 들어가있는 걸 볼 수 있습니다. 각각의 요소가 div element로 구분되어 있는 것도 확인할 수 있구요. div는 코드를 보면 알 수 있듯 요소를 묶거나 구분하는데 쓰입니다.</p>
 <h4>Div 활용 두 번째, 요소를 정렬하거나 스타일 적용하기</h4>
 <p>위의 코드를 아래와 같이 수정해볼께요.</p>
-<pre><code class="language-html">&#x3C;div style="opacity: 0.1">
-  &#x3C;h2>인재채용&#x3C;/h2>
-  &#x3C;p>우아한형제들과 함께 성장할 수 있는 기회!&#x3C;br />&#x3C;em class="highlight">지금이 바로 그 때&#x3C;/em>입니다.&#x3C;/p>
-
-  &#x3C;table style="margin-top:40px">
-    &#x3C;caption>
-      개발직군 채용
-    &#x3C;/caption>
-    &#x3C;tbody data-role="bind" data-name="recruits_develop" data-type="main-recruit-tech-item">
-      &#x3C;tr>
-        &#x3C;th>개발/서버&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10571">[배민마켓] 백엔드 애플리케이션 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-
-      &#x3C;tr>
-        &#x3C;th>개발/업무시스템&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10567">업무시스템 서버 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-
-      &#x3C;tr>
-        &#x3C;th>개발/서버&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10698">[배민아카데미] 서버 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-    &#x3C;/tbody>
-  &#x3C;/table>
-  &#x3C;div class="btn-area-table">
-    &#x3C;a href="#/recruit/tech" class="btn">개발직군 공고 더보기&#x3C;/a>
-  &#x3C;/div>
-&#x3C;/div>
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> style</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"opacity: 0.1"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">h2</span><span style="color:#ABB2BF">>인재채용&#x3C;/</span><span style="color:#E06C75">h2</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>우아한형제들과 함께 성장할 수 있는 기회!&#x3C;</span><span style="color:#E06C75">br</span><span style="color:#ABB2BF"> />&#x3C;</span><span style="color:#E06C75">em</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"highlight"</span><span style="color:#ABB2BF">>지금이 바로 그 때&#x3C;/</span><span style="color:#E06C75">em</span><span style="color:#ABB2BF">>입니다.&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">table</span><span style="color:#D19A66"> style</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"margin-top:40px"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">caption</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      개발직군 채용</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">caption</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">tbody</span><span style="color:#D19A66"> data-role</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"bind"</span><span style="color:#D19A66"> data-name</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"recruits_develop"</span><span style="color:#D19A66"> data-type</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"main-recruit-tech-item"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/서버&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10571"</span><span style="color:#ABB2BF">>[배민마켓] 백엔드 애플리케이션 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/업무시스템&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10567"</span><span style="color:#ABB2BF">>업무시스템 서버 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/서버&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10698"</span><span style="color:#ABB2BF">>[배민아카데미] 서버 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">tbody</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">table</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"btn-area-table"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"#/recruit/tech"</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"btn"</span><span style="color:#ABB2BF">>개발직군 공고 더보기&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
 <p>최상위 div에 opacity를 0.1을 주었습니다. opacity는 알파값인데요, 요소의 흐린 정도를 나타냅니다. 0.1로 변경하면 div 요소들이 엄청 흐려지겠군요! 결과를 한 번 봐보겠습니다.</p>
 <p><img src="/contents/articles/%EB%86%93%EC%B9%98%EA%B8%B0-%EC%89%AC%EC%9A%B4-HTML-CSS-%EC%A7%80%EC%8B%9D-%EB%AA%B0%EC%95%84%EB%B3%B4%EA%B8%B0/assets/image6.png" alt="image6"></p>
 <p>엄청 흐려졌네요! 이로써 <code>div</code> 태그에 CSS 옵션을 주게되면 한번에 내부의 CSS 속성을 줄 수 있는 걸 확인했습니다. 다음으로 정렬을 살펴보도록 하겠습니다. 현재 정렬을 수직으로 하고 있는데 수평으로 변경해보겠습니다.</p>
-<pre><code class="language-html">&#x3C;div style="display: flex; flex-direction: row;">
-  &#x3C;h2>인재채용&#x3C;/h2>
-  &#x3C;p>우아한형제들과 함께 성장할 수 있는 기회!&#x3C;br />&#x3C;em class="highlight">지금이 바로 그 때&#x3C;/em>입니다.&#x3C;/p>
-
-  &#x3C;table style="margin-top:40px">
-    &#x3C;caption>
-      개발직군 채용
-    &#x3C;/caption>
-    &#x3C;tbody data-role="bind" data-name="recruits_develop" data-type="main-recruit-tech-item">
-      &#x3C;tr>
-        &#x3C;th>개발/서버&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10571">[배민마켓] 백엔드 애플리케이션 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-
-      &#x3C;tr>
-        &#x3C;th>개발/업무시스템&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10567">업무시스템 서버 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-
-      &#x3C;tr>
-        &#x3C;th>개발/서버&#x3C;/th>
-        &#x3C;td>&#x3C;a href="/recruit/tech?pidx=10698">[배민아카데미] 서버 개발자 모집&#x3C;/a>&#x3C;/td>
-      &#x3C;/tr>
-    &#x3C;/tbody>
-  &#x3C;/table>
-  &#x3C;div class="btn-area-table">
-    &#x3C;a href="#/recruit/tech" class="btn">개발직군 공고 더보기&#x3C;/a>
-  &#x3C;/div>
-&#x3C;/div>
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> style</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"display: flex; flex-direction: row;"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">h2</span><span style="color:#ABB2BF">>인재채용&#x3C;/</span><span style="color:#E06C75">h2</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>우아한형제들과 함께 성장할 수 있는 기회!&#x3C;</span><span style="color:#E06C75">br</span><span style="color:#ABB2BF"> />&#x3C;</span><span style="color:#E06C75">em</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"highlight"</span><span style="color:#ABB2BF">>지금이 바로 그 때&#x3C;/</span><span style="color:#E06C75">em</span><span style="color:#ABB2BF">>입니다.&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">table</span><span style="color:#D19A66"> style</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"margin-top:40px"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">caption</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      개발직군 채용</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">caption</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">tbody</span><span style="color:#D19A66"> data-role</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"bind"</span><span style="color:#D19A66"> data-name</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"recruits_develop"</span><span style="color:#D19A66"> data-type</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"main-recruit-tech-item"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/서버&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10571"</span><span style="color:#ABB2BF">>[배민마켓] 백엔드 애플리케이션 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/업무시스템&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10567"</span><span style="color:#ABB2BF">>업무시스템 서버 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">>개발/서버&#x3C;/</span><span style="color:#E06C75">th</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">>&#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"/recruit/tech?pidx=10698"</span><span style="color:#ABB2BF">>[배민아카데미] 서버 개발자 모집&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">td</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">tr</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">tbody</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">table</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"btn-area-table"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">a</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"#/recruit/tech"</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"btn"</span><span style="color:#ABB2BF">>개발직군 공고 더보기&#x3C;/</span><span style="color:#E06C75">a</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
 <p>이번에도 최상단 <code>div</code>에 <code>display: flex</code>와 <code>flex-direction: row</code> 옵션을 주었습니다. 옵션을 주면, 레이아웃이 수평으로 변하겠죠? 결과값을 보도록 합시다.</p>
 <p><img src="/contents/articles/%EB%86%93%EC%B9%98%EA%B8%B0-%EC%89%AC%EC%9A%B4-HTML-CSS-%EC%A7%80%EC%8B%9D-%EB%AA%B0%EC%95%84%EB%B3%B4%EA%B8%B0/assets/image7.png" alt="image7"></p>
 <p>와! 정렬이 수평으로 변했어요! 이와 같이, 간단한 옵션의 조작으로 div 래핑을 통해 쉽게 레이아웃을 조정할 수 있습니다.</p>
@@ -125,24 +122,23 @@
 <h3>P 태그와 Span 태그의 함정</h3>
 <p>P 태그와 Span 태그는 HTML에서 글자를 나타낼 때 가장 많이 사용하는 태그 중 하나입니다. 하지만 이 친구들을 자칫 모르고 사용하면 제대로 된 레이아웃이 구성이 안될 때가 많습니다.</p>
 <p>먼저 아래의 예제를 살펴볼꼐요.</p>
-<pre><code class="language-html">&#x3C;!DOCTYPE html>
-&#x3C;html>
-  &#x3C;head>
-    &#x3C;title>p와 span의 차이&#x3C;/title>
-    &#x3C;link href="index.css" type="text/css" rel="stylesheet" />
-  &#x3C;/head>
-  &#x3C;body>
-    &#x3C;div>
-      &#x3C;p>P 1 이에요.&#x3C;/p>
-      &#x3C;p>P 2 이에요.&#x3C;/p>
-    &#x3C;/div>
-    &#x3C;div>
-      &#x3C;span>Span 1 이에요.&#x3C;/span>
-      &#x3C;span>Span 2 이에요.&#x3C;/span>
-    &#x3C;/div>
-  &#x3C;/body>
-&#x3C;/html>
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;!</span><span style="color:#E06C75">DOCTYPE</span><span style="color:#D19A66"> html</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">html</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">head</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">title</span><span style="color:#ABB2BF">>p와 span의 차이&#x3C;/</span><span style="color:#E06C75">title</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">link</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"index.css"</span><span style="color:#D19A66"> type</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"text/css"</span><span style="color:#D19A66"> rel</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"stylesheet"</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">head</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">body</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>P 1 이에요.&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">>P 2 이에요.&#x3C;/</span><span style="color:#E06C75">p</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">>Span 1 이에요.&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">>Span 2 이에요.&#x3C;/</span><span style="color:#E06C75">span</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">body</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">html</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
 <p>위 소스를 실행시키고 윈도우라면 F12, 맥이라면 커맨드 + 옵션 + I를 눌러보세요. 아래와 같은 화면이 나올꺼에요.</p>
 <p><img src="/contents/articles/%EB%86%93%EC%B9%98%EA%B8%B0-%EC%89%AC%EC%9A%B4-HTML-CSS-%EC%A7%80%EC%8B%9D-%EB%AA%B0%EC%95%84%EB%B3%B4%EA%B8%B0/assets/image14.png" alt="image14"></p>
 <p>차이점 하나가 바로 보이네요. 위의 사진에서 알 수 있는 사실은 <strong>P 태그는 한 줄을 전부 사용하고, Span은 태그가 라인 전체를 사용하지 않습니다.</strong> 중요한 것은 <strong>P는 문단에 사용하는 태그</strong>이며 그래서 <code>Paragraph</code>를 뜻합니다. <strong>Span은 한 단어 등 짧은 문구에 사용되는 태그</strong> 입니다. 한 가지 차이점을 더 알기 위해, 개발자 도구의 Inspect로 P 태그 부분에 커서를 올려보세요.</p>
@@ -156,10 +152,9 @@
 <p>위에서 잠시 마주했던 <code>display: flex</code>는 display를 flex(유연한, 유연하게)로 바꿔주는 친구에요. 먼저 기본 display 옵션을 보고 가도록 해요.</p>
 <p><img src="/contents/articles/%EB%86%93%EC%B9%98%EA%B8%B0-%EC%89%AC%EC%9A%B4-HTML-CSS-%EC%A7%80%EC%8B%9D-%EB%AA%B0%EC%95%84%EB%B3%B4%EA%B8%B0/assets/image3.png" alt="image3"></p>
 <p>위 이미지의 CSS를 한번 봐보세요. <code>div</code>의 기본 <code>display</code> 값이 어떻게 되어있나요?</p>
-<pre><code class="language-css">div {
-  display: block;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#E06C75">div</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  display: </span><span style="color:#D19A66">block</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>기본값이 <code>block</code>으로 되어있는 걸 볼 수 있어요. <code>block</code>을 보면 어떤 생각이 나시나요? 단단한 블록이 생각날꺼에요. 맞습니다. <code>display: block</code>은 영역 자체를 단단한 블록처럼 만들어서 크기가 외부에 의해 변경되지 않도록 하는 속성이에요. 그래서 block으로 지정된 여러 element가 있으면 해당 element는 넓이에 따라서 밑으로 개행되거나 합니다.</p>
 <p>그렇다면 <code>display: flex</code>는 무엇일까요? <code>flex</code>옵션을 주게되면 유연하게 내부를 조작할 수 있게 됩니다. 기존 <code>block</code> 속성은 내부를 <code>float</code>과 같은 옵션으로 정렬을 해주었지만 <code>float</code>은 워낙 브라우저마다 버그도 많고 중첩되면 랜덤으로 버그가 걸리는 문제가 있습니다. 그렇기 때문에 정렬을 위한 <code>flex</code>를 고안하게 된 것이에요. 즉, <code>display: flex</code>를 적용하면 해당 영역은 독자적인 <code>flex</code>영역으로 잡혀, 기존 방식과 다르게 조작할 수 있게 됩니다. 그렇다면 <code>flex</code>로 다룰 수 있는 몇 가지 옵션에 대해서 알아볼께요.</p>
 <h4>flex-direction</h4>
@@ -196,39 +191,36 @@
 </blockquote>
 <h3>Margin과 Padding, 그리고 Border</h3>
 <p>쉽게 정리하면, Margin은 Element와 Element 사이의 간격을 말하고 Padding은 Element 내부의 간격을 뜻합니다. Border는 Margin과 Padding 사이의 영역을 일컫는데, 대부분 아웃라인으로 사용하는 경우가 많습니다. 한번 아래의 예제를 실행해보도록 합시다.</p>
-<pre><code class="language-html">&#x3C;!DOCTYPE html>
-&#x3C;html>
-  &#x3C;head>
-    &#x3C;link rel="stylesheet" type="text/css" href="./index.css" />
-  &#x3C;/head>
-  &#x3C;body>
-    &#x3C;div class="section-1">&#x3C;/div>
-    &#x3C;div class="section-2">&#x3C;/div>
-  &#x3C;/body>
-&#x3C;/html>
-</code></pre>
-<pre><code class="language-css">.section-1 {
-  margin-bottom: 20px;
-  background-color: #000;
-}
-
-.section-2 {
-  padding: 20px;
-  background-color: #333;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;!</span><span style="color:#E06C75">DOCTYPE</span><span style="color:#D19A66"> html</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">html</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">head</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">link</span><span style="color:#D19A66"> rel</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"stylesheet"</span><span style="color:#D19A66"> type</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"text/css"</span><span style="color:#D19A66"> href</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"./index.css"</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">head</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">body</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"section-1"</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"section-2"</span><span style="color:#ABB2BF">>&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  &#x3C;/</span><span style="color:#E06C75">body</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">html</span><span style="color:#ABB2BF">></span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.section-1</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  margin-bottom: </span><span style="color:#D19A66">20</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-color: </span><span style="color:#D19A66">#000</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.section-2</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  padding: </span><span style="color:#D19A66">20</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-color: </span><span style="color:#D19A66">#333</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>예제를 실행시키면 section-1과 section-2로 지정된 친구들이 간격이 떨어져있고, section-2는 section-1보다 크기가 큰 걸 볼 수 있어요. 왜 크기가 클까요? 그 이유는 section-2에 padding이 있기 때문이에요. padding은 앞서 설명한대로 Element 내부의 간격을 말해요. 그래서 Element 내부의 사이즈로 칭해집니다. 만약 늘어나는게 원치 않다. 나는 사이즈를 고정하고 padding 영역만큼 contents 사이즈를 줄이겠다 라고 한다면 아래와 같이 CSS를 수정해주세요.</p>
-<pre><code class="language-css">.section-1 {
-  margin-bottom: 20px;
-  background-color: #000;
-}
-
-.section-2 {
-  padding: 20px;
-  background-color: #333;
-  box-sizing: border-box;
-}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="css" data-theme="one-dark-pro"><code data-language="css" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#D19A66">.section-1</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  margin-bottom: </span><span style="color:#D19A66">20</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-color: </span><span style="color:#D19A66">#000</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">.section-2</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#ABB2BF">  padding: </span><span style="color:#D19A66">20</span><span style="color:#E06C75">px</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  background-color: </span><span style="color:#D19A66">#333</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">  box-sizing: </span><span style="color:#D19A66">border-box</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>실행해보시면 알겠지만 사이즈가 일정해진 걸 볼 수 있어요. 무엇이 추가되었는지 한번 볼까요?</p>
 <p><code>box-sizing</code>가 추가 되었네요. <code>box-sizing</code>은 현재 box의 크기를 어디 기준으로 잡을지 지정하는 옵션입니다. 위에서 말했지만 모든 html의 element는 직사각형 박스로 되어있어요. 그렇기 때문에 box의 사이즈 기준을 정하는 건 중요한 설정입니다. <code>box-sizing</code>은 두 가지 옵션을 많이 사용합니다.</p>
 <ul>

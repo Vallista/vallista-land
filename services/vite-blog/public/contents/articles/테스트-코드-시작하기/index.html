@@ -42,18 +42,17 @@ QA 파트는 베타에서 TC 테스트를 통해 문제가 없음을 체크했�
 <p>대표적으로 AAA, Given-When-Then 패턴으로 테스트 영역 내에 주석의 영역을 미리 작성해두고, 해당 형태대로 코드를 작성하면 편하다.</p>
 <h4>AAA 패턴</h4>
 <p>AAA 패턴은 <a href="http://wiki.c2.com/?ArrangeActAssert&#x26;fbclid=IwAR1CXtTUHtKTI5PCMynboZAJffmaGVNPyN42UiwA6wWsN7DjDbI2yaoz4WY">"Arrange-Act-Assert"</a>의 약자이다. 결과 테스트를 기준으로 AAA 패턴을 적용해 작성한 걸 확인하면 다음과 같다.</p>
-<pre><code class="language-ts">describe('계산 테스트', () => {
-  const calculator = new Calculator()
-
-  test('0 값을 받았을때 1값을 반환한다.', () => {
-    const value = 0 // Arrange
-
-    const result = calculator.increment(value) // Act
-
-    expect(1).toBe(result) // Assert
-  })
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="ts" data-theme="one-dark-pro"><code data-language="ts" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'계산 테스트'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#E5C07B"> calculator</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Calculator</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  test</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'0 값을 받았을때 1값을 반환한다.'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> value</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#7F848E;font-style:italic"> // Arrange</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> result</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> calculator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">increment</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">value</span><span style="color:#ABB2BF">) </span><span style="color:#7F848E;font-style:italic">// Act</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">1</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">toBe</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">result</span><span style="color:#ABB2BF">) </span><span style="color:#7F848E;font-style:italic">// Assert</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <ul>
 <li>Arrange: 필요한 모든 조건과 입력값을 작성한다.</li>
 <li>Act: 테스트 방법을 작성한다.</li>
@@ -68,20 +67,19 @@ QA 파트는 베타에서 TC 테스트를 통해 문제가 없음을 체크했�
 <h4>Given-When-Then 패턴</h4>
 <p><a href="https://martinfowler.com/bliki/GivenWhenThen.html">Given When Then 패턴</a>은 링크한 마틴파울러의 글을 읽어보면 잘 이해가 된다. 쉽게 이야기하면 준비 - 실행 - 검증 케이스를 분리하라는 의미이다.
 위에서 언급한 AAA 패턴과 동일하게 세가지로 구분하며, 조금 다르지만 비슷하다.</p>
-<pre><code class="language-ts">describe('계산 테스트', () => {
-  test('0 값을 받았을때 1값을 반환한다.', () => {
-    // given
-    const calculator = new Calculator()
-    const value = 0
-
-    // when
-    const result = calculator.increment(value)
-
-    // then
-    expect(1).toBe(result)
-  })
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="ts" data-theme="one-dark-pro"><code data-language="ts" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'계산 테스트'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  test</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'0 값을 받았을때 1값을 반환한다.'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // given</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> calculator</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Calculator</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> value</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // when</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> result</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> calculator</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">increment</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">value</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // then</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#D19A66">1</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">toBe</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">result</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <ul>
 <li>given은 시나리오에서 필요한 값을 미리 추출하여 선언한다. 이 데이터들은 테스트의 전제 조건이다.</li>
 <li>when은 지정한 동작(행동)을 의미한다.</li>
@@ -93,42 +91,40 @@ QA 파트는 베타에서 TC 테스트를 통해 문제가 없음을 체크했�
 <p>유닛 테스트를 작성하기에 앞서, 우리는 "결과 테스트 패턴", "상태 테스트 패턴", "긍정에 대한 테스트보다 부정에 대한 테스트를 작성하기" 세 가지를 확인해보도록 한다.</p>
 <h4>결과 테스트 패턴</h4>
 <p>결과 테스트 패턴은 결과값이 무엇인지에 대한 테스트를 진행하는 패턴이다.</p>
-<pre><code class="language-ts">describe('커피 가격 검증 테스트', () => {
-  test('우유가 들어있지 않은 경우 할인된 가격으로 라떼를 제공한다.', () => {
-    // given
-    const name = 'americano latte'
-    const originCoffeePrice = 3000
-    const expectedPrice = 2500
-
-    const coffee = new Coffee(name, originCoffeePrice)
-
-    // when
-    coffee.sub('milk')
-    const actualPrice = coffee.getDiscountedPrice()
-
-    // then
-    expect(expectedPrice).toBe(actualPrice)
-  })
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="ts" data-theme="one-dark-pro"><code data-language="ts" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'커피 가격 검증 테스트'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  test</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'우유가 들어있지 않은 경우 할인된 가격으로 라떼를 제공한다.'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // given</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> name</span><span style="color:#56B6C2"> =</span><span style="color:#98C379"> 'americano latte'</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> originCoffeePrice</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 3000</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> expectedPrice</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 2500</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> coffee</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Coffee</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">originCoffeePrice</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // when</span></span>
+<span data-line=""><span style="color:#E5C07B">    coffee</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">sub</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'milk'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> actualPrice</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> coffee</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getDiscountedPrice</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // then</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">expectedPrice</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">toBe</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">actualPrice</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>쉽지 않은가? 정상적으로 어떤 행동이 이루어졌을때 해당 값에 대해서 체크하여 값을 비교하면 된다.</p>
 <h4>상태 테스트 패턴</h4>
 <p>상태 테스트 패턴은 위의 결과 테스트 패턴과 비슷하다. 조금 다른 점은 결과 테스트 패턴의 경우 들어가는 값과 나오는 값의 원시 유형이 동일하지만, 상태 테스트 패턴은 다를 수 있다는 점이다.
 현재 상태에서 어떤 행위를 했을때 이후 상태가 변경될 것이고, 변경된 상태가 의도한 상태와 같은지 체크하는 게 상태 테스트 패턴이다.</p>
-<pre><code class="language-ts">describe('Array.prototype.reverse 테스트', () => {
-  test('배열의 요소가 뒤바뀌어 적용되어야 한다.', () => {
-    // given
-    const originValue = ['hello', 'world']
-    const expectedValue = ['world', 'hello']
-
-    // when
-    originValue.reverse()
-
-    // then
-    expect(expectedValue).toBe(originValue)
-  })
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="ts" data-theme="one-dark-pro"><code data-language="ts" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'Array.prototype.reverse 테스트'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  test</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'배열의 요소가 뒤바뀌어 적용되어야 한다.'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // given</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> originValue</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> [</span><span style="color:#98C379">'hello'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'world'</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> expectedValue</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> [</span><span style="color:#98C379">'world'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'hello'</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // when</span></span>
+<span data-line=""><span style="color:#E5C07B">    originValue</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">reverse</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // then</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">expectedValue</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">toBe</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">originValue</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>결과 테스트 패턴과 별 다른게 없다. 일반적으로 테스트할 때 결과/상태 테스트 패턴의 구분없이 대부분의 깔끔하게 구조화된 메소드들은 이러한 테스팅 과정을 거치게 되며, 상대적으로 간단히 작성된다.
 그럼에도 이러한 값이 맞는지에 대한 테스트는 필수적으로 해줘야 할 요소들이 있는데, 정수의 값을 테스트 한다면, 입력값을 음수, 0, 양수, 크거나, 작은 값들에 대해서 의도적으로 에러를 만드는 테스트를 진행하여 안전한 코드 바운더리를 만들어야한다.</p>
 <h4>긍정에 대한 테스트보다 부정에 대한 테스트를 작성하기</h4>
@@ -155,43 +151,42 @@ QA 파트는 베타에서 TC 테스트를 통해 문제가 없음을 체크했�
 <li>테스트 코드는 오작동 문제 상황에 대한 코드 보완 여부를 협업하는 사람들과 공유하는 성격을 갖는다. 그러므로 히스토리가 차곡차곡 쌓이니 코드 단위로 효율성이 증대된다.</li>
 </ol>
 <p>위의 커피 테스트를 가져와서 올바르게 테스트 하는 경우를 체크해보도록 하면,</p>
-<pre><code class="language-ts">describe('커피 가격 검증 테스트', () => {
-  // 성공한 경우
-  test('우유가 들어있지 않은 경우 할인된 가격으로 라떼를 제공한다.', () => {
-    // given
-    const name = 'americano latte'
-    const originCoffeePrice = 3000
-    const expectedPrice = 2500
-
-    const coffee = new Coffee(name, originCoffeePrice)
-
-    // when
-    coffee.sub('milk')
-    const actualPrice = coffee.getDiscountedPrice()
-
-    // then
-    expect(expectedPrice).toBe(actualPrice)
-  })
-
-  test('할인된 가격으로 제공될 때, 제공되는 금액이 할인된 가격보다 적을 경우 무료로 제공한다.', () => {
-    // given
-    const name = 'americano latte'
-    const originCoffeePrice = 200
-    const expectedPrice = 0
-
-    const coffee = new Coffee(name, originCoffeePrice)
-
-    // when
-    coffee.sub('milk') // milk의 가격은 500원이다.
-    const actualPrice = coffee.getDiscountedPrice()
-
-    // then
-    expect(expectedPrice).toBe(actualPrice)
-  })
-
-  // ... 그 외 부정한 경우
-})
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="ts" data-theme="one-dark-pro"><code data-language="ts" data-theme="one-dark-pro" style="display: grid;"><span class="highlighted" data-line="" data-highlighted-line=""><span style="color:#61AFEF">describe</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'커피 가격 검증 테스트'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  // 성공한 경우</span></span>
+<span data-line=""><span style="color:#61AFEF">  test</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'우유가 들어있지 않은 경우 할인된 가격으로 라떼를 제공한다.'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // given</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> name</span><span style="color:#56B6C2"> =</span><span style="color:#98C379"> 'americano latte'</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> originCoffeePrice</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 3000</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> expectedPrice</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 2500</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> coffee</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Coffee</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">originCoffeePrice</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // when</span></span>
+<span data-line=""><span style="color:#E5C07B">    coffee</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">sub</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'milk'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> actualPrice</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> coffee</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getDiscountedPrice</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // then</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">expectedPrice</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">toBe</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">actualPrice</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  test</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'할인된 가격으로 제공될 때, 제공되는 금액이 할인된 가격보다 적을 경우 무료로 제공한다.'</span><span style="color:#ABB2BF">, () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // given</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> name</span><span style="color:#56B6C2"> =</span><span style="color:#98C379"> 'americano latte'</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> originCoffeePrice</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 200</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> expectedPrice</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> coffee</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Coffee</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">originCoffeePrice</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // when</span></span>
+<span data-line=""><span style="color:#E5C07B">    coffee</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">sub</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'milk'</span><span style="color:#ABB2BF">) </span><span style="color:#7F848E;font-style:italic">// milk의 가격은 500원이다.</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> actualPrice</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> coffee</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getDiscountedPrice</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">    // then</span></span>
+<span data-line=""><span style="color:#61AFEF">    expect</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">expectedPrice</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">toBe</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">actualPrice</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">  // ... 그 외 부정한 경우</span></span>
+<span data-line=""><span style="color:#ABB2BF">})</span></span></code></pre></figure>
 <p>우유가 들어있지 않은 경우 할인된 가격으로 라떼를 제공할 때, 예상치 못한 케이스를 유저관점에서 생각해보면 커피가 이미 있는데로 할인이 들어간 상황에서 milk의 가격보다 낮을때가 있을 것이다.
 이러한 경우 0이 되어야 하는데, 이런 테스트를 작성해주면 된다.</p>
 <p>다시 한 번 말하지만, 테스트는 올바르게 정상 작동하는지 보는 것보다 "어느 상황에 어떻게 동작하면 안되는지"를 볼 수 있는 히스토리 저장소라고 보면 옳다.</p>

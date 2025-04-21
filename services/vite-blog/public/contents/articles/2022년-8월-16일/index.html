@@ -21,59 +21,57 @@
 <p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/0.png" alt="로고"></p>
 <p>workflow를 선택하면 여러가지가 보이는데, 여기서 js script등이 있으므로 쉽게 Node.js 환경으로 실행했다. 그 후 yml 파일이 만들어지고, 해당 yml 파일에서 로직을 작성해 githuh action script를 작성할 수 있다.</p>
 <h3>2. 스크립트 작성하기</h3>
-<pre><code class="language-yml">name: Node.js CI
-
-on:
-  push:
-    branches: ['main']
-  pull_request:
-    branches: ['main']
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.TOKEN }}
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - name: yarn 설치
-        run: npm install -g yarn
-      - name: yarn workspaces 옵션 활성화
-        run: yarn config set workspaces-experimental true
-      - name: node.js 패키지 installation
-        run: yarn
-      - name: 코어 (디자인시스템) 빌드
-        run: yarn build:core
-      - name: 블로그 빌드
-        run: yarn build:blog
-      - name: git config 이메일 변경
-        run: git config --global user.email "mgh950714@gmail.com"
-      - name: git config 이름 변경
-        run: git config --global user.name "vallista"
-      # vallista-blog 들어가서 deploy 스크립트에 TOKEN 주입해 실행
-      - name: 디랙토리 이동 및 vallista.github.io 배포
-        run: |
-          yarn directory:blog
-          yarn deploy:blog-ex ${{ secrets.TOKEN }}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="yml" data-theme="one-dark-pro"><code data-language="yml" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">Node.js CI</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D19A66">on</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">  push</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">    branches</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">'main'</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#E06C75">  pull_request</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">    branches</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">'main'</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E06C75">jobs</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">  build</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">    runs-on</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">ubuntu-latest</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E06C75">    strategy</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">      matrix</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">        node-version</span><span style="color:#ABB2BF">: [</span><span style="color:#98C379">16.x</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E06C75">    steps</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">uses</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">actions/checkout@v3</span></span>
+<span data-line=""><span style="color:#E06C75">        with</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">          token</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">${{ secrets.TOKEN }}</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">Use Node.js ${{ matrix.node-version }}</span></span>
+<span data-line=""><span style="color:#E06C75">        uses</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">actions/setup-node@v3</span></span>
+<span data-line=""><span style="color:#E06C75">        with</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">          node-version</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">${{ matrix.node-version }}</span></span>
+<span data-line=""><span style="color:#E06C75">          cache</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'npm'</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn 설치</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm install -g yarn</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn workspaces 옵션 활성화</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn config set workspaces-experimental true</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">node.js 패키지 installation</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">코어 (디자인시스템) 빌드</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn build:core</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">블로그 빌드</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn build:blog</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config 이메일 변경</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config --global user.email "mgh950714@gmail.com"</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config 이름 변경</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config --global user.name "vallista"</span></span>
+<span data-line=""><span style="color:#7F848E;font-style:italic">      # vallista-blog 들어가서 deploy 스크립트에 TOKEN 주입해 실행</span></span>
+<span data-line=""><span style="color:#ABB2BF">      - </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">디랙토리 이동 및 vallista.github.io 배포</span></span>
+<span data-line=""><span style="color:#E06C75">        run</span><span style="color:#ABB2BF">: </span><span style="color:#C678DD">|</span></span>
+<span data-line=""><span style="color:#98C379">          yarn directory:blog</span></span>
+<span data-line=""><span style="color:#98C379">          yarn deploy:blog-ex ${{ secrets.TOKEN }}</span></span></code></pre></figure>
 <p>스크립트를 다음과 같이 작성했다. 문법은 어렵지 않아서 쉽게 이해하게 되었다. 여기서 조금 해메었던 부분은 모노레포 설정과 git config 설정하는 부분이었다. 각각의 어려웠던 부분을 이야기해보면 다음과 같다.</p>
 <h4>2-1. 모노레포 설정하기</h4>
-<pre><code class="language-yml">- name: yarn 설치
-  run: npm install -g yarn
-- name: yarn workspaces 옵션 활성화
-  run: yarn config set workspaces-experimental true
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="yml" data-theme="one-dark-pro"><code data-language="yml" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">- </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn 설치</span></span>
+<span data-line=""><span style="color:#E06C75">  run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">npm install -g yarn</span></span>
+<span data-line=""><span style="color:#ABB2BF">- </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn workspaces 옵션 활성화</span></span>
+<span data-line=""><span style="color:#E06C75">  run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">yarn config set workspaces-experimental true</span></span></code></pre></figure>
 <p>블로그 프로젝트는 yarn workspace를 이용해 쉽게 모노레포를 설정했다. 그 외는 lerna의 설정을 받아왔는데, 이를 사용하기 위해선 yarn을 다운로드 받아아 하고, <code>yarn config set workspaces-experimental true</code> 설정을 통해 workspaces experimental 설정을 true로 바뀌주어야 한다.</p>
 <h4>2-2. CI 서버에서 git 설정하기</h4>
 <p>사실 모노레포 설정하는 것은 크게 어렵지 않다. 하지만 CI 서버에 git 설정을 해주는게 조금 헤메일만한 설정인데, 이 부분도 공식문서에 git 설정이라기보단 token 설정이라는 명목으로 나와있는데, 찾기가 어렵긴 했다. <a href="https://docs.github.com/es/actions/security-guides/automatic-token-authentication">문서 링크</a></p>
@@ -83,18 +81,16 @@ jobs:
 <li>github page CLI를 스크립트에서 써서 보내주고 있으므로, 계정 인증값을 받아서 CLI에 전달해야한다.</li>
 </ul>
 <p><code>git global config 설정하기</code></p>
-<pre><code class="language-yml">- name: git config 이메일 변경
-  run: git config --global user.email "mgh950714@gmail.com"
-- name: git config 이름 변경
-  run: git config --global user.name "vallista"
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="yml" data-theme="one-dark-pro"><code data-language="yml" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">- </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config 이메일 변경</span></span>
+<span data-line=""><span style="color:#E06C75">  run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config --global user.email "mgh950714@gmail.com"</span></span>
+<span data-line=""><span style="color:#ABB2BF">- </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config 이름 변경</span></span>
+<span data-line=""><span style="color:#E06C75">  run</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">git config --global user.name "vallista"</span></span></code></pre></figure>
 <p>global config을 설정하기는 매우 쉽다.</p>
 <p><code>Github page CLI 스크립트에 인증값 주입하기</code></p>
-<pre><code class="language-yml">- name: 디랙토리 이동 및 vallista.github.io 배포
-  run: |
-    yarn directory:blog
-    yarn deploy:blog-ex ${{ secrets.TOKEN }}
-</code></pre>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="yml" data-theme="one-dark-pro"><code data-language="yml" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">- </span><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">디랙토리 이동 및 vallista.github.io 배포</span></span>
+<span data-line=""><span style="color:#E06C75">  run</span><span style="color:#ABB2BF">: </span><span style="color:#C678DD">|</span></span>
+<span data-line=""><span style="color:#98C379">    yarn directory:blog</span></span>
+<span data-line=""><span style="color:#98C379">    yarn deploy:blog-ex ${{ secrets.TOKEN }}</span></span></code></pre></figure>
 <p>코드를 보면 <code>yarn deploy:blog-ex ${{ secrets.TOKEN }}</code>을 실행하고 있다. 그 중에서 <code>${{ secrets.TOKEN }}</code>을 보면 되는데, 이 secrets는 간단하게 추가할 수 있다.</p>
 <ol>
 <li>Github > 개인 설정 > Settings > Developer settings에 접근한다.</li>
