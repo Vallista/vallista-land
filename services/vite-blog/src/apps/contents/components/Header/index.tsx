@@ -4,7 +4,6 @@ import ArticleIcon from '@/assets/icons/article.svg?react'
 import NoteIcon from '@/assets/icons/note.svg?react'
 import ProjectIcon from '@/assets/icons/folder.svg?react'
 import { Content } from '@/types'
-import { DEFINE_CONTENTS_HEADER_ICON } from '@/utils/constant'
 import { Series } from '../Series'
 import { useContents } from '@/hooks/useContents'
 
@@ -36,7 +35,7 @@ export const Header = (props: Props) => {
   return (
     <Styled._Wrap>
       <Styled._TitleIcon>
-        <Icon width={DEFINE_CONTENTS_HEADER_ICON} height={DEFINE_CONTENTS_HEADER_ICON} />
+        <Icon />
       </Styled._TitleIcon>
       <Styled._Title>{title}</Styled._Title>
       <Styled._DateWrap>

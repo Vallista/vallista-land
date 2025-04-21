@@ -12,7 +12,15 @@ const root = css`
   & > p,
   & > ul,
   & > ol {
-    font-size: 16px;
+    font-size: 1rem;
+  }
+
+  @media screen and (max-width: 1024px) {
+    & > p,
+    & > ul,
+    & > ol {
+      font-size: 0.875em; /* 14px */
+    }
   }
 `
 
@@ -67,6 +75,13 @@ const h1 = css`
   & > h1 {
     margin-top: 2.5em;
   }
+
+  @media screen and (max-width: 1024px) {
+    & > h1,
+    & > blockquote > h1 {
+      font-size: 1.75em; /* 28px */
+    }
+  }
 `
 
 const h2 = css`
@@ -79,6 +94,13 @@ const h2 = css`
   & > h2 {
     margin-top: 2em;
   }
+
+  @media screen and (max-width: 1024px) {
+    & > h2,
+    & > blockquote > h2 {
+      font-size: 1.5em; /* 24px */
+    }
+  }
 `
 
 const h3 = css`
@@ -90,6 +112,13 @@ const h3 = css`
 
   & > h3 {
     margin-top: 1.725em;
+  }
+
+  @media screen and (max-width: 1024px) {
+    & > h3,
+    & > blockquote > h3 {
+      font-size: 1.25em; /* 20px */
+    }
   }
 `
 
@@ -104,6 +133,13 @@ const h4 = css`
   & > h4 {
     margin-top: 1.5em;
   }
+
+  @media screen and (max-width: 1024px) {
+    & > h4,
+    & > blockquote > h4 {
+      font-size: 1.125em; /* 18px */
+    }
+  }
 `
 
 const h5 = css`
@@ -116,6 +152,13 @@ const h5 = css`
 
   & > h4 {
     margin-top: 1.5em;
+  }
+
+  @media screen and (max-width: 1024px) {
+    & > h5,
+    & > blockquote > h5 {
+      font-size: 0.875em; /* 14px */
+    }
   }
 `
 
@@ -206,11 +249,17 @@ const blockquote = (theme: Theme) => css`
 `
 
 const pre = css`
-  & code {
+  & ul code {
+  }
+
+  & ul code {
+  }
+
+  & pre code {
     width: 100%;
   }
 
-  & code {
+  & pre code {
     width: 100%;
     display: block;
     overflow-x: auto;
@@ -230,6 +279,10 @@ const pre = css`
     word-break: normal;
     margin: 2rem 0;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+
+    @media screen and (max-width: 1024px) {
+      font-size: 0.75em; /* 12px */
+    }
   }
 
   & figure pre code {
