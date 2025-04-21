@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:mdx": "node scripts/convert-to-html.js convert"
+    "build:mdx": "node scripts/convert-to-html.js convert",
+    "deploy": "node ./scripts/deploy.js"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -44,6 +45,7 @@
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "gh-pages": "^3.2.3",
     "globals": "^15.15.0",
     "rehype-pretty-code": "^0.14.1",
     "rehype-stringify": "^10.0.1",
