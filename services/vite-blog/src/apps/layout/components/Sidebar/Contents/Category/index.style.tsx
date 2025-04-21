@@ -13,18 +13,20 @@ export const _ListStyle = styled.nav`
 `
 
 export const _ListHeader = styled.div`
-  ${({ theme }) => css`
-    cursor: pointer;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    font-size: 14px;
-    background-color: ${theme.colors.PRIMARY.ACCENT_1};
-    padding: 0;
-    margin: 0 0 6px 0;
-    height: 30px;
-    gap: 6px;
-  `}
+  cursor: pointer;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 14px;
+
+  padding: 0;
+  margin: 0 0 6px 0;
+  height: 30px;
+  gap: 6px;
+
+  @media screen and (min-width: 1025px) {
+    background-color: none;
+  }
 `
 
 export const _ListFoldIcon = styled.div<{ fold: boolean }>`

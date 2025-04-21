@@ -1,5 +1,5 @@
 import { useGlobalProvider } from '@/context/useProvider'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 export const useNavBar = () => {
   const navigate = useNavigate()
@@ -9,6 +9,11 @@ export const useNavBar = () => {
     dispatch({
       type: 'changeSelectedCategory',
       category: id
+    })
+
+    dispatch({
+      type: 'changeMobileSidebarVisible',
+      visible: true
     })
   }
 

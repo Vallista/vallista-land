@@ -1,8 +1,10 @@
-import { DEFINE_CONTENTS_PADDING, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
+import { DEFINE_CONTENTS_MIN_WIDTH, DEFINE_CONTENTS_PADDING, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 
-export const _Wrap = styled.footer``
+export const _Wrap = styled.footer`
+  min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
+`
 
 export const _FooterBox = styled.div`
   ${({ theme }) => css`
@@ -22,7 +24,7 @@ export const _FooterBox = styled.div`
 
         & > nav {
           justify-content: flex-start;
-          gap: 2rem;
+          gap: 28px;
         }
       }
     }
@@ -37,7 +39,6 @@ export const _FooterAllRightReserve = styled.p`
   width: 100%;
   height: 60px;
   ${({ theme }) => css`
-    /* background: ${theme.colors.PRIMARY.ACCENT_1}; */
     color: ${theme.colors.PRIMARY.ACCENT_3};
 
     & a {

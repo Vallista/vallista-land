@@ -34,8 +34,8 @@ export const _Main = styled.main<{ fold: boolean }>`
 
   @media screen and (max-width: 1024px) {
     margin-left: 0;
-    margin-top: 123px;
-    width: 100%;
+    width: 100vw;
+    height: auto;
   }
 
   @media screen and (min-width: 1025px) {
@@ -64,4 +64,8 @@ export const _Article = styled.article`
       }
     }
   `}
+
+  @media screen and (max-width: 1024px) {
+    width: 100vw;
+  }
 `

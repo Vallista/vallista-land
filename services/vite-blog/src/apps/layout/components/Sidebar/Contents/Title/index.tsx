@@ -16,17 +16,19 @@ export const Title = (props: TitleProps) => {
 
   return (
     <Styled._Title>
-      <Text as='div' size={14} weight={400}>
+      <Styled._TitleWrap>
         <Styled._TitleBox>
-          <Text as='span'>{text}</Text>
-          <Text as='span' color={Colors.PRIMARY.ACCENT_4}>
+          <Text as='span' size={14} weight={400}>
+            {text}
+          </Text>
+          <Text as='span' size={14} weight={400} color={Colors.PRIMARY.ACCENT_4}>
             ({count})
           </Text>
         </Styled._TitleBox>
-      </Text>
-      <Styled._TypeButton onClick={changeViewType}>
-        {view === 'TAG' ? <SidebarTagIcon /> : <SidebarListIcon />}
-      </Styled._TypeButton>
+        <Styled._TypeButton onClick={changeViewType}>
+          {view === 'TAG' ? <SidebarTagIcon /> : <SidebarListIcon />}
+        </Styled._TypeButton>
+      </Styled._TitleWrap>
     </Styled._Title>
   )
 }

@@ -22,4 +22,10 @@ export const _Wrap = styled.div`
   &:hover > p {
     border-bottom: 3px solid ${({ theme }) => theme.colors.HIGHLIGHT.PINK};
   }
+
+  @media screen and (max-width: 1024px) {
+    padding: 0;
+    border-bottom: none;
+    width: auto;
+  }
 `

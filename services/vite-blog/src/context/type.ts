@@ -3,6 +3,8 @@ export interface State {
   fold: boolean
   /** 1차 카테고리 (Nav) 무엇을 선택했는가? */
   selectedCategory: string
+  /** mobile에서 sidebar가 보이는 상태 */
+  mobileSidebarVisible: boolean
 }
 
 export type Actions =
@@ -13,4 +15,8 @@ export type Actions =
   | {
       type: 'changeSelectedCategory'
       category: string
+    }
+  | {
+      type: 'changeMobileSidebarVisible'
+      visible: boolean
     }

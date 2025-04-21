@@ -4,9 +4,6 @@ import { DEFINE_HEADER_HEIGHT, DEFINE_SAFE_SCROLL_WIDTH } from './utils'
 import { DEFINE_NAVBAR_WIDTH } from '../NavBar/utils'
 
 export const _Container = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   position: fixed;
   top: 0;
   left: 0;
@@ -22,9 +19,16 @@ export const _Container = styled.header`
   `}
 
   @media screen and (max-width: 1024px) {
-    left: 0;
-    width: 100% !important;
+    width: 100vw !important;
+    height: ${DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_WIDTH}px;
+    padding: 0 24px;
   }
+`
+
+export const _Wrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 export const _Wrap = styled.div`
@@ -38,8 +42,17 @@ export const _Left = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
+
+  @media screen and (max-width: 1024px) {
+    & > div:last-of-type {
+      display: none;
+    }
+  }
 `
 
 export const _LeftFirst = styled.div`
   width: ${DEFINE_NAVBAR_WIDTH}px;
+  @media screen and (max-width: 1024px) {
+    display: none;
+  }
 `

@@ -5,18 +5,6 @@
       "title": "홈"
     },
     {
-      "url": "/contents/articles",
-      "title": "아티클"
-    },
-    {
-      "url": "/contents/notes",
-      "title": "노트"
-    },
-    {
-      "url": "/contents/projects",
-      "title": "프로젝트"
-    },
-    {
       "url": "/resume",
       "title": "이력서"
     }

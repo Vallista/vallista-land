@@ -2,7 +2,7 @@ import { Spacer, Text } from '@vallista/design-system'
 import * as Styled from './index.style'
 
 import LogoIcon from '@/assets/icons/logo.svg?react'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 
 export const Logo = () => {
   const navigate = useNavigate()

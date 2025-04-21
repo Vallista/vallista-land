@@ -1,6 +1,8 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT, DEFINE_SIDEBAR_WIDTH } from '../utils'
+import { DEFINE_NAVBAR_ITEM_HEIGHT } from '../../NavBar/utils'
+import { DEFINE_HEADER_HEIGHT } from '../../Header/utils'
 
 export const _Wrap = styled.div`
   ${({ theme }) => css`
@@ -40,7 +42,12 @@ export const _ListWrap = styled.div<WrapListProps>`
   `}
 
   @media screen and (max-width: 1024px) {
+    width: 100%;
+    height: calc(
+      100vh - ${DEFINE_NAVBAR_ITEM_HEIGHT + DEFINE_HEADER_HEIGHT + DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px
+    );
     left: -${DEFINE_SIDEBAR_WIDTH}px;
+    overflow-y: auto;
 
     & > div:first-of-type {
       left: -${DEFINE_SIDEBAR_WIDTH}px;
@@ -84,6 +91,13 @@ export const _EmptyWrap = styled.div`
   @media screen and (min-width: 1025px) {
     padding-bottom: 120px;
     min-height: 500px;
+  }
+
+  @media screen and (max-width: 1024px) {
+    width: 100vw;
+    height: calc(
+      100vh - ${DEFINE_NAVBAR_ITEM_HEIGHT + DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT}px
+    );
   }
 `
 

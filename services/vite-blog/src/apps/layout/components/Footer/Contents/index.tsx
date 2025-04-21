@@ -1,5 +1,5 @@
 import { Footer, FooterGroup, FooterLink } from '@vallista/design-system'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 
 import rawData from '@/../config/footer.json'
 import * as Styled from '../index.style'

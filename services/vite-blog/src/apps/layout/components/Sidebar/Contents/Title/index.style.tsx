@@ -16,6 +16,14 @@ export const _Title = styled.div`
   }
 `
 
+export const _TitleWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+`
+
 export const _TitleBox = styled.div`
   display: flex;
   justify-content: center;
@@ -39,13 +47,11 @@ export const _TypeButton = styled.button`
       color: ${theme.colors.PRIMARY.FOREGROUND};
     }
     color: ${theme.colors.PRIMARY.ACCENT_4};
-  `}
-
-  @media screen and (max-width: 1024px) {
+  `}/* @media screen and (max-width: 1024px) {
     display: none;
 
     & + span {
       display: none;
     }
-  }
+  } */
 `

@@ -1,5 +1,5 @@
 import { Collapse, CollapseGroup, Container } from '@vallista/design-system'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
 import { FC } from 'react'
 
 import * as Styled from './Series.style'

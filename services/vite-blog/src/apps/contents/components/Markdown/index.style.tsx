@@ -1,11 +1,12 @@
-import { DEFINE_CONTENTS_PADDING, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
+import { DEFINE_CONTENTS_MIN_WIDTH, DEFINE_CONTENTS_PADDING, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
 import { Theme } from '@emotion/react'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 
 const root = css`
   box-sizing: border-box;
-  width: ${DEFINE_CONTENTS_WIDTH}px;
+  min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
+  max-width: ${DEFINE_CONTENTS_WIDTH}px;
   padding: ${DEFINE_CONTENTS_PADDING}px;
 
   & > p,
@@ -205,7 +206,18 @@ const blockquote = (theme: Theme) => css`
 `
 
 const pre = css`
+  & code {
+    width: 100%;
+  }
+
+  & code {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
+
   & figure pre {
+    box-sizing: border-box;
     font-family: 'Fira Code', 'Source Code Pro', 'JetBrains Mono', monospace;
     font-size: 1em;
     background-color: #1e1e1e;

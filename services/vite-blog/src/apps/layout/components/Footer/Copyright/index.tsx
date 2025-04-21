@@ -1,5 +1,5 @@
 import { Spacer, Text } from '@vallista/design-system'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 
 import * as Styled from '../index.style'
 

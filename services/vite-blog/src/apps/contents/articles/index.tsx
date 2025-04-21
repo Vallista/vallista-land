@@ -1,10 +1,13 @@
 import { useContents } from '@/hooks/useContents'
 import { MDXProvider } from '@mdx-js/react'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 import { Markdown } from '../components/Markdown'
 import { Header } from '../components/Header'
 import { Content } from '@/types'
+import Seo from '@/apps/layout/components/Seo'
+import { Comment } from '@/apps/layout/components/Comment'
+import { Loading } from '@/apps/layout/components/Loading'
 
 const Page = () => {
   const location = useLocation()
@@ -19,12 +22,26 @@ const Page = () => {
       setContent(await findContent(slug))
       setMdx(result.raw)
     })()
-  }, [findContent, findContentWithRaw, mdx, slug])
+  }, [findContent, findContentWithRaw, slug])
 
   return (
     <MDXProvider>
-      <Header content={content} />
-      <Markdown mdx={mdx} />
+      {content && (
+        <>
+          <Seo
+            name={content.title}
+            image={`${content.url}/${content.thumbnail}`}
+            isPost
+            pathname={location.pathname}
+            siteUrl={window.location.origin}
+          />
+          <Header content={content} />
+          <Loading slug={slug}>
+            <Markdown mdx={mdx} />
+            <Comment />
+          </Loading>
+        </>
+      )}
     </MDXProvider>
   )
 }

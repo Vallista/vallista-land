@@ -1,12 +1,12 @@
 import { Colors, Container, Text } from '@vallista/design-system'
 
 import * as Styled from './index.style'
-import Seo from '../../components/Seo'
+import Seo from '../layout/components/Seo'
 
 const Page = () => {
   return (
     <Container>
-      <Seo name='홈' />
+      <Seo name='홈' pathname='' siteUrl='' />
       <Styled.Header>
         <Styled.Wrapper>
           <Styled.Title>

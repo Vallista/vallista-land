@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ScrollStateType, SidebarContent } from '../types'
 import { DEFAULLT_SCROLL_STATE } from '../utils'
 import { useSidebarProvider } from '../Provider/useProvider'
+import { useGlobalProvider } from '@/context/useProvider'
 
 interface UseContentsProps {
   count: number
@@ -16,6 +17,7 @@ export const useContents = (props: UseContentsProps) => {
 
   const [scrollState, setScrollState] = useState<ScrollStateType>(DEFAULLT_SCROLL_STATE)
   const { state } = useSidebarProvider()
+  const { dispatch } = useGlobalProvider()
 
   const location = useLocation()
   const navigate = useNavigate()
@@ -70,6 +72,11 @@ export const useContents = (props: UseContentsProps) => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
+    })
+
+    dispatch({
+      type: 'changeMobileSidebarVisible',
+      visible: false
     })
   }
 
