@@ -37,7 +37,7 @@ jobs:
       - name: 코어 (디자인시스템) 빌드
         run: pnpm build:packages
       - name: 블로그 빌드
-        run: pnpm build:vite-blog
+        run: pnpm build:blog
       - name: git config 이메일 변경
         run: git config --global user.email "mgh950714@gmail.com"
       - name: git config 이름 변경
