@@ -27,7 +27,7 @@ const Page = () => {
   return (
     <MDXProvider>
       {content && (
-        <>
+        <Loading slug={slug}>
           <Seo
             name={content.title}
             image={`${content.url}/${content.thumbnail}`}
@@ -36,11 +36,9 @@ const Page = () => {
             siteUrl={window.location.origin}
           />
           <Header content={content} />
-          <Loading slug={slug}>
-            <Markdown mdx={mdx} />
-            <Comment />
-          </Loading>
-        </>
+          <Markdown mdx={mdx} />
+          <Comment />
+        </Loading>
       )}
     </MDXProvider>
   )
