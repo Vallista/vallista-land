@@ -2,10 +2,9 @@ const TOKEN = process.argv[2] || null
 
 import ghpages from 'gh-pages'
 
-let isError = false
-
+console.log('🚀 GitHub Pages 배포 시작...')
 ghpages.publish(
-  'public',
+  'dist', // ✅ public → dist
   {
     branch: 'main',
     repo: TOKEN
@@ -13,11 +12,11 @@ ghpages.publish(
       : 'https://github.com/Vallista/vallista.github.io.git'
   },
   function (err) {
-    console.log(err)
-    isError = true
+    if (err) {
+      console.error('❌ 배포 실패:', err)
+      process.exit(1)
+    } else {
+      console.log('✅ 배포 성공!')
+    }
   }
 )
-
-if (!isError) {
-  console.log('배포 성공!')
-}
