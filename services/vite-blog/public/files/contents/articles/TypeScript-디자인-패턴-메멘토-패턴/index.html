@@ -1,4 +1,4 @@
-<p><img src="/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EB%A9%94%EB%A9%98%ED%86%A0-%ED%8C%A8%ED%84%B4/assets/0.jpg" alt="이미지0"></p>
+<p><img src="/files/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EB%A9%94%EB%A9%98%ED%86%A0-%ED%8C%A8%ED%84%B4/assets/0.jpg" alt="이미지0"></p>
 <h2>메멘토 패턴</h2>
 <p>설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 메멘토 패턴은 동작에 대한 패턴입니다.</p>
 <p>메멘토 패턴은 초기 HP 제품을 위해 <code>Noah Thompson</code>과 <code>Dr.Drew Clinkenbeard</code>에 의해 제작되었으며, 객체는 <code>구현 변경 테스트 재사용이 쉬워야 한다</code> 는 것을 기술한 <code>23가지 GOF의 디자인패턴</code> 중 하나입니다.</p>
@@ -25,9 +25,9 @@
 </ol>
 <p>케어테이커(클라이언트)는 오리지네이터로 부터 메멘토를 요청합니다. 이는 오리지네이터의 내부 상태를 저장하기 위함이며, 오리지네이터에게 메멘토를 다시 돌려줄 수 있습니다.</p>
 <h2>구조</h2>
-<p><img src="/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EB%A9%94%EB%A9%98%ED%86%A0-%ED%8C%A8%ED%84%B4/assets/1.jpg" alt="이미지1">
+<p><img src="/files/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EB%A9%94%EB%A9%98%ED%86%A0-%ED%8C%A8%ED%84%B4/assets/1.jpg" alt="이미지1">
 (사진 1. 메멘토의 구조)</p>
-<p><img src="/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EB%A9%94%EB%A9%98%ED%86%A0-%ED%8C%A8%ED%84%B4/assets/2.jpg" alt="이미지2">
+<p><img src="/files/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EB%A9%94%EB%A9%98%ED%86%A0-%ED%8C%A8%ED%84%B4/assets/2.jpg" alt="이미지2">
 (사진 2. Saving, Restoring 프로세스)</p>
 <p>이 프로세스를 React 프로젝트를 적용하기 이전에 코드를 살펴봅시다.</p>
 <figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Originator</span><span style="color:#ABB2BF"> {</span></span>

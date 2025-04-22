@@ -1,4 +1,4 @@
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/assets/splash.jpg" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/assets/splash.jpg" alt="로고"></p>
 <h2>오늘 한 일</h2>
 <ul>
 <li>어제에 이어서 @Vallista-land/core library 배포하기</li>
@@ -52,7 +52,7 @@
 <h4>의존성 재설치하기</h4>
 <p>yarn workspace는 모든 npm 모듈을 root로 올려서 교차에 있는 의존성 중복을 줄이고, 용량을 최적화한다. 그렇기 때문에 microbundle에서 사용하는 babel 버전과 블로그에서 쓰이고 있는 babel 버전등이 달라서 터질수도 있으므로, 해당 의존성을 다시 계산할 수 있도록 node_mobules와 cache 데이터를 삭제하고 다시 installation을 진행한다. <code>lerna bootstrap</code>을 진행해도 괜찮지만, yarn workspace를 사용하므로 <code>yarn</code> 키워드 하나면 모두 계산되어 동작된다.</p>
 <h4>실행</h4>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/assets/1.png" alt="어 실행이 왜 되니?"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/assets/1.png" alt="어 실행이 왜 되니?"></p>
 <p>역시 진리는 자고 일어나면 된다고, 자고 일어나서 다시 해보니까 된다. 어제는 의존성 재설치를 진행하지 않아서 기존 core 패키지의 babel 의존성이 묻어있었던 것 같다. 그래서 안되는 것으로 이해했고, microbundle로 다시 선택하게 된다..</p>
 <h4>npm 올리기</h4>
 <p>어찌되었던 결과적으로 npm에 올릴 빌드파일이 나왔으니 올리기만 하면 된다. 기존 프로젝트는 yarn workspace로 각 프로젝트간 호환을 담당하고 있었고, 해당 모듈들을 module 설정을 안해놓았기 때문에 호환이 가능했다. 그런데 지금은 tsconfig과 package.json 설정을 바꾼게 많아서 블로그 프로젝트를 실행하면 <code>@Vallista-land/core</code>가 없다는 에러가 나올 것이다. 그렇기에 우리는 에러가 안나오도록 시급히 <code>@Vallista-land/core</code>라는 패키지를 npm 업스트림에 올려두어, 실행 시 네트워크상에서 불러오도록 설정해야 한다.</p>
@@ -62,7 +62,7 @@
 <p>상세한 내용은 <a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry">다음</a>에서 볼 수 있다.</p>
 </blockquote>
 <p><a href="https://vallista.kr/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/">8월 16일 TIL</a>에서 이야기했지만, github 은 personal access token으로 권한을 제어하고 있다. 먼저 권한을 받아서, npm registry에 등록하도록 하자.</p>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/assets/2.png" alt="키 발급받기"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-18%EC%9D%BC/assets/2.png" alt="키 발급받기"></p>
 <ol>
 <li>이미지상에서 하단에 write:packages와 상단의 repo 설정을 허용하고, 발급받으면 다음 페이지에서 키를 받을 수 있다. 해당 키를 저장한 후, 다음과 같이 로컬에서 입력해준다.</li>
 </ol>

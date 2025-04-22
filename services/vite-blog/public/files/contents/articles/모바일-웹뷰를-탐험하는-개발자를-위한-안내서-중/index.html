@@ -26,7 +26,7 @@
 <span data-line=""><span style="color:#ABB2BF">  object-position: </span><span style="color:#D19A66">center</span><span style="color:#ABB2BF">;</span></span>
 <span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>이 형태의 작성 방법은 <code>Semantic Web(시멘틱 웹)</code>을 보장함과 동시에, CSS 코드도 간결해진다는 장점을 가지고 있습니다. 하지만, 이 방법에도 단점이 존재합니다.</p>
-<p><img src="/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image2.png" alt="image2">
+<p><img src="/files/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image2.png" alt="image2">
 모든 브라우저가 지원하지 않는다.</p>
 <p>그렇습니다. 이 방법은 모든 브라우저가 지원을 하지 않습니다. (IE 11 미지원) 그렇기 때문에 Cross Browsing 이슈가 존재합니다. 그렇기 때문에 Polyfill을 사용해야 하는데 이는 Webpack과 함께 자주 사용되는 PostCSS 모듈 <strong>Autoprefixer</strong>에 포함되어 있으므로 걱정을 하지 않으셔도 됩니다. 만약 포함이 안되어있다면 Autoprefixer를 포함해주세요.</p>
 <ul>
@@ -40,11 +40,11 @@ Polyfill은 개발자가 특정 기능이 지원되지 않는 브라우저를 �
 <blockquote>
 <p>background-size, object-fit의 두 가지 옵션
 이미지를 확대할 때, 가로를 기준으로 확대를 할 지 세로를 기준으로 확대 할 지 설정할 수 있습니다.</p>
-<p><img src="/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image1.jpg" alt="image1"></p>
+<p><img src="/files/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image1.jpg" alt="image1"></p>
 </blockquote>
 <h2>이미지의 위치를 침범하는 이슈</h2>
 <p>아래와 같은 레이아웃을 구현한다고 가정해봅시다.</p>
-<p><img src="/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image3.jpeg" alt="image3"></p>
+<p><img src="/files/contents/articles/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/assets/image3.jpeg" alt="image3"></p>
 <p>이 레이아웃을 구현하는 여러가지 방법이 존재할텐데 그 중에서 한 가지 방법을 이야기 해보겠습니다.</p>
 <figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="html" data-theme="one-dark-pro"><code data-language="html" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"container"</span><span style="color:#ABB2BF">></span></span>
 <span data-line=""><span style="color:#ABB2BF">  &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66"> class</span><span style="color:#ABB2BF">=</span><span style="color:#98C379">"left-area"</span><span style="color:#ABB2BF">></span></span>

@@ -7,7 +7,7 @@ export const changeImageUrl = (path: string, slug: string): Plugin<[], Node> => 
     return (tree: Node) => {
       visit(tree, 'image', (node: any) => {
         if (node.url.startsWith('http')) return
-        node.url = `${path.split(slug)[0] + slug}/${node.url.replace(/^\.\/?/, '')}`
+        node.url = `${path.split(slug)[0].replace('/contents', '/files/contents') + slug}/${node.url.replace(/^\.\/?/, '')}`
       })
     }
   }

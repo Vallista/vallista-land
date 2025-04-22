@@ -1,4 +1,4 @@
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/1.jpeg" alt="이미지1"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/1.jpeg" alt="이미지1"></p>
 <p>4년 넘도록 커머스 도메인의 웹 프론트엔드를 개발해오면서 사용자(대고객)와 맞닿는 영역 그리고 사용자에겐 보이지 않는 영역 두 가지를 개발해왔다. 오늘은 그 중에서, "사용자에겐 보이지 않는 영역" 쪽의 영수증 이야기를 해볼까 한다.</p>
 <h2>영수증</h2>
 <p>영수증을 위키백과에서 찾아보자.</p>
@@ -47,7 +47,7 @@
 <p>영수증 기기는 표준 규격이 존재하기 때문에 사이즈 (400*min600)으로 구현하면 대다수의 경우에 잘 출력이 된다.</p>
 <h3>실제 구현하기</h3>
 <p>프로세스를 구축해보면 다음과 같다.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/2.jpg" alt="이미지2"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/2.jpg" alt="이미지2"></p>
 <ol>
 <li>사전에 영수증 컴포넌트에서, iframe을 생성해둔다.</li>
 <li>사용처에서 프린트를 요청하면 해당 영수증의 id에 맞는 iframe을 탐색한다.</li>
@@ -65,7 +65,7 @@
 </blockquote>
 <h3>영수증 컨텍스트 만들기</h3>
 <p>영수증을 출력하기위해 컨텍스트를 분리해야한다. 컴포넌트 구조는 다음과 같다.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/3.jpg" alt="이미지3"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/3.jpg" alt="이미지3"></p>
 <ol>
 <li>영수증의 컨텍스트내에서는 전역으로 상태를 관리하며, 컨텍스트 내에서 커스텀훅이 reducer 역할을 맡고, 상태 관리에서 로직을 갱신한다.</li>
 <li>커스텀 훅에서는 현재 영수증의 발급 상태, 영수증 발급을 요청할 수 있는 함수가 존재한다. 필요한 각 영수증 도메인 별로 훅을 가져와서, 데이터를 매핑하여 사용하도록 한다.</li>
@@ -78,7 +78,7 @@
 <li>emotion.js: 프로젝트 전역적으로 styled-component 스타일의 css in js를 사용한다. 그러므로 영수증도 emotion으로 css 스타일링 할 것이다.</li>
 </ol>
 <p>본격적으로 코딩을 해보자. 먼저, 폴더 스트럭쳐는 아래와 같다.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/4.png" alt="이미지4"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/4.png" alt="이미지4"></p>
 <ol>
 <li>index.tsx: 외부에서 노출될 모듈을 한번에 export 해서 내보낸다. 일종의 캡슐화를 위한 레이어라고 보면 된다.</li>
 <li>Receipt.context.ts: context api 로직을 들고 있다.</li>
@@ -358,7 +358,7 @@
 <span data-line=""><span style="color:#98C379">  `</span></span>
 <span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>여기서 중요한 부분이 나온다. createReceiptHTML는, iframe에서 html을 생성할 때 베이스가 되는 html을 제작해 넣어준다. 그런데, 이 html은 기존의 프로젝트의 css 스타일을 inherit 받거나 복제하여 가져가지 않는다. 이 말인 즉슨, 기존에 만들어둔 css in js의 emotion.js 스타일들이 먹히지 않는다는 뜻이다. 조금 더 자세히 들여다보면.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/5.png" alt="이미지5"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/5.png" alt="이미지5"></p>
 <p>emotion.js으로 스타일을 하게 되면, 위와 같이 element에 class 이름으로 해쉬로 부여된 유니크한 아이디가 붙는다. 이 유니크한 아이디의 발급되는 프로세스는 다음과 같다.</p>
 <ol>
 <li>emotion.js의 css 혹은 styled.???`` 형태로 스타일링하면 내부 카운트가 선언한 순서대로(혹은 빌드에서 읽는 순서대로) 증가한다. 이 증가하게되면 모든 style은 일단, 유니크한 값을 보장받는다. (css-1, css-2 ...)</li>
@@ -366,10 +366,10 @@
 <li>유니크한 아이디를 발급 받은 이후, 웹팩 빌드 과정에서 일괄적으로 정리하여 head에 css style 태그를 만들어, 저장한다.</li>
 </ol>
 <p>여기서 styled-component와 emotion.js의 차이가 존재한다.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/6.png" alt="이미지6"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/6.png" alt="이미지6"></p>
 <p>위의 사진은 Head의 css style에 emotion.js를 로컬에서 실행했을때의 결과이다. styled-component는 이처럼 하나의 스타일마다 css 스타일 블록을 만들어, 하위에 스타일을 정의해서 갖는다.</p>
 <p>반면, emotion.js를 프로덕션으로 빌드한 결과물은 다음과 같다.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/7.png" alt="이미지7"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/7.png" alt="이미지7"></p>
 <p>위의 사진을 보면, 내용물을 확인할 수 없고, 그저 data-emotion에 css-global과 css 두 개만 존재하는 것을 볼 수 있다.</p>
 <p>이 테크닉은 최신 브라우저의 cssRules 속성으로 다이나믹하게 css 스타일 readonly 형태로 제공하는 방법이다. (최신 브라우저라고 하기에는 IE8부터 됐다.) 그래서, 복사하거나 데이터를 가져오려면 다른 방법을 사용해야한다.</p>
 <ul>
@@ -384,7 +384,7 @@
 <li>안의 cssRules를 추출하고, flatMap으로 cssText를 추출한다.</li>
 </ul>
 <p>실행하면 다음과 같은 데이터를 가져올 수 있다.</p>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/8.png" alt="이미지8"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/8.png" alt="이미지8"></p>
 <p>정리하면 다음과 같다.</p>
 <ul>
 <li>iframe으로 생성한 HTML에서는 기존에 css in js로 가져오던 css style이 없으므로 html을 생성하고 내부에 styled-component, emotion 등으로 제작한 컴포넌트의 스타일이 출력되지 않는다.</li>
@@ -434,7 +434,7 @@
 <li>해당 처리를 진행할 하고나서, executePrint()를 실행하면  하위의 데이터가 출력되도록 한다.</li>
 </ul>
 <h3>결과</h3>
-<p><img src="/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/9.gif" alt="이미지9"></p>
+<p><img src="/files/contents/articles/%EC%98%81%EC%88%98%EC%A6%9D,-React-%EA%B7%B8%EB%A6%AC%EA%B3%A0-emotion/assets/9.gif" alt="이미지9"></p>
 <p>화면에서 보이는 영수증 출력 버튼을 누르면 <code>useReceipt()</code>의 <code>requestPrint()</code>를 요청하며, 위에서 설계한 프로세스대로 실행된다.</p>
 <h2>끝으로</h2>
 <p>현재의 모던 브라우저는 출력을 잘 제공하고 있다. 위에서의 프로세스는 여러 모던 브라우저에서 별 문제 없이 동작한다.

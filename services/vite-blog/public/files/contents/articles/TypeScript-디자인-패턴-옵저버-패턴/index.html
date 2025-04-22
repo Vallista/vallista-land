@@ -1,11 +1,11 @@
-<p><img src="/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EC%98%B5%EC%A0%80%EB%B2%84-%ED%8C%A8%ED%84%B4/assets/0.jpg" alt="이미지0"></p>
+<p><img src="/files/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EC%98%B5%EC%A0%80%EB%B2%84-%ED%8C%A8%ED%84%B4/assets/0.jpg" alt="이미지0"></p>
 <h2>옵저버 패턴이란</h2>
 <p>설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 옵저버 패턴은 행동과 관련된 디자인 패턴입니다.</p>
 <p>옵저버 패턴은 감지할 객체의 클래스에 옵저버 인터페이스를 주고, 만든 객체를 옵저버 서버에 등록하여 옵저버 서버에서 함수를 호출해 인터페이스에 대응하는 함수를 실행합니다.</p>
 <p>이 패턴은 개방 폐쇄 원칙을 지키게 도와주며, 캡슐화가 잘 된 객체를 만들 수 있도록 도와줍니다.</p>
 <h2>옵저버 패턴</h2>
 <p>아래의 코드는 <a href="https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript">React Observer Pattern Use TypeScript</a>에서 보실 수 있습니다.</p>
-<p><img src="/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EC%98%B5%EC%A0%80%EB%B2%84-%ED%8C%A8%ED%84%B4/assets/1.png" alt="1">
+<p><img src="/files/contents/articles/TypeScript-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EC%98%B5%EC%A0%80%EB%B2%84-%ED%8C%A8%ED%84%B4/assets/1.png" alt="1">
 (그림 1: 옵저버 패턴의 구상도)</p>
 <p>옵저버 패턴은 Observer Interface를 옵저빙할 객체에 상속하는 형태로 구현합니다. 그렇게 상속받은 객체를 배열로 저장해서 배열에서 For Loop를 돌려 모두에게 이벤트를 전파하는 방식입니다.</p>
 <p>그렇다면 이 옵저버 패턴을 어디에 적용할 수 있을까요? 조금 억지스러운 감이 있지만, TodoList가 여러개 있을때 한번에 모든 Todo List의 Todo를 한개씩 생성하거나, 모든 Todo를 삭제하는 행동을 옵저버 패턴으로 구현할 수 있습니다.</p>

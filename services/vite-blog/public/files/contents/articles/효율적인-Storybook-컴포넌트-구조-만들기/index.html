@@ -1,4 +1,4 @@
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/0.jpg" alt="이미지0"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/0.jpg" alt="이미지0"></p>
 <p>최근 Storybook을 활용한 디자인 시스템 개발을 많은 회사에서 진행하고 있습니다. 디자인 시스템을 구축하면서 수많은 컴포넌트가 생성되고 사라지고를 반복하는데 이러한 컴포넌트 관리를 위해 <code>Atomic Design</code>을 많은 회사에서 채택하고 있는 듯 보입니다.</p>
 <p>여기서 <code>Atomic Design</code>을 채택한다는 것은 <code>컴포넌트를 재사용할 수 있는 단위로 나눈다</code> 라는 것 입니다. <a href="https://vallista.kr/2020/03/29/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/">이전 글</a>에서도 언급했지만, 컴포넌트를 분리한다는 것은 그저 보기좋게 변경을 하는게 아닙니다.</p>
 <p>실용적이고 아름다운 스트럭쳐를 구현하는 것이 컴포넌트를 효율적으로 분리하는거라 볼 수 있고, <code>Atomic Design</code>을 사용해서 그저 컴포넌트의 크기로 무분별하게 <code>Atomic하게</code> 나눈 것은 올바른 사용방법이 아니라고 생각합니다.</p>
@@ -9,7 +9,7 @@ _ > [<a href="https://story.pxd.co.kr/1434%5D(%EB%94%94%EC%9E%90%EC%9D%B8">https
 "쉽게 말하면 디자인 시스템은 디자인 원칙, 규격, 다시 사용할 수 있는 UI 패턴과 컴포넌트, 코드를 포괄하는 종합 세트입니다."</p>
 </blockquote>
 <h2>스토리북</h2>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/1.png" alt="이미지1"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/1.png" alt="이미지1"></p>
 <p>(예시 이미지: 스토리북으로 디자인 시스템을 구현중인 화면)</p>
 <p>예시 링크: <a href="https://github.com/Vallista/DesignSystem">https://github.com/Vallista/DesignSystem</a></p>
 <h3>스토리북이란?</h3>
@@ -82,7 +82,7 @@ _ > [<a href="https://story.pxd.co.kr/1434%5D(%EB%94%94%EC%9E%90%EC%9D%B8">https
 <span data-line=""><span style="color:#E06C75">  decorators</span><span style="color:#ABB2BF">: [</span><span style="color:#E06C75">withKnobs</span><span style="color:#ABB2BF">]</span></span>
 <span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
 <p>이렇게 코드를 작성하면 아래와 같은 이미지로 스토리북에서 출력됩니다.</p>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/2.png" alt="이미지2"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/2.png" alt="이미지2"></p>
 <h3>Component Story Format (CSF)</h3>
 <p>위 스토리북 코드는 기존 스토리북을 사용하셨던 분이라면, 익숙하지 않을 소스일텐데요. 최근 스토리북 5.2 버전 이상에서는 <a href="https://storybook.js.org/docs/formats/component-story-format/">Component Story Format (CSF)</a> 형식으로 stories를 작성하도록 권장하고 있습니다.</p>
 <p><strong>기존 스토리북 사용법</strong></p>
@@ -98,11 +98,11 @@ _ > [<a href="https://story.pxd.co.kr/1434%5D(%EB%94%94%EC%9E%90%EC%9D%B8">https
 <h2>컴포넌트 관리</h2>
 <p>Storybook을 사용해서 디자인 시스템을 구현하다보면 컴포넌트가 점점 많아져서 분리가 필요합니다. 이 분리라는 것은 컴포넌트를 물리적으로 분리하는 것도 있지만 가시적으로도 분리가 되어 보이도록 구현을 해야합니다.</p>
 <h3>분리하기</h3>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/3.png" alt="이미지3"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/3.png" alt="이미지3"></p>
 <p>최초로 분리해야 하는 것은 <code>외장(external)</code> 컴포넌트와 <code>내장(internal)</code> 컴포넌트의 분리입니다.</p>
 <p>위의 그림처럼 internal 컴포넌트는 internal component 내부에서 사용될 수 있으며, 그렇게 서로 사용되어 만들어진 컴포넌트를 external 컴포넌트에서 가져와 사용할 수 있습니다.</p>
 <h4>내장 컴포넌트</h4>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/5.png" alt="이미지5"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/5.png" alt="이미지5"></p>
 <p>내장 컴포넌트는 스토리북에서 보여지지 않지만, <strong>외장 컴포넌트에서 사용되는 재사용 가능한 레이아웃 컴포넌트 요소</strong>를 일컫습니다. 이 요소들은 레이아웃 단위로 재사용되기 때문에 <strong>Atomic Design</strong>을 사용하여 분리하면 효율적입니다.</p>
 <p><strong><a href="https://github.com/Vallista/DesignSystem/blob/master/src/components/molecules/Block/index.tsx">component/molecules/Block/index.tsx</a></strong></p>
 <figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
@@ -157,7 +157,7 @@ _ > [<a href="https://story.pxd.co.kr/1434%5D(%EB%94%94%EC%9E%90%EC%9D%B8">https
 <span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Block</span></span></code></pre></figure>
 <p>위 코드는 레이아웃에 대한 정렬 및 위치 조정을 담당하는 Block 컴포넌트 입니다. 해당 컴포넌트는 외장 컴포넌트에서 배치를 효율적으로 하는데 도움을 줍니다</p>
 <h4>외장 컴포넌트</h4>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/4.png" alt="이미지4"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/4.png" alt="이미지4"></p>
 <p>외장 컴포넌트는 스토리북에서 보여지는 컴포넌트를 일컫습니다. 위의 사진에서 왼쪽의 Sidebar에 Libraries, Products로 분리가 되어있는걸 볼 수 있는데요. Libraries와 Products 분리는 조금 있다가 다루도록하고, 중요하게 봐야하는 점은 보여지는 컴포넌트들이 <strong>외장 컴포넌트</strong> 라는 것 입니다.</p>
 <p>이 컴포넌트는 실제 프로덕트 레벨에서 사용되는 컴포넌트이며, 디자인 요소가 완성된 컴포넌트입니다. 추후에 rollup 등의 패키지 매니저들로 export 되어 사용됩니다.</p>
 <p><strong><a href="https://github.com/Vallista/DesignSystem/blob/master/src/products/Blog/Card/index.tsx">products/Card/index.tsx</a></strong></p>
@@ -202,21 +202,21 @@ _ > [<a href="https://story.pxd.co.kr/1434%5D(%EB%94%94%EC%9E%90%EC%9D%B8">https
 <span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> BlogCard</span></span></code></pre></figure>
 <p>내장 컴포넌트를 적극적으로 사용하여 외장 컴포넌트를 제작하였습니다.</p>
 <h4>결과</h4>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/6.png" alt="이미지6"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/6.png" alt="이미지6"></p>
 <p>간단하게 컴포넌트를 두 종류로 나누어보았습니다. 코드 상에서도 같은 레벨의 컴포넌트를 호출하지 않고 분기를 주니, 파일을 불러올 때도 일관적으로 변경이 된 걸 볼 수 있습니다. 또한 이미지나 폰트등의 디자인이 변경되거나 할 때 내장 컴포넌트를 한번 변경해주면 모두 동일하게 변경이 될 수 있어 용이합니다.</p>
 <h3>심화</h3>
 <p>이렇게 진행하다보면, 외장 컴포넌트가 비대해지는 걸 볼 수 있습니다. 외장 컴포넌트가 내장 컴포넌트를 사용하는데 같은 외장 컴포넌트끼리 중복되는 코드가 많아질 것 입니다. 이를 방지하기 위해 외장 컴포넌트에 레이어 하나를 더 추가하면 좋습니다.</p>
 <h4>Libraries</h4>
 <p>위에서 언급했던 Libraries가 여기서 출현했습니다. Libraries는 외장 컴포넌트에서 외장 컴포넌트끼리의 동일한 코드를 묶는 역할도 담당하지만 가장 중요한 내용이 있습니다. 바로 <strong>도메인에 영향받지 않는 공통 컴포넌트</strong> 라는 점입니다.</p>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/7.png" alt="이미지7">
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/7.png" alt="이미지7">
 (이미지 참고: <a href="https://story.pxd.co.kr/1434">https://story.pxd.co.kr/1434</a>)</p>
 <p>카카오톡을 예시로 들어봅시다. 카카오톡이 성공하고 플랫폼이 커짐에 따라 카카오맵, 카카오스타일 등의 여러 서비스가 추가로 나오고 있습니다. 카카오톡에서 이후로 나오는 서비스들은 <strong>카카오가 만들었어요!</strong> 라는 느낌이 들어야 할 것 입니다. 그렇기 때문에 <strong>디자인 일관성</strong>을 주어야 하는데, 이 작업을 위해서 디자인 시스템을 만들어 매니지먼트를 하는게 가장 편할 것입니다.</p>
 <p>하지만 여기서 중요한 점은 <strong>동일한 컴포넌트를 사용해도 레이아웃이 조금은 달라질 수 있다는 점</strong> 입니다. 예를들어 카카오페이와 카카오톡이 100% 동일한 레이아웃이 아닌 것처럼, <strong>각 도메인에 따라 레이아웃이 달라질 수 있다</strong> 라는 것 입니다.</p>
 <p>그래서, <strong>Libraries는 동일한 레이아웃, 레이아웃 디자인을 일관성 있는 컴포넌트 꾸러미</strong>라면, <strong>Products는 각 도메인에 맞는 레이아웃 디자인 컴포넌트 꾸러미</strong> 라고 할 수 있습니다.</p>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/8.png" alt="이미지8">
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/8.png" alt="이미지8">
 (clean architecture와 흡사한 형태의 구현이 된다)</p>
 <h4>결과</h4>
-<p><img src="/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/9.png" alt="이미지9"></p>
+<p><img src="/files/contents/articles/%ED%9A%A8%EC%9C%A8%EC%A0%81%EC%9D%B8-Storybook-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EA%B5%AC%EC%A1%B0-%EB%A7%8C%EB%93%A4%EA%B8%B0/assets/9.png" alt="이미지9"></p>
 <p>왼쪽은 내장, 오른쪽은 외장 컴포넌트 입니다. 어느정도 규격이 잡혀가는 걸 볼 수 있습니다. 외장 컴포넌트에서 Products, Libraries는 번들링되어 프로덕트 레벨에서도 사용되지만, Libraries는 Products 레벨에서도 사용됩니다. 이렇게 구현하면 중복코드가 줄어듦을 확인할 수 있습니다.</p>
 <h2>정리</h2>
 <ol>

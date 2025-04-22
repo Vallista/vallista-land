@@ -1,4 +1,4 @@
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/splash.jpg" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/splash.jpg" alt="로고"></p>
 <h2>오늘 한 일</h2>
 <ul>
 <li>오전 운동 (10시 - 11시), 스쿼트 5세트 / 벤치 프레스 5세트 / 인클라인 벤치 프레스 6세트</li>
@@ -18,7 +18,7 @@
 지금까진 수동으로 main에 푸쉬하고 별도로 build후 deploy 되도록 이를 작업했다. 그런데 어느덧 작업이 계속 반복되니 시간이 많이 소비된다는 걸 깨닿게 되었다.</p>
 <p>그래서, Github Action으로 main branch에 푸쉬되면 vallista.github.io에 빌드된 결과물을 commit 과 함께 push 하도록 제공을 할 것이다.</p>
 <h3>1. 모노레포 패키지에 GitHub Action Workflow 추가하기</h3>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/0.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/0.png" alt="로고"></p>
 <p>workflow를 선택하면 여러가지가 보이는데, 여기서 js script등이 있으므로 쉽게 Node.js 환경으로 실행했다. 그 후 yml 파일이 만들어지고, 해당 yml 파일에서 로직을 작성해 githuh action script를 작성할 수 있다.</p>
 <h3>2. 스크립트 작성하기</h3>
 <figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="yml" data-theme="one-dark-pro"><code data-language="yml" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#E06C75">name</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">Node.js CI</span></span>
@@ -95,22 +95,22 @@
 <ol>
 <li>Github > 개인 설정 > Settings > Developer settings에 접근한다.</li>
 </ol>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/1.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/1.png" alt="로고"></p>
 <ol start="2">
 <li>Personal access tokens > Generate new token을 통해 토큰을 생성한다.</li>
 </ol>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/2.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/2.png" alt="로고"></p>
 <ol start="3">
 <li>대상 프로젝트의 Settings > Secrets > Actions로 들어간다</li>
 </ol>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/3.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/3.png" alt="로고"></p>
 <ol start="4">
 <li>Actions secrets에서 TOKEN을 추가한다.</li>
 </ol>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/4.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/4.png" alt="로고"></p>
 <ol start="5">
 <li>스크립트에서 <code>${{ secrets.TOKEN }}</code> 형태로 호출한다.</li>
 </ol>
 <p>등록하면 대상 프로젝트에서 해당 유저의 모든 레포지토리에 접근할 수 있는 권한이 생긴다.</p>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/5.png" alt="로고"></p>
-<p><img src="/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/6.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/5.png" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-16%EC%9D%BC/assets/6.png" alt="로고"></p>
