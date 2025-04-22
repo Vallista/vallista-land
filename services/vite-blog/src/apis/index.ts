@@ -17,7 +17,7 @@ export interface Post {
  * 작성한 포스트에 대한 모든 콘텐츠 데이터를 가져옵니다.
  */
 export async function fetchContents() {
-  return (await fetch('/_files/contents/index.json')).json() as unknown as Record<string, Post>
+  return (await fetch('/index.json')).json() as unknown as Record<string, Post>
 }
 
 /**

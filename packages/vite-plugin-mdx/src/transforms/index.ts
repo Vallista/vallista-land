@@ -73,7 +73,7 @@ export const transformAllMdxToHTML: MdxToHTMLType = async (contentPath: string, 
 
             const mdx = await transformMdxFileToHTML(file, contentPath, resultFolderPath, slug, path)
             jsonData[postName] = await transformMdxFrontMatterJson(slug, category, path, mdx)
-            fs.writeFileSync(`${resultPath}/${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
+            fs.writeFileSync(`${resultPath}/../../${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
           })
         } else {
           const resultFolderPath = `${resultCategoryPath}/${postName}`.split('/').slice(0, -1).join('/')
@@ -85,7 +85,7 @@ export const transformAllMdxToHTML: MdxToHTMLType = async (contentPath: string, 
 
           const mdx = await transformMdxFileToHTML(postName, filePath, resultFolderPath, slug, path)
           jsonData[fileName] = await transformMdxFrontMatterJson(slug, category, path, mdx)
-          fs.writeFileSync(`${resultPath}/${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
+          fs.writeFileSync(`${resultPath}/../../${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
         }
       })
     })
@@ -157,7 +157,7 @@ export const transformFileMdxToHTML: FileMdxToHTMlType = async (
     const loadJsonData = fs.readFileSync(resultJsonFileName, 'utf-8')
     const jsonData = JSON.parse(loadJsonData)
     jsonData[originalFileName] = await transformMdxFrontMatterJson(slug, category, path, mdx)
-    fs.writeFileSync(resultJsonFileName, JSON.stringify(jsonData), 'utf-8')
+    fs.writeFileSync(`${resultPath}/../../${JSON_FILE_NAME}`, JSON.stringify(jsonData), 'utf-8')
 
     return {
       success: true,

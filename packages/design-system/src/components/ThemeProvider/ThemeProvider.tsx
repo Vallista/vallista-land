@@ -80,8 +80,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard Black'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-Black.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-Black.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-Black.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-Black.subset.woff) format('woff');
         }
 
         @font-face {
@@ -90,8 +90,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard ExtraBold'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-ExtraBold.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-ExtraBold.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-ExtraBold.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-ExtraBold.subset.woff) format('woff');
         }
 
         @font-face {
@@ -100,8 +100,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard Bold'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-Bold.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-Bold.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-Bold.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-Bold.subset.woff) format('woff');
         }
 
         @font-face {
@@ -110,8 +110,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard SemiBold'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-SemiBold.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-SemiBold.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-SemiBold.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-SemiBold.subset.woff) format('woff');
         }
 
         @font-face {
@@ -120,8 +120,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard Medium'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-Medium.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-Medium.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-Medium.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-Medium.subset.woff) format('woff');
         }
 
         @font-face {
@@ -130,8 +130,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard Regular'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-Regular.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-Regular.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-Regular.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-Regular.subset.woff) format('woff');
         }
 
         @font-face {
@@ -140,8 +140,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard Light'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-Light.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-Light.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-Light.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-Light.subset.woff) format('woff');
         }
 
         @font-face {
@@ -150,8 +150,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard ExtraLight'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-ExtraLight.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-ExtraLight.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-ExtraLight.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-ExtraLight.subset.woff) format('woff');
         }
 
         @font-face {
@@ -160,8 +160,8 @@ const Reset = () => {
           font-display: swap;
           src:
             local('Pretendard Thin'),
-            url(/fonts/pretendard/woff2-subset/Pretendard-Thin.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/woff-subset/Pretendard-Thin.subset.woff) format('woff');
+            url(/fonts/pretendard/Pretendard-Thin.subset.woff2) format('woff2'),
+            url(/fonts/pretendard/Pretendard-Thin.subset.woff) format('woff');
         }
 
         :root {
