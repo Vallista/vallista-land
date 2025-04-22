@@ -23,4 +23,5 @@ export interface SidebarContent {
   slug: string
   tags: string[]
   url: string
+  path: string
 }

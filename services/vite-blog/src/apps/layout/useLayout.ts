@@ -18,7 +18,8 @@ export const useLayout = () => {
       name: item.title,
       slug: item.slug,
       tags: item.tags,
-      url: item.url
+      url: item.url,
+      path: item.path
     }))
   }
 }

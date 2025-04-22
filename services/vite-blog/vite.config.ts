@@ -7,7 +7,7 @@ import path from 'path'
 // NOTE: mdx 파일이 있는 콘텐츠 폴더 경로
 export const CONTENTS_PATH = `${process.cwd()}/contents`
 // NOTE: 변환된 HTML 파일을 저장할 폴더 경로
-export const RESULT_PATH = `${process.cwd()}/public/contents`
+export const RESULT_PATH = `${process.cwd()}/public/_files/contents`
 
 // https://vite.dev/config/
 export default defineConfig({

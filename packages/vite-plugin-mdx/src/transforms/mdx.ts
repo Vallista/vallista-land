@@ -40,10 +40,12 @@ export async function mdxFrontMatterToJson(slug: string, category: string, path:
   const tree = processor.parse(frontmatterOnly)
   await processor.run(tree, file)
 
+  const url = path.split(slug)[0] + slug
+
   return {
     slug,
-    path,
-    url: path.split(slug)[0] + slug,
+    path: `/_files${path}`,
+    url,
     category,
     ...(file.data.frontmatter as Record<string, unknown>)
   } as Record<string, unknown>
