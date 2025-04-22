@@ -9,11 +9,12 @@ import { useContents } from '@/hooks/useContents'
 
 interface Props {
   content: Content | null
+  slug: string
 }
 
 export const Header = (props: Props) => {
-  const { content } = props
-  const { findSeries } = useContents()
+  const { content, slug } = props
+  const { findSeries } = useContents(slug)
 
   if (!content) {
     return null

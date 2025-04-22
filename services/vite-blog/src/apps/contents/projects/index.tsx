@@ -31,7 +31,7 @@ const Page = () => {
             pathname={location.pathname}
             siteUrl={window.location.origin}
           />
-          <Header content={contentWithRaw} />
+          <Header content={contentWithRaw} slug={slug} />
           <Markdown mdx={contentWithRaw.raw} />
           <Comment />
         </Loading>
