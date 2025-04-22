@@ -1,42 +1,38 @@
 import { useContents } from '@/hooks/useContents'
 import { MDXProvider } from '@mdx-js/react'
-import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Markdown } from '../components/Markdown'
 import { Header } from '../components/Header'
-import { Content } from '@/types'
 import Seo from '@/apps/layout/components/Seo'
 import { Comment } from '@/apps/layout/components/Comment'
 import { Loading } from '@/apps/layout/components/Loading'
+import { useGlobalProvider } from '@/context/useProvider'
+import { useContentWithRaw } from '@/hooks/useContentWithRaw'
 
 const Page = () => {
   const location = useLocation()
   const slug = decodeURIComponent(location.pathname).split('/').pop() || ''
-  const { findContent, findContentWithRaw } = useContents()
-  const [mdx, setMdx] = useState<string>('')
-  const [content, setContent] = useState<Content | null>(null)
+  const { state } = useGlobalProvider()
+  const { selectedCategory } = state
 
-  useEffect(() => {
-    ;(async () => {
-      const result = await findContentWithRaw(slug)
-      setContent(await findContent(slug))
-      setMdx(result.raw)
-    })()
-  }, [findContent, findContentWithRaw, slug])
+  const { isLoading: contentsLoading, allContents } = useContents(selectedCategory)
+  const { data: contentWithRaw, isLoading: contentLoading } = useContentWithRaw(slug, allContents)
+
+  const isPageReady = !contentsLoading && !contentLoading && contentWithRaw
 
   return (
     <MDXProvider>
-      {content && (
+      {isPageReady && (
         <Loading slug={slug}>
           <Seo
-            name={content.title}
-            image={`${content.url}/${content.thumbnail}`}
+            name={contentWithRaw.title}
+            image={`${contentWithRaw.url}/${contentWithRaw.thumbnail}`}
             isPost
             pathname={location.pathname}
             siteUrl={window.location.origin}
           />
-          <Header content={content} />
-          <Markdown mdx={mdx} />
+          <Header content={contentWithRaw} />
+          <Markdown mdx={contentWithRaw.raw} />
           <Comment />
         </Loading>
       )}

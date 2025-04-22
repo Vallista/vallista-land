@@ -3,7 +3,8 @@ import { State, Actions } from './type'
 export const initialState: State = {
   fold: false,
   selectedCategory: 'articles',
-  mobileSidebarVisible: false
+  mobileSidebarVisible: false,
+  loading: true
 }
 
 export const reducer = (state: State, action: Actions): State => {
@@ -22,6 +23,11 @@ export const reducer = (state: State, action: Actions): State => {
       return {
         ...state,
         mobileSidebarVisible: action.visible
+      }
+    case 'changeLoading':
+      return {
+        ...state,
+        loading: action.loading
       }
     default:
       return state

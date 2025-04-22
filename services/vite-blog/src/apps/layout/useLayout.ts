@@ -4,7 +4,7 @@ import { useContents } from '@/hooks/useContents'
 export const useLayout = () => {
   const { state, dispatch } = useGlobalProvider()
   const { fold } = state
-  const { contents } = useContents()
+  const { contents } = useContents(state.selectedCategory)
 
   return {
     fold,

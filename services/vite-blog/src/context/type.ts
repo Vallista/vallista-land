@@ -5,6 +5,8 @@ export interface State {
   selectedCategory: string
   /** mobile에서 sidebar가 보이는 상태 */
   mobileSidebarVisible: boolean
+  /** 로딩 상태 */
+  loading: boolean
 }
 
 export type Actions =
@@ -19,4 +21,8 @@ export type Actions =
   | {
       type: 'changeMobileSidebarVisible'
       visible: boolean
+    }
+  | {
+      type: 'changeLoading'
+      loading: boolean
     }

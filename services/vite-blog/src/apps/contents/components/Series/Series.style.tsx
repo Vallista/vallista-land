@@ -14,7 +14,10 @@ export const _List = styled.ol`
 
 export const _Item = styled.li`
   ${({ theme }) => css`
-    margin-bottom: 0.5rem;
+    &:not(:last-child) {
+      margin-bottom: 0.5rem;
+    }
+
     &::marker {
       font-weight: 600;
       color: ${theme.colors.HIGHLIGHT.PINK};
