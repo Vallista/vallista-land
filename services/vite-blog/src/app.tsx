@@ -11,6 +11,14 @@ import { GlobalProvider } from './context'
 import { HelmetProvider } from 'react-helmet-async'
 
 const App = () => {
+  if (import.meta.env.PROD) {
+    const urlParams = new URLSearchParams(window.location.search)
+    const redirect = urlParams.get('redirect')
+    if (redirect) {
+      history.replaceState(null, '', redirect)
+    }
+  }
+
   return (
     <GlobalProvider>
       <HelmetProvider>
