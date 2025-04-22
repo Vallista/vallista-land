@@ -44,7 +44,7 @@ export async function mdxFrontMatterToJson(slug: string, category: string, path:
 
   return {
     slug,
-    path: `/_files${path}`,
+    path: `/files${path}`,
     url,
     category,
     ...(file.data.frontmatter as Record<string, unknown>)
