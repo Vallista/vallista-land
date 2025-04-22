@@ -11,5 +11,5 @@ const anim = keyframes`
 `
 
 export const _Wrap = styled.div`
-  animation: ${anim} 0.2s ease-in-out;
+  animation: ${anim} 0.5s ease-in-out;
 `
