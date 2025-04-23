@@ -5,9 +5,94 @@ import {
   DEFINE_CONTENTS_PADDING,
   DEFINE_CONTENTS_WIDTH
 } from '@/utils/constant'
+import { css, keyframes } from '@emotion/react'
 import styled from '@emotion/styled'
 
-export const _Wrap = styled.div`
+const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`
+
+const shimmer = keyframes`
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+`
+
+export const skeletonStyle = css`
+  position: relative;
+  overflow: hidden;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 250%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 200% 100%; // ✅ 반드시 있어야 함
+    background-position: -100% 0; // ✅ 시작 위치
+    animation: ${shimmer} 1.5s infinite;
+  }
+`
+
+export const _TitleSkeleton = styled.div`
+  width: 100%;
+  height: 3.5em;
+  margin-bottom: 16px;
+  ${skeletonStyle};
+
+  @media screen and (max-width: 1024px) {
+    width: 100vw;
+    height: 1.3em;
+    margin-bottom: 8px;
+  }
+`
+
+export const _TitleIconSkeleton = styled.div`
+  width: ${DEFINE_CONTENTS_HEADER_ICON}px;
+  height: ${DEFINE_CONTENTS_HEADER_ICON}px;
+  margin-bottom: 8px;
+  ${skeletonStyle};
+
+  @media screen and (max-width: 1024px) {
+    width: ${DEFINE_CONTENTS_HEADER_ICON / 1.5}px;
+    height: ${DEFINE_CONTENTS_HEADER_ICON / 1.5}px;
+  }
+`
+
+export const _DateSkeleton = styled.div`
+  width: 80px;
+  height: 0.875em;
+  ${skeletonStyle};
+
+  @media screen and (max-width: 1024px) {
+    height: 0.75em;
+  }
+`
+
+export const _Wrap = styled.div<{ hasLoading: boolean }>`
+  ${({ hasLoading }) =>
+    hasLoading &&
+    css`
+      animation: ${fadeIn} 0.2s ease-in-out;
+    `}
+
   display: flex;
   flex-direction: column;
 
@@ -16,6 +101,10 @@ export const _Wrap = styled.div`
     ${DEFINE_CONTENTS_PADDING}px 0;
 
   font-size: 16px;
+
+  @media screen and (min-width: 1025px) {
+    width: ${DEFINE_CONTENTS_WIDTH}px;
+  }
 `
 
 export const _TitleIcon = styled.div`

@@ -5,9 +5,9 @@ import { Markdown } from '../components/Markdown'
 import { Header } from '../components/Header'
 import Seo from '@/apps/layout/components/Seo'
 import { Comment } from '@/apps/layout/components/Comment'
-import { Loading } from '@/apps/layout/components/Loading'
 import { useGlobalProvider } from '@/context/useProvider'
 import { useContentWithRaw } from '@/hooks/useContentWithRaw'
+import styled from '@emotion/styled'
 
 const Page = () => {
   const location = useLocation()
@@ -18,12 +18,18 @@ const Page = () => {
   const { isLoading: contentsLoading, allContents } = useContents(selectedCategory)
   const { data: contentWithRaw, isLoading: contentLoading } = useContentWithRaw(slug, allContents)
 
-  const isPageReady = !contentsLoading && !contentLoading && contentWithRaw
+  const isPageReady = !contentsLoading && !contentLoading && !!contentWithRaw
+
+  const articleHeight = document.getElementById('article-header')?.clientHeight || 0
+  const articleSeriesHeight = document.getElementById('article-series')?.clientHeight || 0
+
+  const EmptyLayout = Loading(articleHeight, articleSeriesHeight)
 
   return (
     <MDXProvider>
-      {isPageReady && (
-        <Loading slug={slug}>
+      <Header loading={isPageReady} content={contentWithRaw} slug={slug} />
+      {contentWithRaw && (
+        <>
           <Seo
             name={contentWithRaw.title}
             image={`${contentWithRaw.url}/${contentWithRaw.thumbnail}`}
@@ -31,13 +37,17 @@ const Page = () => {
             pathname={location.pathname}
             siteUrl={window.location.origin}
           />
-          <Header content={contentWithRaw} slug={slug} />
           <Markdown mdx={contentWithRaw.raw} />
           <Comment />
-        </Loading>
+        </>
       )}
+      {!isPageReady && <EmptyLayout />}
     </MDXProvider>
   )
 }
+
+export const Loading = (articleHeight: number, seriesHeight: number) => styled.div`
+  height: 100vh; // calc(100vh - ${articleHeight + seriesHeight}px);
+`
 
 export default Page

@@ -1,9 +1,7 @@
-// import { Spacer } from '@vallista/design-system'
-
 import * as Styled from './index.style'
 
 import { ThemeSwitch } from './ThemeSwitch'
-// import { SidebarSetting } from './SidebarSetting'
+
 import { SidebarFolder } from './SidebarFolder'
 import { Logo } from './Logo'
 
@@ -26,8 +24,6 @@ const SidebatButtons = () => {
   return (
     <Styled._Wrap>
       <SidebarFolder />
-      {/* <Spacer />
-      <SidebarSetting /> */}
     </Styled._Wrap>
   )
 }

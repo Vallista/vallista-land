@@ -8,16 +8,25 @@ import { Series } from '../Series'
 import { useContents } from '@/hooks/useContents'
 
 interface Props {
-  content: Content | null
+  loading: boolean
+  content?: Content
   slug: string
 }
 
 export const Header = (props: Props) => {
-  const { content, slug } = props
+  const { loading, content, slug } = props
   const { findSeries } = useContents(slug)
 
-  if (!content) {
-    return null
+  if (!content || !loading) {
+    return (
+      <Styled._Wrap id='article-header'>
+        <Styled._TitleIconSkeleton />
+        <Styled._TitleSkeleton />
+        <Styled._DateWrap>
+          <Styled._DateSkeleton />
+        </Styled._DateWrap>
+      </Styled._Wrap>
+    )
   }
 
   const { type, title, date, tags } = content
@@ -34,7 +43,7 @@ export const Header = (props: Props) => {
   const series = seriesName ? findSeries(seriesName) : undefined
 
   return (
-    <Styled._Wrap>
+    <Styled._Wrap id='article-header' hasLoading={true}>
       <Styled._TitleIcon>
         <Icon />
       </Styled._TitleIcon>

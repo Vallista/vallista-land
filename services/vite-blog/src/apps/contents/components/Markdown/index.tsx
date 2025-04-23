@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import * as Styled from './index.style'
 
 interface MarkdownProps {
@@ -6,6 +7,51 @@ interface MarkdownProps {
 
 export const Markdown = (props: MarkdownProps) => {
   const { mdx } = props
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
 
-  return <Styled._Markdown dangerouslySetInnerHTML={{ __html: mdx }} />
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const images = container.querySelectorAll('img')
+    if (images.length === 0) {
+      setVisible(true)
+      return
+    }
+
+    let handled = 0
+    const total = images.length
+
+    const checkDone = () => {
+      handled += 1
+      if (handled === total) {
+        setVisible(true)
+      }
+    }
+
+    images.forEach((img) => {
+      const isLoaded = img.complete && img.naturalHeight !== 0
+      const isErrored = img.complete && img.naturalHeight === 0
+
+      if (isLoaded || isErrored) {
+        // 캐시된 성공 or 실패
+        checkDone()
+      } else {
+        img.addEventListener('load', checkDone)
+        img.addEventListener('error', checkDone)
+      }
+    })
+
+    return () => {
+      images.forEach((img) => {
+        img.removeEventListener('load', checkDone)
+        img.removeEventListener('error', checkDone)
+      })
+    }
+  }, [mdx])
+
+  return (
+    <Styled._Markdown ref={containerRef} css={Styled.fadeStyle(visible)} dangerouslySetInnerHTML={{ __html: mdx }} />
+  )
 }

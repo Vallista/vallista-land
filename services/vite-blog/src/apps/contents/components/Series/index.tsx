@@ -32,7 +32,7 @@ export const Series: FC<SeriesProps> = (props) => {
   }
 
   return (
-    <Styled._Wrap>
+    <Styled._Wrap id='article-series'>
       <CollapseGroup>
         <Collapse title={name} card size='medium' subtitle={`시리즈의 글 (${posts.length}개)`}>
           <Container>

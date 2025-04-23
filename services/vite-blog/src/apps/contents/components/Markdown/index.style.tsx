@@ -3,6 +3,12 @@ import { Theme } from '@emotion/react'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
 
+// eslint-disable-next-line react-refresh/only-export-components
+export const fadeStyle = (visible: boolean) => css`
+  opacity: ${visible ? 1 : 0};
+  transition: opacity 0.3s ease-in-out;
+`
+
 const root = css`
   box-sizing: border-box;
   min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
