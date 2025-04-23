@@ -42,7 +42,9 @@ export const _ListWrap = styled.div<WrapListProps>`
       100vh - ${DEFINE_NAVBAR_ITEM_HEIGHT + DEFINE_HEADER_HEIGHT + DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px
     );
     left: -${DEFINE_SIDEBAR_WIDTH}px;
-    overflow-y: auto;
+    cursor: pointer;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     overflow-x: hidden;
 
     & > div:first-of-type {
