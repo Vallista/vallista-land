@@ -30,8 +30,10 @@ export const _Menu = styled.a<MenuProps>`
       color: ${theme.colors.PRIMARY.ACCENT_4};
     }
 
-    &:hover {
-      background-color: ${theme.colors.PRIMARY.ACCENT_2};
+    @media screen and (min-width: 1025px) {
+      &:hover {
+        background-color: ${theme.colors.PRIMARY.ACCENT_2};
+      }
     }
   `}
 
