@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import * as Styled from './index.style'
 
 interface MarkdownProps {
-  mdx: string
+  mdx?: string
+  loading?: boolean
 }
 
 export const Markdown = (props: MarkdownProps) => {
-  const { mdx } = props
+  const { mdx, loading } = props
   const containerRef = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
@@ -51,7 +52,34 @@ export const Markdown = (props: MarkdownProps) => {
     }
   }, [mdx])
 
-  return (
-    <Styled._Markdown ref={containerRef} css={Styled.fadeStyle(visible)} dangerouslySetInnerHTML={{ __html: mdx }} />
+  return !loading || !mdx ? (
+    <Styled.SkeletonWrap>
+      <Styled.SkeletonImage />
+      <SkeletonTextBlock />
+    </Styled.SkeletonWrap>
+  ) : (
+    <>
+      {!visible && (
+        <Styled.SkeletonWrap>
+          <Styled.SkeletonImage />
+          <SkeletonTextBlock />
+        </Styled.SkeletonWrap>
+      )}
+      <Styled._Markdown
+        ref={containerRef}
+        style={!visible ? { visibility: 'hidden' } : {}}
+        css={Styled.fadeStyle(visible)}
+        dangerouslySetInnerHTML={{ __html: mdx }}
+      />
+    </>
   )
 }
+
+const SkeletonTextBlock = () => (
+  <div>
+    <Styled.SkeletonTextLine width='80%' />
+    <Styled.SkeletonTextLine width='90%' />
+    <Styled.SkeletonTextLine width='95%' />
+    <Styled.SkeletonTextLine width='60%' />
+  </div>
+)

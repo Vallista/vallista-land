@@ -1,7 +1,55 @@
 import { DEFINE_CONTENTS_MIN_WIDTH, DEFINE_CONTENTS_PADDING, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
-import { Theme } from '@emotion/react'
+import { keyframes, Theme } from '@emotion/react'
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
+
+// shimmer 애니메이션 정의
+const shimmer = keyframes`
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+`
+
+// 공통 스켈레톤 스타일
+const skeletonBase = css`
+  background-color: #e0e0e0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: ${shimmer} 1.5s infinite;
+  border-radius: 8px;
+`
+
+export const SkeletonImage = styled.div`
+  ${skeletonBase};
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  border-radius: 12px;
+  margin-bottom: 24px;
+`
+
+export const SkeletonTextLine = styled.div<{ width: string }>`
+  ${skeletonBase};
+  height: 16px;
+  width: ${({ width }) => width};
+  margin-bottom: 12px;
+  border-radius: 6px;
+`
+
+export const SkeletonWrap = styled.div`
+  box-sizing: border-box;
+  min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
+  max-width: ${DEFINE_CONTENTS_WIDTH}px;
+  padding: ${DEFINE_CONTENTS_PADDING}px;
+`
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const fadeStyle = (visible: boolean) => css`
@@ -41,6 +89,10 @@ const image = (theme: Theme) => css`
     font-size: 0.875em;
     line-height: 1.5em;
     color: ${theme.colors.PRIMARY.ACCENT_7};
+
+    &:first-of-type {
+      margin-top: 0 !important;
+    }
   }
 
   & > p > img {

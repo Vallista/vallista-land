@@ -28,7 +28,8 @@ const Page = () => {
   return (
     <MDXProvider>
       <Header loading={isPageReady} content={contentWithRaw} slug={slug} />
-      {contentWithRaw && (
+      <Markdown loading={isPageReady} mdx={contentWithRaw?.raw} />
+      {isPageReady && (
         <>
           <Seo
             name={contentWithRaw.title}
@@ -37,7 +38,6 @@ const Page = () => {
             pathname={location.pathname}
             siteUrl={window.location.origin}
           />
-          <Markdown mdx={contentWithRaw.raw} />
           <Comment />
         </>
       )}
