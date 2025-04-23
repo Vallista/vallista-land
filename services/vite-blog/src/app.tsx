@@ -9,6 +9,7 @@ import ProjectPage from './apps/contents/projects'
 import NotePage from './apps/contents/notes'
 import { GlobalProvider } from './context'
 import { HelmetProvider } from 'react-helmet-async'
+import { css, Global } from '@emotion/react'
 
 const App = () => {
   if (import.meta.env.PROD) {
@@ -21,6 +22,21 @@ const App = () => {
 
   return (
     <GlobalProvider>
+      <Global
+        styles={css`
+          body {
+            background-color: #fff;
+            color: #000;
+          }
+
+          @media (prefers-color-scheme: dark) {
+            body {
+              background-color: #000;
+              color: #fff;
+            }
+          }
+        `}
+      />
       <HelmetProvider>
         <BrowserRouter>
           <Routes>

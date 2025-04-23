@@ -9,7 +9,7 @@ export const _Title = styled.div`
   height: ${DEFINE_SIDEBAR_HEADER_HEIGHT}px;
   font-weight: 600;
   font-size: 14px;
-  padding: 0 28px 2px;
+  padding: 0 16px 2px;
 
   & > p {
     padding-top: 3px;

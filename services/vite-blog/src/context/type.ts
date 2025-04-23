@@ -7,6 +7,8 @@ export interface State {
   mobileSidebarVisible: boolean
   /** 로딩 상태 */
   loading: boolean
+  /** 스크롤 Y 좌표 */
+  scrollY: number
 }
 
 export type Actions =
@@ -25,4 +27,8 @@ export type Actions =
   | {
       type: 'changeLoading'
       loading: boolean
+    }
+  | {
+      type: 'changeScrollY'
+      scrollY: number
     }

@@ -4,7 +4,8 @@ export const initialState: State = {
   fold: false,
   selectedCategory: 'articles',
   mobileSidebarVisible: false,
-  loading: true
+  loading: true,
+  scrollY: 0
 }
 
 export const reducer = (state: State, action: Actions): State => {
@@ -28,6 +29,11 @@ export const reducer = (state: State, action: Actions): State => {
       return {
         ...state,
         loading: action.loading
+      }
+    case 'changeScrollY':
+      return {
+        ...state,
+        scrollY: action.scrollY
       }
     default:
       return state

@@ -6,10 +6,6 @@ import { DEFINE_NAVBAR_WIDTH } from './components/NavBar/utils'
 
 export const _Wrapper = styled.div`
   min-height: 100vh;
-  ${(params) => css`
-    color: ${params.theme.colors.PRIMARY.FOREGROUND};
-    background: ${params.theme.colors.PRIMARY.BACKGROUND};
-  `}
 `
 
 const DEFINE_LEFT_POSITION = DEFINE_NAVBAR_WIDTH + DEFINE_SIDEBAR_WIDTH
@@ -23,8 +19,7 @@ export const _Main = styled.main<{ fold: boolean }>`
   height: 100vh;
   margin-left: ${DEFINE_LEFT_POSITION}px;
 
-  ${({ theme, fold }) => css`
-    background: ${theme.colors.PRIMARY.BACKGROUND};
+  ${({ fold }) => css`
     ${fold &&
     css`
       width: calc(100vw - ${DEFINE_NAVBAR_WIDTH}px);

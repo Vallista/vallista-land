@@ -21,7 +21,7 @@ export const _Container = styled.header`
   @media screen and (max-width: 1024px) {
     width: 100vw !important;
     height: ${DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_WIDTH}px;
-    padding: 0 24px;
+    padding: 0 16px;
   }
 `
 

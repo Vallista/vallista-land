@@ -1,11 +1,10 @@
 import { useGlobalProvider } from '@/context/useProvider'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useScrollTo } from '@/hooks/useScrollTo'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 export const useSidebar = () => {
-  const { state } = useGlobalProvider()
-  const [scroll, setScroll] = useState<number>()
+  const { state, dispatch } = useGlobalProvider()
   const { scrollTo } = useScrollTo()
   const isDesktop = useMediaQuery('(min-width: 1025px)')
 
@@ -17,7 +16,10 @@ export const useSidebar = () => {
     document.body.style.width = '100%'
     document.body.style.height = '100%'
     document.getElementsByTagName('main')[0].style.top = `-${scrollY}px`
-    setScroll(scrollY)
+    dispatch({
+      type: 'changeScrollY',
+      scrollY
+    })
   }
 
   const closeMobileSidebar = () => {
@@ -27,7 +29,7 @@ export const useSidebar = () => {
     document.body.style.width = ''
     document.body.style.height = ''
     document.getElementsByTagName('main')[0].style.top = '0'
-    scrollTo(scroll || 0, false)
+    if (state.scrollY !== 0) scrollTo(state.scrollY, false)
   }
 
   useEffect(() => {

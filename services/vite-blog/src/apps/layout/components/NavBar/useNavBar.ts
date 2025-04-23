@@ -13,7 +13,7 @@ export const useNavBar = () => {
 
     dispatch({
       type: 'changeMobileSidebarVisible',
-      visible: !state.mobileSidebarVisible
+      visible: state.selectedCategory !== id ? true : !state.mobileSidebarVisible
     })
   }
 

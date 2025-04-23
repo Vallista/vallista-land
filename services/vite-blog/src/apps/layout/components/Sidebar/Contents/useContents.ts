@@ -64,11 +64,15 @@ export const useContents = (props: UseContentsProps) => {
   }
 
   const moveToLocation = (target: string) => {
-    navigate(`${target}`)
+    navigate(target)
     scrollToTop()
     dispatch({
       type: 'changeMobileSidebarVisible',
       visible: false
+    })
+    dispatch({
+      type: 'changeScrollY',
+      scrollY: 0
     })
   }
 

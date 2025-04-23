@@ -97,13 +97,15 @@ export const _Wrap = styled.div<{ hasLoading: boolean }>`
   flex-direction: column;
 
   max-width: ${DEFINE_CONTENTS_WIDTH}px;
-  padding: calc(${DEFINE_HEADER_HEIGHT}px + ${DEFINE_CONTENTS_PADDING}px + ${DEFINE_CONTENTS_HEADER_PADDING_TOP}px)
-    ${DEFINE_CONTENTS_PADDING}px 0;
+  padding: calc(${DEFINE_HEADER_HEIGHT}px + ${DEFINE_CONTENTS_PADDING}px + ${DEFINE_CONTENTS_HEADER_PADDING_TOP}px) 16px
+    0;
 
   font-size: 16px;
 
   @media screen and (min-width: 1025px) {
     width: ${DEFINE_CONTENTS_WIDTH}px;
+    padding: calc(${DEFINE_HEADER_HEIGHT}px + ${DEFINE_CONTENTS_PADDING}px + ${DEFINE_CONTENTS_HEADER_PADDING_TOP}px)
+      ${DEFINE_CONTENTS_PADDING}px 0;
   }
 `
 

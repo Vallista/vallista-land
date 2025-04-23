@@ -64,6 +64,8 @@ const root = css`
   }
 
   @media screen and (max-width: 1024px) {
+    padding: ${DEFINE_CONTENTS_PADDING}px 16px;
+
     & > p,
     & > ul,
     & > ol {
@@ -319,16 +321,6 @@ const blockquote = (theme: Theme) => css`
 `
 
 const pre = css`
-  & ul code {
-  }
-
-  & ul code {
-  }
-
-  & pre code {
-    width: 100%;
-  }
-
   & pre code {
     width: 100%;
     display: block;

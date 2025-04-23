@@ -1,5 +1,5 @@
 export const useScrollTo = () => {
-  const scrollToTop = (smooth: boolean = true) => {
+  const scrollToTop = (smooth = true) => {
     // MEMO: 스크롤을 최상단으로 이동
     document.getElementsByTagName('main')[0].scrollTo({
       top: 0,
@@ -12,7 +12,7 @@ export const useScrollTo = () => {
     })
   }
 
-  const scrollTo = (top: number, smooth: boolean = true) => {
+  const scrollTo = (top: number, smooth = true) => {
     // MEMO: 스크롤을 최상단으로 이동
     document.getElementsByTagName('main')[0].scrollTo({
       top,

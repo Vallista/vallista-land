@@ -1,5 +1,5 @@
 import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 import { createContext } from '../../utils/createContext'
 import { ToastProvider } from '../Toast'
@@ -53,11 +53,46 @@ const [Context, useContext] = createContext<{
  */
 export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys; children: ReactNode }) => {
   const [themeState, setThemeState] = useState(theme)
+  const [mounted, setMounted] = useState(false)
+
+  const updateThemeColorMeta = (color: string) => {
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
+
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.name = 'theme-color'
+      document.head.appendChild(meta)
+    }
+
+    meta.content = color
+  }
+
+  useEffect(() => {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+    const bgColor = mounted
+      ? Themes[themeState].colors.PRIMARY.BACKGROUND
+      : Themes[isDarkMode ? 'DARK' : 'LIGHT'].colors.PRIMARY.BACKGROUND
+
+    const color = mounted
+      ? Themes[themeState].colors.PRIMARY.FOREGROUND
+      : Themes[isDarkMode ? 'DARK' : 'LIGHT'].colors.PRIMARY.FOREGROUND
+
+    document.body.style.backgroundColor = bgColor
+    document.body.style.color = color
+    updateThemeColorMeta(bgColor)
+
+    document.body.style.transition = 'background-color 0.2s ease-in-out'
+
+    setMounted(true)
+  }, [themeState])
+
+  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
 
   return (
     <Context state={{ changeTheme }}>
       <Reset />
-      <BaseThemeProvider theme={Themes[themeState]}>
+      <BaseThemeProvider theme={mounted ? Themes[themeState] : Themes[isDarkMode ? 'DARK' : 'LIGHT']}>
         <ToastProvider>{children}</ToastProvider>
       </BaseThemeProvider>
     </Context>

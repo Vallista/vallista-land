@@ -27,7 +27,7 @@ export const _Container = styled.aside`
     width: 100vw;
     overflow-y: hidden;
     overflow-x: auto;
-    padding: 0 12px;
+    padding: 0 6px 0 18px;
     border-right: none;
   }
 `
@@ -109,12 +109,14 @@ export const _Category = styled.a<{ checked?: boolean }>`
       color: ${theme.colors.PRIMARY.FOREGROUND};
     }
 
-    &:hover {
-      background: ${theme.colors.PRIMARY.ACCENT_3};
-    }
+    @media screen and (min-width: 1025px) {
+      &:hover {
+        background: ${theme.colors.PRIMARY.ACCENT_3};
+      }
 
-    &:hover > div > div:first-of-type {
-      color: ${theme.colors.PRIMARY.BACKGROUND};
+      &:hover > div > div:first-of-type {
+        color: ${theme.colors.PRIMARY.BACKGROUND};
+      }
     }
 
     ${checked &&
