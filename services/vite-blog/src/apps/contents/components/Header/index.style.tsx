@@ -58,8 +58,8 @@ export const _TitleSkeleton = styled.div`
   ${skeletonStyle};
 
   @media screen and (max-width: 1024px) {
-    width: 100vw;
-    height: 1.3em;
+    width: 100%;
+    height: 2.5em;
     margin-bottom: 8px;
   }
 `

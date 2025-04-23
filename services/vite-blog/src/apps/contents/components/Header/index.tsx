@@ -19,7 +19,7 @@ export const Header = (props: Props) => {
 
   if (!content || !loading) {
     return (
-      <Styled._Wrap id='article-header'>
+      <Styled._Wrap id='article-header' hasLoading={false}>
         <Styled._TitleIconSkeleton />
         <Styled._TitleSkeleton />
         <Styled._DateWrap>
