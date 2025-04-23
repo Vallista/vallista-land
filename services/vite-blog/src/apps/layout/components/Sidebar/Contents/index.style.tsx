@@ -17,6 +17,7 @@ interface WrapListProps {
 export const _ListWrap = styled.div<WrapListProps>`
   width: ${DEFINE_SIDEBAR_WIDTH}px;
   height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
+  padding: 16px 24px 32px;
 
   ${({ scrollState }) => css`
     ${scrollState === 'SHOW' &&
@@ -53,9 +54,7 @@ export const _ListWrap = styled.div<WrapListProps>`
   }
 `
 
-export const _Padding = styled.div`
-  padding: 16px 24px 32px;
-`
+export const _Padding = styled.div``
 
 export const _MenuWrap = styled.nav`
   width: 100%;
