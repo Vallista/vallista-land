@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FC } from 'react'
 
 import * as Styled from './Series.style'
+import { useScrollTo } from '@/hooks/useScrollTo'
 
 interface SeriesProps {
   name: string
@@ -15,19 +16,10 @@ interface SeriesProps {
 export const Series: FC<SeriesProps> = (props) => {
   const { name, posts } = props
   const navigate = useNavigate()
+  const { scrollToTop } = useScrollTo()
 
   const moveToLocation = (slug: string) => {
-    // MEMO: 스크롤을 최상단으로 이동
-    document.getElementsByTagName('main')[0].scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-
+    scrollToTop()
     navigate(slug)
   }
 

@@ -5,6 +5,7 @@ import { ScrollStateType, SidebarContent } from '../types'
 import { DEFAULLT_SCROLL_STATE } from '../utils'
 import { useSidebarProvider } from '../Provider/useProvider'
 import { useGlobalProvider } from '@/context/useProvider'
+import { useScrollTo } from '@/hooks/useScrollTo'
 
 interface UseContentsProps {
   count: number
@@ -19,6 +20,7 @@ export const useContents = (props: UseContentsProps) => {
   const { state } = useSidebarProvider()
   const { dispatch } = useGlobalProvider()
 
+  const { scrollToTop } = useScrollTo()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -63,17 +65,7 @@ export const useContents = (props: UseContentsProps) => {
 
   const moveToLocation = (target: string) => {
     navigate(`${target}`)
-    // MEMO: 스크롤을 최상단으로 이동
-    document.getElementsByTagName('main')[0].scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-
+    scrollToTop()
     dispatch({
       type: 'changeMobileSidebarVisible',
       visible: false

@@ -3,6 +3,8 @@ import { Contents } from './Contents'
 import { SidebarContent } from './types'
 import * as Styled from './index.style'
 import { useSidebar } from './useSidebar'
+import { useEffect } from 'react'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 export interface SidebarProps {
   contents: SidebarContent[]
@@ -10,6 +12,15 @@ export interface SidebarProps {
 
 export const Sidebar = (props: SidebarProps) => {
   const { visible, fold } = useSidebar()
+  const isTabletOrSmaller = useMediaQuery('(max-width: 1024px)')
+
+  useEffect(() => {
+    if (visible && isTabletOrSmaller) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  }, [visible, isTabletOrSmaller])
 
   return (
     <SidebarProvider>

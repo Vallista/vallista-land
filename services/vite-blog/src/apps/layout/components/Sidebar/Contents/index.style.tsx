@@ -17,8 +17,6 @@ interface WrapListProps {
 export const _ListWrap = styled.div<WrapListProps>`
   width: ${DEFINE_SIDEBAR_WIDTH}px;
   height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
-  overflow-x: hidden;
-  overflow-y: hidden;
 
   ${({ scrollState }) => css`
     ${scrollState === 'SHOW' &&
@@ -27,19 +25,16 @@ export const _ListWrap = styled.div<WrapListProps>`
         margin-right: 0px;
       }
     `}
-
-    /* ipad Portrait and Landscape */
-  @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
-      overflow-y: auto;
-
-      ${scrollState === 'SHOW' &&
-      css`
-        &:hover > div:last-of-type {
-          margin-right: 0;
-        }
-      `}
-    }
   `}
+
+  @media screen and (min-width: 1025px) {
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+    &:hover {
+      overflow-y: auto;
+    }
+  }
 
   @media screen and (max-width: 1024px) {
     width: 100%;
@@ -48,14 +43,11 @@ export const _ListWrap = styled.div<WrapListProps>`
     );
     left: -${DEFINE_SIDEBAR_WIDTH}px;
     overflow-y: auto;
+    overflow-x: hidden;
 
     & > div:first-of-type {
       left: -${DEFINE_SIDEBAR_WIDTH}px;
     }
-  }
-
-  &:hover {
-    overflow-y: auto;
   }
 `
 
