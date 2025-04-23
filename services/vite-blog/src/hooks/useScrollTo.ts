@@ -12,5 +12,18 @@ export const useScrollTo = () => {
     })
   }
 
-  return { scrollToTop }
+  const scrollTo = (top: number, smooth: boolean = true) => {
+    // MEMO: 스크롤을 최상단으로 이동
+    document.getElementsByTagName('main')[0].scrollTo({
+      top,
+      behavior: smooth ? 'smooth' : 'instant'
+    })
+
+    window.scrollTo({
+      top,
+      behavior: smooth ? 'smooth' : 'instant'
+    })
+  }
+
+  return { scrollTo, scrollToTop }
 }

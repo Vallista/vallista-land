@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 import * as Styled from './index.style'
 
 interface MarkdownProps {
@@ -6,52 +6,65 @@ interface MarkdownProps {
   loading?: boolean
 }
 
-export const Markdown = (props: MarkdownProps) => {
+export const Markdown = memo((props: MarkdownProps) => {
   const { mdx, loading } = props
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const images = document.querySelectorAll<HTMLImageElement>('img.fade-image')
+    const bindImages = () => {
+      const images = containerRef.current?.querySelectorAll<HTMLImageElement>('img.fade-image') || []
 
-    images.forEach((img) => {
-      const image = img
+      images.forEach((img) => {
+        if (img.classList.contains('loaded') || img.dataset.bound) return
 
-      const onLoad = () => {
-        image.classList.add('loaded')
-      }
+        const onLoad = () => img.classList.add('loaded')
+        const onError = () => {
+          const fallback = document.createElement('div')
+          fallback.textContent = '🖼️ 이미지 로딩 실패'
+          fallback.style.cssText = `
+            border-radius: 8px;
+            aspect-ratio: 2 / 1;
+            width: 100%;
+            height: auto;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #888;
+            animation: fade-in 0.1s ease-in-out;
+          `
+          img.replaceWith(fallback)
+        }
 
-      const onError = () => {
-        const fallback = document.createElement('div')
-        fallback.textContent = '🖼️ 이미지 로딩 실패'
-        fallback.style.cssText = `
-          border-radius: 8px;
-          aspect-ratio: 2 / 1;
-          width: 100%;
-          height: auto;
-          background: #eee;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          color: #888;
-          animation: fade-in 0.1s ease-in-out;
-        `
+        if (img.complete && img.naturalHeight !== 0) {
+          onLoad()
+        } else {
+          img.addEventListener('load', onLoad)
+          img.addEventListener('error', onError)
+        }
 
-        img.replaceWith(fallback)
-      }
+        img.dataset.bound = 'true'
+      })
+    }
 
-      if (image.complete && image.naturalHeight !== 0) {
-        onLoad()
-      } else {
-        image.addEventListener('load', onLoad)
-        image.addEventListener('error', onError)
-      }
-
-      return () => {
-        image.removeEventListener('load', onLoad)
-        image.removeEventListener('error', onError)
-      }
+    const observer = new MutationObserver(() => {
+      bindImages()
     })
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current, {
+        childList: true,
+        subtree: true
+      })
+
+      // ✅ 첫 렌더에도 직접 트리거
+      bindImages()
+    }
+
+    return () => {
+      observer.disconnect()
+    }
   }, [mdx])
 
   return !loading || !mdx ? (
@@ -60,11 +73,9 @@ export const Markdown = (props: MarkdownProps) => {
       <SkeletonTextBlock />
     </Styled.SkeletonWrap>
   ) : (
-    <>
-      <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx }} />
-    </>
+    <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx }} />
   )
-}
+})
 
 const SkeletonTextBlock = () => (
   <div>

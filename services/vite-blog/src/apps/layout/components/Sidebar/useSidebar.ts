@@ -1,12 +1,16 @@
 import { useGlobalProvider } from '@/context/useProvider'
-import { useEffect } from 'react'
+import { useScrollTo } from '@/hooks/useScrollTo'
+import { useEffect, useState } from 'react'
 
 export const useSidebar = () => {
   const { state } = useGlobalProvider()
+  const [scroll, setScroll] = useState<number>()
+  const { scrollTo } = useScrollTo()
 
   useEffect(() => {
     if (state.mobileSidebarVisible) {
       const scrollY = window.scrollY
+      setScroll(scrollY)
       document.body.style.overflow = 'hidden'
       document.body.style.position = 'fixed'
       document.body.style.zIndex = '0'
@@ -20,6 +24,7 @@ export const useSidebar = () => {
       document.body.style.width = ''
       document.body.style.height = ''
       document.getElementsByTagName('main')[0].style.top = '0'
+      scrollTo(scroll || 0, false)
     }
   }, [state.mobileSidebarVisible])
 
