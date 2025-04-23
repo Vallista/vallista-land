@@ -65,7 +65,7 @@ export const useContents = (props: UseContentsProps) => {
 
   const moveToLocation = (target: string) => {
     navigate(target)
-    scrollToTop()
+    scrollToTop(false)
     dispatch({
       type: 'changeMobileSidebarVisible',
       visible: false

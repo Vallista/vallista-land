@@ -19,7 +19,7 @@ export const Series: FC<SeriesProps> = (props) => {
   const { scrollToTop } = useScrollTo()
 
   const moveToLocation = (slug: string) => {
-    scrollToTop()
+    scrollToTop(false)
     navigate(slug)
   }
 

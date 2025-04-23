@@ -13,7 +13,7 @@ export const Logo = () => {
 
   const moveToHome = () => {
     navigate('/')
-    scrollToTop()
+    scrollToTop(false)
     dispatch({
       type: 'changeMobileSidebarVisible',
       visible: false
