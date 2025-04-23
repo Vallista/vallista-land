@@ -13,7 +13,7 @@ const parseContent = (value: API.Post): Content => {
     tags: value.tags,
     path: value.path,
     url: value.url,
-    draft: value.draft,
+    draft: value?.draft ?? false,
     thumbnail: value.image
   }
 
