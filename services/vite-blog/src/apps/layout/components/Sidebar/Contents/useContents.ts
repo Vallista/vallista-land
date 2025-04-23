@@ -30,6 +30,39 @@ export const useContents = (props: UseContentsProps) => {
     setScrollState(scrollHeight > clientHeight ? 'SHOW' : 'HIDE')
   }, [state.search, state.view])
 
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+
+    const preventScrollChaining = (e: TouchEvent) => {
+      const scrollTop = el.scrollTop
+      const scrollHeight = el.scrollHeight
+      const offsetHeight = el.offsetHeight
+      const atTop = scrollTop === 0
+      const atBottom = scrollTop + offsetHeight >= scrollHeight
+
+      const touchY = e.touches[0].clientY
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const deltaY = touchY - (preventScrollChaining as any)._lastY || 0
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(preventScrollChaining as any)._lastY = touchY
+
+      if ((atTop && deltaY > 0) || (atBottom && deltaY < 0)) {
+        e.preventDefault()
+      }
+    }
+
+    el.addEventListener('touchstart', (e) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(preventScrollChaining as any)._lastY = e.touches[0].clientY
+    })
+    el.addEventListener('touchmove', preventScrollChaining, { passive: false })
+
+    return () => {
+      el.removeEventListener('touchmove', preventScrollChaining)
+    }
+  }, [])
+
   // MEMO: 사용되고 있는 모든 테그를 가져온다.
   const tags = Array.from(
     contents.reduce((acc, curr) => {
