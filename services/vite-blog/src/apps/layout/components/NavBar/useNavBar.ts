@@ -13,7 +13,7 @@ export const useNavBar = () => {
 
     dispatch({
       type: 'changeMobileSidebarVisible',
-      visible: true
+      visible: !state.mobileSidebarVisible
     })
   }
 
