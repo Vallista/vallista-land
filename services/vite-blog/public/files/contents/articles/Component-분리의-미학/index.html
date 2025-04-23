@@ -1,16 +1,16 @@
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/1.jpeg" alt="이미지1"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/1.jpeg" alt="이미지1" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>개발을 하다보면 정답이 없는 오묘한 문제가 발생합니다. 이 문제는 잘 잡지 않으면 유지보수에 큰 영향을 주지만 정답은 없습니다. 항상 탐험해야하는 문제에 해당하죠.</p>
 <p>이 문제는 바로 <code>SoC(Separation of concerns) - 관심사의 분리</code> 입니다. 프로젝트의 규모, 도메인 등에 따라서 효율적인 관심사의 분리 방법이 바뀔 수 있으며 분리가 어떻게 되어 있냐에 따라 진입점 자체도 달라집니다.</p>
 <p>웹 프론트엔드 생태계는 발촉된 지 얼마 안되었습니다. 그래서 관심사의 분리가 제대로 이루어진 사례가 많이 없고, 수많은 프론트엔드 개발자는 정답을 찾기위해 헤메이고 있는 중입니다.</p>
 <p>오늘의 글은 웹 프론트엔드 업계를 탐험하며 나름대로 얻은 결론과 정답을 찾기위한 몸부림의 과정을 적었습니다.</p>
 <h2>컴포넌트의 정의</h2>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/2.jpg" alt="이미지2"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/2.jpg" alt="이미지2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>컴포넌트는 <code>독립적인 단위모듈</code> 입니다.</p>
 <p>독립적인 단위모듈이라는 것은 독립적인 실행이 가능하다는 것입니다. 컴포넌트는 해당 기능에 대해서 독립적으로 수행이 될 수 있고, 새로운 모듈로 교환될 수 있어야 합니다.</p>
 <p>독립적인 실행이 가능하다는 뜻은 해석하기에 따라서 많은 차이점을 낳습니다. 후술할 여러가지 컴포넌트 관리 기법은 컴포넌트의 정의와 매칭되나, 전혀 다른 구현 방법을 사용하고 있습니다.</p>
 <h2>도메인 중심의 컴포넌트</h2>
 <p>독립적인 단위모듈에 기반하여 컴포넌트를 <code>도메인 중심</code> 으로 개발하는 방법입니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/3.png" alt="이미지3"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/3.png" alt="이미지3" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>컴포넌트가 도메인 단위로 나뉘어져 있습니다. 해당 컴포넌트에서는 관련된 도메인 상태 및 행동을 포함합니다. 이 방법의 장점과 단점에 대해서 알아봅시다.</p>
 <h3>장점</h3>
 <ul>
@@ -22,10 +22,10 @@
 <li>도메인 컴포넌트가 서로 참조하게 되어 코드가 쉽게 꼬일 수 있다.</li>
 </ul>
 <p>도메인 단위로 개발하게 되면 뎁스없이 직관적으로 컴포넌트를 인지할 수 있는 장점이 있습니다. 소규모의 프로젝트에서는 이러한 구현 기법이 잘 먹힐 수 있으나 중규모의 프로젝트를 개발할 때 이 방법으로 컴포넌트를 관리하게 되면 더 다양해진 도메인을 견딜 수 없을 것입니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/4.png" alt="이미지4"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/4.png" alt="이미지4" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>위의 사진처럼 다양한 도메인이 생길수록 네이밍의 한계점도 생기고, 노말하게 펼쳐있으므로 이름 탐색에 어려움을 겪습니다.</p>
 <p>탐색에서 어려움을 겪는 문제를 한 가지 더 이야기를 해보면, 수정사항이 있을때 컴포넌트 진입이 하는 과정을 예시로 들 수 있겠습니다. 아래의 사례를 보면 이 구조로 된 컴포넌트 분리 방식은 좋지 않다는 걸 볼 수 있습니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/5.png" alt="이미지5"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/5.png" alt="이미지5" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>"트위터의 인풋 박스를 수정하라" 라는 조건이 주어졌고, 도메인 히스토리를 모르는 개발자가 진행해야 한다고 가정합니다.</p>
 <p>동선을 살펴보면,</p>
 <ol>
@@ -36,7 +36,7 @@
 <p>수정할 컴포넌트를 찾기위해 탐색을 계속 진행하여 컴포넌트로 들어왔습니다. 굉장히 비효율적인 방법으로 찾고 있는 걸 확인할 수 있었습니다. 그렇다면 이보다 더 효율적으로 개발자가 개발을 진행할 수 있게하는 방법이 무엇이 있을까요?</p>
 <h3>도메인 단위로 폴더 구축</h3>
 <p>위의 상황에서 파일을 좀 더 쉽게 찾는 방법은 폴더 분리를 하여 파일을 묶어 놓는걸로 탐색 범위를 줄이는 방법입니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/6.png" alt="이미지6"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/6.png" alt="이미지6" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>간단하게 페이지 단위로 나누어 보았습니다. 페이지 단위로 나누고 페이지 전역에 해당하는 컴포넌트를 Common 폴더에 넣어둡니다.</p>
 <p>이 방법은 아주 간단하고 강력합니다. 탐색 범위를 수정할 페이지 단위로 빠르게 축소시킬 수 있습니다.</p>
 <p>이 방법대로 코딩을 해나가니 수정 해야할 컴포넌트는 직관적으로 찾을 수 있었습니다. 하지만 이 방법도 공통 모듈이 많아지고 프로젝트가 커질수록 관리가 어려워짐을 느낍니다.</p>
@@ -55,7 +55,7 @@ Facebook의 React 개발자인 Dan Abramov의 데이터 컴포넌트, 레이아�
 <p>데이터 영역과 레이아웃 영역이 단독으로 쓰인다면 두 관점에서 재사용을 할 수 있겠죠. 그렇다면 현재 두 관점이 합쳐진 컴포넌트보다 효율적으로 사용될 수 있을것이라 생각을 하게 됩니다.</p>
 <p>또한 이 방법의 장점은 레거시를 각각 보존할 수 있다는 장점을 가지고 있었죠.</p>
 <p>그래서 <code>HoC (Higher Order Component)</code>를 이용해 Container Component가 Presentational Component에 데이터를 주입해주는 방법을 사용하게 됩니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/7.png" alt="이미지7"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/7.png" alt="이미지7" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>컨테이너 컴포넌트 영역과 프레젠테이션 영역을 분리했습니다. 분리를 해놓으니 좀 더 명확해보이네요. 데이터를 수정해야할 때는 데이터 영역을 만지면 되고, 레이아웃 수정해야할 때는 레이아웃 영역만 수정하기 위해 찾으면 되니 찾는데도 더 효율적입니다.</p>
 <p>코드상으로는 다음과 같습니다.</p>
 <p><strong>TweetListContainer.jsx</strong></p>
@@ -132,7 +132,7 @@ Facebook의 React 개발자인 Dan Abramov의 데이터 컴포넌트, 레이아�
 <h2>Atomic Design</h2>
 <p>레이아웃 컴포넌트를 재사용 단위로 쪼개는, <code>Atomic Design</code>을 사용하면 해결 할 수 있습니다.</p>
 <p>Atomic Design은 레이아웃을 블럭처럼 조립해서 개발하는 방법론입니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/8.png" alt="이미지8"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/8.png" alt="이미지8" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>Atomic Design은 5가지 구성요소로 나뉩니다.</p>
 <ul>
 <li>atoms (원자) : 레이아웃을 구성하는 가장 작은 단위입니다. p, span등 가장 작은 elements 요소를 일컫습니다.</li>
@@ -142,7 +142,7 @@ Facebook의 React 개발자인 Dan Abramov의 데이터 컴포넌트, 레이아�
 <li>pages (페이지) : templates에 데이터를 주입해서 유저에게 최종적으로 보여주는 페이지입니다.</li>
 </ul>
 <p>실제 적용 예를 한번 보면 이해가 쉬우실거에요.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/9.png" alt="이미지9"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/9.png" alt="이미지9" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>각 레이아웃 단위로 컴포넌트를 분리하였습니다. 여기서 또 재미있는 점은 atoms, molecules, organisms, templates 폴더 이름의 정렬이 크기순으로 알파벳 정렬되어 있다는 점입니다. 그래서 크기 단위로 컴포넌트를 이해하면 파일을 찾는데 더 쉽습니다.</p>
 <ul>
 <li>atoms
@@ -213,7 +213,7 @@ _
 </blockquote>
 <h2>데이터 컴포넌트 관리</h2>
 <p>프로젝트가 점점 커져갈수록, HoC로 구현한 데이터 컴포넌트가 많아지는 문제가 생깁니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/10.png" alt="이미지10"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/10.png" alt="이미지10" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>이 데이터 컴포넌트도 레이아웃 컴포넌트처럼 훌륭하게 관리할 수 있는 방법이 없을까요?</p>
 <p>일반적으로 Container는 비동기 데이터를 호출하고 비동기 값이 전달되면, prop drilling으로 데이터를 내려주는 역할을 합니다. 하지만 이 비동기 작업의 경우 재사용을 해주기 까다롭습니다. 재사용을 해주기 위해서는 해당 컴포넌트 내의 데이터가 변경이 되었는지 rxjs, proxy api 등을 이용해 상태 관리를 해주어야 하는데요. 이렇게 다른 third party를 사용하기에 React에는 훌륭한 선택지가 존재합니다.</p>
 <h3>React Hooks 사용</h3>
@@ -331,7 +331,7 @@ _
 <span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Home</span></span></code></pre></figure>
 <p>더이상 Container Component가 필요없음을 알게 되었습니다. HoC를 통해 데이터를 내려주지 않으니 뎁스가 줄어들어서 리펙토링시에도 용이합니다.</p>
 <p>그렇다면 폴더 구조에서 Container가 필요 없어지므로 변경할 수 있습니다.</p>
-<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/11.png" alt="이미지11"></p>
+<p><img src="/files/contents/articles/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/assets/11.png" alt="이미지11" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>폴더 구조가 단순하고 직관적으로 변경되었군요. 난잡했던 과거의 구조보다 훨씬 정돈된 느낌을 받을 수 있습니다.</p>
 <p>이 구조는 보기에만 이쁜게 아닙니다. 실제로 개발자가 구현을 하는데 있어 찾는 시간을 줄여주고, 동일한 코드에 대해서 최소한 할 수 있도록 짜여졌습니다.</p>
 <h2>분리의 미학</h2>

@@ -10,6 +10,7 @@ import { changeImageUrl } from '../plugins/changeImageUrl'
 import { remarkAutoHighlight } from '../plugins/remarkAutoHighlight'
 import rehypePrettyCode from 'rehype-pretty-code'
 import { rehypePrettyCodeOptions } from '../plugins'
+import rehypeEnhanceImages from '../plugins/rehypeEnhanceImages'
 
 /**
  * Convert MDX(MD) to HTML
@@ -25,6 +26,7 @@ async function mdxToHTML(mdx: string, path: string, slug: string) {
     .use(remarkAutoHighlight)
     .use(remarkRehype)
     .use(rehypePrettyCode, rehypePrettyCodeOptions)
+    .use(rehypeEnhanceImages)
     .use(rehypeStringify)
     .process(mdx)
 

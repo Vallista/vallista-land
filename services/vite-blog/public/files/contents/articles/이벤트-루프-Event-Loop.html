@@ -9,14 +9,14 @@
 <li>V8과 같은 자바스크립트 엔진은 단일 호출 스택을 사용하여 단순히 순차적으로 처리한다.</li>
 <li>비동기나 동시성 작업은 Node.js 환경이나 브라우저에서 담당한다.</li>
 </ul>
-<p><img src="https://cloud.githubusercontent.com/assets/12269489/16215491/b1493856-379d-11e6-9c16-a9a4cf841567.png" alt=""></p>
+<p><img src="https://cloud.githubusercontent.com/assets/12269489/16215491/b1493856-379d-11e6-9c16-a9a4cf841567.png" alt="" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>실제로 비동기 호출을 위해 사용하는 setTimeout, XMLHttpRequest는 Web API 라는 JavaScript Engine 영역이 아닌, 브라우저 영역에 정의되어 있다. 또한 이벤트 루프나 Task Queue도 JavaScript Engine 외부에서 작동한다.</p>
 <ul>
 <li>JavaScript Engine은 단일 호출 스택과 Heep 영역을 관할한다.</li>
 <li>setTimeOut과 같은 함수들은 (Global Function) JavaScript 외부에 WebAPI 형태로 존재한다.</li>
 <li>Task Queue와 이벤트 루프도 JavaScript Engine 외부에 존재한다.</li>
 </ul>
-<p><img src="https://pbs.twimg.com/media/Bt5ywJrIEAAKJQt.jpg" alt=""></p>
+<p><img src="https://pbs.twimg.com/media/Bt5ywJrIEAAKJQt.jpg" alt="" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <ul>
 <li>
 <p>Node.JS는 비동기 IO를 지원하기 위해 LIBUV 라이브러리를 사용한다.</p>
@@ -67,7 +67,7 @@
 <li>baz 함수는 console.log('baz!')를 실행한다.</li>
 <li>setTimeout으로 baz를 0.01초 후에 출력한다.</li>
 </ul>
-<p><img src="/files/contents/articles/%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EB%A3%A8%ED%94%84-Event-Loop/Slide1-0ab0eb99-8bfd-470f-99e0-afec00992e8c.png" alt=""></p>
+<p><img src="/files/contents/articles/%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EB%A3%A8%ED%94%84-Event-Loop/Slide1-0ab0eb99-8bfd-470f-99e0-afec00992e8c.png" alt="" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <ol>
 <li>Browser Web API, 10ms 후 baz를 실행하는 setTimeout을 실행한다.</li>
 <li>setTimeout은 Browser의 Task queue에 추가된다.</li>
@@ -90,7 +90,7 @@
 <li>모든 비동기 API 작업이 끝나면 콜백 함수를 테스크 큐에 추가한다.</li>
 <li>이벤트 루프는 '현재 실행중인 태스크가 없을 때' (주로 호출 스택이 비워졌을 때) 태스크 큐의 첫 번째 태스크를 꺼내와 실행한다.</li>
 </ul>
-<p><img src="https://image.toast.com/aaaadh/real/2018/techblog/eventloop.jpg" alt=""></p>
+<p><img src="https://image.toast.com/aaaadh/real/2018/techblog/eventloop.jpg" alt="" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <h2>비동기 API와 try-catch</h2>
 <figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="javascript" data-theme="one-dark-pro"><code data-language="javascript" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#61AFEF">$</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'.btn'</span><span style="color:#ABB2BF">).</span><span style="color:#61AFEF">click</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">function</span><span style="color:#ABB2BF"> () {</span></span>
 <span data-line=""><span style="color:#7F848E;font-style:italic">  // A</span></span>

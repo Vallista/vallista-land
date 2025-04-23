@@ -1,4 +1,4 @@
-<p><img src="/files/contents/articles/%EC%B2%A9%EC%B2%A9%EC%82%B0%EC%A4%91,-POS-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84-%EB%8C%80%EC%9D%91%ED%95%98%EC%9E%90/assets/1.png" alt="이미지1"></p>
+<p><img src="/files/contents/articles/%EC%B2%A9%EC%B2%A9%EC%82%B0%EC%A4%91,-POS-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84-%EB%8C%80%EC%9D%91%ED%95%98%EC%9E%90/assets/1.png" alt="이미지1" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>이 전 글에서, React와 Emotion을 사용해 영수증을 출력했다. 그리고 다음글로 코드 리펙토링을 하는 것을 진행한다고 고지까지 했는데, 갑자기 "첩첩한중, POS 시스템을 대응하자" 라는 주제로 글을 쓰는지 의문인 사람이 있을 것이다.</p>
 <p>결론적으로 이야기를 하면, 앞서 개발한 React 기반의 영수증 출력 프로그램은 윈도우 7 이상의 크롬, 파이어폭스 등 모던 브라우저에서 동작하도록 제공한 코드인데,
 현재 다양한 매장에서 사용되는 포스 시스템은 2010년 전후로 작동되는 프로그램이 대다수이고, 이러한 포스 시스템에서는 윈도우 XP, IE 기반의 브라우저에서 동작한다.</p>
@@ -60,7 +60,7 @@
 <li>빠른 시간 내 (2주일)로 개발해야한다.</li>
 </ol>
 <p>이러한 필수적인 사항을 적용하려면 일단, 크로미움 기반의 웹이 돌아갈 수 있도록 소프트웨어를 제작해야한다. 그래서 다음과 같은 프로세스를 생각했다.</p>
-<p><img src="/files/contents/articles/%EC%B2%A9%EC%B2%A9%EC%82%B0%EC%A4%91,-POS-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84-%EB%8C%80%EC%9D%91%ED%95%98%EC%9E%90/assets/2.png" alt="이미지2"></p>
+<p><img src="/files/contents/articles/%EC%B2%A9%EC%B2%A9%EC%82%B0%EC%A4%91,-POS-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84-%EB%8C%80%EC%9D%91%ED%95%98%EC%9E%90/assets/2.png" alt="이미지2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <ol>
 <li>윈도우 어플리케이션 위에 웹뷰가 전체 사이즈로 올려진다.</li>
 <li>웹뷰에서 어드민이 제공되며, 어드민에서 영수증을 출력할 수 있는 버튼이 존재한다.</li>
@@ -86,7 +86,7 @@
 <p>적정한 수준이 C#이라고 판단되었고, 닷넷 프레임워크는 윈도우 운영체제를 쉽게 핸들링 할 수 있는 다양한 문법을 제공한다.</p>
 <h4>버전</h4>
 <p>이제 버전을 맞춰보자. 닷넷 프레임워크의 버전에 따라 OS를 제공할 수 있을 것이다. <a href="https://techcommunity.microsoft.com/t5/windows-embedded-blog/microsoft-net-framework-versions-supported-by-windows-embedded/ba-p/286129">버전 참조하기</a></p>
-<p><img src="/files/contents/articles/%EC%B2%A9%EC%B2%A9%EC%82%B0%EC%A4%91,-POS-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84-%EB%8C%80%EC%9D%91%ED%95%98%EC%9E%90/assets/3.png" alt="이미지3"></p>
+<p><img src="/files/contents/articles/%EC%B2%A9%EC%B2%A9%EC%82%B0%EC%A4%91,-POS-%EC%8B%9C%EC%8A%A4%ED%85%9C%EC%9D%84-%EB%8C%80%EC%9D%91%ED%95%98%EC%9E%90/assets/3.png" alt="이미지3" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>3.5는 SP1이기 때문에, XP의 SP1, 2, 3 등을 전부 제공한다. 그렇기 때문에 3.5를 사용하는게 베스트로 보인다. 그런데 여기서 문제는 우리는 크로미움을 사용해야 한다는 점이다. 크로미움을 윈도우 어플리케이션에 올리기 위해서는 <a href="https://ko.wikipedia.org/wiki/%ED%81%AC%EB%A1%9C%EB%AF%B8%EC%97%84_%EC%9E%84%EB%B2%A0%EB%94%94%EB%93%9C_%ED%94%84%EB%A0%88%EC%9E%84%EC%9B%8C%ED%81%AC">CEF (Chromium Embedded Framework)</a>라는 것을 사용해야한다.</p>
 <p>크로미움 임베디드 프레임워크는 C++로 개발되었으며, 다양한 OS에서 동작하는 크로미움 기반의 응용 프로그램을 만들 수 있다. C#에도 이 CEF를 래핑한 라이브러리가 존재하는데, 바로 <a href="https://cefsharp.github.io/">CefSharp</a> 이라는 친구이다. 이 CefSharp은 특정 버전 이상의 닷넷 프레임워크에서 동작한다.</p>
 <p>최소 4.0 이상에서 동작하는데, 이렇게 되면 문제가 생긴다. 모든 버전을 호환하는 닷넷 프레임워크는 3.5이기 때문이다. 그렇다면 우리는 닷넷 버전 4.0과 4.5.2, 4.6 세 가지 빌드를 준비해야한다.</p>

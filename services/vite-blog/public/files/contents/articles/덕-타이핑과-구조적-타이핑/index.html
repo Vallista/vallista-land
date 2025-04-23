@@ -1,9 +1,9 @@
-<p><img src="/files/contents/articles/%EB%8D%95-%ED%83%80%EC%9D%B4%ED%95%91%EA%B3%BC-%EA%B5%AC%EC%A1%B0%EC%A0%81-%ED%83%80%EC%9D%B4%ED%95%91/assets/1.png" alt="1"></p>
+<p><img src="/files/contents/articles/%EB%8D%95-%ED%83%80%EC%9D%B4%ED%95%91%EA%B3%BC-%EA%B5%AC%EC%A1%B0%EC%A0%81-%ED%83%80%EC%9D%B4%ED%95%91/assets/1.png" alt="1" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>덕 타이핑과 구조적 타이핑 두 가지는 비슷하면서, 근본적으로 다르다.</p>
 <p>흔히 아는 것처럼, 덕 타이핑은 자바스크립트 등의 언어에서 쉽게 찾아볼 수 있었던 개념이었을 것이다. 하지만 구조적 타이핑은 흔히 접해보지 않은 이야기일 수 있다. 물론 C/C++ 등의 언어에서도 구조적 타이핑을 가능하도록 Template과 같은 친구들을 제공하지만. 이는 다른 이야기고 언어적인 차원에서 구조적 타이핑을 중점적으로 다루는 언어는 많지 않다. (OCaml, TypeScript, Go 등.)</p>
 <p>그렇다면 덕 타이핑은 무엇이고, 구조적 타이핑은 무엇일까?</p>
 <h2>덕 타이핑 (Duck-Typing)</h2>
-<p><img src="/files/contents/articles/%EB%8D%95-%ED%83%80%EC%9D%B4%ED%95%91%EA%B3%BC-%EA%B5%AC%EC%A1%B0%EC%A0%81-%ED%83%80%EC%9D%B4%ED%95%91/assets/2.jpeg" alt="2">
+<p><img src="/files/contents/articles/%EB%8D%95-%ED%83%80%EC%9D%B4%ED%95%91%EA%B3%BC-%EA%B5%AC%EC%A1%B0%EC%A0%81-%ED%83%80%EC%9D%B4%ED%95%91/assets/2.jpeg" alt="2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;">
 (위의 사진으로 설명 끝)</p>
 <p>덕 타이핑은 객체의 변수, 메소드의 집합이 객체의 타입을 결정하는 것을 말한다. 즉, 위의 사진처럼 콘센트나 돼지코냐 "이름"은 중요하지 않다. 꽃을 수 있는가 없는가 꽃을 수 있으면 그것은 콘센트라고 부를 수 있다.</p>
 <p>아래의 자바스크립트 코드를 보면, 아래와 같다 (이하 예제는 자바스크립트와 타입스크립트를 기준으로 설명한다)</p>

@@ -1,10 +1,10 @@
-<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/0.png" alt="0"></p>
+<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/0.png" alt="0" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>Redux는 웹 생태계에서 상태 관리를 위해 쓰이는 프레임워크입니다. 물론 Redux 말고도 MobX와 같은 유명한 상태관리 모듈이 존재하지만 Redux가 비교적 나온지 오래되어서 사용하는 회사와 정보가 더 많습니다. 그렇기 때문에 일반적으로 상태관리 프레임워크라고 한다면 Redux를 사용하는 경우가 많습니다.</p>
-<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/1.png" alt="1">
+<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/1.png" alt="1" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;">
 (최근 6개월간 다운로드 추이)</p>
 <p>Redux와 MobX를 비교한 다운로드 추이표를 보면 조금 더 와닿을거라 생각합니다. 흔히 웹 프론트엔드의 정석이라고 불리는 <strong>React + Redux</strong> 조합은 많은 회사에서 채택하고 있고 개인 프로젝트로도 다양하게 쓰이고 있습니다.</p>
 <p>이렇게 많이쓰이는 Redux, Redux의 라이프사이클을 이용해 개발자가 개발을 하는데 확장, 도움이 될 수 있도록 Middleware 기능을 제공합니다. Middleware에 다양한 기능을 추가할 수 있지만 그 중에서 비동기 동작에 대한 제어를 도와주는 <strong>Redux Thunk</strong>, <strong>Redux Saga</strong> 두 모듈은 Redux에서 많이 사용됩니다.</p>
-<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/3.png" alt="4"></p>
+<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/3.png" alt="4" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>Redux Thunk는 Saga 이전에 나온 비동기 제어 미들웨어입니다. 하지만 비동기를 위해 Thunk는 방대한 양의 코드를 작성해야 했고, 유려하지도 않았습니다. 그에 비해 Redux Saga는 javascript의 generator를 이용해 다양한 비동기 통신을 한데 묶어 처리도 가능했고, 유려하게 개발이 가능하여 Redux Thunk보다 늦게 나왔지만 더 많이쓰이고 있습니다.</p>
 <p>그래서 이 글의 주제는 React, Redux, Redux Saga, TypeScript를 이용하여 프로젝트를 개발했을 때, 비대해지는 TypeScript, Redux Saga, Redux에 초점을 맞추어 깔끔하고 아름답게 코드를 작성하는 방법에 대해서 이야기를 해보려 합니다.</p>
 <blockquote>
@@ -186,7 +186,7 @@
 <p>아래의 코드는 <a href="https://github.com/Vallista/Beautiful-React-Redux-Typescript/tree/2.modularization">2. modularization</a>에서 자세히 볼 수 있습니다.</p>
 </blockquote>
 <p>먼저 모듈화를 어떻게 진행할 지 구조를 잡아봅시다.</p>
-<p><img src="https://github.com/Vallista/Beautiful-React-Redux-Typescript/raw/2.modularization/screenshots/1.png?raw=true" alt="2"></p>
+<p><img src="https://github.com/Vallista/Beautiful-React-Redux-Typescript/raw/2.modularization/screenshots/1.png?raw=true" alt="2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>모듈화를 진행하는 이유는 프로젝트가 커지면서 도메인이 많아지고 로직이 커지면 대응을 쉽게 할 수가 없기 때문입니다. 이 구조 말고도 거시적으로 action-creators, reducers 등의 사용관점에서 폴더 구조를 나누는 경우도 많은데 그렇게 되면 다양한 도메인의 로직이 하나의 폴더에 다 담기게 되므로 장기적으로 <strong>매우 안좋습니다</strong>.</p>
 <p>그래서 이 글에서 추천드리는 것은 도메인 단위로 Module Layer를 만들고, 해당 모듈은 폴더 하나로 대변되며 index.ts, reducer.ts, saga.ts를 품고 있습니다. 내부에서 reducer는 action과 reducer를 생성하며 saga와 함께 index.ts로 연결됩니다.</p>
 <p>각각의 모듈은 index.ts에서 actions, reducer, saga를 가지며 외부에서 index.ts로만 참조하여 가져오게 됩니다.</p>
@@ -329,7 +329,7 @@
 <span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Home</span></span></code></pre></figure>
 <p>fetchEmployees와 동일하게 custom hook도 만들어주고 useEffect에서 실행해줍니다.</p>
 <hr>
-<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/2.png" alt="3"></p>
+<p><img src="/files/contents/articles/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/assets/2.png" alt="3" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>이렇게 구조를 분리했더니 확실히 체계적으로 변하였고 어딜 수정해야 하는지 명확해졌습니다.</p>
 <p>하지만 코드를 보면 여전히 비효율적이라는 것을 알 수 있습니다. 새로운 Store Module이 생기면 그에 따라서 새로운 세팅을 해주어야 합니다. 모듈단위로 중복되는 코드가 많으니 일어나는 일로 보입니다. Reducer에서 공통되는 코드를 분리해보도록 합시다.</p>
 <h2>3. 재사용 로직 분리</h2>

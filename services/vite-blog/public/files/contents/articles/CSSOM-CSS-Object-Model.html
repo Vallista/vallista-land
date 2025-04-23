@@ -10,7 +10,7 @@ p span { display: none }
 img { float: right }
 </code></pre>
 <p>위의 css를 처리하기 위해 아래의 과정을 진행한다. CSSOM을 만드는 작업은<a href="https://www.notion.so/05b2fa44-e433-4bb2-9fc3-cd59110f6ddb">DOM (Document Object Model)</a> 과 Attachment를 쉽게 하기 위해서 비슷한 과정을 진행하게 된다.</p>
-<p><img src="https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-construction.png?hl=ko" alt=""></p>
+<p><img src="https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-construction.png?hl=ko" alt="" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <ol>
 <li><strong>변환:</strong> 렌더링 엔진에서 OS의 네트워크 레이어나 디스크를 통해 데이터를 읽어와서 지정한 인코딩으로 (UTF-8) 개별 문자로 변환한다.</li>
 <li><strong>토큰화:</strong> 개별 문자로 변환된 문자열을 <a href="https://www.w3.org/TR/html5/">W3C 표준</a>에 지정된 고유한 토큰으로 변환한다. 각 토큰은 특별한 의미와 고유한 규칙을 가진다. (ex: 'html', 'head' 등)</li>
@@ -29,7 +29,7 @@ p span { display: none }
 img { float: right }
 </code></pre>
 <p>CSS를 적용할 때 상위 태그의 모든 하위 태그에는 상위 태그의 스타일이 적용된다. (하향식 적용)</p>
-<p><img src="https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-tree.png?hl=ko" alt=""></p>
+<p><img src="https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-tree.png?hl=ko" alt="" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>즉, body 영역에 공통으로 사용될 수 있는 property를 적용하면 하위 Element에 모두 적용된다.</p>
 <ul>
 <li>body 태그와 body 태그의 하위 태그에는 font-size: 15px이 하향식으로 적용된다.</li>

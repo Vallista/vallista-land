@@ -51,12 +51,6 @@ export const SkeletonWrap = styled.div`
   padding: ${DEFINE_CONTENTS_PADDING}px;
 `
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const fadeStyle = (visible: boolean) => css`
-  opacity: ${visible ? 1 : 0};
-  transition: opacity 0.3s ease-in-out;
-`
-
 const root = css`
   box-sizing: border-box;
   min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
@@ -100,6 +94,15 @@ const image = (theme: Theme) => css`
     width: 100%;
     height: auto;
     border-radius: 8px;
+
+    aspect-ratio: 2 / 1;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    &.loaded {
+      opacity: 1 !important;
+    }
   }
 `
 

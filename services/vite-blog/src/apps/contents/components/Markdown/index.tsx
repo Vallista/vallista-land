@@ -12,6 +12,28 @@ export const Markdown = (props: MarkdownProps) => {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    const images = document.querySelectorAll<HTMLImageElement>('img.fade-image')
+
+    images.forEach((img) => {
+      const image = img
+
+      const onLoad = () => {
+        image.classList.add('loaded')
+      }
+
+      if (image.complete && image.naturalHeight !== 0) {
+        onLoad()
+      } else {
+        image.addEventListener('load', onLoad)
+      }
+
+      return () => {
+        image.removeEventListener('load', onLoad)
+      }
+    })
+  }, [mdx])
+
+  useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
@@ -27,6 +49,7 @@ export const Markdown = (props: MarkdownProps) => {
     const checkDone = () => {
       handled += 1
       if (handled === total) {
+        console.log('done')
         setVisible(true)
       }
     }
@@ -59,18 +82,7 @@ export const Markdown = (props: MarkdownProps) => {
     </Styled.SkeletonWrap>
   ) : (
     <>
-      {!visible && (
-        <Styled.SkeletonWrap>
-          <Styled.SkeletonImage />
-          <SkeletonTextBlock />
-        </Styled.SkeletonWrap>
-      )}
-      <Styled._Markdown
-        ref={containerRef}
-        style={!visible ? { visibility: 'hidden' } : {}}
-        css={Styled.fadeStyle(visible)}
-        dangerouslySetInnerHTML={{ __html: mdx }}
-      />
+      <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx }} />
     </>
   )
 }

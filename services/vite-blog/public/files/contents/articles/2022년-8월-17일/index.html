@@ -1,4 +1,4 @@
-<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-17%EC%9D%BC/assets/splash.jpg" alt="로고"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-17%EC%9D%BC/assets/splash.jpg" alt="로고" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <h2>오늘 한 일</h2>
 <ul>
 <li>@Vallista-land/core library 배포하는 삽질</li>
@@ -23,7 +23,7 @@
 <p>과거부터 많이 사용되고 있는 번들러로는 rollup이 있다. 그런데 rollup은 트리쉐이킹이 안되는 버그들도 존재하고 무엇보다 이전에 회사에서 사용을 해봤기 때문에 별로 하고싶지는 않았다. 그래서 rollup은 제외한다.</p>
 <p><code>Github의 별 개수 확인해보기</code></p>
 <p><a href="https://bestofjs.org/projects?tags=module">bestofjs.org</a>에서 bundler 순위를 확인해보았다.</p>
-<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-17%EC%9D%BC/assets/0.png" alt="번들러 별 순위"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-17%EC%9D%BC/assets/0.png" alt="번들러 별 순위" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>대략 10위까지는 다음과 같다</p>
 <ol>
 <li>Webpack (62k)</li>
@@ -46,7 +46,7 @@
 <li><code>System.js</code>: 이것도 번들러의 역할보단 구동되는 환경을 일컫는 걸로 보여서 제외한다.</li>
 </ul>
 <p><code>npm trend 지표 확인하기</code></p>
-<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-17%EC%9D%BC/assets/1.png" alt="npm trend 지표"></p>
+<p><img src="/files/contents/articles/2022%EB%85%84-8%EC%9B%94-17%EC%9D%BC/assets/1.png" alt="npm trend 지표" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
 <p>결국 <code>parcel</code>, <code>esbuild</code>, <code>microbundle</code> 세 가지 중에 선택을 해야했는데, npm 트랜드상으론 esbuild가 제일 안정적이었지만, 지금 프로젝트는 개인 블로그기도 하고 메이저를 사용할 이유는 딱히 없었다. 그래서 최근에 다운로드수가 높아지고 있는 microbundle이 궁금했고, 이번엔 <code>microbundle</code>로 해보려고 했다.</p>
 <h4>Microbundle ..?</h4>
 <p>결론적으로 말하자면, Microbundle로 변경하면서 에러가 발생했다. 그런데, 에러가 어디서 나는지 갈피를 잡을수가 없었다. 거기다 microbundle의 이슈만 해도 50개가 넘었고, 나의 에러에 해당하는 부분을 찾아도 나오지도 않았다. 한 번 간단하게 써보려다 큰 삽질을 하게 될 것 같아서 parcel로 방향을 바꾸게 되었다.</p>
