@@ -45,6 +45,8 @@ export const _ListWrap = styled.div<WrapListProps>`
     left: -${DEFINE_SIDEBAR_WIDTH}px;
     cursor: pointer;
     overflow-y: scroll;
+
+    touch-action: pan-y;
     -webkit-overflow-scrolling: touch;
     overflow-x: hidden;
 
