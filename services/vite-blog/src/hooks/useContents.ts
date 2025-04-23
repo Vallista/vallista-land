@@ -44,17 +44,38 @@ export const useContents = (selectedCategory: string) => {
     }
   })
 
-  const articles = useMemo(() => allContents.filter((c): c is Article => c.type === 'ARTICLE'), [allContents])
+  const articles = useMemo(
+    () =>
+      allContents
+        .filter((c): c is Article => c.type === 'ARTICLE')
+        .filter((it) => (import.meta.env.PROD ? it.draft === false : true)),
+    [allContents]
+  )
 
-  const notes = useMemo(() => allContents.filter((c): c is Note => c.type === 'NOTE'), [allContents])
+  const notes = useMemo(
+    () =>
+      allContents
+        .filter((c): c is Note => c.type === 'NOTE')
+        .filter((it) => (import.meta.env.PROD ? it.draft === false : true)),
+    [allContents]
+  )
 
-  const projects = useMemo(() => allContents.filter((c): c is Project => c.type === 'PROJECT'), [allContents])
+  const projects = useMemo(
+    () =>
+      allContents
+        .filter((c): c is Project => c.type === 'PROJECT')
+        .filter((it) => (import.meta.env.PROD ? it.draft === false : true)),
+    [allContents]
+  )
 
   const filtered = useMemo(() => {
     if (!selectedCategory) return allContents
     const type = selectedCategory.slice(0, -1).toUpperCase()
     return allContents
       .filter((it) => it.type === type)
+      .filter((it) => {
+        return import.meta.env.PROD ? it.draft === false : true
+      })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [allContents, selectedCategory])
 
