@@ -90,7 +90,7 @@ export const _Wrap = styled.div<{ hasLoading: boolean }>`
   ${({ hasLoading }) =>
     hasLoading &&
     css`
-      animation: ${fadeIn} 0.2s ease-in-out;
+      animation: ${fadeIn} 0.1s ease-in-out;
     `}
 
   display: flex;

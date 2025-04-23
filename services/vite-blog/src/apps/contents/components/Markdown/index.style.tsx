@@ -73,6 +73,15 @@ const root = css`
 `
 
 const image = (theme: Theme) => css`
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
   & > p:has(img) {
     display: flex;
     flex-direction: column;
@@ -98,7 +107,7 @@ const image = (theme: Theme) => css`
     aspect-ratio: 2 / 1;
     object-fit: cover;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.1s ease-in-out;
 
     &.loaded {
       opacity: 1 !important;
