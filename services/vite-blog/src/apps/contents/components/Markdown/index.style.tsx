@@ -259,6 +259,12 @@ const ol = css`
 `
 
 const li = (theme: Theme) => css`
+  & > ul code {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
   & > ul > li,
   & > blockquote > ul > li {
     position: relative;
