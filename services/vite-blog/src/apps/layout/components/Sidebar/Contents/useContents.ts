@@ -91,7 +91,7 @@ export const useContents = (props: UseContentsProps) => {
   )
 
   const isNowPage = (target: string) => {
-    return decodeURIComponent(location.pathname).includes(target.slice(0, -1))
+    return decodeURIComponent(location.pathname).includes(target)
   }
 
   const moveToLocation = (target: string) => {
