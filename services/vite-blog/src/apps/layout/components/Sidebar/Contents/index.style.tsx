@@ -26,8 +26,8 @@ const TOP_BLANK = DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADE
 export const _ListWrap = styled.div<WrapListProps>`
   box-sizing: border-box;
   width: ${DEFINE_SIDEBAR_WIDTH}px;
-  height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
-  padding: 16px 24px 0;
+  height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT}px);
+  padding: 16px 24px 32px;
 
   ${({ scrollState }) => css`
     ${scrollState === 'SHOW' &&
@@ -48,7 +48,6 @@ export const _ListWrap = styled.div<WrapListProps>`
   }
 
   @media screen and (max-width: 1024px) {
-    padding: 16px 16px 32px;
     width: 100%;
 
     height: calc(
@@ -90,7 +89,7 @@ export const _HeaderWrap = styled.div`
 
 export const _EmptyWrap = styled.div`
   width: ${DEFINE_SIDEBAR_WIDTH}px;
-  height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
+  height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT}px);
 
   display: flex;
   justify-content: center;
