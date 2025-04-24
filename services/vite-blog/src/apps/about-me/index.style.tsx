@@ -3,10 +3,6 @@ import { DEFINE_CONTENTS_HEADER_PADDING_TOP, DEFINE_CONTENTS_WIDTH } from '@/uti
 import styled from '@emotion/styled'
 import { DEFINE_HEADER_HEIGHT } from '../layout/components/Header/utils'
 
-export const Wrapper = styled.div`
-  padding: 28px;
-`
-
 export const Header = styled.header`
   margin-top: ${DEFINE_HEADER_HEIGHT + DEFINE_CONTENTS_HEADER_PADDING_TOP}px;
   width: ${DEFINE_CONTENTS_WIDTH}px;
@@ -14,6 +10,12 @@ export const Header = styled.header`
   @media screen and (max-width: 1024px) {
     width: 100vw;
   }
+`
+
+export const Wrapper = styled.div`
+  max-width: 550px;
+  margin: 0 auto;
+  padding: 28px;
 `
 
 export const Title = styled.div`
@@ -37,7 +39,6 @@ export const Title = styled.div`
 `
 
 export const SubTitle = styled.div`
-  max-width: 550px;
   margin-bottom: 2rem;
 
   @media screen and (max-width: 1024px) {
