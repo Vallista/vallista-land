@@ -10,4 +10,8 @@ export const _Search = styled.div`
   & > div {
     width: 100%;
   }
+
+  @media screen and (max-width: 1024px) {
+    padding: 0 16px;
+  }
 `

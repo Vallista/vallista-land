@@ -5,6 +5,8 @@ import { DEFINE_NAVBAR_ITEM_HEIGHT } from '../../NavBar/utils'
 import { DEFINE_HEADER_HEIGHT } from '../../Header/utils'
 
 export const _Wrap = styled.div`
+  height: 100%;
+
   ${({ theme }) => css`
     border-right: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
   `}
@@ -15,6 +17,7 @@ interface WrapListProps {
 }
 
 export const _ListWrap = styled.div<WrapListProps>`
+  box-sizing: border-box;
   width: ${DEFINE_SIDEBAR_WIDTH}px;
   height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
   padding: 16px 24px 32px;
@@ -38,9 +41,10 @@ export const _ListWrap = styled.div<WrapListProps>`
   }
 
   @media screen and (max-width: 1024px) {
+    padding: 16px 16px 32px;
     width: 100%;
     height: calc(
-      100vh - ${DEFINE_NAVBAR_ITEM_HEIGHT + DEFINE_HEADER_HEIGHT + DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px
+      100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_ITEM_HEIGHT}px
     );
     left: -${DEFINE_SIDEBAR_WIDTH}px;
     cursor: pointer;
