@@ -200,6 +200,7 @@ const Reset = () => {
         }
 
         :root {
+          --vh: 1vh;
           --font-family: 'Pretendard', -apple-system, sans-serif;
           --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
           --scrollbar-background: #1e1e1e;

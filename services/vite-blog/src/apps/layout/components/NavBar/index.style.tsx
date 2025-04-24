@@ -25,8 +25,8 @@ export const _Container = styled.aside`
     height: ${DEFINE_NAVBAR_WIDTH}px;
     min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
     width: 100vw;
-    overflow-y: hidden;
-    overflow-x: auto;
+    /* overflow-y: hidden;
+    overflow-x: auto; */
     padding: 0 6px 0 18px;
     border-right: none;
   }

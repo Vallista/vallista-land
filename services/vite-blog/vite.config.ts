@@ -11,6 +11,10 @@ export const RESULT_PATH = `${process.cwd()}/public/files/contents`
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: '0.0.0.0', // 또는 '192.168.0.123'로 직접 지정
+    port: 5173
+  },
   plugins: [
     svgr(),
     vitePluginMdx({

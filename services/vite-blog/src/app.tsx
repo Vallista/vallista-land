@@ -10,8 +10,11 @@ import NotePage from './apps/contents/notes'
 import { GlobalProvider } from './context'
 import { HelmetProvider } from 'react-helmet-async'
 import { css, Global } from '@emotion/react'
+// import { useViewportHeight } from './hooks/useViewportHeight'
 
 const App = () => {
+  // useViewportHeight()
+
   if (import.meta.env.PROD) {
     const urlParams = new URLSearchParams(window.location.search)
     const redirect = urlParams.get('redirect')

@@ -33,7 +33,7 @@ export const _Wrap = styled.aside<{ fold: boolean; visible: boolean }>`
     background: hsla(47, 33%, 89%, 0);
     backdrop-filter: blur(10px);
     top: ${DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_ITEM_HEIGHT}px;
-    height: calc(100vh - ${DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_ITEM_HEIGHT}px);
+    height: calc((var(--vh, 1vh) * 100) - ${DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_ITEM_HEIGHT}px);
 
     ${({ visible }) =>
       !visible &&

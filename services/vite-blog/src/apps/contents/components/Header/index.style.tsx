@@ -87,6 +87,8 @@ export const _DateSkeleton = styled.div`
 `
 
 export const _Wrap = styled.div<{ hasLoading: boolean }>`
+  margin: 0 auto;
+
   ${({ hasLoading }) =>
     hasLoading &&
     css`

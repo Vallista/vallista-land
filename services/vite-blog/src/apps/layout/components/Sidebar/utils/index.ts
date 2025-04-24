@@ -13,4 +13,5 @@ export const DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT =
 /** 사이드바의 넓이 */
 export const DEFINE_SIDEBAR_WIDTH = 240
 
-export const DEFAULLT_SCROLL_STATE: ScrollStateType = 'HIDE'
+export const DEFAULT_SCROLL_STATE: ScrollStateType = 'HIDE'
+export const DEFAULT_IOS_SCROLL_BOTTOM_GAP = 90

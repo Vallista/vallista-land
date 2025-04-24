@@ -52,6 +52,7 @@ export const SkeletonWrap = styled.div`
 `
 
 const root = css`
+  margin: 0 auto;
   box-sizing: border-box;
   min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
   max-width: ${DEFINE_CONTENTS_WIDTH}px;

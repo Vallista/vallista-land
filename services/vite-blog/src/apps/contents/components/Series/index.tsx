@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { FC } from 'react'
 
 import * as Styled from './Series.style'
-import { useScrollTo } from '@/hooks/useScrollTo'
 
 interface SeriesProps {
   name: string
@@ -16,10 +15,8 @@ interface SeriesProps {
 export const Series: FC<SeriesProps> = (props) => {
   const { name, posts } = props
   const navigate = useNavigate()
-  const { scrollToTop } = useScrollTo()
 
   const moveToLocation = (slug: string) => {
-    scrollToTop(false)
     navigate(slug)
   }
 

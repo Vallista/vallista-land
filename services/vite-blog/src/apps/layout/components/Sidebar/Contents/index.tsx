@@ -9,6 +9,7 @@ import { Menu } from './Menu'
 import { Category } from './Category'
 import { Title } from './Title'
 import { Search } from './Search'
+import { useAgent } from '@/hooks/useAgent'
 
 interface ContentsProps {
   count: number
@@ -17,6 +18,7 @@ interface ContentsProps {
 
 export const Contents = (props: ContentsProps) => {
   const { ref, count, scrollState, contents, view, taggedContents, isNowPage, moveToLocation } = useContents(props)
+  const { isIOS } = useAgent()
 
   const list =
     view === 'TAG' ? (
@@ -58,7 +60,7 @@ export const Contents = (props: ContentsProps) => {
           <EmptyContents />
         </Styled._EmptyWrap>
       ) : (
-        <Styled._ListWrap ref={ref} scrollState={scrollState}>
+        <Styled._ListWrap ref={ref} scrollState={scrollState} isIos={isIOS}>
           <Styled._Padding>
             <Container>{list}</Container>
           </Styled._Padding>

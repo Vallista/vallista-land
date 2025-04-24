@@ -2,8 +2,16 @@ import { Colors, Container, Text } from '@vallista/design-system'
 
 import * as Styled from './index.style'
 import Seo from '../layout/components/Seo'
+import { useEffect } from 'react'
+import { useScrollTo } from '@/hooks/useScrollTo'
 
 const Page = () => {
+  const { scrollToTop } = useScrollTo()
+
+  useEffect(() => {
+    scrollToTop(false)
+  }, [])
+
   return (
     <Container>
       <Seo name='홈' pathname='' siteUrl='' />

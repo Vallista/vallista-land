@@ -1,6 +1,10 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT, DEFINE_SIDEBAR_WIDTH } from '../utils'
+import {
+  DEFAULT_IOS_SCROLL_BOTTOM_GAP,
+  DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT,
+  DEFINE_SIDEBAR_WIDTH
+} from '../utils'
 import { DEFINE_NAVBAR_ITEM_HEIGHT } from '../../NavBar/utils'
 import { DEFINE_HEADER_HEIGHT } from '../../Header/utils'
 
@@ -14,19 +18,22 @@ export const _Wrap = styled.div`
 
 interface WrapListProps {
   scrollState: 'SHOW' | 'HIDE'
+  isIos: boolean
 }
+
+const TOP_BLANK = DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_ITEM_HEIGHT
 
 export const _ListWrap = styled.div<WrapListProps>`
   box-sizing: border-box;
   width: ${DEFINE_SIDEBAR_WIDTH}px;
   height: calc(100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT}px);
-  padding: 16px 24px 32px;
+  padding: 16px 24px 0;
 
   ${({ scrollState }) => css`
     ${scrollState === 'SHOW' &&
     css`
       &:hover > div:last-of-type {
-        margin-right: 0px;
+        margin-right: 0;
       }
     `}
   `}
@@ -43,9 +50,11 @@ export const _ListWrap = styled.div<WrapListProps>`
   @media screen and (max-width: 1024px) {
     padding: 16px 16px 32px;
     width: 100%;
+
     height: calc(
-      100vh - ${DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT + DEFINE_NAVBAR_ITEM_HEIGHT}px
+      100vh - ${({ isIos }) => (isIos ? `${TOP_BLANK + DEFAULT_IOS_SCROLL_BOTTOM_GAP}px` : `${TOP_BLANK}px`)}
     );
+
     left: -${DEFINE_SIDEBAR_WIDTH}px;
     cursor: pointer;
     overflow-y: scroll;
@@ -95,7 +104,8 @@ export const _EmptyWrap = styled.div`
   @media screen and (max-width: 1024px) {
     width: 100vw;
     height: calc(
-      100vh - ${DEFINE_NAVBAR_ITEM_HEIGHT + DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT}px
+      (var(--vh, 1vh) * 100) -
+        ${DEFINE_NAVBAR_ITEM_HEIGHT + DEFINE_SIDEBAR_ABSOLUTE_TOP_BLANK_SCROLL_HEIGHT + DEFINE_HEADER_HEIGHT}px
     );
   }
 `

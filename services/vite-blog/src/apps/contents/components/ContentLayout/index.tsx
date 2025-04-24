@@ -17,13 +17,10 @@ export const ContentLayout = () => {
   const EmptyLayout = Loading(articleHeight, articleSeriesHeight)
 
   useEffect(() => {
-    scrollToTop(false)
-  }, [])
-
-  useEffect(() => {
     if (isPageReady) {
       document.body.style.overflow = ''
     } else {
+      scrollToTop(false)
       document.body.style.overflow = 'hidden'
     }
   }, [isPageReady])

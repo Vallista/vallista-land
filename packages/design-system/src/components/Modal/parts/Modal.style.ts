@@ -40,7 +40,7 @@ const BackDrop = styled.div<Pick<ModalContextStateWithProps, 'animationState' | 
   top: 0;
   left: 0;
   bottom: 0;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
   opacity: 0;
   pointer-events: none;
@@ -94,7 +94,7 @@ const Container = styled.div<Pick<ModalContextStateWithProps, 'animationState'>>
   @media (min-width: 601px) {
     top: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     display: flex;
     justify-content: center;
     align-items: center;

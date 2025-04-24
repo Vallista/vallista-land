@@ -7,7 +7,6 @@ import { localStorage } from '../../utils'
 import { ReturnUseSidebar, ScrollStateType, SidebarProps, ViewStateType } from './Sidebar.type'
 
 const DEFAULT_SEARCH_VALUE = ''
-const DEFAULT_SCROLL_STATE: ScrollStateType = 'HIDE'
 
 const BLACKLIST: string[] = []
 
