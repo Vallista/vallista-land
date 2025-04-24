@@ -14,7 +14,7 @@ const Page = () => {
 
   return (
     <Container>
-      <Seo name='홈' pathname='' siteUrl='' />
+      <Seo name='홈' pathname='' description='개발/생각을 적는 블로그 - vallista.dev' />
       <Styled.Header>
         <Styled.Wrapper>
           <Styled.Title>

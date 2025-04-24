@@ -2,24 +2,30 @@ import { FC, useEffect } from 'react'
 import { Helmet } from 'react-helmet-async'
 
 interface SeoProps {
+  description: string
   name: string
   image?: string
   isPost?: boolean
   pathname: string
-  siteUrl: string
+  siteUrl?: string
 }
 
-export const Seo: FC<SeoProps> = ({ name, image, isPost = false, siteUrl, pathname }) => {
-  const { defaultTitle, titleTemplate, defaultDescription, defaultImage } = {
-    defaultTitle: 'vallista.dev',
+export const Seo: FC<SeoProps> = ({
+  name,
+  image,
+  isPost = false,
+  siteUrl = 'https://vallista.kr',
+  pathname,
+  description
+}) => {
+  const { titleTemplate, defaultImage } = {
     titleTemplate: '%s - vallista.dev',
-    defaultDescription: 'vallista.dev',
     defaultImage: '/profile.png'
   }
 
   const seo = {
-    title: name || defaultTitle,
-    description: defaultDescription,
+    title: name,
+    description: description,
     image: `${siteUrl}${image || defaultImage}`,
     url: `${siteUrl}${decodeURIComponent(pathname)}`
   }

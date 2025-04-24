@@ -34,9 +34,9 @@ export const ContentLayout = () => {
           <Seo
             name={contentWithRaw!.title}
             image={`${contentWithRaw!.url}/${contentWithRaw!.thumbnail}`}
+            description={contentWithRaw!.description}
             isPost
             pathname={location.pathname}
-            siteUrl={window.location.origin}
           />
           <Comment />
         </>

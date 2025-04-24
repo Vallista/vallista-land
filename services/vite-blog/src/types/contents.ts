@@ -13,6 +13,8 @@ export interface BaseContent {
   path: string
   /** 콘텐츠의 주소 */
   url: string
+  /** 설명 */
+  description: string
   /**
    * 콘텐츠를 작성중인가?
    * @default true
