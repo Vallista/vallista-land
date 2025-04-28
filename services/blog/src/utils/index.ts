@@ -22,9 +22,20 @@ export function filteredByDraft(posts: Post[]): Post[] {
     !it.frontmatter.draft
       ? true
       : (typeof window === 'undefined' ? '' : window.location.host).includes('localhost')
-      ? true
-      : false
+        ? true
+        : false
   )
+}
+
+export function toText(slug: string): string {
+  return slug.replace(/-/g, ' ')
+}
+
+export function toSnakeCase(str: string): string {
+  return str
+    .replace(/([A-Z])/g, '-$1')
+    .toLowerCase()
+    .replace(/^_/, '')
 }
 
 export * as localStorage from './storage'
