@@ -46,4 +46,4 @@ jobs:
       - name: 디랙토리 이동 및 vallista.github.io 배포
         run: |
           pnpm directory:blog
-          pnpm deploy:blog-ex ${{ secrets.TOKEN }}
+          pnpm deploy:blog ${{ secrets.TOKEN }}
