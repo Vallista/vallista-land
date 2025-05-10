@@ -130,7 +130,7 @@ async function generateStaticHtml() {
       pathname
     })
 
-    let finalHtml = layoutTemplate.replace('<!-- {{head}} -->', headHtml).replace('<!-- {{content}} -->', mainContent)
+    let finalHtml = layoutTemplate.replace('<!-- {{head}} -->', headHtml).replace('<!-- {{content}} -->', '')
 
     const targetDir = path.join(distDir, ...slugPathSegments).replace('dist', 'public')
     await fs.mkdir(targetDir, { recursive: true })
