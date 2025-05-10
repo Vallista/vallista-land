@@ -130,17 +130,9 @@ async function generateStaticHtml() {
       pathname
     })
 
-    const redirectMeta = `<meta http-equiv="refresh" content="0; url=${pathname}">`
-    const redirectScript = `<script>window.location.replace("${pathname}")</script>`
-
-    const headWithRedirect = headHtml + '\n' + redirectMeta
-    let finalHtml = layoutTemplate
-      .replace('<!-- {{head}} -->', headWithRedirect)
-      .replace('<!-- {{content}} -->', mainContent)
-      .replace('</body>', `${redirectScript}</body>`)
+    let finalHtml = layoutTemplate.replace('<!-- {{head}} -->', headHtml).replace('<!-- {{content}} -->', mainContent)
 
     const targetDir = path.join(distDir, ...slugPathSegments).replace('dist', 'public')
-    console.log(targetDir)
     await fs.mkdir(targetDir, { recursive: true })
     await fs.writeFile(path.join(targetDir, 'index.html'), finalHtml)
 
