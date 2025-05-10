@@ -33,9 +33,9 @@ export const rehypeEnhanceImages: Plugin = () => {
         // fallback: style 직접 삽입
         if (!node.properties.style) {
           node.properties.style =
-            'aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;'
+            'aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.4s ease;'
         } else if (typeof node.properties.style === 'string') {
-          node.properties.style += '; opacity: 0; transition: opacity 0.8s ease;'
+          node.properties.style += '; opacity: 0; transition: opacity 0.4s ease;'
         }
       }
     })
