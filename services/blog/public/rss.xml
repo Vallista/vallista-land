@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <rss version="2.0">
+    <channel>
+      <title>vallista.dev</title>
+      <link>https://vallista.kr</link>
+      <description>vallista의 기술 블로그</description>
+      <language>ko</language>
+      <lastBuildDate>Sat, 10 May 2025 17:01:29 +0900</lastBuildDate>
+  
+        <item>
+          <title>2024년 회고</title>
+          <link>https://vallista.kr/contents/articles/2024년-회고/index/</link>
+          <description>진짜 많은 일이 있었는데 다 못 적는다.. 2년하고도 4개월만에 쓰는 첫 글입니다. 2022년 상반기를 끝으로 이후 아무런 글을 작성하지 않앟습니다. 약 2년 반이라는 기간동안 회사에 몰입해서 일했기 때문이면서도 제 나태함을 드러낸 기간이라고 볼 수 있겠습니다. 2025년은 2024년 회고 글을 시작으로 지속적으로 글을 투고하고자 합니다. 이 글은 2024</description>
+          <pubDate>Thu, 02 Jan 2025 01:24:46 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2024년-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>LDAP (Lightweight Directory Access Protocol)</title>
+          <link>https://vallista.kr/contents/articles/LDAP-(Lightweight-Directory-Access-Protocol)/index/</link>
+          <description>얼마 전, 회사에서 데브옵스 개발을 진행하던 중 회사의 조직도, 회사 구성원의 정보에 접근해야하는 일이 생겼다. 구성원들의 민감한 정보가 아닌, 조직구성도 상에서의 팀원 정보가 필요했기에 회사 구성원의 정보가 있는 DB에 들어가서 해당 데이터를 가져와 새벽 6시마다 변경된 조직도를 대상으로 정보를 업데이트 해주려는 생각이었다. 왜냐하면 데브옵스에서 Slac</description>
+          <pubDate>Mon, 26 Sep 2022 03:26:21 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/LDAP-(Lightweight-Directory-Access-Protocol)/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 8월 24일</title>
+          <link>https://vallista.kr/contents/articles/2022년-8월-24일/index/</link>
+          <description>- 프로그래머의 뇌 4장 - 코드가 혼란스러운 이유: STM 정보 부족 / LTM 지식 부족 - 이번 장에서 다룰 내용: 두뇌의 처리 능력 부족 - 작업 기억 공간은 두뇌가 생각하고 새로운 아이디어를 형성하고 문제를 해결하는 능력에 해당함 (작업기억공간은 두뇌의 프로세서와 같음) - STM은 한 번에 2개에서 6개까지 항목만 저장할 수 있다   - 단어나 </description>
+          <pubDate>Thu, 25 Aug 2022 00:55:03 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-8월-24일/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 8월 22일</title>
+          <link>https://vallista.kr/contents/articles/2022년-8월-22일/index/</link>
+          <description>- 예비군: 오전 9시부터 오후 6시 - microbundle 삽질 저번주 금요일에 이어서 microbundle을 삽질했다. microbundle은 여러 환경에서 호환가능한 js 파일을 간단하게 뽑아준다. 가장 큰 장점은 쉬운 설정으로 아주 간단하게 할 수 있다는 장점이 있으나. 내가 원하는 형태의 빌드로 뽑아주지 않았다. 처럼, 모노레포의 상황에서 빌드를</description>
+          <pubDate>Tue, 23 Aug 2022 07:20:35 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-8월-22일/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 8월 18일</title>
+          <link>https://vallista.kr/contents/articles/2022년-8월-18일/index/</link>
+          <description>- 어제에 이어서 @Vallista-land/core library 배포하기 - 프로그래머의 뇌 3장 읽기 - 개발 7년차, 매니저 1일차 1~2장 읽기 어제 삽질을 하면서 npm 배포를 위해 번들러를 구축하는 것을 진행했었다. 그 이유로 tsc가 bundler로썬 썩 좋지 않은 선택지라는 이야기와 제대로 동작하지 않는 문제들이 있었다. 그래서 microb</description>
+          <pubDate>Thu, 18 Aug 2022 22:14:54 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-8월-18일/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 8월 17일</title>
+          <link>https://vallista.kr/contents/articles/2022년-8월-17일/index/</link>
+          <description>- @Vallista-land/core library 배포하는 삽질 - 회사 인터널 앱을 만들기 위한 커뮤니케이션 여정 (은 실패) - 그 외, 푹 쉬었다.. @Vallista-land의 core는 yarn workspace로 하여금 빌드된 결과물을 각 모노레포간 사용할 수 있도록 제공한다. 그러기 위해 workspace 설정을 해주어야하는데, 이는 내 블</description>
+          <pubDate>Thu, 18 Aug 2022 05:23:34 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-8월-17일/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 8월 16일</title>
+          <link>https://vallista.kr/contents/articles/2022년-8월-16일/index/</link>
+          <description>- 오전 운동 (10시 - 11시), 스쿼트 5세트 / 벤치 프레스 5세트 / 인클라인 벤치 프레스 6세트 - 블로그 개선   -    -    -    -    -  -  현재 블로그는 모노레포로 되어있고, 패키지로 컴포넌트와 블로그 프로젝트가 존재한다. 그리고 프로젝트를 빌드하면 github pages로 배포가 되어 vallista.github.io가 </description>
+          <pubDate>Wed, 17 Aug 2022 01:51:47 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-8월-16일/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 8월 15일</title>
+          <link>https://vallista.kr/contents/articles/2022년-8월-15일/index/</link>
+          <description>- 블로그 개선   -    -    -    -    -   - 독서   - 프로그래머의 뇌 (1장, 2장) 블로그 개선 작업을 계속 진행하면서, 프로그래머의 뇌 독서를 진행했다. 최근 굉장히 인기있는 책이고, 개발자로써 꼭 읽어야 하는 책이라고 해서 읽기 시작했다. 첫 1,2장을 읽는데 초장부터 굉장히 흥미로운 내용이 많이 나왔다. 인상깊었던 구절은 &quot;</description>
+          <pubDate>Tue, 16 Aug 2022 01:51:47 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-8월-15일/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2022년 상반기 회고</title>
+          <link>https://vallista.kr/contents/articles/2022년-상반기-회고/index/</link>
+          <description>안녕히계세요 우아한형제들에서 약 3년간 근무하면서 올해 상반기가 가장 바빳다. 지난 시간동안 B마트와 배민스토어를 런칭하고 웹프론트 개발 조직을 꾸려왔지만 한 번에 작업을 했던 경우는 없었는데, 한 번에 많은 일을 하느라 상반기는 작년 연말에 이야기했던 나를 위해 투자한다는 것을 실천하지 못했다. 개인적인 개발 역량의 성장은 크게 이루지 못했지만 여러모로 </description>
+          <pubDate>Tue, 09 Aug 2022 09:14:19 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2022년-상반기-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>일정이 촉박한 프로젝트와 깨진 유리창</title>
+          <link>https://vallista.kr/contents/articles/일정이-촉박한-프로젝트와-깨진-유리창/index/</link>
+          <description>깨진 유리창 이론 이번 회사에서 진행인원 약 30명, 연관된 인원이 60명이 넘어가는 거대한 프로젝트를 진행하고 있다. 거기서 프론트엔드 테크리드로 13명 규모의 프론트 개발자와 함께 프로젝트를 진행하는 중이다. 진행하면서 예상해서 잘 진행이 되었던 것과, 예상하지 못해 깨진 유리창으로 들어오는 그런 문제들이 존재했고, 프로젝트가 약 한 달 남은 지금 시점</description>
+          <pubDate>Mon, 02 May 2022 06:21:57 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/일정이-촉박한-프로젝트와-깨진-유리창/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>사내 워크숍; 이펙티브 타입스크립트, 객체지향의 사실과 오해를 끝내며</title>
+          <link>https://vallista.kr/contents/articles/사내-워크숍;-이펙티브-타입스크립트,-객체지향의-사실과-오해를-끝내며/index/</link>
+          <description>약 2년이 되는 시간동안 사내 웹 프론트엔드 개발자들과 함께 매주 금요일 한 시간을 짬내어 워크숍을 진행해왔다. 그러면서 점진적으로 프론트 개발자 능력 향상을 도모하고 있는데, 나름 두 워크숍을 차례로 끝내며 능력을 끌어올리고 있다는걸 느꼈다. 평균적으로 10~20명과 개발자들과 함께 진행했으며, 배민의 사내 총 웹 프론트 개발자는 약 90명인데 그 중에 </description>
+          <pubDate>Sun, 27 Mar 2022 22:27:40 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/사내-워크숍;-이펙티브-타입스크립트,-객체지향의-사실과-오해를-끝내며/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>테스트 코드 시작하기</title>
+          <link>https://vallista.kr/contents/articles/테스트-코드-시작하기/index/</link>
+          <description>소프트웨어를 개발하며 어떤 경로로든 테스트를 진행하게 된다. 테스트라는 것의 범주는 굉장히 넓다고 볼 수 있는데 &quot;프로덕트에 녹여지는 코드에 대한 테스트&quot;, &quot;개발자가 결과물을 실행해보면서 체크하는 테스트&quot;, &quot;전문 QA 인력이 진행하는 테스트&quot; 등 여러 방면으로 존재한다. 그 중에서 &quot;실제 프로덕트를 동작시키는데 쓰이는 로직에 대한 테스트&quot;에 대해 작년부</description>
+          <pubDate>Sun, 13 Mar 2022 23:11:18 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/테스트-코드-시작하기/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>git flow; 환상과 현실 그 사이에 서비스</title>
+          <link>https://vallista.kr/contents/articles/git-flow;-환상과-현실-그-사이에-서비스/index/</link>
+          <description>을 이용하여 수많은 서비스의 코드가 관리되고 있다. 이 git은 버전관리 시스템인 만큼, 수많은 코드를 분기별로 저장시킬 수 있고 이 분기(브랜치)별로 개인이 로컬에 들고 있을수도 있다. 특히, 이 분기를 이용하여 다양한 환경에 소스코드가 배포되도록 하는 CD를 구축할 수도 있다. 그래서 CI/CD와 이 코드의 형상관리는 큰 관계성이 있는데, git으로 원</description>
+          <pubDate>Mon, 14 Feb 2022 02:30:08 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/git-flow;-환상과-현실-그-사이에-서비스/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>블로그 리뉴얼 그리고 회고</title>
+          <link>https://vallista.kr/contents/articles/블로그-v3-개편/index/</link>
+          <description>지금까지 블로그를 회고해보자 웹 프론트 개발자로 전향하기 전, 게임 개발자 일 때 을 사용했다. 티스토리를 사용한 이유는 비교적 단순한데, 당시 티스토리는 초대장을 받아야 들어갈 수 있는 약간 프리미엄(?) 같은 고귀한 느낌이 들었고 또 기본 테마가 네이버나 다음에 비해 이뻣던 것이 한 몫 했다. 커스터마이징이 가능해서 나만의 블로그를 만들 수도 있었고 당</description>
+          <pubDate>Mon, 17 Jan 2022 10:23:00 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/블로그-v3-개편/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2021년 회고</title>
+          <link>https://vallista.kr/contents/articles/2021년-회고/index/</link>
+          <description>2022년이 되어, 어김없이 2021년 회고를 진행하려합니다. 이번 회고는 2020년 하반기도 진행을 안 했기 때문에, 살짝 2020년 이야기도 넣었습니다. 회고를 진행하면서 느꼈던 점은, 점점 해가 지날수록 더 많은 일을 하고 있다고 느끼며, 일하면서 비즈니스를 더 깊게 고민하면서 성장하고 있었습니다. 다만, 회사 업무적으로 성장하고 개인의 기량도 증가했</description>
+          <pubDate>Sun, 09 Jan 2022 11:30:00 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2021년-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>첩첩산중, POS 시스템을 대응하자</title>
+          <link>https://vallista.kr/contents/articles/첩첩산중,-POS-시스템을-대응하자/index/</link>
+          <description>(아..) 이 전 글에서, React와 Emotion을 사용해 영수증을 출력했다. 그리고 다음글로 코드 리펙토링을 하는 것을 진행한다고 고지까지 했는데, 갑자기 &quot;첩첩한중, POS 시스템을 대응하자&quot; 라는 주제로 글을 쓰는지 의문인 사람이 있을 것이다. 결론적으로 이야기를 하면, 앞서 개발한 React 기반의 영수증 출력 프로그램은 윈도우 7 이상의 크롬,</description>
+          <pubDate>Sun, 19 Dec 2021 22:25:37 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/첩첩산중,-POS-시스템을-대응하자/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>영수증, React 그리고 emotion</title>
+          <link>https://vallista.kr/contents/articles/영수증,-React-그리고-emotion/index/</link>
+          <description>4년 넘도록 커머스 도메인의 웹 프론트엔드를 개발해오면서 사용자(대고객)와 맞닿는 영역 그리고 사용자에겐 보이지 않는 영역 두 가지를 개발해왔다. 오늘은 그 중에서, &quot;사용자에겐 보이지 않는 영역&quot; 쪽의 영수증 이야기를 해볼까 한다. 영수증을 위키백과에서 찾아보자. &gt; 채권자가 채무자에게 발부하는 채무의 변제를 받았다는 것을 증명하는 내용의 증서를 말한다.</description>
+          <pubDate>Sun, 21 Nov 2021 20:57:00 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/영수증,-React-그리고-emotion/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>TypeScript의 interface와 type alias</title>
+          <link>https://vallista.kr/contents/articles/TypeScript의-interface와-type-alias/index/</link>
+          <description>타입스크립트의 Type Alias는 장점이면서 동시에 단점도 갖고있는 양날의 검입니다. 다양한 타입을 만들어낼 수도 있는 장점을 갖고 있지만, 다양한 타입을 만들어내므로써 쓸데없이 타입이 꼬이게 만들어 코드를 복잡하게 만든다는 단점도 존재합니다. 이번 글에서는 타입스크립트에서 interface와 type alias가 어떠한 용도로 쓰여야 하는지, 각자 어떤</description>
+          <pubDate>Mon, 11 Oct 2021 01:07:18 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/TypeScript의-interface와-type-alias/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>덕 타이핑과 구조적 타이핑</title>
+          <link>https://vallista.kr/contents/articles/덕-타이핑과-구조적-타이핑/index/</link>
+          <description>덕 타이핑과 구조적 타이핑 두 가지는 비슷하면서, 근본적으로 다르다. 흔히 아는 것처럼, 덕 타이핑은 자바스크립트 등의 언어에서 쉽게 찾아볼 수 있었던 개념이었을 것이다. 하지만 구조적 타이핑은 흔히 접해보지 않은 이야기일 수 있다. 물론 C/C++ 등의 언어에서도 구조적 타이핑을 가능하도록 Template과 같은 친구들을 제공하지만. 이는 다른 이야기고 </description>
+          <pubDate>Fri, 20 Aug 2021 04:09:51 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/덕-타이핑과-구조적-타이핑/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>팀 리딩과 개발 문화에 대한 단상</title>
+          <link>https://vallista.kr/contents/articles/팀-리딩과-개발-문화에-대한-단상/index/</link>
+          <description>약 1년 반 이라는 기간동안 프론트앤드 챕터의 리딩을 맡아오면서, 지금까지 개발에 대한 리딩만 신경을 써왔음을 자각하게 되었다. 이러한 생각의 바탕에는 첫째로, 작년에 비해 약 2배 이상의 인원이 들어오게 되면서 팀 단위의 생산성을 신경쓰게 되었으며 둘째로, 이러한 생산성을 잘 유지가 되기 위해서는 팀 단위의 방향성의 싱크업을 주기적으로 할 수 있을만한 문</description>
+          <pubDate>Mon, 26 Jul 2021 02:05:28 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/팀-리딩과-개발-문화에-대한-단상/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>글또 6기를 시작하며</title>
+          <link>https://vallista.kr/contents/articles/글또-6기를-시작하며/index/</link>
+          <description>이번 2021년 하반기 6기 글또에 참여하게 되었습니다. 과거에도 글또에 참여했던 적이 있었고, 그 때의 경험이 좋아서 다시 지원하게 되었습니다. 제 블로그에 최근에 쓰였던 글인 는 자그마치 작년 7월 20일에 쓰였네요. 거의 1년 가까이 되는 공백기간을 갖고있는 셈입니다. 그래서 1년의 공백기간동안 못썻던 만큼, 한없이 많은 글을 작성해보려 합니다. (글</description>
+          <pubDate>Wed, 14 Jul 2021 07:39:25 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/글또-6기를-시작하며/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>TypeScript에서 Redux, Redux Saga 아름답게 개발하기</title>
+          <link>https://vallista.kr/contents/articles/TypeScript에서-Redux-Redux-Saga-아름답게-개발하기/index/</link>
+          <description>Redux는 웹 생태계에서 상태 관리를 위해 쓰이는 프레임워크입니다. 물론 Redux 말고도 MobX와 같은 유명한 상태관리 모듈이 존재하지만 Redux가 비교적 나온지 오래되어서 사용하는 회사와 정보가 더 많습니다. 그렇기 때문에 일반적으로 상태관리 프레임워크라고 한다면 Redux를 사용하는 경우가 많습니다. (최근 6개월간 다운로드 추이) Redux와 </description>
+          <pubDate>Mon, 20 Jul 2020 11:24:31 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/TypeScript에서-Redux-Redux-Saga-아름답게-개발하기/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2020년 상반기 회고</title>
+          <link>https://vallista.kr/contents/articles/2020년-상반기-회고/index/</link>
+          <description>2020년, 올해 상반기는 많은 일이 있었습니다. 그래서 2020년 12월에 총합한 회고를 하기보다 중간 점검을 통해 한번 짚고 넘어가는게 좋을거라 생각되어 회고를 진행하려 합니다. 작년과 올해는 **코로나바이러스 감염증 (COVID-19)**로 크나큰 변화가 있었습니다. 재택근무로 업무의 형태에 변화가 생겼고, 모임이나 만남도 온라인 미팅으로 적극적으로 </description>
+          <pubDate>Sun, 12 Jul 2020 08:57:59 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2020년-상반기-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>면접에서 의미있는 질문을 하고 있나요</title>
+          <link>https://vallista.kr/contents/articles/면접에서-의미있는-질문을-하고-있나요/index/</link>
+          <description>개발을 하다보면 다양한 언어, 라이브러리 그리고 프레임워크와 마주하게 됩니다. 웹 개발을 예시로 질문을 해보면, **React와 Vue와 같은 프레임워크(라이브러리)를 사용하는데있어 우리가 제대로 이해하고 사용하는 걸까요?** 정도의 질문일 겁니다. 이 질문은 상당히 어렵습니다. 왜냐하면 React와 Vue가 제시하는 철학에 대한 이해를 동반해야하기 때문입</description>
+          <pubDate>Mon, 15 Jun 2020 06:14:12 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/면접에서-의미있는-질문을-하고-있나요/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>TypeScript 디자인 패턴 - 메멘토 패턴</title>
+          <link>https://vallista.kr/contents/articles/TypeScript-디자인-패턴-메멘토-패턴/index/</link>
+          <description>메멘토-패턴 --- 설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 메멘토 패턴은 동작에 대한 패턴입니다. 메멘토 패턴은 초기 HP 제품을 위해 과 에 의해 제작되었으며, 객체는  는 것을 기술한  중 하나입니다. 이 패턴이 해결할 수 있는 문제는  입니다. 즉, 쉽게 이야기 하면</description>
+          <pubDate>Mon, 08 Jun 2020 03:41:05 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/TypeScript-디자인-패턴-메멘토-패턴/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>TypeScript 디자인 패턴 - 옵저버 패턴</title>
+          <link>https://vallista.kr/contents/articles/TypeScript-디자인-패턴-옵저버-패턴/index/</link>
+          <description>옵저버-패턴 --- 설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 옵저버 패턴은 행동과 관련된 디자인 패턴입니다. 옵저버 패턴은 감지할 객체의 클래스에 옵저버 인터페이스를 주고, 만든 객체를 옵저버 서버에 등록하여 옵저버 서버에서 함수를 호출해 인터페이스에 대응하는 함수를 실행합니</description>
+          <pubDate>Sat, 23 May 2020 05:30:33 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/TypeScript-디자인-패턴-옵저버-패턴/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>TypeScript 디자인 패턴 - 팩토리 패턴</title>
+          <link>https://vallista.kr/contents/articles/TypeScript-디자인-패턴-팩토리-패턴/index/</link>
+          <description>팩토리-패턴 --- 설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 팩토리 패턴은 생성과 관련된 디자인 패턴 입니다. 팩토리 패턴은 말 그대로 공장이라고 생각하면 편합니다. 하나의 클래스나 객체를 생성하는데 쓰이며, 주요로 사용되는 것은 **추상 팩토리**와 **팩토리 매서드** 패</description>
+          <pubDate>Wed, 06 May 2020 05:44:56 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/TypeScript-디자인-패턴-팩토리-패턴/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>효율적인 Storybook 컴포넌트 구조 만들기</title>
+          <link>https://vallista.kr/contents/articles/효율적인-Storybook-컴포넌트-구조-만들기/index/</link>
+          <description>최근 Storybook을 활용한 디자인 시스템 개발을 많은 회사에서 진행하고 있습니다. 디자인 시스템을 구축하면서 수많은 컴포넌트가 생성되고 사라지고를 반복하는데 이러한 컴포넌트 관리를 위해 을 많은 회사에서 채택하고 있는 듯 보입니다. 여기서 을 채택한다는 것은  라는 것 입니다. 에서도 언급했지만, 컴포넌트를 분리한다는 것은 그저 보기좋게 변경을 하는게</description>
+          <pubDate>Mon, 27 Apr 2020 00:19:08 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/효율적인-Storybook-컴포넌트-구조-만들기/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>컴포넌트 분리의 미학</title>
+          <link>https://vallista.kr/contents/articles/Component-분리의-미학/index/</link>
+          <description>개발을 하다보면 정답이 없는 오묘한 문제가 발생합니다. 이 문제는 잘 잡지 않으면 유지보수에 큰 영향을 주지만 정답은 없습니다. 항상 탐험해야하는 문제에 해당하죠. 이 문제는 바로  입니다. 프로젝트의 규모, 도메인 등에 따라서 효율적인 관심사의 분리 방법이 바뀔 수 있으며 분리가 어떻게 되어 있냐에 따라 진입점 자체도 달라집니다. 웹 프론트엔드 생태계는 </description>
+          <pubDate>Mon, 30 Mar 2020 00:28:01 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Component-분리의-미학/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>글또 4기를 시작하면서</title>
+          <link>https://vallista.kr/contents/articles/글또-4기를-시작하면서/index/</link>
+          <description>글또 3기에 이어서 글또 4기도 시작하게 되었습니다. (글또 아이콘, 나영님 감사합니다!) 글또는 글쓰는 또라이의 약자로써, 2주에 한 글씩 작성하는 모임이에요. 이번 4기에는 총 68분(헉) 많은 분들이 참석하게 되셨어요. 사람이 많아진 만큼 훌륭한 분들이 많이 오셔서, 다양한 분들과 이야기를 나눌 수 있게 되었습니다. 저번 기수에도 많은 개발자분들의 글</description>
+          <pubDate>Mon, 02 Mar 2020 00:04:00 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/글또-4기를-시작하면서/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2019년 회고</title>
+          <link>https://vallista.kr/contents/articles/2019년-회고/index/</link>
+          <description>2019년 한 해는 저에게 있어 많은 깨달음과 변화를 주었던 해입니다. 수많은 실패를 말미암아 부족한 점을 찾아 공부하고 다양한 시도를 통해 자기 자신의 AB 테스트를 진행했습니다. 덕분에 작년에 올해의 목표치를 달성하지 못했으나 더 값진 경험을 했다고 생각합니다. 올해부터는 연말에 항상 해외에 나가서 회고를 진행해보려 합니다. 한국을 떠나 낯선 환경에서 </description>
+          <pubDate>Mon, 30 Dec 2019 03:24:03 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2019년-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (중)</title>
+          <link>https://vallista.kr/contents/articles/모바일-웹뷰를-탐험하는-개발자를-위한-안내서-중/index/</link>
+          <description>&gt; 이전 포스트 &gt;  저번 시간에는 자주 나오는 레이아웃 깨지는 이슈에 대응하는 방법을 알아보았습니다. 이번 시간에는 자주 나오지는 않지만 한번 나오면 대응하기 힘든 이슈와 자주 사용하는 HTML, CSS 코드 이야기를 하려고 합니다. 반응형 웹을 개발할 때, 이미지를 fill(가득 채우는) 처리를 해야할 상황이 항상 오기 마련입니다. 그럴때 아래와 같은 </description>
+          <pubDate>Sun, 29 Dec 2019 04:47:35 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/모바일-웹뷰를-탐험하는-개발자를-위한-안내서-중/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>동시성과 병렬성 (Concurrency &amp; Parallelism)</title>
+          <link>https://vallista.kr/contents/articles/동시성과-병렬성-Concurrency-Parallelism/</link>
+          <description>비동기 작업을 할 때 와 에 대한 이야기가 자주오고 갑니다. 주로 비동기 작업을 처리하는데 있어 이 두 가지 방법 중 하나를 사용하기 때문이며 구현을 할 때 컴파일러, OS, 소프트웨어등 어느 관점에서든 이 구현 방법은 유효합니다. 하지만 이 두 개의 단어는 비슷하지만서도 완전 다른 방법을 취하고 있으며, 와 의 차이에 대해서 쉽게 이해를 하기위해 제가 내</description>
+          <pubDate>Sun, 29 Dec 2019 01:42:00 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/동시성과-병렬성-Concurrency-Parallelism/</guid>
+        </item>
+        
+
+        <item>
+          <title>웹 개발자의 지옥, 이메일 폼 개발하기</title>
+          <link>https://vallista.kr/contents/articles/웹-개발자의-지옥-이메일-폼-개발하기/index/</link>
+          <description>웹을 개발하다보면 사용자를 위해, 법률적인 요소로 인해, 효율성을 위해, 등 다양한 이유 때문에 이메일을 전송하게 됩니다. 하지만 이 이메일을 HTML/CSS로 구현할 때 굉장히 고통스럽다는 사실은 상대적으로 알려져 있지 않습니다. 저도 이메일 관련 작업을 하면서 고통을 항상 겪는데요, 그렇기에 다른 분들도 겪을 수 있다고 생각해 쉽게 개발할 수 있는 가이</description>
+          <pubDate>Sat, 28 Dec 2019 05:01:32 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/웹-개발자의-지옥-이메일-폼-개발하기/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>우아한형제들 헤커톤- 제 1회 우아톤 2019 후기</title>
+          <link>https://vallista.kr/contents/articles/우아한형제들-헤커톤-제-1회-우아톤-2019-후기/index/</link>
+          <description>우아한형제들에서 제 1회, 처음으로! 사내 이벤트로써 헤커톤이 진행되었습니다. 그간 수많은 헤커톤을 해봤지만 사내에서 열리는 헤커톤을 참가해보기는 처음이었습니다. 이제 본격적으로 헤커톤 이야기를 풀어보도록 할께요! 회사에서 별 다름없이 코딩을 하고 있는데 슬랙에 띠용~ 하고 알람이 도착했습니다. 평소에 모든 알림을 읽던 버릇으로 클릭 했더니 아래와 같은 사</description>
+          <pubDate>Tue, 10 Dec 2019 09:51:35 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/우아한형제들-헤커톤-제-1회-우아톤-2019-후기/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>놓치기 쉬운 HTML/CSS 지식 몰아보기</title>
+          <link>https://vallista.kr/contents/articles/놓치기-쉬운-HTML-CSS-지식-몰아보기/index/</link>
+          <description>하나의 프로덕트를 개발하면서 웹은 들어갈 수 밖에 없는 필수 존재입니다. 특히나 최근의 웹 시장은 웹 프론트앤드 개발자가 부족해짐에 따라 서버 개발자들이 어드민을 개발하는 일이 종종 일어나고 있습니다. 하지만 서버 개발자 중에서 HTML/CSS를 잘하시는 분도 있지만 자신 없는 분도 있기 마련입니다. 이 포스팅은 이러한 HTML/CSS에 약하신 분을 위해 </description>
+          <pubDate>Mon, 25 Nov 2019 10:28:52 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/놓치기-쉬운-HTML-CSS-지식-몰아보기/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (상)</title>
+          <link>https://vallista.kr/contents/articles/모바일-웹뷰를-탐험하는-개발자를-위한-안내서-상/index/</link>
+          <description>&gt; 다음 포스트 &gt;  모바일 웹을 여행하는 사람들이라면 알겠지만, 웹의 중요성이 커지고 있습니다. iOS, Android 앱은 신규 기능을 추가하게 되면 앱 업데이트를 통해서 제공해야 하는데 업데이트를 유도하게 되면 여러가지 문제가 생기기 때문입니다. 가장 큰 문제는 모든 유저가 업데이트를 하지 않는다는 것 입니다. 업데이트를 하지 않기 때문에 과거 버전에</description>
+          <pubDate>Sun, 10 Nov 2019 23:35:28 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/모바일-웹뷰를-탐험하는-개발자를-위한-안내서-상/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>2019년 7월 회고</title>
+          <link>https://vallista.kr/contents/articles/2019년-7월-회고/index/</link>
+          <description>상반기의 마지막 6월을 넘어 하반가 초입인 7월에 다다르면서 올해 초에 하려고 마음먹었던 일을 제대로 완수하지 못했다. 어떤게 부족했고, 어떤일을 잘 했는지 7월 회고를 통해 풀어보려고 한다. - **이직하기** - 기본기 공부 - CI 자동화 7월에는 계획했던 일 중 굵직한 **이직하기**를 완수했다. 원래 계획이라면 상반기에 완수해야 했지만 이직이 말처</description>
+          <pubDate>Fri, 02 Aug 2019 02:20:29 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2019년-7월-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>제너레이터 (Generator)</title>
+          <link>https://vallista.kr/contents/articles/제너레이터-Generator/</link>
+          <description>얼마 전, Generator가 무엇인가요? 라는 질문을 들었을 때 대답을 명확히 하지 못했다. 많이 쓰고 있지만 실제로 사용법 혹은 대략적인 개념밖에 설명을 못해서 이 개회에 정확히 알아야겠다는 생각이 들어 Generator의 개념과 사용방법에 대해서 이야기 해보려 한다. 컴퓨터 과학에서 Generator는 루프의 하는데 사용될 수 있는 루프이다. 여기서 </description>
+          <pubDate>Fri, 12 Jul 2019 21:05:15 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/제너레이터-Generator/</guid>
+        </item>
+        
+
+        <item>
+          <title>이직을 준비하면서</title>
+          <link>https://vallista.kr/contents/articles/이직을-준비하면서/</link>
+          <description>내가 6년차 직장인에 접어 들었을 무렵, 다니는 회사를 나와 이직을 결심하게 되었다. 물론 이 회사를 오래 다닌 건 아니지만, 직장 생활이 길어지면서 내가 어떤 회사를 좋아하고 선호하는지 점점 알게 되었고 지금의 회사도 좋지만, 조금 더 나에게 맞는 회사로 이직하고 싶은 생각이 들었다. 내가 원하는 건 빡세고 내가 만드는 프로젝트가 어느 세계(오타쿠의 세계</description>
+          <pubDate>Wed, 03 Jul 2019 19:39:05 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/이직을-준비하면서/</guid>
+        </item>
+        
+
+        <item>
+          <title>Docker In Docker (DIND) 설정하기</title>
+          <link>https://vallista.kr/contents/articles/Docker-In-Docker-DIND-설정하기/</link>
+          <description>Docker in Docker를 설정하는 이유 첫 번째로 보안의 위험이 있다. 특히나, Jenkins등의 CI를 사용하는 환경에서 Jenkins가 Docker를 실행할 때, Jenkins나 Docker가 해킹당하면 서버 전체의 권한이 뚫리는거랑 마찬가지이다. 그러므로 소스코드 유출 및 사용자에게 Serve 할 때 문제가 일어나게 된다. 그러므로 Docker</description>
+          <pubDate>Fri, 31 May 2019 01:33:52 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Docker-In-Docker-DIND-설정하기/</guid>
+        </item>
+        
+
+        <item>
+          <title>Jenkins</title>
+          <link>https://vallista.kr/contents/articles/Jenkins/</link>
+          <description>1.  Jenkins           2.  jenkins 관리 &gt; 플러그인 관리 &gt; 설치가능 탭 &gt; git 검색 &gt; github intergration plugin 다운로드 3.  jenkins 관리 &gt; configure global security &gt; CSRF Protection &gt; disable 4.  jenkins 실행 서버         $ ss</description>
+          <pubDate>Tue, 28 May 2019 20:11:30 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Jenkins/</guid>
+        </item>
+        
+
+        <item>
+          <title>Next에서 Alias 적용하기</title>
+          <link>https://vallista.kr/contents/articles/Next에서-Alias-적용하기/</link>
+          <description>next.js에서 alias를 적용하려면 여러군데에 적용해야하는데, 이게 좀 복잡하다. 1. next.config.js에 추가        이렇게 webpack - config.resolve.alias 설정을 해준다. 아래처럼 단일로 지정하면 이전의 다른 설정값이 날라가서 저장이 되지 않는다. 2. .babelrc 추가        babelrc 설정에 추</description>
+          <pubDate>Wed, 15 May 2019 20:17:29 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Next에서-Alias-적용하기/</guid>
+        </item>
+        
+
+        <item>
+          <title>Redux</title>
+          <link>https://vallista.kr/contents/articles/Redux/</link>
+          <description>Redux는 React에만 속한 프레임워크가 아닌, 광범위로 사용할 수 있는 프레임워크이다. 일반적으로 React에 많이 사용되므로, React를 이해하면 Redux도 쉽게 알 수 있을거라 생각했지만 그게 아니었다. 개념을 이해하는데 시간이 다소 걸렸고 이를 작성하면서 한번 더 이해하려 한다. Redux를 이해하기 위해서는 를 이해해야 한다. Flux는 M</description>
+          <pubDate>Wed, 15 May 2019 20:16:29 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Redux/</guid>
+        </item>
+        
+
+        <item>
+          <title>Jest, enzyme를 활용한 테스팅 환경</title>
+          <link>https://vallista.kr/contents/articles/Jest-enzyme를-활용한-테스팅-환경/</link>
+          <description>먼저 설명에 들어가기 앞서, 테스트에 대해서 조금 알아보도록 하자. Product를 만들면서 다양한 상황에 대해 프로그래머가 시뮬레이션을 펼치는 건 한계가 있다. 대표적으로 safari, chrome, firefox 등의 다양한 브라우저의 늪에서 모든 브라우저를 켜서 어떤 부분이 다른지 체크하는 일을 계속 하다간 작업할 시간도 없어질 게 분명하다. 그러므로</description>
+          <pubDate>Mon, 13 May 2019 20:08:23 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Jest-enzyme를-활용한-테스팅-환경/</guid>
+        </item>
+        
+
+        <item>
+          <title>HTTP 프로토콜에서 HTTPS URI 가져오기</title>
+          <link>https://vallista.kr/contents/articles/HTTP-프로토콜에서-HTTPS-URI-가져오기/</link>
+          <description>HTTP 프로토콜에서 HTTPS URI를 호출하면 에러가 난다. 왜냐하면 해당 프로토콜에서 다른 프로토콜의 URI를 불러올 때 자신과 같은 프로토콜을 가정하고 가져오기 때문이다. HTTP의 포트는 80, HTTPS의 포트가 443 이므로 전혀 다른 URI로 접속해서 데이터를 받아오게 된다. 이 문제를 해결하기 위해서는 어떻게 해야할까? 1. HTTP와 HT</description>
+          <pubDate>Mon, 13 May 2019 20:05:53 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/HTTP-프로토콜에서-HTTPS-URI-가져오기/</guid>
+        </item>
+        
+
+        <item>
+          <title>CORS (Cross Origin Resource Sharing)</title>
+          <link>https://vallista.kr/contents/articles/CORS-Cross-Origin-Resource-Sharing/</link>
+          <description>CORS는 Cross-Origin Resource Sharing의 약자이다. 기본적으로 HTTP 요청은 Cross-Site HTTP Request가 가능하다. 즉, ,  태그를 통해 다양한 사이트의 리소스를 불러오는 작업이 가능하다. 하지만  스크립트 태그 내부에서 생성된 HTTP Requests는 를 적용 받기에 Cross-site HTTP Request</description>
+          <pubDate>Sun, 12 May 2019 20:04:45 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/CORS-Cross-Origin-Resource-Sharing/</guid>
+        </item>
+        
+
+        <item>
+          <title>XSS (Cross-Site-Scripting)</title>
+          <link>https://vallista.kr/contents/articles/XSS-Cross-Site-Scripting/</link>
+          <description>XSS는 Cross-Site-Scripting의 약자로, 해커가 사용자의 웹에 스크립트를 실행해서 쿠키나 세션 같은 민감한 정보를 빼가는 행위를 일컫는다. 해커가 document.cookie를 가져오는 소스를 넣은 php파일을 만들어서 서버에 넣어두고, 게시판 같은 사용자가 글을 볼 수 있는 곳에 자신의 서버에 있는 php파일을 실행하는 태그를 작성하여 올</description>
+          <pubDate>Sun, 12 May 2019 20:03:57 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/XSS-Cross-Site-Scripting/</guid>
+        </item>
+        
+
+        <item>
+          <title>동일 출처 정책 (Same Origin Policy)</title>
+          <link>https://vallista.kr/contents/articles/동일-출처-정책-Same-Origin-Policy/</link>
+          <description>와 같은 공격 기법은 사이트 내에서 해커 서버의 민감한 정보를 탈취하는 코드를 실행시키는 방식이다. 이러한 방식을 막으려는 노력중 하나가 Same Origin Policy이다. Same Origin Policy는 &apos;동일 출처 정책&apos;으로, 동일한 출처(Domain URL)가 아닌 리소스를 가져올 경우, 막으므로써 잠재된 악성 문서를 격리시키는 일을 한다.</description>
+          <pubDate>Sun, 12 May 2019 20:03:24 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/동일-출처-정책-Same-Origin-Policy/</guid>
+        </item>
+        
+
+        <item>
+          <title>리듀스 (Reduce)</title>
+          <link>https://vallista.kr/contents/articles/리듀스-Reduce/</link>
+          <description>Reduce는 줄이다, 감속하다 라는 뜻으로써, JavaScript에서 배열 작업 할 때 원하는 부분을 줄여서 사용할 수 있다. JavaScript의 Reduce는 Array의 고차함수로써, map 같은 함수들을 커스터마이징 해서 사용할 수 있다. reduce 함수는 인자 callback 함수와 optional로 초기화 값을 받는다. reduce의 call</description>
+          <pubDate>Sun, 12 May 2019 20:01:13 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/리듀스-Reduce/</guid>
+        </item>
+        
+
+        <item>
+          <title>이벤트 버블링, 캡쳐링, 위임</title>
+          <link>https://vallista.kr/contents/articles/이벤트-버블링-캡쳐링-위임/</link>
+          <description>HTML에서 onClick와 같은 이벤트를 등록하여 버튼을 클릭하면 해당 이벤트가 나오도록 할 수 있다. 단, 아래와 같은 상황에서는 이벤트가 전파 된다. functionA, functionB, functionC를 했다. 이벤트 버블링은 아래와 같이 이벤트가 전파되는 행위를 일컫는다. FunctionC → FunctionB → FunctionA 즉, 가장 </description>
+          <pubDate>Sat, 11 May 2019 19:58:12 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/이벤트-버블링-캡쳐링-위임/</guid>
+        </item>
+        
+
+        <item>
+          <title>클로저 (Closure)</title>
+          <link>https://vallista.kr/contents/articles/클로저-Closure/</link>
+          <description>클로저를 알기 위해, JavaScript는 Lexical Scope(유효 범위 지정)을 어떻게 하는지 알아야 한다. 참고: init()은 지역 변수 name과 함수 displayName을 갖고있다. displayName은 init안에 있기 때문에 init 안에서만 사용할 수 있다. displayName는 변수가 없고, Parameter도 없다. 하지만 내부</description>
+          <pubDate>Sat, 11 May 2019 19:55:07 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/클로저-Closure/</guid>
+        </item>
+        
+
+        <item>
+          <title>Call By Value, Call By Reference</title>
+          <link>https://vallista.kr/contents/articles/Call-By-Value-Call-By-Reference/</link>
+          <description>- 기본 자료형(number, string, boolean, undefined, null)을 Function Parameter로 넘겼을 때 값(value)를 복사해서 넘겨준다. → 그러므로 해당 변수를 바꾸던 말던 원래의 값에는 변경이 없다. - Object(유사배열), Array(배열)를 넘겼을 때 함수 안에서 속성 값을 변경할 수 있고 원 데이터에 영향</description>
+          <pubDate>Sat, 11 May 2019 04:14:14 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Call-By-Value-Call-By-Reference/</guid>
+        </item>
+        
+
+        <item>
+          <title>SEO (Search Engine Optimization)</title>
+          <link>https://vallista.kr/contents/articles/SEO-Search-Engine-Optimization/</link>
+          <description>SPA는 SEO가 어렵다는 단점이 존재하는데, 이 단점을 극복하기 위해서는 전통적인 웹 형태인 MPA(Multiple Page Application) 형태를 띄어야 한다. MPA는 페이지를 요청할 때마다 새로운 페이지를 요청한다. 말 그대로 여러 페이지로 구성된 어플리케이션이다. 페이지가 전환될 때 마다 서버에 요청해서 해당 페이지에 맞는 완성된 html </description>
+          <pubDate>Sat, 11 May 2019 04:07:56 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/SEO-Search-Engine-Optimization/</guid>
+        </item>
+        
+
+        <item>
+          <title>호이스팅, 실행 컨텍스트</title>
+          <link>https://vallista.kr/contents/articles/호이스팅-실행-컨텍스트/</link>
+          <description>호이스팅은 실행컨텍스트에서 함수 단위로 스콥을 지정하는데, 함수 내부에 정의된 변수를 선언하고 undefined로 초기화 하는 과정을 최상단, 처음에 실행되도록 하는 걸 이야기한다. 자바스크립트는 스콥이 코드 블록 단위가 아닌, 함수 단위이다. 함수 단위로 처리되는 이유는, 함수 실행시 함수 단위로 실행 컨텍스트가 생성되고, 실행 컨텍스트 스택에 쌓이기 때</description>
+          <pubDate>Fri, 10 May 2019 19:53:13 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/호이스팅-실행-컨텍스트/</guid>
+        </item>
+        
+
+        <item>
+          <title>이벤트 루프 (Event Loop)</title>
+          <link>https://vallista.kr/contents/articles/이벤트-루프-Event-Loop/</link>
+          <description>JavaScript는 단일 쓰레드 기반의 언어이다. 하지만 작동하는 걸 보면 단일 쓰레드에서 돌아가는 거라는 생각이 들지 않는다. CSS 애니메이션이 돌아가면서 클릭 이벤트도 받고 다양한 동작이 동시에 작동한다. 이런 작업이 가능한 이유는 이벤트 루프(Event Loop) 라는 개념이 있기 때문이다. Node.js를 소개할 때 &apos;**이벤트 루프 기반의 비동</description>
+          <pubDate>Fri, 10 May 2019 04:14:14 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/이벤트-루프-Event-Loop/</guid>
+        </item>
+        
+
+        <item>
+          <title>렌더 트리 생성</title>
+          <link>https://vallista.kr/contents/articles/렌더-트리-생성/</link>
+          <description>렌더링 엔진에서 과  을 생성한 후,  과정을 통해 Render Tree를 만들게 된다. 이 Render Tree는 각 요소의 레이아웃을 계산하는데 사용되며, 픽셀을 화면에 렌더링하는 페인트 프로세스에 대한 입력으로 처리 된다. 그러므로 최적화를 하려면  과  작업을 할 때 각각 최적화를 해주는 일이 매우 중요하다. - DOM과 CSSOM 트리는 결합되어 </description>
+          <pubDate>Thu, 09 May 2019 04:13:17 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/렌더-트리-생성/</guid>
+        </item>
+        
+
+        <item>
+          <title>CSSOM (CSS Object Model)</title>
+          <link>https://vallista.kr/contents/articles/CSSOM-CSS-Object-Model/</link>
+          <description>CSS는 앞서 말한 &apos;**문맥 자유 문법**&apos; 이므로 로 표현할 수 있다. 웹킷은 CSS 문법 파일로부터 자동으로 파서를 생성하기 위해서 &apos;flex&apos;, &apos;bison&apos;을 사용한다. (파이어폭스는 직접 작성한 하향식 파서를 사용한다.) 두 경우 모두 각 CSS파일은 스타일시트에 객체로 파싱되며, 각 객체는 CSS 규칙을 포함한다. CSS 규칙 객체는 선택자와 </description>
+          <pubDate>Wed, 08 May 2019 04:12:24 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/CSSOM-CSS-Object-Model/</guid>
+        </item>
+        
+
+        <item>
+          <title>DOM (Document Object Model)</title>
+          <link>https://vallista.kr/contents/articles/DOM-Document-Object-Model/</link>
+          <description>DOM (Document Object Model)은 JavaScript로 HTML문서의 구조에 접근해서 변경하거나 추가하는 작업을 가능하게 하는 HTML 문서를 파싱하여 만든 Tree 형태의 Model을 말한다. HTML을 JavaScript에서 컨트롤 및 그려줄 수 있게 Render Tree를 구축하려면, **DOM**을 만들어야한다. DOM은 객체를 N</description>
+          <pubDate>Wed, 08 May 2019 04:11:27 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/DOM-Document-Object-Model/</guid>
+        </item>
+        
+
+        <item>
+          <title>브라우저 렌더링 과정</title>
+          <link>https://vallista.kr/contents/articles/브라우저-렌더링-과정/</link>
+          <description>&gt; 이 글은 탈리 가르시엘(Tali Garsiel) 저자의 원문을 한글 번역한 Naver D2에 기고된 글을 원문으로, 다양한 자료를 섞었습니다. Browse → 검색, Browser → 검색하는자 &quot;Browser(검색 하는 자)&quot; 이름 답게 사용자가 URI를 브라우저에 요청하면 해당 URI를 검색하여 해당하는 URI를 가진 서버에 자원을 요청하고 URI를</description>
+          <pubDate>Tue, 07 May 2019 04:08:52 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/브라우저-렌더링-과정/</guid>
+        </item>
+        
+
+        <item>
+          <title>SSR (Server Side Rendering)</title>
+          <link>https://vallista.kr/contents/articles/SSR-Server-Side-Rendering/</link>
+          <description>SSR(Server Side Rendering)은 서버에서 렌더링이 끝난 html 파일을 사용자에게 serve 하는 방식이다. 그러므로 페이지 이동마다 서버에 페이지를 요청하게 된다. 그래서 사용성은 떨어지지만 각 페이지마다 html을 들고 있기 때문에 SEO(Search Engine Optimization)가 가능하다. 페이지마다 렌더링 된 html 파일</description>
+          <pubDate>Mon, 06 May 2019 04:07:15 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/SSR-Server-Side-Rendering/</guid>
+        </item>
+        
+
+        <item>
+          <title>SPA (Single Page Application)</title>
+          <link>https://vallista.kr/contents/articles/SPA-Single-Page-Application/</link>
+          <description>최근 PC 앱은 같은 Node.js 환경 JavaScript Framework로 개발하는 추세다. 위와 같은 기술로 만든 앱은 사용자가 마치 앱을 사용하는 부드럽고 좋은 사용자 경험을 전달하는 효과를 준다. 이런 앱을 라고 표현한다. SPA(Single Page Application)은 모던 웹 개발 패러다임으로, 전통적인 웹 개발 방식과 달리 Client</description>
+          <pubDate>Mon, 06 May 2019 04:06:21 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/SPA-Single-Page-Application/</guid>
+        </item>
+        
+
+        <item>
+          <title>Virtual DOM</title>
+          <link>https://vallista.kr/contents/articles/Virtual-DOM/</link>
+          <description>Virtual DOM은,  와 같은 SPA 프레임워크에서 사용된다. JavaScript로 DOM 조작을 하게 되면 브라우저의 렌더링 엔진에서 수많은 일들이 일어난다.   - HTML을 에 맞게 를 만든다. - StyleSheet를  알고리즘으로 파싱해 을 만든다. &gt; HTML과 StyleSheer의 Parsing 방법이 다른 이유는 HTML은  로 명세할 </description>
+          <pubDate>Sun, 05 May 2019 04:04:34 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Virtual-DOM/</guid>
+        </item>
+        
+
+        <item>
+          <title>반응형 웹, 적응형 웹</title>
+          <link>https://vallista.kr/contents/articles/반응형-웹-적응형-웹/</link>
+          <description>반응형 웹은 CSS의 media query를 사용하여 사용자가 보는 디바이스의 크기에 맞게 (혹은 브라우저 크기에 맞게) 자동으로 반응하여 커지거나 줄어드는 웹을 말한다. 반응형 웹은 성능을 많이 먹는 대신, 최저한의 코딩으로 쉽게 디바이스 지원을 할 수 있는 매리트가 있다. 적응형 웹은 서버나 클라이언트에서 디바이스의 크기를 받아서 해당 디바이스 별로 최</description>
+          <pubDate>Sat, 04 May 2019 04:03:41 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/반응형-웹-적응형-웹/</guid>
+        </item>
+        
+
+        <item>
+          <title>파싱 (Parsing)</title>
+          <link>https://vallista.kr/contents/articles/파싱-Parsing/</link>
+          <description>렌더링 과정에서 파싱은 매우 중요하다. HTML등의 문서 파싱 작업은 브라우저가 코드를 이해하고 사용할 수 있는 구조로 바꾸는 것을 의미한다. 파싱으로 나오는 결과는 문서 구조를 나타내는 노드 트리 형태로 나오게 된다. 이를 파싱 트리(Parsing Tree) 혹은 문법 트리(Syntax Tree)라 지칭한다. 2+3+1을 예시로 들면, 아래와 같은 트리의</description>
+          <pubDate>Sat, 04 May 2019 04:02:32 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/파싱-Parsing/</guid>
+        </item>
+        
+
+        <item>
+          <title>BNF (Backus-Naur Form)</title>
+          <link>https://vallista.kr/contents/articles/BNF-Backus-Naur-Form/</link>
+          <description>BNF는 **문맥 자유 문법**을 나타내기 위해 만들어진 표기법이다. 존 베커스와 페테르 나우르의 이름을 따서 부른다. 기본적으로 &quot; ::= &quot; 문법을 사용한다. 여기서 기호는 말단 기호가 될 수 없고, 표현식은 다른 기호의 조합, 또는 여러 가지의 표현식 중 하나를 사용한다는 의미로 |를 사용한다. 다른 표현식으로 정의되지 않은 기호는 자동으로 &apos;말단 기</description>
+          <pubDate>Fri, 03 May 2019 04:00:34 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/BNF-Backus-Naur-Form/</guid>
+        </item>
+        
+
+        <item>
+          <title>RESTFUL API</title>
+          <link>https://vallista.kr/contents/articles/RESTFUL-API/</link>
+          <description>는 REpresentational State Transfer의 약자이다. ~ful 이라는 형용사형 어미를 붙여 REST한 API라고 보면 된다. REST는 디자인 패턴인데 REST 패턴을 잘 지킨 서비스 디자인을 &apos;RESTful&apos; 하다고 표현한다. REST는  라는 아키텍쳐로 볼 수 있다. 즉, API 설계할 때 를 기반으로 를 통해 자원을 처리하도록 설계</description>
+          <pubDate>Fri, 03 May 2019 03:46:16 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/RESTFUL-API/</guid>
+        </item>
+        
+
+        <item>
+          <title>객체지향 프로그래밍</title>
+          <link>https://vallista.kr/contents/articles/객체지향-프로그래밍/</link>
+          <description>객체 지향 프로그래밍 전의 프로그래밍 패러다임은 컴퓨터가 사고하는 데로 프로그래밍을 했다면, 객체 지향 프로그래밍은 현실 세계를 프로그래밍으로 옮겨와 프로그래밍을 한다. 즉  이라고 볼 수 있다. - OOP는 재사용성이 높은 코드를 작성할 수 있다. —&gt; **중복 소스 관리** : 객체의 특징을 뽑아와서 코드로 작성하므로, 중첩되는 소스코드를 묶어서 관리하</description>
+          <pubDate>Thu, 02 May 2019 03:46:16 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/객체지향-프로그래밍/</guid>
+        </item>
+        
+
+        <item>
+          <title>백앤드에서 받은 데이터를 어떻게 하면 가공없이 클라이언트에 적용할 수 있을까?</title>
+          <link>https://vallista.kr/contents/articles/백앤드에서-받은-데이터를-어떻게-하면-가공없이-클라이언트에-적용할-수-있을까/</link>
+          <description>프론트엔드 영역이 날이 갈수록 점점 넓어지고 있습니다. 특히 프론트엔드와 맞닿아 있는 백앤드의 영역은 백앤드 개발자만의 영역이 아닙니다. 이제는 프론트엔드 개발자들도 어느정도 이해를 하고 코드 작성을 하는 영역이 되었습니다. 저희 회사는 개발자가 4명 입니다. 인원이 적은 만큼 백앤드 개발자와 프론트엔드 개발자가 구별이 안되어 있는 상황입니다. 프론트엔드 </description>
+          <pubDate>Tue, 26 Feb 2019 02:57:57 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/백앤드에서-받은-데이터를-어떻게-하면-가공없이-클라이언트에-적용할-수-있을까/</guid>
+        </item>
+        
+
+        <item>
+          <title>COPY와 Command를 이용한 Excel Export</title>
+          <link>https://vallista.kr/contents/articles/COPY와-Command를-이용한-Excel-Export/</link>
+          <description>회사에서 에서 Excel 포맷으로 출력 해야하는 일이 생겼습니다. 오프라인에서 물건을 점검하기위해 주문 상황을 체크하고 물건을 걸러내야 했는데 이는 종이로 하는 것이 효율적이기에 출력해야 되는 상황이었습니다. 그래서 PostgreSQL에서 파일 입출력이 가능한가에 대해서 찾아보았습니다. PostgreSQL에서는 쉽게 Excel로 뽑아내는 커맨드를 제공합니다</description>
+          <pubDate>Wed, 30 Jan 2019 03:00:08 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/COPY와-Command를-이용한-Excel-Export/</guid>
+        </item>
+        
+
+        <item>
+          <title>2018년 회고</title>
+          <link>https://vallista.kr/contents/articles/2018년-회고/index/</link>
+          <description>를 한 것이 엊그제 같은데, 작년에 이어 올해도 어김없이 회고를 작성하려 합니다. 2018년 초의 상황은 가 경영난으로 인해 역사의 뒤안길로 사라지고 백수의 상태에서 휴식을 조금 취하면서 이직 준비를 하는 상황이었습니다. 스타트업으로써는 하루하루 앞길을 알 수 없는 것이 당연하지만 (자본이 많다면 예외) 직접 스타트업이 망하는 것을 경험하니 정말 오묘한 기</description>
+          <pubDate>Sun, 06 Jan 2019 03:02:10 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2018년-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>Vue LifeCycle</title>
+          <link>https://vallista.kr/contents/articles/Vue-LifeCycle/</link>
+          <description>렌더링 전, 후 이벤트를 나눠야할 때, 어떠한 행위가 변경될 때 업데이트 해주어야 할 때 등 경우에 따라 변수를 만들어서 넣어주고 사용하고 해야하는 경우가 있다. vue.js 에서 생성부터 파괴 될 때 까지의 한 사이클을 돌아가는 사이에 해당 컴포넌트에서 그 사이클에 돌아가는 시점에 호출 가능한 함수 호출하여 거기에 구동되도록 구현부를 만들 수 있다. --</description>
+          <pubDate>Tue, 16 Jan 2018 03:40:06 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Vue-LifeCycle/</guid>
+        </item>
+        
+
+        <item>
+          <title>Vue Event Bus</title>
+          <link>https://vallista.kr/contents/articles/Vue-Event-Bus/</link>
+          <description>vue에서 component간 통신을 하기 위해서는 상위의 컴포넌트에서 하위로 이벤트를 내려보내고, 하위에서 props로 받아서 전달할 수 밖에 없다. 이러한 특성은 vue는 one-direction data flow (단방향 데이터 플로우)의 형태를 가지기 때문인데, 이러한 형태를 통해서 캡슐화 등, 객체지향의 개념을 접목시킬 수 있다는 장점이 있다. 하</description>
+          <pubDate>Mon, 15 Jan 2018 03:38:29 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/Vue-Event-Bus/</guid>
+        </item>
+        
+
+        <item>
+          <title>2017년 회고</title>
+          <link>https://vallista.kr/contents/articles/2017년-회고/index/</link>
+          <description>돌이켜보면, 2017년은 나에게 많은 변화가 있는 해였던 것 같다. 모든 것이 끝나고, 새로 시작하였으며 지리적 위치 및 만나는 사람들도 달라졌기 때문이다. 또한 공부하는 것이 바뀌었고 공부 방법도 바뀌었다. 프로그래밍의 대세도 점차 다양하게 변화하고 있었고, 업계도 AI, 머신러닝등 수많은 기존의 기술들이 화두에 오르기 시작했다. 첫 회고이다보니 능수능란</description>
+          <pubDate>Tue, 26 Dec 2017 03:00:55 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/2017년-회고/index/</guid>
+        </item>
+        
+
+        <item>
+          <title>테스트의 종류</title>
+          <link>https://vallista.kr/contents/articles/테스트의-종류/</link>
+          <description>테스트는 규모에 따라 단위, 통합, 시스템, 인수 4가지의 테스트로 나뉜다. 모듈이나 애플리케이션 안에 있는 개별적인 코드 단위가 예상대로 작동하는지 확인하는 반복적인 행위. 통합 테스팅에서 각각의 소프트웨어 모듈들이 논리적으로 통합되고 그룹으로 테스트된다. 일반적인 소프트웨어 프로젝트는 다른 프로그래머들이 코딩한 여러 소프트웨어 모듈로 구성되어 있다. 통</description>
+          <pubDate>Sun, 02 Jul 2017 03:42:43 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/테스트의-종류/</guid>
+        </item>
+        
+
+        <item>
+          <title>E2E (end to end) Test</title>
+          <link>https://vallista.kr/contents/articles/E2E-end-to-end-Test/</link>
+          <description>전체 시스템이 제대로 작동하는지 확인하기 위한 테스트. 시나리오 테스트, 기능 테스트, 통합 테스트, GUI 테스트를 하는데 사용한다. API 연동도 테스트 항목에 포함되므로 일반적인 목(Mock) 스텁(Stub) 등의 테스트 더블을 사용하지 않는다. 테스트 속도가 규모에 따라 느리므로 단위, 기능 테스트를 위한 일반적인 테스트 자동화와 시스템 테스트를 위</description>
+          <pubDate>Sun, 02 Jul 2017 03:41:35 +0900</pubDate>
+          <guid>https://vallista.kr/contents/articles/E2E-end-to-end-Test/</guid>
+        </item>
+        
+    </channel>
+  </rss>
