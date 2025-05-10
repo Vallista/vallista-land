@@ -3,7 +3,7 @@ import fs from 'fs/promises'
 import path from 'path'
 
 const contentsDir = path.resolve('contents')
-const distDir = path.resolve('dist')
+const distDir = path.resolve('public')
 const baseUrl = 'https://vallista.kr'
 const blogTitle = 'vallista.dev'
 const blogDescription = 'vallista의 기술 블로그'

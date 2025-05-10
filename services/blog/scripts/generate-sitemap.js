@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 
-const distDir = path.resolve('dist')
+const distDir = path.resolve('public')
 const baseUrl = 'https://vallista.kr'
 
 async function generateSitemap() {

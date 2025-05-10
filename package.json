@@ -23,7 +23,7 @@
     "build:ds": "pnpm --filter @vallista/design-system run build",
     "build:packages": "pnpm --filter './packages/**' run build",
     "build:blog": "pnpm --filter @vallista/blog run build",
-    "predeploy:blog": "pnpm --filter @vallista/blog run copy-layout && pnpm --filter @vallista/blog run generate-static && pnpm --filter @vallista/blog run generate-404 && pnpm --filter @vallista/blog run generate-sitemap && pnpm --filter @vallista/blog run generate-robots && pnpm --filter @vallista/blog run patch-index-seo && pnpm --filter @vallista/blog run generate-rss",
+    "predeploy:blog": "pnpm --filter @vallista/blog run copy-layout && pnpm --filter @vallista/blog run generate-static && pnpm --filter @vallista/blog run generate-404 && pnpm --filter @vallista/blog run generate-sitemap && pnpm --filter @vallista/blog run generate-robots && pnpm --filter @vallista/blog run patch-index-seo && pnpm --filter @vallista/blog run build",
     "deploy:blog": "pnpm build:blog && pnpm predeploy:blog && pnpm --filter @vallista/blog run deploy",
     "preview:blog": "pnpm build:blog && pnpm predeploy:blog && pnpm --filter @vallista/blog run preview"
   },

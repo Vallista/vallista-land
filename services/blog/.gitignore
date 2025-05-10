@@ -23,5 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-public/articles
+public/contents
+public/files
 public/index.json
+public/robots.txt
+public/sitemap.xml

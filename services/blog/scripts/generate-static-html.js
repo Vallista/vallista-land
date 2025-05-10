@@ -132,7 +132,8 @@ async function generateStaticHtml() {
 
     const finalHtml = layoutTemplate.replace('<!-- {{head}} -->', headHtml).replace('<!-- {{content}} -->', mainContent)
 
-    const targetDir = path.join(distDir, 'contents', ...slugPathSegments)
+    const targetDir = path.join(distDir, ...slugPathSegments).replace('dist', 'public')
+    console.log(targetDir)
     await fs.mkdir(targetDir, { recursive: true })
     await fs.writeFile(path.join(targetDir, 'index.html'), finalHtml)
 
