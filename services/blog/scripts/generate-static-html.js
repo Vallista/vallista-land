@@ -119,7 +119,7 @@ async function generateStaticHtml() {
     const isPost = meta.isPost || false
     const pathname = meta.pathname || `/contents/${slug}`
     const siteUrl = meta.siteUrl || 'https://vallista.kr'
-    const imagePath = meta.image ? `${siteUrl}/contents/${slug}/assets/og.png` : `${siteUrl}/profile.png`
+    const imagePath = meta.image ? `${siteUrl}/contents/${slug}/assets/${meta.image}` : `${siteUrl}/profile.png`
 
     const headHtml = createSeoHead({
       name: title,
