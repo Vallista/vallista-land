@@ -1,11 +1,11 @@
 ---
 title: 팀 리딩과 개발 문화에 대한 단상
 image: ./assets/0.jpeg
-tags:
-  - 잡담
-date: 2021-07-25 17:05:28
+tags: null
+date: 2021-07-25T17:05:28.000Z
 draft: false
 info: false
+slug: team-reading-development-culture-about-thoughts
 ---
 
 ![이미지0](./assets/0.jpeg)

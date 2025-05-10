@@ -1,10 +1,10 @@
 ---
 title: 동시성과 병렬성 (Concurrency & Parallelism)
-tags:
-
-date: 2019-12-28 16:42:00
+tags: null
+date: 2019-12-28T16:42:00.000Z
 draft: false
 info: false
+slug: concurrency-parallelism
 ---
 
 ![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)

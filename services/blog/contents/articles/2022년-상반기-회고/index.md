@@ -1,9 +1,9 @@
 ---
 title: 2022년 상반기 회고
 image: ./assets/0.png
-tags:
-  - 회고
-date: 2022-08-09 00:14:19
+tags: null
+date: 2022-08-09T00:14:19.000Z
+slug: 2022-year-first-half-retrospective
 ---
 
 ![로고](./assets/5.gif)

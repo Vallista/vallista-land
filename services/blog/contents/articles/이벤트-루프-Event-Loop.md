@@ -1,10 +1,10 @@
 ---
 title: 이벤트 루프 (Event Loop)
-tags:
-  - 프론트엔드
-date: 2019-05-09 19:14:14
+tags: null
+date: 2019-05-09T19:14:14.000Z
 draft: true
 info: false
+slug: event-loop
 ---
 
 JavaScript는 단일 쓰레드 기반의 언어이다. 하지만 작동하는 걸 보면 단일 쓰레드에서 돌아가는 거라는 생각이 들지 않는다. CSS 애니메이션이 돌아가면서 클릭 이벤트도 받고 다양한 동작이 동시에 작동한다.

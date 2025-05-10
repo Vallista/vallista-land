@@ -1,13 +1,13 @@
 ---
 title: 모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (상)
 image: ./assets/image1.jpg
-tags:
-  - 프론트엔드
-date: 2019-11-10 14:35:28
+tags: null
+date: 2019-11-10T14:35:28.000Z
 draft: false
 info: false
 series: 모바일 웹뷰를 탐험하는 개발자를 위한 안내서
 seriesPriority: 1
+slug: mobile-webview-exploring-developer-for-guide-part1
 ---
 
 ![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)

@@ -1,10 +1,10 @@
 ---
-title: 'Call By Value, Call By Reference'
-tags:
-
-date: 2019-05-10 19:14:14
+title: Call By Value, Call By Reference
+tags: null
+date: 2019-05-10T19:14:14.000Z
 draft: true
 info: false
+slug: call-by-value-call-by-reference
 ---
 
 [자바스크립트 function - Call by Value, Call by Reference](https://emflant.tistory.com/64)

@@ -1,10 +1,10 @@
 ---
 title: 2018년 회고
-tags:
-  - 회고
-date: 2019-01-05 18:02:10
+tags: null
+date: 2019-01-05T18:02:10.000Z
 draft: false
 info: false
+slug: 2018-year-retrospective
 ---
 
 ![이미지1](https://images.unsplash.com/photo-1421809313281-48f03fa45e9f?auto=format&fit=crop&w=2205&q=80)

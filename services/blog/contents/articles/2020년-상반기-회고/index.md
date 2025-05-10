@@ -1,11 +1,11 @@
 ---
 title: 2020년 상반기 회고
 image: ./assets/0.jpg
-tags:
-  - 회고
-date: 2020-07-11 23:57:59
+tags: null
+date: 2020-07-11T23:57:59.000Z
 draft: false
 info: false
+slug: 2020-year-first-half-retrospective
 ---
 
 ![0](./assets/0.jpg)

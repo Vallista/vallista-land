@@ -1,12 +1,12 @@
 ---
 title: 영수증, React 그리고 emotion
-tags:
-  - 프론트엔드
-date: 2021-11-21 11:57:00
+tags: null
+date: 2021-11-21T11:57:00.000Z
 draft: false
 image: ./assets/1.jpeg
 series: React로 영수증 개발하기
 seriesPriority: 1
+slug: receipt-and
 ---
 
 ![이미지1](./assets/1.jpeg)

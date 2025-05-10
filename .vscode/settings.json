@@ -38,5 +38,6 @@
   "prettier.printWidth": 120,
   "prettier.useTabs": false,
   "prettier.trailingComma": "none",
-  "prettier.endOfLine": "auto"
+  "prettier.endOfLine": "auto",
+  "jest.jestCommandLine": "pnpm --filter vite-plugin-mdx exec jest"
 }

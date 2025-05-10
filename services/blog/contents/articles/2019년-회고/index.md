@@ -1,11 +1,11 @@
 ---
 title: 2019년 회고
 image: ./assets/image1.png
-tags:
-  - 회고
-date: 2019-12-29 18:24:03
+tags: null
+date: 2019-12-29T18:24:03.000Z
 draft: false
 info: false
+slug: 2019-year-retrospective
 ---
 
 ![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)

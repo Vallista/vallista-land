@@ -1,10 +1,10 @@
 ---
 title: 글또 6기를 시작하며
 image: ./assets/1.png
-tags:
-  - 잡담
-date: 2021-07-13 22:39:25
+tags: null
+date: 2021-07-13T22:39:25.000Z
 draft: false
+slug: geultto-6-path-starting
 ---
 
 ![이미지1](./assets/1.png)

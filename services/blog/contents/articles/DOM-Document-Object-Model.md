@@ -1,10 +1,10 @@
 ---
 title: DOM (Document Object Model)
-tags:
-  - 프론트엔드
-date: 2019-05-07 19:11:27
+tags: null
+date: 2019-05-07T19:11:27.000Z
 draft: true
 info: false
+slug: dom-document-object-model
 ---
 
 DOM (Document Object Model)은 JavaScript로 HTML문서의 구조에 접근해서 변경하거나 추가하는 작업을 가능하게 하는 HTML 문서를 파싱하여 만든 Tree 형태의 Model을 말한다.

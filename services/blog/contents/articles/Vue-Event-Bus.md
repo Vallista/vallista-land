@@ -1,10 +1,10 @@
 ---
 title: Vue Event Bus
-tags:
-  - 프론트엔드
-date: 2018-01-14 18:38:29
+tags: null
+date: 2018-01-14T18:38:29.000Z
 draft: true
 info: false
+slug: vue-event-bus
 ---
 
 vue에서 component간 통신을 하기 위해서는 상위의 컴포넌트에서 하위로 이벤트를 내려보내고, 하위에서 props로 받아서 전달할 수 밖에 없다.

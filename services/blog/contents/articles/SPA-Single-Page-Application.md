@@ -1,10 +1,10 @@
 ---
 title: SPA (Single Page Application)
-tags:
-  - 프론트엔드
-date: 2019-05-05 19:06:21
+tags: null
+date: 2019-05-05T19:06:21.000Z
 draft: true
 info: false
+slug: spa-single-page-application
 ---
 
 최근 PC 앱은[React.js](https://www.notion.so/a4b13e25-b67a-40af-87d3-c084a29c895c)[Vue.js](https://www.notion.so/a0a34ea8-52ad-44f8-b109-8ae1fb33bda1) 같은 Node.js 환경 JavaScript Framework로 개발하는 추세다.

@@ -1,10 +1,10 @@
 ---
 title: Jenkins
-tags:
-
-date: 2019-05-28 11:11:30
+tags: null
+date: 2019-05-28T11:11:30.000Z
 draft: true
 info: false
+slug: jenkins
 ---
 
 ## #1 설치

@@ -1,12 +1,12 @@
 ---
 title: LDAP (Lightweight Directory Access Protocol)
 image: ./assets/0.jpg
-tags:
-  - 네트워크
-date: 2022-09-25 18:26:21
+tags: null
+date: 2022-09-25T18:26:21.000Z
 info: false
 series: 네트워크
 seriesPriority: 1
+slug: ldap-lightweight-directory-access-protocol
 ---
 
 ![logo](assets/0.jpg)

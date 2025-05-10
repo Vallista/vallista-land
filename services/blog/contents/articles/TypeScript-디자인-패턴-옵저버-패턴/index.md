@@ -1,13 +1,16 @@
 ---
 title: TypeScript 디자인 패턴 - 옵저버 패턴
 image: ./assets/0.jpg
-tags:
-  - 프론트엔드
-date: 2020-05-22 20:30:33
+tags: null
+date: 2020-05-22T20:30:33.000Z
 draft: false
 info: false
 series: TypeScript 디자인 패턴
 seriesPriority: 2
+slug: design-pattern-observer-pattern
+---
+
+옵저버-패턴
 ---
 
 ![이미지0](./assets/0.jpg)

@@ -1,10 +1,10 @@
 ---
 title: 덕 타이핑과 구조적 타이핑
-tags:
-
-date: 2021-08-19 19:09:51
+tags: null
+date: 2021-08-19T19:09:51.000Z
 draft: false
 image: ./assets/1.png
+slug: thanks-and-typing-structural-typing
 ---
 
 ![1](./assets/1.png)

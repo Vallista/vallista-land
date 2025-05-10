@@ -1,12 +1,11 @@
 ---
 title: 컴포넌트 분리의 미학
 image: ./assets/1.jpeg
-tags:
-  - 프론트엔드
-
-date: 2020-03-29 15:28:01
+tags: null
+date: 2020-03-29T15:28:01.000Z
 draft: false
 info: false
+slug: separation-aesthetics
 ---
 
 ![이미지1](./assets/1.jpeg)

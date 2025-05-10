@@ -1,9 +1,9 @@
 ---
 title: 2021년 회고
 image: ./assets/0.jpeg
-tags:
-  - 회고
-date: 2022-01-09 02:30:00
+tags: null
+date: 2022-01-09T02:30:00.000Z
+slug: 2021-year-retrospective
 ---
 
 ![타이틀](assets/0.jpeg)

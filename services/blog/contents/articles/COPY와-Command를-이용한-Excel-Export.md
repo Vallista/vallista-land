@@ -1,10 +1,10 @@
 ---
 title: COPY와 Command를 이용한 Excel Export
-tags:
-
-date: 2019-01-29 18:00:08
+tags: null
+date: 2019-01-29T18:00:08.000Z
 draft: false
 info: false
+slug: and-using
 ---
 
 회사에서 `PostgreSQL`에서 Excel 포맷으로 출력 해야하는 일이 생겼습니다. 오프라인에서 물건을 점검하기위해 주문 상황을 체크하고 물건을 걸러내야 했는데 이는 종이로 하는 것이 효율적이기에 출력해야 되는 상황이었습니다.

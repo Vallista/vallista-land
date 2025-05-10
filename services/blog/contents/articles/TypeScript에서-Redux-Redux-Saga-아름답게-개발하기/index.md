@@ -1,11 +1,11 @@
 ---
 title: TypeScript에서 Redux, Redux Saga 아름답게 개발하기
 image: ./assets/0.png
-tags:
-  - React
-date: 2020-07-20 02:24:31
+tags: null
+date: 2020-07-20T02:24:31.000Z
 draft: false
 info: false
+slug: at-beautifully-developing
 ---
 
 ![0](./assets/0.png)

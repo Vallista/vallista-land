@@ -1,10 +1,10 @@
 ---
 title: XSS (Cross-Site-Scripting)
-tags:
-  - 프론트엔드
-date: 2019-05-12 11:03:57
+tags: null
+date: 2019-05-12T11:03:57.000Z
 draft: true
 info: false
+slug: xss-cross-site-scripting
 ---
 
 XSS는 Cross-Site-Scripting의 약자로, 해커가 사용자의 웹에 스크립트를 실행해서 쿠키나 세션 같은 민감한 정보를 빼가는 행위를 일컫는다. 해커가 document.cookie를 가져오는 소스를 넣은 php파일을 만들어서 서버에 넣어두고, 게시판 같은 사용자가 글을 볼 수 있는 곳에 자신의 서버에 있는 php파일을 실행하는 태그를 작성하여 올려둔다. XSS처리를 하지 않은 사이트는 해당 글을 열람한 사용자들이 들어가면 php 파일을 실행하게 되며, 자신의 정보가 해커의 서버에 전송된다.

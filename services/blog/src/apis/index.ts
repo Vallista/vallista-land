@@ -13,11 +13,47 @@ export interface Post {
   image?: string
 }
 
+interface PostResponse {
+  date: string
+  description: string
+  draft: boolean
+  info: boolean
+  slug: string
+  tags: string[]
+  title: string
+  trail: string[]
+  series?: string | null
+  seriesPrority?: number
+  image?: string
+  url: {
+    api: string
+    seo: string
+  }
+}
+
 /**
  * 작성한 포스트에 대한 모든 콘텐츠 데이터를 가져옵니다.
  */
 export async function fetchContents() {
-  return (await fetch('/index.json')).json() as unknown as Record<string, Post>
+  const result = await fetch('/index.json')
+  const json = (await result.json()) as unknown as Record<string, PostResponse>
+
+  // Record<string, Post>로 변환
+  const posts = Object.entries(json).reduce(
+    (acc, [key, value]) => {
+      acc[key] = {
+        ...value,
+        category: value.trail[1].toUpperCase(),
+        path: value.url.api,
+        url: value.url.seo
+      }
+
+      return acc
+    },
+    {} as Record<string, Post>
+  )
+
+  return posts
 }
 
 /**

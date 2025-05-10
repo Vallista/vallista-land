@@ -2,9 +2,10 @@
 title: 2017년 회고
 tags:
   - 회고
-date: 2017-12-25 18:00:55
+date: 2017-12-25T18:00:55.000Z
 draft: false
 info: false
+slug: 2017-year-retrospective
 ---
 
 ![이미지1](https://images.unsplash.com/photo-1421809313281-48f03fa45e9f?auto=format&fit=crop&w=2205&q=80)

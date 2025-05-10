@@ -1,0 +1,405 @@
+<h2>팩토리-패턴</h2>
+<p><img src="/files/contents/articles/design-pattern-factory-pattern/assets/0.jpg" alt="이미지0" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
+<h2>팩토리 패턴이란</h2>
+<p>설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 팩토리 패턴은 생성과 관련된 디자인 패턴 입니다.</p>
+<p>팩토리 패턴은 말 그대로 공장이라고 생각하면 편합니다. 하나의 클래스나 객체를 생성하는데 쓰이며, 주요로 사용되는 것은 <strong>추상 팩토리</strong>와 <strong>팩토리 매서드</strong> 패턴이 있습니다.</p>
+<p>오늘은 이 두 패턴에 대해서 알아볼 것이며, 이름이 비슷하다보니 햇갈릴 수도 있고, 정리가 안될수도 있는데 이를 타입스크립트로 코딩을 해보며 직접 알아보도록 합시다.</p>
+<h2>팩토리 메서드 패턴</h2>
+<p>팩토리 메서드는 부모 클래스에서 타입에 따라 클래스를 생성하는 방법입니다. 자식 클래스를 생성하는 상황에서 부모 클래스의 팩토리를 호출하여 생성해주는 방식으로 처리하며, 이러한 방법의 장점은 자식 클래스 생성에 대해 파편화를 막아주며, 자식 클래스가 늘어나는 상황에서 효과적으로 코드 수정을 할 수 있게 도와줍니다.</p>
+<h3>코드</h3>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    DEFAULT</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    ANIMATED</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    UNSHAPED</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            default</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Input</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ANIMATED</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> AnimatedInput</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">UNSHAPED</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> UnShapedInput</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> AnimatedInput</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input class="animated-input" />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> UnShapedInput</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input class="unshaped-input" />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> inputArr</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF">[] </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> []</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">inputArr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">push</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">DEFAULT</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#E5C07B">inputArr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">push</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ANIMATED</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#E5C07B">inputArr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">push</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">UNSHAPED</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">inputArr</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">forEach</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">input</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()) })</span></span></code></pre></figure>
+<p>위 코드를 보면, InputArr 배열을 만들고 InputFactory로 넣어주었습니다. 그렇게 결과값을 보니 input element가 적절히 출력되는걸 볼 수 있습니다.</p>
+<h3>언제 쓰이는가</h3>
+<p><img src="/files/contents/articles/design-pattern-factory-pattern/assets/1.jpg" alt="이미지1" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
+<p>팩토리 매서드 패턴이 사용되는 곳은 다양한 자식 클래스가 생기며 파편화되는 상황에서 매니지먼트를 하기위해 사용됩니다. 위의 예처럼 다양한 Input이 있고, 해당 Input 생성을 타입별로 생성을 해주고 있습니다. Input.InputFactory 사용만으로 다양한 타입에 대해서 생성을 쉽게 해줄 수 있습니다.</p>
+<p>즉, 객체 생성을 팩토리 클래스로 위임하므로써 팩토리 클래스에서 객체를 생성합니다.</p>
+<h3>심화</h3>
+<p><img src="/files/contents/articles/design-pattern-factory-pattern/assets/2.jpg" alt="이미지2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
+<p>그렇다면 팩토리 매서드 패턴을 이용해서 조금 심화된 위의 구조를 코드로 구현해보도록 합시다.</p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    DEFAULT</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    ANIMATED</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    UNSHAPED</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            default</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Input</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ANIMATED</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> AnimatedInput</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">UNSHAPED</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> UnShapedInput</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> AnimatedInput</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input class="animated-input" />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> UnShapedInput</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input class="unshaped-input" />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> ButtonType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    DEFAULT</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    IMAGE</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    TEXT</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> IButton</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""><span style="color:#E06C75">    src</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">src</span><span style="color:#ABB2BF"> }: </span><span style="color:#E5C07B">IButton</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            default</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Button</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">IMAGE</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> ImageButton</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">src</span><span style="color:#56B6C2">!</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TEXT</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> TextButton</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">        this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> text</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;button></span><span style="color:#C678DD">${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#C678DD">}</span><span style="color:#98C379">&#x3C;/button>`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> ImageButton</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    src</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">src</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B;font-style:italic">        super</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">        this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">src</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> src</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;button class="none"></span></span>
+<span data-line=""><span style="color:#C678DD">            ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;img src="</span><span style="color:#C678DD">${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">src</span><span style="color:#C678DD">}</span><span style="color:#98C379"> alt="button-img"/></span></span>
+<span data-line=""><span style="color:#98C379">        &#x3C;/button>`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> TextButton</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B;font-style:italic">        super</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;button class="none"></span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;/button></span></span>
+<span data-line=""><span style="color:#98C379">        `</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    ONE</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    TWO</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    THREE</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Form</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">        let</span><span style="color:#E06C75"> input</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> null</span></span>
+<span data-line=""><span style="color:#C678DD">        let</span><span style="color:#E06C75"> button</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> null</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ONE</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">                input</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">DEFAULT</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E06C75">                button</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">DEFAULT</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'버튼'</span><span style="color:#ABB2BF"> })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">                break</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TWO</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">                input</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ANIMATED</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E06C75">                button</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">IMAGE</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'버튼'</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">src</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'https://asdasd.net'</span><span style="color:#ABB2BF"> })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">                break</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">THREE</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">                input</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">UNSHAPED</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E06C75">                button</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TEXT</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">: </span><span style="color:#98C379">'버튼'</span><span style="color:#ABB2BF"> })</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">                break</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;div></span></span>
+<span data-line=""><span style="color:#C678DD">            ${</span><span style="color:#E5C07B">input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#C678DD">            ${</span><span style="color:#E5C07B">button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">        &#x3C;/div>`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Form</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ONE</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Form</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TWO</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Form</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">THREE</span><span style="color:#ABB2BF">))</span></span></code></pre></figure>
+<p>이번에는 Form을 만드는 코드입니다. 팩토리 메서드 패턴을 이용해 Input과 Button을 팩토리 메서드를 호출하여 생성했습니다.</p>
+<p>이 코드가 원하는 결과값은 <code>ONE</code>에 해당하는 Form이면 기본 버튼과 인풋, <code>TWO</code>에 해당하는 Form이면 각각 인풋과 버튼 타입의 두 번째 요소 (ANIMATED, IMAGE) 그리고 <code>THREE</code>에 해당하는 Form이면 세 번째 요소 (UNSHAPED, TEXT)를 출력해야 합니다.</p>
+<p>그래서 결과값이 만들어질 때 보면 각각의 요소가 타입에 맞게 정돈되어 들어가 있는 형태를 확인할 수 있죠. 하지만 이렇게 점점 비대해지다보면 Switch문의 내부가 복잡해질 것 입니다.</p>
+<p>이러한 상황에서 사용할 수 있는게 바로 추상 팩토리 패턴입니다.</p>
+<h2>추상 팩토리 패턴</h2>
+<p>추상 팩토리 패턴은 객체의 집합을 만들때 사용합니다. 관련이 있는 객체를 묶어 하나의 팩토리 클래스로 만든 후, 팩토리를 조건에 따라서 생성하도록 팩토리를 다시 만들어 객체를 생성합니다.</p>
+<p>위의 예제를 추상 팩토리 패턴으로 설계를 변경해보도록 합시다.</p>
+<p><img src="/files/contents/articles/design-pattern-factory-pattern/assets/3.jpg" alt="이미지3" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
+<p>간단하게 추상 팩토리 패턴을 적용해보았습니다. 여기서 중요한 점은, 팩토리 메서드로 직접 받던 부분을 클래스 단위로 묶어서 만들고, 그 클래스를 팩토리 메서드로 한번 더 묶었다는 점입니다.</p>
+<h3>코드</h3>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    DEFAULT</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    ANIMATED</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    UNSHAPED</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            default</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Input</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ANIMATED</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> AnimatedInput</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">UNSHAPED</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> UnShapedInput</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> AnimatedInput</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input class="animated-input" />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> UnShapedInput</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;input class="unshaped-input" />`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> ButtonType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    DEFAULT</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    IMAGE</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    TEXT</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> IButton</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""><span style="color:#E06C75">    src</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">src</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            default</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Button</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">IMAGE</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> ImageButton</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">src</span><span style="color:#56B6C2">!</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TEXT</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#C678DD">                return</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> TextButton</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">        this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> text</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;button></span><span style="color:#C678DD">${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#C678DD">}</span><span style="color:#98C379">&#x3C;/button>`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> ImageButton</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    src</span><span style="color:#C678DD">?</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">    constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">src</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B;font-style:italic">        super</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">        this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">src</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> src</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `&#x3C;button class="none"></span></span>
+<span data-line=""><span style="color:#C678DD">            ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;img src="</span><span style="color:#C678DD">${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">src</span><span style="color:#C678DD">}</span><span style="color:#98C379"> alt="button-img"/></span></span>
+<span data-line=""><span style="color:#98C379">        &#x3C;/button>`</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> TextButton</span><span style="color:#C678DD"> extends</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">text</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B;font-style:italic">        super</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">text</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;button class="none"></span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">text</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;/button></span></span>
+<span data-line=""><span style="color:#98C379">        `</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> IFormFactory</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    createInput</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">Input</span></span>
+<span data-line=""><span style="color:#61AFEF">    createButton</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">Button</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> NormalForm</span><span style="color:#C678DD"> implements</span><span style="color:#E5C07B"> IFormFactory</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    createInput</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">Input</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">DEFAULT</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    createButton</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">Button</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">DEFAULT</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'normal'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;div></span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">createInput</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">createButton</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;/div></span></span>
+<span data-line=""><span style="color:#98C379">        `</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> AnimatedImageForm</span><span style="color:#C678DD"> implements</span><span style="color:#E5C07B"> IFormFactory</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    createInput</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">AnimatedInput</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ANIMATED</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    createButton</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">ImageButton</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">IMAGE</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'image'</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'hihi'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;div></span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">createInput</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">createButton</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;/div></span></span>
+<span data-line=""><span style="color:#98C379">        `</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> UnShapedTextForm</span><span style="color:#C678DD"> implements</span><span style="color:#E5C07B"> IFormFactory</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    createInput</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">UnShapedInput</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> Input</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">InputFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">InputType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">UNSHAPED</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    createButton</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">TextButton</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> Button</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">ButtonFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">ButtonType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TEXT</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">'text'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    render</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#98C379"> `</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;div></span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">createInput</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#C678DD">                ${</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">createButton</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#98C379">            &#x3C;/div></span></span>
+<span data-line=""><span style="color:#98C379">        `</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">enum</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    ONE</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    TWO</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    THREE</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Form</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    public</span><span style="color:#C678DD"> static</span><span style="color:#61AFEF"> FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">type</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">        let</span><span style="color:#E06C75"> factory</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">IFormFactory</span><span style="color:#ABB2BF"> | null </span><span style="color:#56B6C2">=</span><span style="color:#D19A66"> null</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">        switch</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75">type</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ONE</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">                factory</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> NormalForm</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">                break</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TWO</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">                factory</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> AnimatedImageForm</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">                break</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#C678DD">            case</span><span style="color:#E5C07B"> FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">THREE</span><span style="color:#ABB2BF">:</span></span>
+<span data-line=""><span style="color:#E06C75">                factory</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> UnShapedTextForm</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">                break</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">        }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">        return</span><span style="color:#E5C07B"> factory</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">render</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Form</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">ONE</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Form</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">TWO</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#E5C07B">console</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">log</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">Form</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">FormFactory</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">FormType</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">THREE</span><span style="color:#ABB2BF">))</span></span></code></pre></figure>
+<p>코드상에서도 많이 변경되지 않았습니다. 지금의 경우 케이스가 적어 상대적으로 코드가 비대해졌지만, 추후 코드가 많아지고 파일 분리가 되면 장점을 발휘할 것입니다.</p>
+<h2>결론</h2>
+<p>팩토리 메서드 패턴을 이용하여 객체 생성에 대해 쉽게 관리를 하고, 관리가 비대해지면 추상 팩토리 패턴을 이용해 팩토리 메서드로 생성하는 객체를 한 곳에 모아서 객체로 만들어 관리할 수 있습니다.</p>

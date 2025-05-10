@@ -1,10 +1,10 @@
 ---
 title: 제너레이터 (Generator)
-tags:
-  - 프론트엔드
-date: 2019-07-12 12:05:15
+tags: null
+date: 2019-07-12T12:05:15.000Z
 draft: false
 info: false
+slug: generator
 ---
 
 얼마 전, Generator가 무엇인가요? 라는 질문을 들었을 때 대답을 명확히 하지 못했다. 많이 쓰고 있지만 실제로 사용법 혹은 대략적인 개념밖에 설명을 못해서 이 개회에 정확히 알아야겠다는 생각이 들어 Generator의 개념과 사용방법에 대해서 이야기 해보려 한다.

@@ -1,10 +1,10 @@
 ---
 title: SSR (Server Side Rendering)
-tags:
-  - 프론트엔드
-date: 2019-05-05 19:07:15
+tags: null
+date: 2019-05-05T19:07:15.000Z
 draft: true
 info: false
+slug: ssr-server-side-rendering
 ---
 
 SSR(Server Side Rendering)은 서버에서 렌더링이 끝난 html 파일을 사용자에게 serve 하는 방식이다. 그러므로 페이지 이동마다 서버에 페이지를 요청하게 된다. 그래서 사용성은 떨어지지만 각 페이지마다 html을 들고 있기 때문에 SEO(Search Engine Optimization)가 가능하다.

@@ -1,10 +1,10 @@
 ---
 title: HTTP 프로토콜에서 HTTPS URI 가져오기
-tags:
-  - 프론트엔드
-date: 2019-05-13 11:05:53
+tags: null
+date: 2019-05-13T11:05:53.000Z
 draft: true
 info: false
+slug: in-protocol-import
 ---
 
 HTTP 프로토콜에서 HTTPS URI를 호출하면 에러가 난다. 왜냐하면 해당 프로토콜에서 다른 프로토콜의 URI를 불러올 때 자신과 같은 프로토콜을 가정하고 가져오기 때문이다.

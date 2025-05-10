@@ -1,11 +1,11 @@
 ---
 title: 우아한형제들 헤커톤- 제 1회 우아톤 2019 후기
 image: ./assets/icon.jpg
-tags:
-  - 잡담
-date: 2019-12-10 00:51:35
+tags: null
+date: 2019-12-10T00:51:35.000Z
 draft: false
 info: false
+slug: baemin-hackathon-my-1-meeting-wooathon-2019-review
 ---
 
 ![main](./assets/icon.jpg)

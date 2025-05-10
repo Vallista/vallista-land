@@ -1,11 +1,11 @@
 ---
 title: 효율적인 Storybook 컴포넌트 구조 만들기
-date: 2020-04-26 15:19:08
+date: 2020-04-26T15:19:08.000Z
 image: ./assets/0.jpg
-tags:
-  - 프론트엔드
+tags: null
 draft: false
 info: false
+slug: efficient-component-structure-making
 ---
 
 ![이미지0](./assets/0.jpg)

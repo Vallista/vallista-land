@@ -1,10 +1,10 @@
 ---
 title: BNF (Backus-Naur Form)
-tags:
-
-date: 2019-05-02 19:00:34
+tags: null
+date: 2019-05-02T19:00:34.000Z
 draft: true
 info: false
+slug: bnf-backus-naur-form
 ---
 
 BNF는 **문맥 자유 문법**을 나타내기 위해 만들어진 표기법이다. 존 베커스와 페테르 나우르의 이름을 따서 부른다.

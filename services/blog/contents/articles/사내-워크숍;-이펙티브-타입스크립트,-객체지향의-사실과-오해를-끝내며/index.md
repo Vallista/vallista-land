@@ -1,10 +1,10 @@
 ---
 title: 사내 워크숍; 이펙티브 타입스크립트, 객체지향의 사실과 오해를 끝내며
-tags:
-
-date: 2022-03-27 13:27:40
+tags: null
+date: 2022-03-27T13:27:40.000Z
 image: ./assets/1.jpeg
 draft: false
+slug: in-company-workshop-effective-typescript-object-oriented-facts-and-misunderstanding-finishing
 ---
 
 ![workshop](./assets/1.jpeg)

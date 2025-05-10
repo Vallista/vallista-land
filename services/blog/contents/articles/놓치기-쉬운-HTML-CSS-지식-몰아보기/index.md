@@ -1,11 +1,11 @@
 ---
 title: 놓치기 쉬운 HTML/CSS 지식 몰아보기
 image: ./assets/image1.png
-tags:
-  - 프론트엔드
-date: 2019-11-25 01:28:52
+tags: null
+date: 2019-11-25T01:28:52.000Z
 draft: false
 info: false
+slug: missing-easy-knowledge-binge
 ---
 
 ![main_image](./assets/image1.png)

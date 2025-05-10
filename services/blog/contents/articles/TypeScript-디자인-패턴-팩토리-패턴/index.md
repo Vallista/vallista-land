@@ -1,13 +1,16 @@
 ---
 title: TypeScript 디자인 패턴 - 팩토리 패턴
-date: 2020-05-05 20:44:56
+date: 2020-05-05T20:44:56.000Z
 image: ./assets/0.jpg
-tags:
-  - 프론트엔드
+tags: null
 draft: false
 info: false
 series: TypeScript 디자인 패턴
 seriesPriority: 1
+slug: design-pattern-factory-pattern
+---
+
+팩토리-패턴
 ---
 
 ![이미지0](./assets/0.jpg)

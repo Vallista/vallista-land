@@ -1,10 +1,10 @@
 ---
 title: RESTFUL API
-tags:
-
-date: 2019-05-02 18:46:16
+tags: null
+date: 2019-05-02T18:46:16.000Z
 draft: true
 info: false
+slug: restful-api
 ---
 
 `REST` 는 REpresentational State Transfer의 약자이다. ~ful 이라는 형용사형 어미를 붙여 REST한 API라고 보면 된다. REST는 디자인 패턴인데 REST 패턴을 잘 지킨 서비스 디자인을 'RESTful' 하다고 표현한다.

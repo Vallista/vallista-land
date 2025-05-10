@@ -1,11 +1,11 @@
 ---
 title: TypeScript의 interface와 type alias
-tags:
-  - 프론트엔드
-date: 2021-10-10 16:07:18
+tags: null
+date: 2021-10-10T16:07:18.000Z
 draft: false
 info: false
 image: ./assets/1.jpeg
+slug: of-and
 ---
 
 ![이미지1](./assets/1.jpeg)

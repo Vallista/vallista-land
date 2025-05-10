@@ -1,10 +1,10 @@
 ---
 title: CSSOM (CSS Object Model)
-tags:
-  - 프론트엔드
-date: 2019-05-07 19:12:24
+tags: null
+date: 2019-05-07T19:12:24.000Z
 draft: true
 info: false
+slug: cssom-css-object-model
 ---
 
 CSS는 앞서 말한 '**문맥 자유 문법**' 이므로 [BNF (Backus-Naur Form)](https://www.notion.so/97878963-961a-4ae6-b6d4-40849fb33020)로 표현할 수 있다.

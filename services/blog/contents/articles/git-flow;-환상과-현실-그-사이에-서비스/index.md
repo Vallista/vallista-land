@@ -1,9 +1,9 @@
 ---
 title: git flow; 환상과 현실 그 사이에 서비스
-tags:
-
-date: 2022-02-13 17:30:08
+tags: null
+date: 2022-02-13T17:30:08.000Z
 image: ./assets/0.png
+slug: fantasy-and-reality-the-between-service
 ---
 
 ![이미지 0](./assets/0.png)

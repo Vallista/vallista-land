@@ -1,10 +1,10 @@
 ---
 title: 클로저 (Closure)
-tags:
-  - 프론트엔드
-date: 2019-05-11 10:55:07
+tags: null
+date: 2019-05-11T10:55:07.000Z
 draft: true
 info: false
+slug: closure
 ---
 
 클로저를 알기 위해, JavaScript는 Lexical Scope(유효 범위 지정)을 어떻게 하는지 알아야 한다.

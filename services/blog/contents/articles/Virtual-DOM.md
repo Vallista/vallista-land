@@ -1,10 +1,10 @@
 ---
 title: Virtual DOM
-tags:
-  - 프론트엔드
-date: 2019-05-04 19:04:34
+tags: null
+date: 2019-05-04T19:04:34.000Z
 draft: true
 info: false
+slug: virtual-dom
 ---
 
 Virtual DOM은[Vue.js](https://www.notion.so/a0a34ea8-52ad-44f8-b109-8ae1fb33bda1), [React.js](https://www.notion.so/a4b13e25-b67a-40af-87d3-c084a29c895c) 와 같은 SPA 프레임워크에서 사용된다.

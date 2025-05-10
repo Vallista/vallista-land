@@ -1,0 +1,306 @@
+<h2>옵저버-패턴</h2>
+<p><img src="/files/contents/articles/design-pattern-observer-pattern/assets/0.jpg" alt="이미지0" loading="lazy" decoding="async" fetchpriority="high" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
+<h2>옵저버 패턴이란</h2>
+<p>설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 옵저버 패턴은 행동과 관련된 디자인 패턴입니다.</p>
+<p>옵저버 패턴은 감지할 객체의 클래스에 옵저버 인터페이스를 주고, 만든 객체를 옵저버 서버에 등록하여 옵저버 서버에서 함수를 호출해 인터페이스에 대응하는 함수를 실행합니다.</p>
+<p>이 패턴은 개방 폐쇄 원칙을 지키게 도와주며, 캡슐화가 잘 된 객체를 만들 수 있도록 도와줍니다.</p>
+<h2>옵저버 패턴</h2>
+<p>아래의 코드는 <a href="https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript">React Observer Pattern Use TypeScript</a>에서 보실 수 있습니다.</p>
+<p><img src="/files/contents/articles/design-pattern-observer-pattern/assets/1.png" alt="1" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;">
+(그림 1: 옵저버 패턴의 구상도)</p>
+<p>옵저버 패턴은 Observer Interface를 옵저빙할 객체에 상속하는 형태로 구현합니다. 그렇게 상속받은 객체를 배열로 저장해서 배열에서 For Loop를 돌려 모두에게 이벤트를 전파하는 방식입니다.</p>
+<p>그렇다면 이 옵저버 패턴을 어디에 적용할 수 있을까요? 조금 억지스러운 감이 있지만, TodoList가 여러개 있을때 한번에 모든 Todo List의 Todo를 한개씩 생성하거나, 모든 Todo를 삭제하는 행동을 옵저버 패턴으로 구현할 수 있습니다.</p>
+<p><img src="https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true" alt="2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;">
+(그림 2: 옵저버 패턴을 적용해 전체 추가와 전체 삭제 기능을 구현)</p>
+<p>그림에 나오는 것처럼 옵저버 패턴을 적용해서 구현을 해보겠습니다.</p>
+<h3>모델 구현</h3>
+<p>옵저버 패턴을 적용하기 전에, 프로젝트에 쓰일 추상화된 모델을 구현합시다. 프로젝트가 커져감에따라 객체지향 형태로 추상화해서 모델을 만드는 것은 필요합니다.</p>
+<p><strong>Observer.ts</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> interface</span><span style="color:#E5C07B"> IObserver</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  notifyAddTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">void</span></span>
+<span data-line=""><span style="color:#61AFEF">  notifyRemoveTodo</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">void</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> class</span><span style="color:#E5C07B"> Subject</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  private</span><span style="color:#E06C75"> observerCollection</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">IObserver</span><span style="color:#ABB2BF">[]</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  constructor</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">observerCollection</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> []</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  registration</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">observer</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">IObserver</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">observerCollection</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">push</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">observer</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  notifyAddTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">observerCollection</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">forEach</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">observer</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">      observer</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">notifyAddTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  notifyRemoveTodo</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">observerCollection</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">forEach</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">observer</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">      observer</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">notifyRemoveTodo</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
+<p>먼저, 오늘의 주인공 Observer 입니다. Observer Interface에서는 이벤트 함수를 들고 있습니다. Todo를 모두 추가하거나 삭제하기 위한 이벤트 입니다. 이제 이 인터페이스는 객체에 적절히 추가될 것 입니다.</p>
+<p>Subject 클래스는 IObserver Interface를 구현한 객체를 담는 배열을 들고 있고, 해당 이벤트를 발생시키기 위한 함수가 있습니다. Subject에서 notifyAddTodo, notifyRemoveTodo를 실행하면 배열을 돌면서 observerCollection에 있는 객체의 함수를 실행하게 됩니다.</p>
+<p>Observer Collection에 Observer 객체를 등록시킬때는 registration 함수를 사용하여 등록합니다.</p>
+<p><strong>src/models/Removable</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> enum</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  IDLE</span><span style="color:#56B6C2"> =</span><span style="color:#D19A66"> 0</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">  REMOVE</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> interface</span><span style="color:#E5C07B"> IRemovable</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">  getRemoveState</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">RemoveState</span></span>
+<span data-line=""><span style="color:#61AFEF">  remove</span><span style="color:#ABB2BF">(): </span><span style="color:#E5C07B">void</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span></code></pre></figure>
+<p>Removable은 상태에 대한 enum 값과, 삭제가능한 객체인지를 알려주는 Interface로 구성됩니다. Removable을 구현하는 클래스는 느슨한 결합으로 쉽게 추가하고 붙일 수 있습니다.</p>
+<p><strong>Todo.ts</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">IRemovable</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">RemoveState</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> "./Removable"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> Todo</span><span style="color:#C678DD"> implements</span><span style="color:#E5C07B"> IRemovable</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  private</span><span style="color:#E06C75"> removeState</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">RemoveState</span></span>
+<span data-line=""><span style="color:#C678DD">  private</span><span style="color:#C678DD"> readonly</span><span style="color:#E06C75"> message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  constructor</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">IDLE</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">message</span><span style="color:#56B6C2"> =</span><span style="color:#E06C75"> message</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">remove</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">remove</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">bind</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  getMessage</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">message</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  getRemoveState</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  remove</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span><span style="color:#56B6C2"> !==</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">REMOVE</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">      this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">REMOVE</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Todo</span></span></code></pre></figure>
+<p>Todo 객체를 추상화한 Todo 클래스는 삭제상태와 메시지를 멤버 변수로 갖고 있습니다. 캡슐화를 완성하기 위해서 멤버변수는 은닉화를 해주었고, 외부 진입에 대해서 한정적이게 하도록 get 함수로 외부로의 연결통로를 두었습니다.</p>
+<p><strong>TodoList.ts</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Todo</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> "./Todo"</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">RemoveState</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75">IRemovable</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> './Removable'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">IObserver</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> './Observer'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">class</span><span style="color:#E5C07B"> TodoList</span><span style="color:#C678DD"> implements</span><span style="color:#E5C07B"> IRemovable</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">IObserver</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  private</span><span style="color:#C678DD"> readonly</span><span style="color:#E06C75"> todos</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">Todo</span><span style="color:#ABB2BF">[]</span></span>
+<span data-line=""><span style="color:#C678DD">  private</span><span style="color:#E06C75"> removeState</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">RemoveState</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  constructor</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">todos</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> [</span><span style="color:#C678DD">new</span><span style="color:#61AFEF"> Todo</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'테스트'</span><span style="color:#ABB2BF">)]</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">IDLE</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">add</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">add</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">bind</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">remove</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">remove</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">bind</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">notifyAddTodo</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">notifyAddTodo</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">bind</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">notifyRemoveTodo</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">notifyRemoveTodo</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">bind</span><span style="color:#ABB2BF">(</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  getTodos</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">todos</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">filter</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">todo</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#E5C07B"> todo</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getRemoveState</span><span style="color:#ABB2BF">() </span><span style="color:#56B6C2">!==</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">REMOVE</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  add</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">todos</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">push</span><span style="color:#ABB2BF">(</span><span style="color:#C678DD">new</span><span style="color:#61AFEF"> Todo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">))</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  remove</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E5C07B">this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span><span style="color:#56B6C2"> !==</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">REMOVE</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#E5C07B">      this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span><span style="color:#56B6C2"> =</span><span style="color:#E5C07B"> RemoveState</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">REMOVE</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  getRemoveState</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">    return</span><span style="color:#E5C07B"> this</span><span style="color:#ABB2BF">.</span><span style="color:#E06C75">removeState</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  notifyAddTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">add</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  notifyRemoveTodo</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#E5C07B">    this</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">todos</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">forEach</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">todo</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">      todo</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">remove</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">    })</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> TodoList</span></span></code></pre></figure>
+<p>TodoList는 Subject에서 제공한 함수를 동작시키기 위해 Observer Interface를 구현합니다. 그래서 이 TodoList를 받아, Observer Collection에서 동작시킬 것 입니다.</p>
+<h2>React component, hooks 구현</h2>
+<p>이제 이 모델을 사용해야하는데 React와 객체지향 모델과의 결합을 하는 예제는 많지 않기 때문에 생소할 수 있습니다. 그래서, 최근 가장 많이 사용한다는 hooks와 functional component 형태로 제작해보겠습니다.</p>
+<p><strong>src/hooks/useTodo.tsx</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">useState</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> TodoList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../models/TodoList'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">Subject</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../models/Observer'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#E5C07B"> subject</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> Subject</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">function</span><span style="color:#61AFEF"> useTodo</span><span style="color:#ABB2BF">() {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> [</span><span style="color:#E5C07B">todoListCollection</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">setTodoListCollection</span><span style="color:#ABB2BF">] </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useState</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">TodoList</span><span style="color:#ABB2BF">[]>([])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> reRender</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">other</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">TodoList</span><span style="color:#ABB2BF">[] </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> []) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    setTodoListCollection</span><span style="color:#ABB2BF">(</span></span>
+<span data-line=""><span style="color:#ABB2BF">      [...</span><span style="color:#E06C75">todoListCollection</span><span style="color:#ABB2BF">, ...</span><span style="color:#E06C75">other</span><span style="color:#ABB2BF">]</span></span>
+<span data-line=""><span style="color:#ABB2BF">    )</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> addTodoList</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    const</span><span style="color:#E5C07B"> todoList</span><span style="color:#56B6C2"> =</span><span style="color:#C678DD"> new</span><span style="color:#61AFEF"> TodoList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">    reRender</span><span style="color:#ABB2BF">([</span><span style="color:#E06C75">todoList</span><span style="color:#ABB2BF">])</span></span>
+<span data-line=""><span style="color:#E5C07B">    subject</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">registration</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">todoList</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> addTodo</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">TodoList</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">TodoList</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    TodoList</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">add</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#61AFEF">    reRender</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> allAddTodo</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> (</span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E5C07B">    subject</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">notifyAddTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">message</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#61AFEF">    reRender</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#61AFEF"> allRemoveTodo</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">    if</span><span style="color:#ABB2BF"> (</span><span style="color:#E5C07B">window</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">confirm</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'정말 삭제하시겠습니까?'</span><span style="color:#ABB2BF">)) {</span></span>
+<span data-line=""><span style="color:#E5C07B">      subject</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">notifyRemoveTodo</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#61AFEF">      reRender</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">    }</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">    todoListCollection</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    addTodoList</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    addTodo</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    allAddTodo</span><span style="color:#ABB2BF">,</span></span>
+<span data-line=""><span style="color:#E06C75">    allRemoveTodo</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> useTodo</span></span></code></pre></figure>
+<p>custom hook인 useTodo 입니다. 모델과 대응되고 있으며, 모델의 코드를 프론트에 제공해주기 위해 리액트 코드로 변환하는 과정입니다.</p>
+<ol>
+<li>Subject를 받아 hooks 밖에 생성을 합니다. hooks 밖에 생성하는 이유는 컴포넌트가 렌더 될 때마다 새로 custom hooks를 호출하기 때문에 hooks안에 넣으면 계속 동적할당하여 초기화합니다.</li>
+<li>custom hooks의 todoListCollection을 useState로 상태를 만듭니다. 상태의 타입은 모델이므로 TodoList[]로 지정합니다.</li>
+<li>reRender 함수는 shallow copy를 통해 React Component가 재랜더링 할 수 있도록 도와주는 함수입니다.</li>
+<li>addTodoList 함수는 TodoList 모델을 생성하면서 registration으로 Subject에 등록합니다.</li>
+<li>addTodo 함수는 해당 TodoList에 todo를 추가합니다.</li>
+<li>allAddTodo, allRemoveTodo는 subject에 이벤트를 보내고 재랜더링합니다.</li>
+</ol>
+<p>그리고 상태와 함수를 추출하여 밖으로 내보냅니다.</p>
+<p><strong>src/components/Todo.tsx</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#98C379"> '../App.css'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> IProps</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">;</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> Todo</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">React</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">FC</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">IProps</span><span style="color:#ABB2BF">> </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'todo'</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#E06C75">message</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Todo</span></span></code></pre></figure>
+<p>Todo Component는 간단하게 message만 prop으로 받아서 렌더링을 해줍니다.</p>
+<p><strong>src/components/Todos.tsx</strong></p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#98C379"> '../App.css'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> TodoList</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> '../models/TodoList'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Todo</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> './Todo'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#ABB2BF"> { </span><span style="color:#E06C75">convertNumberToKorean</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> '../utils'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">interface</span><span style="color:#E5C07B"> IProps</span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#E06C75">  todos</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">TodoList</span></span>
+<span data-line=""><span style="color:#E06C75">  index</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">number</span></span>
+<span data-line=""><span style="color:#61AFEF">  addTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75;font-style:italic">TodoList</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">TodoList</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">message</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">string</span><span style="color:#ABB2BF">): </span><span style="color:#E5C07B">void</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> Todos</span><span style="color:#ABB2BF">: </span><span style="color:#E5C07B">React</span><span style="color:#ABB2BF">.</span><span style="color:#E5C07B">FC</span><span style="color:#ABB2BF">&#x3C;</span><span style="color:#E5C07B">IProps</span><span style="color:#ABB2BF">> </span><span style="color:#56B6C2">=</span><span style="color:#ABB2BF"> ({ </span><span style="color:#E06C75;font-style:italic">todos</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">index</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">addTodo</span><span style="color:#ABB2BF"> }) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">"todos"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">h1</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">"todos-title"</span><span style="color:#ABB2BF">></span><span style="color:#C678DD">{</span><span style="color:#61AFEF">convertNumberToKorean</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">index</span><span style="color:#ABB2BF">)</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">&#x3C;/</span><span style="color:#E06C75">h1</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">"todos-wrapper"</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">        {</span><span style="color:#E5C07B">todos</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getTodos</span><span style="color:#ABB2BF">().</span><span style="color:#61AFEF">map</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">todo</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">idx</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> &#x3C;</span><span style="color:#E5C07B">Todo</span><span style="color:#D19A66;font-style:italic"> message</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E5C07B">todo</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getMessage</span><span style="color:#ABB2BF">()</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> key</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">idx</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> />)</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">button</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">"button bottom-absolute"</span><span style="color:#D19A66;font-style:italic"> onClick</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span></span>
+<span data-line=""><span style="color:#ABB2BF">        () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> { </span><span style="color:#61AFEF">addTodo</span><span style="color:#ABB2BF">(</span><span style="color:#E06C75">todos</span><span style="color:#ABB2BF">, </span><span style="color:#98C379">`</span><span style="color:#C678DD">${</span><span style="color:#E5C07B">todos</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">getTodos</span><span style="color:#ABB2BF">().</span><span style="color:#E06C75">length</span><span style="color:#C678DD">}</span><span style="color:#98C379"> 번째 테스트`</span><span style="color:#ABB2BF">) }</span></span>
+<span data-line=""><span style="color:#C678DD">      }</span><span style="color:#ABB2BF">>+&#x3C;/</span><span style="color:#E06C75">button</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> Todos</span></span></code></pre></figure>
+<p>Todos에서는 TodoList 모델을 받아서 렌더링 해줍니다.</p>
+<ol>
+<li>index를 받는 이유는 실행하고 하나, 둘, 셋 등의 한국말로 텍스트를 띄워주기 위해 index 번호를 받습니다.</li>
+<li>addTodo는 추가 된 후 렌더링을 해주어야 하므로 hooks에서 만든 함수를 Prop Drilling 으로 내려줍니다.</li>
+<li>convertNumberToKorean은 하나, 둘, 셋 과 같이 한글 숫자로 번역해주도록 만든 함수입니다.</li>
+</ol>
+<h2>App 적용</h2>
+<p>App에서 실제로 적용해줍니다.</p>
+<figure data-rehype-pretty-code-figure=""><pre tabindex="0" data-language="jsx" data-theme="one-dark-pro"><code data-language="jsx" data-theme="one-dark-pro" style="display: grid;"><span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> React</span><span style="color:#ABB2BF">, { </span><span style="color:#E06C75">useEffect</span><span style="color:#ABB2BF"> } </span><span style="color:#C678DD">from</span><span style="color:#98C379"> 'react'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#98C379"> './App.css'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> useTodo</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> './hooks/useTodo'</span></span>
+<span data-line=""><span style="color:#C678DD">import</span><span style="color:#E06C75"> Todos</span><span style="color:#C678DD"> from</span><span style="color:#98C379"> './components/Todos'</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">const</span><span style="color:#61AFEF"> App</span><span style="color:#56B6C2"> =</span><span style="color:#ABB2BF"> () </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#C678DD">  const</span><span style="color:#ABB2BF"> { </span><span style="color:#E5C07B">todoListCollection</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">addTodoList</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">addTodo</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">allAddTodo</span><span style="color:#ABB2BF">, </span><span style="color:#E5C07B">allRemoveTodo</span><span style="color:#ABB2BF"> } </span><span style="color:#56B6C2">=</span><span style="color:#61AFEF"> useTodo</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#61AFEF">  useEffect</span><span style="color:#ABB2BF">(() </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">    addTodoList</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">  }, [])</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">  return</span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66;font-style:italic"> id</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'app'</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'collection'</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#C678DD">        {</span><span style="color:#E5C07B">todoListCollection</span><span style="color:#ABB2BF">.</span><span style="color:#61AFEF">map</span><span style="color:#ABB2BF">((</span><span style="color:#E06C75;font-style:italic">todoList</span><span style="color:#ABB2BF">, </span><span style="color:#E06C75;font-style:italic">index</span><span style="color:#ABB2BF">) </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> (</span></span>
+<span data-line=""><span style="color:#ABB2BF">          &#x3C;</span><span style="color:#E5C07B">Todos</span><span style="color:#D19A66;font-style:italic"> todos</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">todoList</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> index</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">index</span><span style="color:#56B6C2"> +</span><span style="color:#D19A66"> 1</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> addTodo</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">addTodo</span><span style="color:#C678DD">}</span><span style="color:#D19A66;font-style:italic"> key</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">index</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF"> /></span></span>
+<span data-line=""><span style="color:#ABB2BF">        ))</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">button</span><span style="color:#D19A66;font-style:italic"> className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'button'</span><span style="color:#D19A66;font-style:italic"> onClick</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#E06C75">addTodoList</span><span style="color:#C678DD">}</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">          콜렉션 추가</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;/</span><span style="color:#E06C75">button</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">button</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">          className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'button'</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">          onClick</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#ABB2BF">() </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">            allAddTodo</span><span style="color:#ABB2BF">(</span><span style="color:#98C379">'전체 추가'</span><span style="color:#ABB2BF">)</span></span>
+<span data-line=""><span style="color:#ABB2BF">          }</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">        ></span></span>
+<span data-line=""><span style="color:#ABB2BF">          전체 추가</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;/</span><span style="color:#E06C75">button</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;</span><span style="color:#E06C75">button</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">          className</span><span style="color:#56B6C2">=</span><span style="color:#98C379">'button'</span></span>
+<span data-line=""><span style="color:#D19A66;font-style:italic">          onClick</span><span style="color:#56B6C2">=</span><span style="color:#C678DD">{</span><span style="color:#ABB2BF">() </span><span style="color:#C678DD">=></span><span style="color:#ABB2BF"> {</span></span>
+<span data-line=""><span style="color:#61AFEF">            allRemoveTodo</span><span style="color:#ABB2BF">()</span></span>
+<span data-line=""><span style="color:#ABB2BF">          }</span><span style="color:#C678DD">}</span></span>
+<span data-line=""><span style="color:#ABB2BF">        ></span></span>
+<span data-line=""><span style="color:#ABB2BF">          전체 삭제</span></span>
+<span data-line=""><span style="color:#ABB2BF">        &#x3C;/</span><span style="color:#E06C75">button</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">      &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">    &#x3C;/</span><span style="color:#E06C75">div</span><span style="color:#ABB2BF">></span></span>
+<span data-line=""><span style="color:#ABB2BF">  )</span></span>
+<span data-line=""><span style="color:#ABB2BF">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#C678DD">export</span><span style="color:#C678DD"> default</span><span style="color:#E06C75"> App</span></span></code></pre></figure>
+<h2>실행</h2>
+<p><img src="https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true" alt="2" loading="lazy" decoding="async" class="fade-image" style="aspect-ratio: 2 / 1; display: block; width: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease;"></p>
+<p>실행을 해보면 전체 추가, 삭제가 제대로 동작하는 걸 볼 수 있습니다.</p>
+<h2>결론</h2>
+<p>옵저버 패턴을 사용하면 모델 내에서 해당 이벤트에 대한 처리를 할 수 있으므로 레거시 로직이 아닌, 기능상의 로직으로 모델에 남을 수 있습니다.</p>
+<p>또, Subject에서 이벤트를 관리할 수 있으며 EventDispatcher를 만들어 서버 로그 및 서버 통신에 대한 결과값을 가공하는 형태로도 작성할 수 있습니다.</p>

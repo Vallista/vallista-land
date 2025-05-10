@@ -1,9 +1,9 @@
 ---
 title: 2024년 회고
 image: ./assets/0.png
-tags:
-  - 회고
-date: 2025-01-01 16:24:46
+tags: null
+date: 2025-01-01T16:24:46.000Z
+slug: 2024-year-retrospective
 ---
 
 ![로고](./assets/1.png)

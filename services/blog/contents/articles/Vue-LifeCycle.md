@@ -1,10 +1,10 @@
 ---
 title: Vue LifeCycle
-tags:
-  - 프론트엔드
-date: 2018-01-15 18:40:06
+tags: null
+date: 2018-01-15T18:40:06.000Z
 draft: true
 info: false
+slug: vue-lifecycle
 ---
 
 ## 참고 자료

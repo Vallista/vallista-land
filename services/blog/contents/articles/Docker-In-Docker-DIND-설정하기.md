@@ -1,10 +1,10 @@
 ---
 title: Docker In Docker (DIND) 설정하기
-tags:
-
-date: 2019-05-30 16:33:52
+tags: null
+date: 2019-05-30T16:33:52.000Z
 draft: true
 info: false
+slug: configuration
 ---
 
 Docker in Docker를 설정하는 이유 첫 번째로 보안의 위험이 있다.

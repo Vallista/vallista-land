@@ -1,10 +1,10 @@
 ---
 title: CORS (Cross Origin Resource Sharing)
-tags:
-  - 프론트엔드
-date: 2019-05-12 11:04:45
+tags: null
+date: 2019-05-12T11:04:45.000Z
 draft: true
 info: false
+slug: cors-cross-origin-resource-sharing
 ---
 
 CORS는 Cross-Origin Resource Sharing의 약자이다.

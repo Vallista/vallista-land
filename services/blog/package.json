@@ -8,8 +8,14 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:mdx": "node scripts/convert-to-html.js convert",
-    "deploy": "node ./scripts/deploy.js"
+    "copy-layout": "node scripts/copy-layout.js",
+    "generate-static": "node scripts/generate-static-html.js",
+    "generate-404": "node scripts/generate-404-html.js",
+    "generate-sitemap": "node scripts/generate-sitemap.js",
+    "generate-robots": "node scripts/generate-robots.js",
+    "patch-index-seo": "node scripts/patch-index-seo.js",
+    "generate-rss": "node scripts/generate-rss.js",
+    "deploy": "node scripts/deploy.js"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -19,6 +25,7 @@
     "@tanstack/react-query": "^5.74.4",
     "@vallista/design-system": "workspace:*",
     "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-helmet-async": "^2.0.5",
@@ -26,7 +33,8 @@
     "react-router-dom": "^7.5.1",
     "rehype-pretty-code": "^0.14.1",
     "remark-frontmatter": "^5.0.0",
-    "remark-mdx-frontmatter": "^5.1.0"
+    "remark-mdx-frontmatter": "^5.1.0",
+    "vite-plugin-prerender": "^1.0.8"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.3.0",

@@ -1,10 +1,10 @@
 ---
 title: 동일 출처 정책 (Same Origin Policy)
-tags:
-  - 프론트엔드
-date: 2019-05-12 11:03:24
+tags: null
+date: 2019-05-12T11:03:24.000Z
 draft: true
 info: false
+slug: identical-source-policy
 ---
 
 [XSS (Cross-Site-Scripting)](https://www.notion.so/efde14ea-9d64-4720-bd13-2c1171a7c7d9) 와 같은 공격 기법은 사이트 내에서 해커 서버의 민감한 정보를 탈취하는 코드를 실행시키는 방식이다. 이러한 방식을 막으려는 노력중 하나가 Same Origin Policy이다.

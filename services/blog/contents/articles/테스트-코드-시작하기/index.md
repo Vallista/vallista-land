@@ -1,12 +1,12 @@
 ---
 title: 테스트 코드 시작하기
-tags:
-
-date: 2022-03-13 14:11:18
+tags: null
+date: 2022-03-13T14:11:18.000Z
 image: ./assets/1.jpeg
 draft: false
 series: 프론트엔드 테스팅
 seriesPriority: 1
+slug: test-code-getting-started
 ---
 
 ![이미지1](assets/1.jpeg)

@@ -1,11 +1,11 @@
 ---
 title: 웹 개발자의 지옥, 이메일 폼 개발하기
 image: ./assets/image1.png
-tags:
-  - 프론트엔드
-date: 2019-12-27 20:01:32
+tags: null
+date: 2019-12-27T20:01:32.000Z
 draft: false
 info: false
+slug: web-developer-hell-email-form-developing
 ---
 
 ![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)

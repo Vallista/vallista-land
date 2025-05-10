@@ -1,9 +1,9 @@
 ---
 title: 2022년 8월 18일
 image: ./assets/splash.jpg
-tags:
-  - TIL
-date: 2022-08-18 13:14:54
+tags: null
+date: 2022-08-18T13:14:54.000Z
+slug: 2022-year-8-month-18-day
 ---
 
 ![로고](assets/splash.jpg)
