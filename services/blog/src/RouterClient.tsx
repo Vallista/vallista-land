@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@vallista/design-system'
 import { CacheProvider } from '@emotion/react'
 import createEmotionCache from './libs/createEmotionCache' // 경로는 상황에 맞게 조정
-import App from './App'
+import App from './app'
 
 const queryClient = new QueryClient()
 const emotionCache = createEmotionCache()

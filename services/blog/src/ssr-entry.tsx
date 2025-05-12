@@ -1,6 +1,6 @@
 import { renderToString } from 'react-dom/server'
 import { StaticRouter } from 'react-router'
-import App from './App'
+import App from './app'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@vallista/design-system'
 
