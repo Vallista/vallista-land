@@ -3,14 +3,15 @@ import * as Styled from './index.style'
 
 interface MarkdownProps {
   mdx?: string
-  loading?: boolean
 }
 
 export const Markdown = memo((props: MarkdownProps) => {
-  const { mdx, loading } = props
+  const { mdx } = props
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    if (typeof window === 'undefined' || !mdx) return
+
     const bindImages = () => {
       const images = containerRef.current?.querySelectorAll<HTMLImageElement>('img.fade-image') || []
 
@@ -48,33 +49,28 @@ export const Markdown = memo((props: MarkdownProps) => {
       })
     }
 
-    const observer = new MutationObserver(() => {
-      bindImages()
-    })
-
+    const observer = new MutationObserver(bindImages)
     if (containerRef.current) {
       observer.observe(containerRef.current, {
         childList: true,
         subtree: true
       })
-
-      // ✅ 첫 렌더에도 직접 트리거
       bindImages()
     }
 
-    return () => {
-      observer.disconnect()
-    }
+    return () => observer.disconnect()
   }, [mdx])
 
-  return !loading || !mdx ? (
-    <Styled.SkeletonWrap>
-      <Styled.SkeletonImage />
-      <SkeletonTextBlock />
-    </Styled.SkeletonWrap>
-  ) : (
-    <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx }} />
-  )
+  if (!mdx) {
+    return (
+      <Styled.SkeletonWrap>
+        <Styled.SkeletonImage />
+        <SkeletonTextBlock />
+      </Styled.SkeletonWrap>
+    )
+  }
+
+  return <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx }} />
 })
 
 const SkeletonTextBlock = () => (

@@ -26,5 +26,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "src/types/type.d.ts", "src/types/emotion.d.ts", "config/**/*.ts|tsx"]
+  "include": ["vite.config.ts", "src/types/**.d.ts", "config/**/*.ts|tsx"]
 }

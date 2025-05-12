@@ -1,6 +1,5 @@
 import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
 import { ReactNode, useEffect, useState } from 'react'
-
 import { createContext } from '../../utils/createContext'
 import { ToastProvider } from '../Toast'
 import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
@@ -32,367 +31,174 @@ const Themes: BaseThemeMapper = {
   }
 }
 
-type ThemeKeys = keyof typeof Themes
-
-const [Context, useContext] = createContext<{
+const [Context, useTheme] = createContext<{
   changeTheme: (theme: 'LIGHT' | 'DARK') => void
 }>()
 
-/**
- * # ThemeProvider
- *
- * @description **[경고] ThemeProvider는 필수입니다. 항상 root에 넣어주세요!**
- *
- * @param {ThemeKeys} {@link ThemeKeys} theme에 넣으면 테마가 변경됩니다. 기본: DEFAULT
- *
- * @example ```tsx
- * <ThemeProvider theme='DARK'>
- *  ...
- * </ThemeProvider>
- * ```
- */
+type ThemeKeys = keyof typeof Themes
+
+function getInitialTheme(): ThemeKeys {
+  if (typeof window === 'undefined') return 'LIGHT'
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT'
+}
+
 export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys; children: ReactNode }) => {
-  const [themeState, setThemeState] = useState(theme)
+  const [themeState, setThemeState] = useState<ThemeKeys>(theme)
   const [mounted, setMounted] = useState(false)
 
-  const updateThemeColorMeta = (color: string) => {
-    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
+  useEffect(() => {
+    if (typeof window === 'undefined') return
 
+    const appliedTheme = Themes[themeState]
+
+    document.body.style.backgroundColor = appliedTheme.colors.PRIMARY.BACKGROUND
+    document.body.style.color = appliedTheme.colors.PRIMARY.FOREGROUND
+    document.body.style.transition = 'background-color 0.2s ease-in-out'
+
+    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
     if (!meta) {
       meta = document.createElement('meta')
       meta.name = 'theme-color'
       document.head.appendChild(meta)
     }
-
-    meta.content = color
-  }
-
-  useEffect(() => {
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-    const bgColor = mounted
-      ? Themes[themeState].colors.PRIMARY.BACKGROUND
-      : Themes[isDarkMode ? 'DARK' : 'LIGHT'].colors.PRIMARY.BACKGROUND
-
-    const color = mounted
-      ? Themes[themeState].colors.PRIMARY.FOREGROUND
-      : Themes[isDarkMode ? 'DARK' : 'LIGHT'].colors.PRIMARY.FOREGROUND
-
-    document.body.style.backgroundColor = bgColor
-    document.body.style.color = color
-    updateThemeColorMeta(bgColor)
-
-    document.body.style.transition = 'background-color 0.2s ease-in-out'
+    meta.content = appliedTheme.colors.PRIMARY.BACKGROUND
 
     setMounted(true)
   }, [themeState])
 
-  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const changeTheme = (next: ThemeKeys) => setThemeState(next)
+
+  const currentTheme = mounted ? Themes[themeState] : Themes[getInitialTheme()]
 
   return (
     <Context state={{ changeTheme }}>
       <Reset />
-      <BaseThemeProvider theme={mounted ? Themes[themeState] : Themes[isDarkMode ? 'DARK' : 'LIGHT']}>
+      <BaseThemeProvider theme={currentTheme}>
         <ToastProvider>{children}</ToastProvider>
       </BaseThemeProvider>
     </Context>
   )
-
-  function changeTheme(state: 'LIGHT' | 'DARK'): void {
-    setThemeState(state)
-  }
 }
 
-export const useTheme = useContext
+export { useTheme }
 
-const Reset = () => {
-  return (
-    <Global
-      styles={css`
+const Reset = () => (
+  <Global
+    styles={css`
+      /* Pretendard font-face declarations */
+      ${[900, 800, 700, 600, 500, 400, 300, 200, 100]
+        .map(
+          (weight) => `
         @font-face {
           font-family: 'Pretendard';
-          font-weight: 900;
+          font-weight: ${weight};
           font-display: swap;
-          src:
-            local('Pretendard Black'),
-            url(/fonts/pretendard/Pretendard-Black.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-Black.subset.woff) format('woff');
+          src: local('Pretendard'), 
+               url(/fonts/pretendard/Pretendard-${getWeightName(weight)}.subset.woff2) format('woff2'),
+               url(/fonts/pretendard/Pretendard-${getWeightName(weight)}.subset.woff) format('woff');
         }
+      `
+        )
+        .join('\n')}
 
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 800;
-          font-display: swap;
-          src:
-            local('Pretendard ExtraBold'),
-            url(/fonts/pretendard/Pretendard-ExtraBold.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-ExtraBold.subset.woff) format('woff');
-        }
+      :root {
+        --vh: 1vh;
+        --font-family: 'Pretendard', -apple-system, sans-serif;
+        --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
+        --scrollbar-background: #1e1e1e;
+        --scrollbar-thumb: #666;
+        --scrollbar-thumb-highlight: #ff0080;
+      }
 
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 700;
-          font-display: swap;
-          src:
-            local('Pretendard Bold'),
-            url(/fonts/pretendard/Pretendard-Bold.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-Bold.subset.woff) format('woff');
-        }
-
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 600;
-          font-display: swap;
-          src:
-            local('Pretendard SemiBold'),
-            url(/fonts/pretendard/Pretendard-SemiBold.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-SemiBold.subset.woff) format('woff');
-        }
-
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 500;
-          font-display: swap;
-          src:
-            local('Pretendard Medium'),
-            url(/fonts/pretendard/Pretendard-Medium.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-Medium.subset.woff) format('woff');
-        }
-
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 400;
-          font-display: swap;
-          src:
-            local('Pretendard Regular'),
-            url(/fonts/pretendard/Pretendard-Regular.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-Regular.subset.woff) format('woff');
-        }
-
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 300;
-          font-display: swap;
-          src:
-            local('Pretendard Light'),
-            url(/fonts/pretendard/Pretendard-Light.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-Light.subset.woff) format('woff');
-        }
-
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 200;
-          font-display: swap;
-          src:
-            local('Pretendard ExtraLight'),
-            url(/fonts/pretendard/Pretendard-ExtraLight.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-ExtraLight.subset.woff) format('woff');
-        }
-
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: 100;
-          font-display: swap;
-          src:
-            local('Pretendard Thin'),
-            url(/fonts/pretendard/Pretendard-Thin.subset.woff2) format('woff2'),
-            url(/fonts/pretendard/Pretendard-Thin.subset.woff) format('woff');
-        }
-
-        :root {
-          --vh: 1vh;
-          --font-family: 'Pretendard', -apple-system, sans-serif;
-          --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
-          --scrollbar-background: #1e1e1e;
-          --scrollbar-thumb: #666;
-          --scrollbar-thumb-highlight: #ff0080;
-        }
-
-        html {
+      html {
+        font-size: 14px;
+        @media screen and (max-width: 1024px) {
           font-size: 14px;
-
-          @media screen and (max-width: 1024px) {
-            font-size: 14px;
-            /** ios safari fixed bottom 대응 */
-            height: 100%;
-            overflow-x: hidden;
-            overflow-y: scroll;
-            -webkit-overflow-scrolling: touch;
-          }
-
-          /** 파이어폭스 스크롤 대응 */
-          scrollbar-width: 8px;
-          // thumb background 순
-          scrollbar-color: var(--scrollbar-thumb-highlight) var(--scrollbar-background);
-
-          /** 사파리, 크롬 스크롤 대응 */
-          &::-webkit-scrollbar {
-            background: var(--scrollbar-background);
-            height: 8px;
-            width: 8px;
-          }
-          &::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb-highlight);
-            border-radius: 0;
-          }
+          height: 100%;
+          overflow-x: hidden;
+          overflow-y: scroll;
+          -webkit-overflow-scrolling: touch;
         }
-
-        html,
-        body {
-          font-family: var(--font-family) !important;
-          text-rendering: optimizeLegibility;
-          -webkit-font-smoothing: antialiased;
-          font-size: 1rem;
+        scrollbar-width: 8px;
+        scrollbar-color: var(--scrollbar-thumb-highlight) var(--scrollbar-background);
+        &::-webkit-scrollbar {
+          background: var(--scrollbar-background);
+          height: 8px;
+          width: 8px;
         }
-
-        div,
-        article,
-        section {
-          box-sizing: border-box;
+        &::-webkit-scrollbar-thumb {
+          background: var(--scrollbar-thumb-highlight);
         }
+      }
 
-        html,
-        body,
-        div,
-        span,
-        applet,
-        object,
-        iframe,
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        p,
-        blockquote,
-        pre,
-        a,
-        abbr,
-        acronym,
-        address,
-        big,
-        cite,
-        code,
-        del,
-        dfn,
-        em,
-        img,
-        ins,
-        kbd,
-        q,
-        s,
-        samp,
-        small,
-        strike,
-        strong,
-        sub,
-        sup,
-        tt,
-        var,
-        b,
-        u,
-        i,
-        center,
-        dl,
-        dt,
-        dd,
-        ol,
-        ul,
-        li,
-        fieldset,
-        form,
-        label,
-        legend,
-        table,
-        caption,
-        tbody,
-        tfoot,
-        thead,
-        tr,
-        th,
-        td,
-        article,
-        aside,
-        canvas,
-        details,
-        embed,
-        figure,
-        figcaption,
-        footer,
-        header,
-        hgroup,
-        menu,
-        nav,
-        output,
-        ruby,
-        section,
-        summary,
-        time,
-        mark,
-        audio,
-        video {
-          margin: 0;
-          padding: 0;
-          border: 0;
-          font-size: 1rem;
-          font: inherit;
-          vertical-align: baseline;
-        }
+      html,
+      body {
+        font-family: var(--font-family) !important;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        font-size: 1rem;
+        margin: 0;
+        padding: 0;
+      }
 
-        label,
-        input,
-        button,
-        a {
-          -webkit-tap-highlight-color: transparent;
-        }
+      * {
+        box-sizing: border-box;
+      }
 
-        /* HTML5 display-role reset for older browsers */
-        article,
-        aside,
-        details,
-        figcaption,
-        figure,
-        footer,
-        header,
-        hgroup,
-        menu,
-        nav,
-        section {
-          display: block;
-        }
+      ol,
+      ul {
+        list-style: none;
+      }
 
-        body {
-          line-height: 1;
-        }
+      table {
+        border-collapse: collapse;
+        border-spacing: 0;
+      }
 
-        ol,
-        ul {
-          list-style: none;
-        }
-
-        blockquote,
-        q {
-          quotes: none;
-        }
-
-        blockquote:before,
-        blockquote:after,
-        q:before,
-        q:after {
+      blockquote,
+      q {
+        quotes: none;
+        &:before,
+        &:after {
           content: '';
-          content: none;
         }
+      }
 
-        table {
-          border-collapse: collapse;
-          border-spacing: 0;
-        }
+      label,
+      input,
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
 
-        string {
-          font-weight: 600 !important;
-        }
-      `}
-    />
-  )
+      body {
+        line-height: 1;
+      }
+    `}
+  />
+)
+
+function getWeightName(weight: number): string {
+  switch (weight) {
+    case 900:
+      return 'Black'
+    case 800:
+      return 'ExtraBold'
+    case 700:
+      return 'Bold'
+    case 600:
+      return 'SemiBold'
+    case 500:
+      return 'Medium'
+    case 400:
+      return 'Regular'
+    case 300:
+      return 'Light'
+    case 200:
+      return 'ExtraLight'
+    case 100:
+      return 'Thin'
+    default:
+      return ''
+  }
 }

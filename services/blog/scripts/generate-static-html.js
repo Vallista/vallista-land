@@ -1,9 +1,10 @@
 import fs from 'fs/promises'
 import path from 'path'
+import { render } from '../src/ssr-entry'
 
 const distDir = path.resolve('dist')
 const contentsSourceDir = path.resolve('contents')
-const filesSourceDir = path.resolve('dist/files')
+const filesSourceDir = path.resolve('public/contents')
 
 function escapeHtml(text = '') {
   return text
@@ -130,13 +131,22 @@ async function generateStaticHtml() {
       pathname
     })
 
-    let finalHtml = layoutTemplate.replace('<!-- {{head}} -->', headHtml).replace('<!-- {{content}} -->', '')
+    let finalHtml = layoutTemplate.replace('<!-- {{head}} -->', headHtml).replace('<!-- {{content}} -->', render())
+    // 💡 script 태그를 강제로 <body> 맨 뒤로 이동
+    const scriptTagMatch = finalHtml.match(/<script type="module"[\s\S]*?<\/script>/)
+    if (scriptTagMatch) {
+      const scriptTag = scriptTagMatch[0]
+      finalHtml = finalHtml.replace(scriptTag, '') // 기존 위치에서 제거
+      finalHtml = finalHtml.replace('</body>', `${scriptTag}\n</body>`) // body 마지막에 삽입
+    }
 
-    const targetDir = path.join(distDir, ...slugPathSegments).replace('dist', 'public')
+    const targetDir =
+      slugPathSegments.length === 0 ? path.resolve('public') : path.join(outputBaseDir, ...slugPathSegments)
     await fs.mkdir(targetDir, { recursive: true })
     await fs.writeFile(path.join(targetDir, 'index.html'), finalHtml)
 
-    console.log(`✅ Generated: contents/${slug}/index.html`)
+    const outputPath = path.join(...slugPathSegments)
+    console.log(`✅ Generated: /${outputPath}/index.html`)
   }
 
   console.log('🎉 All static HTML files generated!')

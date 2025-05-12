@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useContents } from '@/hooks/useContents'
 import { useGlobalProvider } from '@/context/useProvider'
 import { useContentWithRaw } from '@/hooks/useContentWithRaw'
@@ -14,8 +15,17 @@ export const useContentLayout = () => {
 
   const isPageReady = !contentsLoading && !contentLoading && !!contentWithRaw
 
-  const articleHeight = document.getElementById('article-header')?.clientHeight || 0
-  const articleSeriesHeight = document.getElementById('article-series')?.clientHeight || 0
+  // 👉 DOM 요소 접근은 CSR에서만 실행
+  const [articleHeight, setArticleHeight] = useState(0)
+  const [articleSeriesHeight, setArticleSeriesHeight] = useState(0)
+
+  useEffect(() => {
+    const article = document.getElementById('article-header')
+    const series = document.getElementById('article-series')
+
+    setArticleHeight(article?.clientHeight || 0)
+    setArticleSeriesHeight(series?.clientHeight || 0)
+  }, [contentWithRaw]) // 콘텐츠가 바뀔 때 다시 측정
 
   return {
     isPageReady,

@@ -5,20 +5,17 @@ import * as Styled from './Comment.style'
 
 export const Comment: FC = () => {
   const ref = useRef<HTMLDivElement>(null)
-  const [state, setState] = useState<{ status: 'pending' | 'success' | 'failure' }>({ status: 'pending' })
+  const [state, setState] = useState<'pending' | 'success' | 'failure'>('pending')
 
   useMount(() => {
-    const hasScript = ref.current?.children ?? []
+    if (typeof window === 'undefined') return // SSR 방어
 
+    const hasScript = ref.current?.children ?? []
     if (hasScript.length > 0) return
 
     const scriptEl = document.createElement('script')
-    scriptEl.onload = () => {
-      setState({ status: 'success' })
-    }
-    scriptEl.onerror = () => {
-      setState({ status: 'failure' })
-    }
+    scriptEl.onload = () => setState('success')
+    scriptEl.onerror = () => setState('failure')
     scriptEl.async = true
     scriptEl.src = 'https://utteranc.es/client.js'
     scriptEl.setAttribute('repo', 'Vallista/vallista.github.io')
@@ -30,8 +27,8 @@ export const Comment: FC = () => {
 
   return (
     <Styled._Wrapper>
-      {state.status !== 'success' && <Spinner size={50} />}
-      <div ref={ref}></div>
+      {state !== 'success' && <Spinner size={50} />}
+      <div ref={ref} />
     </Styled._Wrapper>
   )
 }

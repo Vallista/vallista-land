@@ -1,21 +1,30 @@
-export const useAgent = () => {
-  const isIOS = () => {
-    if (typeof navigator === 'undefined') return false
+import { useEffect, useState } from 'react'
 
+export const useAgent = () => {
+  const [agent, setAgent] = useState({
+    isIOS: false,
+    isMobile: false,
+    isTablet: false,
+    isDesktop: false
+  })
+
+  useEffect(() => {
     const ua = navigator.userAgent
     const platform = navigator.platform
     const maxTouchPoints = navigator.maxTouchPoints || 0
 
     const isAppleDevice = /iPad|iPhone|iPod/.test(ua)
-    const isModerniPad = platform === 'MacIntel' && maxTouchPoints > 1 // iPadOS 13+
+    const isModerniPad = platform === 'MacIntel' && maxTouchPoints > 1
+    const isIOS = isAppleDevice || isModerniPad
 
-    return isAppleDevice || isModerniPad
-  }
+    const width = window.innerWidth
+    setAgent({
+      isIOS,
+      isMobile: width < 768,
+      isTablet: width >= 768 && width < 1024,
+      isDesktop: width >= 1024
+    })
+  }, [])
 
-  return {
-    isIOS: isIOS(),
-    isMobile: window.innerWidth < 768,
-    isDesktop: window.innerWidth >= 768,
-    isTablet: window.innerWidth >= 768 && window.innerWidth < 1024
-  }
+  return agent
 }

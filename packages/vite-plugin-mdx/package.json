@@ -45,7 +45,6 @@
     "@types/hast": "^3.0.4",
     "@types/js-yaml": "^4.0.9",
     "@types/mdast": "^4.0.4",
-    "@types/node": "^22.10.2",
     "@types/unist": "^3.0.3",
     "eslint": "^9.17.0",
     "globals": "^15.14.0",

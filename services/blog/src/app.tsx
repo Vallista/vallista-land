@@ -1,7 +1,5 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-
+import { Route, Routes } from 'react-router-dom'
 import { Layout } from './apps/layout'
-
 import AboutMePage from './apps/about-me'
 import ArticlePage from './apps/contents/articles'
 import ResumePage from './apps/resume'
@@ -10,12 +8,9 @@ import NotePage from './apps/contents/notes'
 import { GlobalProvider } from './context'
 import { HelmetProvider } from 'react-helmet-async'
 import { css, Global } from '@emotion/react'
-// import { useViewportHeight } from './hooks/useViewportHeight'
 
 const App = () => {
-  // useViewportHeight()
-
-  if (import.meta.env.PROD) {
+  if (typeof window !== 'undefined' && import.meta.env.PROD) {
     const urlParams = new URLSearchParams(window.location.search)
     const redirect = urlParams.get('redirect')
     if (redirect) {
@@ -41,25 +36,23 @@ const App = () => {
         `}
       />
       <HelmetProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path='/' element={<Layout />}>
-              <Route index element={<AboutMePage />} />
-              <Route path='resume' element={<ResumePage />} />
-              <Route path='contents'>
-                <Route path='projects'>
-                  <Route path=':id' element={<ProjectPage />} />
-                </Route>
-                <Route path='articles'>
-                  <Route path=':id' element={<ArticlePage />} />
-                </Route>
-                <Route path='notes'>
-                  <Route path=':id' element={<NotePage />} />
-                </Route>
+        <Routes>
+          <Route path='/' element={<Layout />}>
+            <Route index element={<AboutMePage />} />
+            <Route path='resume' element={<ResumePage />} />
+            <Route path='contents'>
+              <Route path='projects'>
+                <Route path=':id' element={<ProjectPage />} />
+              </Route>
+              <Route path='articles'>
+                <Route path=':id' element={<ArticlePage />} />
+              </Route>
+              <Route path='notes'>
+                <Route path=':id' element={<NotePage />} />
               </Route>
             </Route>
-          </Routes>
-        </BrowserRouter>
+          </Route>
+        </Routes>
       </HelmetProvider>
     </GlobalProvider>
   )

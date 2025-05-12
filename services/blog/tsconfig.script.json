@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.node.json",
+  "include": ["scripts/**/*.ts", "scripts/**/*.tsx"],
+  "exclude": ["src", "config"], // 앱코드는 필요할 때만
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["src/*"],
+      "*.svg": ["./scripts/__svg-stub__.ts"],
+      "*.svg?react": ["./scripts/__svg-stub__.ts"]
+    }
+  }
+}

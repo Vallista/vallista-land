@@ -1,19 +1,21 @@
 import { StrictMode } from 'react'
-import { hydrateRoot } from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createRoot, hydrateRoot } from 'react-dom/client'
+import RouterClient from './RouterClient'
 
-import { ThemeProvider } from '@vallista/design-system'
-import App from './app'
+const rootEl = document.getElementById('root')!
 
-const queryClient = new QueryClient()
-
-hydrateRoot(
-  document.getElementById('root')!,
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>
-    </QueryClientProvider>
-  </StrictMode>
-)
+try {
+  hydrateRoot(
+    rootEl,
+    <StrictMode>
+      <RouterClient />
+    </StrictMode>
+  )
+} catch (err) {
+  console.error('❌ Hydration failed. Fallback to client render:', err)
+  createRoot(rootEl).render(
+    <StrictMode>
+      <RouterClient />
+    </StrictMode>
+  )
+}
