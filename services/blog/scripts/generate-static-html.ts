@@ -4,8 +4,8 @@ import { render } from '../src/ssr-entry'
 
 const distDir = path.resolve('dist')
 const contentsSourceDir = path.resolve('contents')
-const outputBaseDir = path.resolve('public/contents') // ✅ 수정된 경로
-const rootOutputDir = path.resolve('public') // `/` 루트용
+const outputBaseDir = path.resolve('public/contents')
+const rootOutputDir = path.resolve('public')
 
 function escapeHtml(text = '') {
   return text
@@ -57,28 +57,22 @@ function createSeoHead(meta: {
 function parseFrontmatter(text: string) {
   const match = text.match(/^---\s*[\r\n]+([\s\S]*?)\r?\n---/)
   if (!match) return null
-
   const lines = match[1].split(/\r?\n/)
   const result: Record<string, any> = {}
-
   for (const line of lines) {
     const trimmed = line.trim()
     if (!trimmed || !trimmed.includes(':')) continue
-
     const [keyPart, ...valueParts] = trimmed.split(':')
     const key = keyPart.trim()
     const rawValue = valueParts.join(':').trim()
-
     let value: any = rawValue
     if (value === 'null') value = null
     else if (value === 'true') value = true
     else if (value === 'false') value = false
     else if (!isNaN(Date.parse(value))) value = value
     else if (!isNaN(Number(value))) value = Number(value)
-
     result[key] = value
   }
-
   return result
 }
 
@@ -111,7 +105,6 @@ async function walkEntries(dir: string) {
     } else if (/\.(md|mdx)$/.test(file.name)) {
       const relative = path.relative(contentsSourceDir, filePath).replace(/\\/g, '/')
       const clean = relative.replace(/\.(md|mdx)$/, '')
-
       const slug = clean.endsWith('/index') ? path.basename(path.dirname(clean)) : path.basename(clean)
       const trail = clean
         .split('/')
@@ -137,20 +130,13 @@ async function generateStaticHtml() {
   const layoutTemplate = layoutRaw.replace('{{entry}}', entryJsPath)
 
   const entries = await walkEntries(contentsSourceDir)
-
-  // 루트 페이지도 추가
-  entries.unshift({
-    slug: 'index',
-    trail: [],
-    slugPathSegments: [],
-    contentPath: ''
-  })
+  entries.unshift({ slug: 'index', trail: [], slugPathSegments: [], contentPath: '' })
 
   for (const entry of entries) {
-    const { slug, trail, slugPathSegments: originalSegments, contentPath } = entry
+    const { slug, trail, contentPath } = entry
     let actualSlug = slug
     let slugPathSegments = [...trail, actualSlug]
-    const pathname = slugPathSegments.length === 0 ? '/' : '/' + slugPathSegments.join('/')
+    const isRoot = !contentPath && slug === 'index'
 
     let title = 'vallista.dev'
     let description = 'vallista.dev는 프론트엔드 개발과 기술을 다루는 블로그입니다.'
@@ -160,22 +146,19 @@ async function generateStaticHtml() {
     if (contentPath) {
       const contentRaw = await fs.readFile(contentPath, 'utf-8')
       const meta = parseFrontmatter(contentRaw) || {}
-      title = meta.title || slug
-
-      // ✅ slug override 처리
       if (typeof meta.slug === 'string' && meta.slug.trim()) {
         actualSlug = meta.slug.trim()
         slugPathSegments = [...trail, actualSlug]
       }
-
+      title = meta.title || actualSlug
       description = meta.description || generateDescriptionFromContent(contentRaw)
       isPost = meta.isPost || false
-      imagePath = meta.image ? `https://vallista.kr/contents/${slug}/${meta.image}` : imagePath
+      imagePath = meta.image ? `https://vallista.kr/contents/${actualSlug}/${meta.image}` : imagePath
     }
 
-    const finalPathname = slugPathSegments.length === 0 ? '/' : '/' + slugPathSegments.join('/')
+    const finalPathname = isRoot ? '/' : '/' + slugPathSegments.join('/')
     const headHtml = createSeoHead({ name: title, description, image: imagePath, isPost, pathname: finalPathname })
-    const { html: mainContent, styleTags } = render(pathname)
+    const { html: mainContent, styleTags } = render(finalPathname)
 
     let finalHtml = layoutTemplate
       .replace('<!-- {{head}} -->', headHtml + '\n' + styleTags)
@@ -188,12 +171,11 @@ async function generateStaticHtml() {
       finalHtml = finalHtml.replace('</body>', `${scriptTag}\n</body>`)
     }
 
-    const targetDir = slugPathSegments.length === 0 ? rootOutputDir : path.join(outputBaseDir, ...slugPathSegments)
-
+    const targetDir = isRoot ? rootOutputDir : path.join(outputBaseDir, ...slugPathSegments)
     await fs.mkdir(targetDir, { recursive: true })
     await fs.writeFile(path.join(targetDir, 'index.html'), finalHtml)
 
-    console.log(`✅ Generated: ${pathname}`)
+    console.log(`✅ Generated: ${finalPathname}`)
   }
 
   console.log('🎉 All static HTML files generated!')
