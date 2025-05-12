@@ -156,19 +156,21 @@ async function generateStaticHtml() {
       imagePath = meta.image ? `https://vallista.kr/contents/${actualSlug}/${meta.image}` : imagePath
     }
 
-    const finalPathname = isRoot ? '/' : '/' + slugPathSegments.join('/')
+    const finalPathname = isRoot ? '/' : '/contents' + '/' + slugPathSegments.join('/')
     const headHtml = createSeoHead({ name: title, description, image: imagePath, isPost, pathname: finalPathname })
     const { html: mainContent, styleTags } = render(finalPathname)
 
     let finalHtml = layoutTemplate
-      .replace('<!-- {{head}} -->', headHtml + '\n' + styleTags)
-      .replace('<!-- {{content}} -->', mainContent)
+      .replace(/<!--\s*\{\{head\}\}\s*-->/, headHtml + '\n' + styleTags)
+      .replace(/<!--\s*\{\{content\}\}\s*-->/, mainContent)
 
     const scriptTagMatch = finalHtml.match(/<script type="module"[\s\S]*?<\/script>/)
     if (scriptTagMatch) {
       const scriptTag = scriptTagMatch[0]
       finalHtml = finalHtml.replace(scriptTag, '')
-      finalHtml = finalHtml.replace('</body>', `${scriptTag}\n</body>`)
+      finalHtml = finalHtml.includes('</body>')
+        ? finalHtml.replace('</body>', `${scriptTag}\n</body>`)
+        : finalHtml + scriptTag
     }
 
     const targetDir = isRoot ? rootOutputDir : path.join(outputBaseDir, ...slugPathSegments)
