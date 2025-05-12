@@ -147,7 +147,9 @@ async function generateStaticHtml() {
   })
 
   for (const entry of entries) {
-    const { slug, trail, slugPathSegments, contentPath } = entry
+    const { slug, trail, slugPathSegments: originalSegments, contentPath } = entry
+    let actualSlug = slug
+    let slugPathSegments = [...trail, actualSlug]
     const pathname = slugPathSegments.length === 0 ? '/' : '/' + slugPathSegments.join('/')
 
     let title = 'vallista.dev'
@@ -159,12 +161,20 @@ async function generateStaticHtml() {
       const contentRaw = await fs.readFile(contentPath, 'utf-8')
       const meta = parseFrontmatter(contentRaw) || {}
       title = meta.title || slug
+
+      // ✅ slug override 처리
+      if (typeof meta.slug === 'string' && meta.slug.trim()) {
+        actualSlug = meta.slug.trim()
+        slugPathSegments = [...trail, actualSlug]
+      }
+
       description = meta.description || generateDescriptionFromContent(contentRaw)
       isPost = meta.isPost || false
       imagePath = meta.image ? `https://vallista.kr/contents/${slug}/${meta.image}` : imagePath
     }
 
-    const headHtml = createSeoHead({ name: title, description, image: imagePath, isPost, pathname })
+    const finalPathname = slugPathSegments.length === 0 ? '/' : '/' + slugPathSegments.join('/')
+    const headHtml = createSeoHead({ name: title, description, image: imagePath, isPost, pathname: finalPathname })
     const { html: mainContent, styleTags } = render(pathname)
 
     let finalHtml = layoutTemplate
