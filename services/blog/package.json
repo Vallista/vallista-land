@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "copy-layout": "node scripts/copy-layout.js",
-    "generate-static": "vite-node --tsconfig ./tsconfig.script.json scripts/generate-static-html.ts",
+    "generate-static": "vite-node --config vite.config.ssr.ts --tsconfig ./tsconfig.script.json scripts/generate-static-html.ts",
     "generate-404": "node scripts/generate-404-html.js",
     "generate-sitemap": "node scripts/generate-sitemap.js",
     "generate-robots": "node scripts/generate-robots.js",

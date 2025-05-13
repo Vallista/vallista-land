@@ -160,18 +160,18 @@ async function generateStaticHtml() {
     const headHtml = createSeoHead({ name: title, description, image: imagePath, isPost, pathname: finalPathname })
     const { html: mainContent, styleTags } = render(finalPathname)
 
-    let finalHtml = layoutTemplate
+    const finalHtml = layoutTemplate
       .replace(/<!--\s*\{\{head\}\}\s*-->/, headHtml + '\n' + styleTags)
       .replace(/<!--\s*\{\{content\}\}\s*-->/, mainContent)
 
-    const scriptTagMatch = finalHtml.match(/<script type="module"[\s\S]*?<\/script>/)
-    if (scriptTagMatch) {
-      const scriptTag = scriptTagMatch[0]
-      finalHtml = finalHtml.replace(scriptTag, '')
-      finalHtml = finalHtml.includes('</body>')
-        ? finalHtml.replace('</body>', `${scriptTag}\n</body>`)
-        : finalHtml + scriptTag
-    }
+    // const scriptTagMatch = finalHtml.match(/<script type="module"[\s\S]*?<\/script>/)
+    // if (scriptTagMatch) {
+    //   const scriptTag = scriptTagMatch[0]
+    //   finalHtml = finalHtml.replace(scriptTag, '')
+    //   finalHtml = finalHtml.includes('</body>')
+    //     ? finalHtml.replace('</body>', `${scriptTag}\n</body>`)
+    //     : finalHtml + scriptTag
+    // }
 
     const targetDir = isRoot ? rootOutputDir : path.join(outputBaseDir, ...slugPathSegments)
     await fs.mkdir(targetDir, { recursive: true })

@@ -61,23 +61,14 @@ export const Markdown = memo((props: MarkdownProps) => {
     return () => observer.disconnect()
   }, [mdx])
 
-  if (!mdx) {
-    return (
-      <Styled.SkeletonWrap>
-        <Styled.SkeletonImage />
-        <SkeletonTextBlock />
-      </Styled.SkeletonWrap>
-    )
-  }
+  // if (!mdx) {
+  //   return (
+  //     <Styled.SkeletonWrap>
+  //       <Styled.SkeletonImage />
+  //       <SkeletonTextBlock />
+  //     </Styled.SkeletonWrap>
+  //   )
+  // }
 
-  return <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx }} />
+  return <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx ? mdx : '' }} />
 })
-
-const SkeletonTextBlock = () => (
-  <div>
-    <Styled.SkeletonTextLine width='80%' />
-    <Styled.SkeletonTextLine width='90%' />
-    <Styled.SkeletonTextLine width='95%' />
-    <Styled.SkeletonTextLine width='60%' />
-  </div>
-)
