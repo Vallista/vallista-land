@@ -51,9 +51,9 @@ export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys
 
     const appliedTheme = Themes[themeState]
 
-    document.body.style.backgroundColor = appliedTheme.colors.PRIMARY.BACKGROUND
-    document.body.style.color = appliedTheme.colors.PRIMARY.FOREGROUND
-    document.body.style.transition = 'background-color 0.2s ease-in-out'
+    // document.body.style.backgroundColor = appliedTheme.colors.PRIMARY.BACKGROUND
+    // document.body.style.color = appliedTheme.colors.PRIMARY.FOREGROUND
+    // document.body.style.transition = 'background-color 0.2s ease-in-out'
 
     let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
     if (!meta) {

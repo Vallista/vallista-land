@@ -3,7 +3,7 @@ import * as Styled from './index.style'
 import ArticleIcon from '@/assets/icons/article.svg?react'
 import NoteIcon from '@/assets/icons/note.svg?react'
 import ProjectIcon from '@/assets/icons/folder.svg?react'
-import { Content } from '@/types'
+import { Article, Content } from '@/types'
 import { Series } from '../Series'
 import { useContents } from '@/hooks/useContents'
 
@@ -14,22 +14,27 @@ interface Props {
 }
 
 export const Header = (props: Props) => {
-  const { loading, content, slug } = props
+  const { content, slug } = props
   const { findSeries } = useContents(slug)
 
-  if (!content || !loading) {
-    return (
-      <Styled._Wrap id='article-header' hasLoading={false}>
-        <Styled._TitleIconSkeleton />
-        <Styled._TitleSkeleton />
-        <Styled._DateWrap>
-          <Styled._DateSkeleton />
-        </Styled._DateWrap>
-      </Styled._Wrap>
-    )
-  }
+  // if (!content || !loading) {
+  //   return (
+  //     <Styled._Wrap id='article-header' hasLoading={false}>
+  //       <Styled._TitleIconSkeleton />
+  //       <Styled._TitleSkeleton />
+  //       <Styled._DateWrap>
+  //         <Styled._DateSkeleton />
+  //       </Styled._DateWrap>
+  //     </Styled._Wrap>
+  //   )
+  // }
 
-  const { type, title, date, tags } = content
+  const { type, title, date, tags } = content || {
+    type: 'ARTICLE',
+    title: '',
+    date: '',
+    tags: []
+  }
 
   const Icon = type === 'ARTICLE' ? ArticleIcon : type === 'NOTE' ? NoteIcon : ProjectIcon
 
@@ -39,7 +44,7 @@ export const Header = (props: Props) => {
   const day = String(newDate.getDate()).padStart(2, '0')
   const formattedDate = `${year}년 ${month}월 ${day}일`
 
-  const seriesName = type === 'ARTICLE' ? content.series?.name : undefined
+  const seriesName = type === 'ARTICLE' ? (content as Article).series?.name : undefined
   const series = seriesName ? findSeries(seriesName) : undefined
 
   return (
