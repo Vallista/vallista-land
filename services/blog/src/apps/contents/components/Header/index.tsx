@@ -30,7 +30,7 @@ export const Header = (props: Props) => {
   // }
 
   const { type, title, date, tags } = content || {
-    type: 'ARTICLE',
+    type: '',
     title: '',
     date: '',
     tags: []
@@ -44,7 +44,7 @@ export const Header = (props: Props) => {
   const day = String(newDate.getDate()).padStart(2, '0')
   const formattedDate = `${year}년 ${month}월 ${day}일`
 
-  const seriesName = type === 'ARTICLE' ? (content as Article).series?.name : undefined
+  const seriesName = type === 'ARTICLE' ? (content as Article)?.series?.name : undefined
   const series = seriesName ? findSeries(seriesName) : undefined
 
   return (

@@ -3,11 +3,9 @@ import styled from '@emotion/styled'
 import { useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
-import { createContext } from '../../utils/createContext'
 import { Toast } from './Toast'
-import { ReturningUseToasts, ToastContextState, ToastProps, ToastState, ToastType } from './type'
-
-const [Context, useContext] = createContext<ToastContextState>()
+import { ReturningUseToasts } from './type'
+import { useToastContext } from './ToastProvider'
 
 /**
  * # useToasts
@@ -23,7 +21,7 @@ const [Context, useContext] = createContext<ToastContextState>()
  * ```
  */
 export function useToasts(): Omit<ReturningUseToasts, 'toastList'> {
-  const { state } = useContext()
+  const { state } = useToastContext()
 
   return {
     message: state.message,
@@ -32,77 +30,8 @@ export function useToasts(): Omit<ReturningUseToasts, 'toastList'> {
   }
 }
 
-let toastUniqueCount = 0
-
-interface ToastProviderProps {
-  children: React.ReactNode
-}
-
-/**
- * # ToastProvider
- *
- * 실제로 사용되지 않습니다.
- * 이 Provider는 ThemeProvider에 적용되어 있습니다.
- * 별도로 사용하지 마시고, ThemeProvider를 사용해서 함께 사용하세요.
- */
-export const ToastProvider = ({ children }: ToastProviderProps) => {
-  const [state, setState] = useState<ToastState>({
-    toastList: []
-  })
-
-  return (
-    <Context
-      state={{
-        toastList: state.toastList,
-        message,
-        success,
-        error,
-        remove
-      }}
-    >
-      {children}
-      <ToastRoot />
-    </Context>
-  )
-
-  function message(param: string | ToastProps): void {
-    call(param, 'primary')
-  }
-
-  function success(param: string | ToastProps): void {
-    call(param, 'success')
-  }
-
-  function error(param: string | ToastProps): void {
-    call(param, 'error')
-  }
-
-  function call(param: string | ToastProps, type: ToastType): void {
-    if (typeof param === 'string') {
-      setState((state_) => ({
-        ...state_,
-        toastList: [...state_.toastList, { text: param, toastUniqueCount: toastUniqueCount++, type }]
-      }))
-    } else {
-      setState((state_) => ({
-        ...state_,
-        toastList: [...state_.toastList, { ...param, toastUniqueCount: toastUniqueCount++, type }]
-      }))
-    }
-  }
-
-  function remove(uniqueId: number): void {
-    setState((state_) => {
-      return {
-        ...state_,
-        toastList: state_.toastList.filter((it) => it.toastUniqueCount !== uniqueId)
-      }
-    })
-  }
-}
-
-const ToastRoot = () => {
-  const { state } = useContext()
+export default function ToastRoot() {
+  const { state } = useToastContext()
   const ref = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState(false)
 
