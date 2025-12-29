@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { createContext, useContext, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { ToastProvider } from '../Toast/ToastProvider'
 
 interface ThemeContextType {
@@ -50,19 +50,8 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     return 'LIGHT'
   })
 
-  const changeTheme = (theme: 'LIGHT' | 'DARK') => {
-    setThemeState(theme)
-
-    // localStorage에 저장
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', theme)
-    }
-
-    // 테마 스위치 버튼 클릭 시 즉시 iOS 메타 태그 업데이트
-    updateIOSMetaTags(theme)
-  }
-
   // iOS 메타 태그 업데이트 함수 (useCallback으로 메모이제이션)
+  // changeTheme에서 사용하기 위해 먼저 정의
   const updateIOSMetaTags = useCallback((theme: 'LIGHT' | 'DARK') => {
     if (typeof document === 'undefined') return
 
@@ -86,6 +75,22 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     // 'black-translucent'는 콘텐츠가 상태바 영역까지 확장됨
     statusBarMeta.content = theme === 'DARK' ? 'black-translucent' : 'default'
   }, [])
+
+  // changeTheme 함수를 useCallback으로 메모이제이션하여 Context value 안정성 보장
+  const changeTheme = useCallback(
+    (theme: 'LIGHT' | 'DARK') => {
+      setThemeState(theme)
+
+      // localStorage에 저장
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('theme', theme)
+      }
+
+      // 테마 스위치 버튼 클릭 시 즉시 iOS 메타 태그 업데이트
+      updateIOSMetaTags(theme)
+    },
+    [updateIOSMetaTags]
+  )
 
   // useLayoutEffect를 사용하여 브라우저 페인트 전에 동기적으로 실행
   // 이렇게 하면 테마 변경이 즉시 반영되어 nav와 sidebar가 빠르게 업데이트됨
@@ -194,8 +199,17 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     return () => mediaQuery.removeEventListener('change', handleSystemThemeChange)
   }, [updateIOSMetaTags]) // updateIOSMetaTags를 의존성 배열에 포함
 
+  // Context value를 useMemo로 메모이제이션하여 불필요한 리렌더링 방지
+  const contextValue = useMemo(
+    () => ({
+      currentTheme: themeState,
+      changeTheme
+    }),
+    [themeState, changeTheme]
+  )
+
   return (
-    <ThemeContext.Provider value={{ currentTheme: themeState, changeTheme }}>
+    <ThemeContext.Provider value={contextValue}>
       <ToastProvider>{children}</ToastProvider>
     </ThemeContext.Provider>
   )
