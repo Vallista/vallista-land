@@ -79,22 +79,43 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
   // changeTheme 함수를 useCallback으로 메모이제이션하여 Context value 안정성 보장
   const changeTheme = useCallback(
     (theme: 'LIGHT' | 'DARK') => {
-      setThemeState(theme)
+      console.log('🔄 changeTheme called with:', theme)
 
-      // localStorage에 저장
+      // localStorage에 먼저 저장 (상태 업데이트 전에)
       if (typeof window !== 'undefined') {
         localStorage.setItem('theme', theme)
+        console.log('💾 Saved to localStorage:', theme)
       }
 
+      // 상태 업데이트 (함수형 업데이트 사용하여 themeState 의존성 제거)
+      setThemeState((prevTheme) => {
+        console.log('📝 setThemeState: prevTheme =', prevTheme, 'newTheme =', theme)
+        if (prevTheme === theme) {
+          console.log('⚠️ Theme is already', theme, '- but still updating iOS meta tags')
+          // 같은 테마여도 iOS 메타 태그는 업데이트 (다른 버튼 클릭 시 리렌더링으로 업데이트되는 것과 동일하게)
+          // 다음 틱에서 실행하여 DOM이 준비된 후 업데이트
+          setTimeout(() => {
+            updateIOSMetaTags(theme)
+            console.log('📱 iOS meta tags updated (same theme, forced update)')
+          }, 0)
+          return prevTheme
+        }
+        return theme
+      })
+
       // 테마 스위치 버튼 클릭 시 즉시 iOS 메타 태그 업데이트
+      // useLayoutEffect가 실행되기 전에 먼저 업데이트하여 즉시 반영
       updateIOSMetaTags(theme)
+      console.log('📱 iOS meta tags updated (immediate)')
     },
-    [updateIOSMetaTags]
+    [updateIOSMetaTags] // themeState 의존성 제거
   )
 
   // useLayoutEffect를 사용하여 브라우저 페인트 전에 동기적으로 실행
   // 이렇게 하면 테마 변경이 즉시 반영되어 nav와 sidebar가 빠르게 업데이트됨
   useLayoutEffect(() => {
+    console.log('🎨 useLayoutEffect triggered, themeState:', themeState)
+
     // CSS 변수 설정
     const root = document.documentElement
 
