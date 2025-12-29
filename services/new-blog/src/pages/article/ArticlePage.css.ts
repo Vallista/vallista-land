@@ -2,7 +2,7 @@ import { DEFINE_CONTENTS_PADDING } from '@/shared/constants/layout'
 import { COLOR_TOKENS } from '@vallista/design-system'
 import { keyframes, style } from '@vanilla-extract/css'
 
-const fadeIn = keyframes({
+const fadeInForArticlePageThumbnail = keyframes({
   '0%': {
     opacity: 0
   },
@@ -57,7 +57,7 @@ export const thumbnailImage = style({
 
 export const thumbnailImageLoaded = style({
   opacity: 1,
-  animation: `${fadeIn} 0.5s ease-in-out`
+  animation: `${fadeInForArticlePageThumbnail} 0.2s ease-in-out`
 })
 
 export const contentContainer = style({
