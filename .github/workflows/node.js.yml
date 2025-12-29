@@ -35,13 +35,10 @@ jobs:
       - name: 코어 (디자인시스템) 빌드
         run: pnpm build:packages
       - name: 블로그 빌드
-        run: pnpm build:blog
+        run: pnpm build:new-blog
       - name: git config 이메일 변경
         run: git config --global user.email "mgh950714@gmail.com"
       - name: git config 이름 변경
         run: git config --global user.name "vallista"
-      # vallista-blog 들어가서 deploy 스크립트에 TOKEN 주입해 실행
-      - name: 디랙토리 이동 및 vallista.github.io 배포
-        run: |
-          pnpm directory:blog
-          pnpm deploy:blog ${{ secrets.TOKEN }}
+      - name: new-blog 배포
+        run: pnpm deploy:new-blog
