@@ -27,6 +27,11 @@ lib
 tsconfig.tsbuildinfo
 .credentials.json
 
+services/new-blog/dist
+services/new-blog/public/content-index.json
+services/new-blog/public/contents
+
+
 .npmrc
 
 packages/core/tsconfig.tsbuildinfo
