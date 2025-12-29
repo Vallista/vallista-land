@@ -1,5 +1,15 @@
 import { DEFINE_CONTENTS_PADDING } from '@/shared/constants/layout'
-import { style } from '@vanilla-extract/css'
+import { COLOR_TOKENS } from '@vallista/design-system'
+import { keyframes, style } from '@vanilla-extract/css'
+
+const fadeIn = keyframes({
+  '0%': {
+    opacity: 0
+  },
+  '100%': {
+    opacity: 1
+  }
+})
 
 export const wrapper = style({
   alignItems: 'center !important'
@@ -23,15 +33,31 @@ export const errorContainer = style({
 
 export const thumbnailContainer = style({
   marginBottom: '2rem',
-  textAlign: 'center'
+  textAlign: 'center',
+  width: '100%',
+  maxWidth: '800px',
+  margin: '0 auto 2rem',
+  // 레이아웃 시프트 방지: aspect-ratio로 공간 미리 확보
+  aspectRatio: '2 / 1', // 800px:400px = 2:1
+  position: 'relative',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  backgroundColor: COLOR_TOKENS.PRIMARY.GRAY_50 // 로딩 중 배경색
 })
 
 export const thumbnailImage = style({
   width: '100%',
-  maxWidth: '800px',
-  maxHeight: '400px',
-  objectFit: 'cover',
-  borderRadius: '8px'
+  height: '100%',
+  objectFit: 'contain',
+  borderRadius: '8px',
+  display: 'block',
+  opacity: 0,
+  transition: 'opacity 0.3s ease-in-out'
+})
+
+export const thumbnailImageLoaded = style({
+  opacity: 1,
+  animation: `${fadeIn} 0.5s ease-in-out`
 })
 
 export const contentContainer = style({

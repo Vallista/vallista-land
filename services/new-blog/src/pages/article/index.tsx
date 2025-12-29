@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { useArticlePage } from '@shared/hooks'
 import { PageWrapper } from '@shared/ui/PageWrapper'
 import { MarkdownRenderer } from '@shared/ui/MarkdownRenderer'
@@ -11,6 +12,29 @@ import * as styles from './ArticlePage.css'
 export function ArticlePage() {
   const { article, relatedArticles, seriesInfo, seoData, isLoading, error, hasArticle, hasRelatedArticles } =
     useArticlePage()
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const imageRef = useRef<HTMLImageElement>(null)
+
+  // 아티클이 변경될 때마다 이미지 로드 상태 리셋 및 확인
+  useEffect(() => {
+    setImageLoaded(false)
+
+    // 이미지가 이미 로드되어 있는지 확인 (캐시된 경우)
+    // 약간의 지연을 두어 DOM 렌더링 후 확인
+    const checkImageLoaded = () => {
+      if (imageRef.current?.complete && imageRef.current.naturalHeight !== 0) {
+        setImageLoaded(true)
+      }
+    }
+
+    // 즉시 확인
+    checkImageLoaded()
+
+    // 다음 틱에서도 확인 (DOM 업데이트 후)
+    const timeoutId = setTimeout(checkImageLoaded, 0)
+
+    return () => clearTimeout(timeoutId)
+  }, [article?.slug, article?.image])
 
   if (isLoading) {
     return (
@@ -40,7 +64,18 @@ export function ArticlePage() {
         {/* 썸네일 이미지 */}
         {article!.image && (
           <div className={styles.thumbnailContainer}>
-            <img src={article!.image} alt={article!.title} className={styles.thumbnailImage} />
+            <img
+              ref={imageRef}
+              src={article!.image}
+              alt={article!.title}
+              className={`${styles.thumbnailImage} ${imageLoaded ? styles.thumbnailImageLoaded : ''}`}
+              width={800}
+              height={400}
+              loading='eager'
+              decoding='async'
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageLoaded(true)} // 에러 발생 시에도 표시 (빈 공간 방지)
+            />
           </div>
         )}
 
