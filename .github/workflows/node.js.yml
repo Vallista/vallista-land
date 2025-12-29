@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: pnpm i
       - name: 코어 (디자인시스템) 빌드
-        run: pnpm build:packages
+        run: pnpm build:ds
       - name: 블로그 빌드
         run: pnpm build:new-blog
       - name: git config 이메일 변경
