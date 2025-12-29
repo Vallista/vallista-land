@@ -34,11 +34,12 @@ async function deploy() {
     // In CI/CD environment, use --repo option with token
     // Deploy to vallista.github.io repository
     const repoUrl = `https://x-access-token:${token}@github.com/${targetRepo}.git`
-    console.log(chalk.gray(`Deploying to: ${targetRepo}`))
+    console.log(chalk.gray(`Deploying to: ${targetRepo} (main branch)`))
 
     // Quote the URL to handle special characters in token
+    // Use --branch main to deploy to main branch instead of gh-pages
     try {
-      execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
+      execSync(`npx gh-pages -d dist --dotfiles --branch main --repo "${repoUrl}"`, { stdio: 'inherit' })
     } catch (error) {
       console.error(chalk.red('Deployment error details:'))
       console.error(error)
