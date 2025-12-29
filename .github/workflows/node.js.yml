@@ -12,6 +12,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     strategy:
       matrix:
@@ -41,4 +43,7 @@ jobs:
       - name: git config 이름 변경
         run: git config --global user.name "vallista"
       - name: new-blog 배포
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: pnpm deploy:new-blog
