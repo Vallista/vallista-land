@@ -21,12 +21,30 @@ async function deploy() {
 
     // Use GITHUB_TOKEN if available (for CI/CD), otherwise use default git config
     const token = process.env.GITHUB_TOKEN
-    const repo = process.env.GITHUB_REPOSITORY || 'vallista/vallista-land'
 
     if (token) {
-      // In CI/CD environment, use token for authentication
-      const repoUrl = `https://${token}@github.com/${repo}.git`
-      execSync(`npx gh-pages -d dist --dotfiles --repo ${repoUrl}`, { stdio: 'inherit' })
+      // In CI/CD environment, update remote URL to include token
+      // Get current remote URL
+      const currentRemote = execSync('git config --get remote.origin.url', { encoding: 'utf-8' }).trim()
+
+      // Extract repo path from remote URL (handles both https and git@ formats)
+      let repoPath = currentRemote
+      if (currentRemote.includes('@')) {
+        // git@github.com:user/repo.git format
+        repoPath = currentRemote.split(':')[1]?.replace('.git', '') || ''
+      } else {
+        // https://github.com/user/repo.git format
+        repoPath = currentRemote.replace('https://github.com/', '').replace('.git', '')
+      }
+
+      if (repoPath) {
+        // Update remote URL with token
+        const repoUrl = `https://${token}@github.com/${repoPath}.git`
+        execSync(`git remote set-url origin ${repoUrl}`, { stdio: 'inherit' })
+      }
+
+      // Deploy using gh-pages (it will use the updated remote)
+      execSync('npx gh-pages -d dist --dotfiles', { stdio: 'inherit' })
     } else {
       // Local deployment
       execSync('npx gh-pages -d dist --dotfiles', { stdio: 'inherit' })
