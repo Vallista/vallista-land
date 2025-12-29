@@ -46,7 +46,7 @@ function walk(dir, onFile) {
 }
 
 function main() {
-  const contentsDir = path.join(__dirname, '../../contents/articles')
+  const contentsDir = path.join(__dirname, '../../../contents/articles')
   let processed = 0
   let changed = 0
 

@@ -158,7 +158,7 @@ function fixImagePositionsForArticle(blogContent, newBlogContent) {
 function fixImagePositions() {
   console.log('🔧 이미지 위치 검증 및 수정 작업 시작...')
 
-  const contentsDir = path.join(__dirname, '../../contents')
+  const contentsDir = path.join(__dirname, '../../../contents')
   const blogDir = path.join(__dirname, '../../blog/contents/articles')
   let totalIssues = 0
   let fixedCount = 0

@@ -208,7 +208,7 @@ function addMissingImages(newBlogContent, blogImages) {
 function initContent() {
   console.log('🚀 콘텐츠 초기화 작업 시작...')
 
-  const contentsDir = path.join(__dirname, '../../contents')
+  const contentsDir = path.join(__dirname, '../../../contents')
   const blogDir = path.join(__dirname, '../../blog/contents/articles')
   const flagFile = path.join(__dirname, '../.init-content-completed')
   let setupCount = 0
