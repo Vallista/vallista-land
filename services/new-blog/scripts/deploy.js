@@ -35,7 +35,6 @@ async function deploy() {
     // Deploy to vallista.github.io repository
     const repoUrl = `https://x-access-token:${token}@github.com/${targetRepo}.git`
     console.log(chalk.gray(`Deploying to: ${targetRepo}`))
-    console.log(chalk.gray(`Token present: ${token ? 'Yes' : 'No'} (${token ? token.substring(0, 4) + '...' : 'N/A'})`))
 
     // Quote the URL to handle special characters in token
     try {
