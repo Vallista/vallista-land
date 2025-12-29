@@ -16,7 +16,8 @@ export default defineConfig({
       '@widgets': resolve(__dirname, 'src/widgets'),
       '@pages': resolve(__dirname, 'src/pages'),
       '@app': resolve(__dirname, 'src/app')
-    }
+    },
+    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
   },
   define: {
     'process.env.NODE_ENV': '"production"',
