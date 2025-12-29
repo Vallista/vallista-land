@@ -18,6 +18,8 @@ export const container = style({
   borderRight: `1px solid ${COLOR_TOKENS.PRIMARY.GRAY_100}`,
   zIndex: 11,
   background: COLOR_TOKENS.PRIMARY.WHITE,
+  // 테마 전환 시 색상 변경을 빠르게 하기 위해 명시적 transition 설정
+  transition: 'background-color 0.08s ease, border-color 0.08s ease, color 0.08s ease',
   '@media': {
     'screen and (max-width: 1024px)': {
       top: `${DEFINE_NAVBAR_WIDTH - 1}px`,

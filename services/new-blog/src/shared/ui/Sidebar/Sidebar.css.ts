@@ -20,6 +20,8 @@ export const base = style({
   transform: 'translate3d(0, 0, 1)',
   boxSizing: 'border-box',
   height: `calc(100vh - ${DEFINE_HEADER_HEIGHT}px)`,
+  // 테마 전환 시 색상 변경을 빠르게 하기 위해 명시적 transition 설정
+  transition: 'left 0.15s ease, background-color 0.08s ease, color 0.08s ease, border-color 0.08s ease',
   '@media': {
     'screen and (max-width: 1024px)': {
       height: `calc(100vh - 80px)`
@@ -46,7 +48,9 @@ export const content = style({
   display: 'flex',
   flexDirection: 'column',
   boxSizing: 'border-box',
-  borderRight: `1px solid ${COLOR_TOKENS.PRIMARY.GRAY_100}`
+  borderRight: `1px solid ${COLOR_TOKENS.PRIMARY.GRAY_100}`,
+  // 테마 전환 시 border 색상 변경을 빠르게
+  transition: 'border-color 0.08s ease'
 })
 
 export const header = style({
@@ -91,7 +95,8 @@ export const item = style({
   cursor: 'pointer',
   textDecoration: 'none',
   color: 'inherit',
-  transition: 'background-color 0.2s ease',
+  // 테마 전환 시 색상 변경을 빠르게
+  transition: 'background-color 0.08s ease, color 0.08s ease',
   overflow: 'hidden',
   gap: '8px',
   selectors: {
@@ -128,6 +133,8 @@ export const itemText = style({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  // 테마 전환 시 색상 변경을 빠르게
+  transition: 'color 0.08s ease',
   selectors: {
     [`${itemActive} &`]: {
       color: COLOR_TOKENS.HIGHLIGHT.PINK
@@ -140,6 +147,8 @@ export const itemIcon = style({
   width: '16px',
   height: '16px',
   color: COLOR_TOKENS.PRIMARY.GRAY_400,
+  // 테마 전환 시 색상 변경을 빠르게
+  transition: 'color 0.08s ease',
   selectors: {
     [`${itemActive} &`]: {
       color: COLOR_TOKENS.HIGHLIGHT.PINK

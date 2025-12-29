@@ -12,7 +12,8 @@ export const navButton = style({
   border: 'none',
   background: 'transparent',
   padding: 0,
-  transition: 'background-color 0.2s ease',
+  // 테마 전환 시 색상 변경을 빠르게
+  transition: 'background-color 0.08s ease, color 0.08s ease',
   color: 'currentcolor',
   selectors: {
     '&:hover': {

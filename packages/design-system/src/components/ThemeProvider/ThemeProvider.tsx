@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react'
 import { ToastProvider } from '../Toast/ToastProvider'
 
 interface ThemeContextType {
@@ -59,7 +59,34 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     }
   }
 
-  useEffect(() => {
+  // iOS 메타 태그 업데이트 함수
+  const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
+    if (typeof document === 'undefined') return
+
+    // theme-color 메타 태그 업데이트
+    let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
+    if (!themeColorMeta) {
+      themeColorMeta = document.createElement('meta')
+      themeColorMeta.name = 'theme-color'
+      document.head.appendChild(themeColorMeta)
+    }
+    themeColorMeta.content = theme === 'DARK' ? '#000000' : '#ffffff'
+
+    // apple-mobile-web-app-status-bar-style 업데이트
+    let statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]') as HTMLMetaElement
+    if (!statusBarMeta) {
+      statusBarMeta = document.createElement('meta')
+      statusBarMeta.name = 'apple-mobile-web-app-status-bar-style'
+      document.head.appendChild(statusBarMeta)
+    }
+    // 다크모드일 때는 'black' 또는 'black-translucent' 사용
+    // 'black-translucent'는 콘텐츠가 상태바 영역까지 확장됨
+    statusBarMeta.content = theme === 'DARK' ? 'black-translucent' : 'default'
+  }
+
+  // useLayoutEffect를 사용하여 브라우저 페인트 전에 동기적으로 실행
+  // 이렇게 하면 테마 변경이 즉시 반영되어 nav와 sidebar가 빠르게 업데이트됨
+  useLayoutEffect(() => {
     // CSS 변수 설정
     const root = document.documentElement
 
@@ -107,34 +134,9 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     document.body.style.backgroundColor = themeState === 'DARK' ? '#000000' : '#ffffff'
     document.body.style.color = themeState === 'DARK' ? '#ffffff' : '#000000'
 
-    // iOS 노치 영역 색상 업데이트
+    // iOS 노치 영역 색상 업데이트 (초기 로드 및 테마 변경 시 모두 실행)
     updateIOSMetaTags(themeState)
   }, [themeState])
-
-  // iOS 메타 태그 업데이트 함수
-  const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
-    if (typeof document === 'undefined') return
-
-    // theme-color 메타 태그 업데이트
-    let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
-    if (!themeColorMeta) {
-      themeColorMeta = document.createElement('meta')
-      themeColorMeta.name = 'theme-color'
-      document.head.appendChild(themeColorMeta)
-    }
-    themeColorMeta.content = theme === 'DARK' ? '#000000' : '#ffffff'
-
-    // apple-mobile-web-app-status-bar-style 업데이트
-    let statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]') as HTMLMetaElement
-    if (!statusBarMeta) {
-      statusBarMeta = document.createElement('meta')
-      statusBarMeta.name = 'apple-mobile-web-app-status-bar-style'
-      document.head.appendChild(statusBarMeta)
-    }
-    // 다크모드일 때는 'black' 또는 'black-translucent' 사용
-    // 'black-translucent'는 콘텐츠가 상태바 영역까지 확장됨
-    statusBarMeta.content = theme === 'DARK' ? 'black-translucent' : 'default'
-  }
 
   // 시스템 테마 변경 감지
   useEffect(() => {
