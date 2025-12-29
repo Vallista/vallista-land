@@ -1,0 +1,12 @@
+{
+  "title": "Next에서 Alias 적용하기",
+  "description": "next.js에서 alias를 적용하려면 여러군데에 적용해야하는데, 이게 좀 복잡하다. 1. next.config.js에 추가 javascript {numberLines} ... webpack(config, options) { config.resolve = { alia...",
+  "date": "2019-05-15T11:17:29.000Z",
+  "tags": [],
+  "slug": "at-apply",
+  "url": "/articles/at-apply",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 1,
+  "content": "next.js에서 alias를 적용하려면 여러군데에 적용해야하는데, 이게 좀 복잡하다.\n\n1. next.config.js에 추가\n\n   ```javascript {numberLines}\n   ...\n   webpack(config, options) {\n     config.resolve = {\n       alias: {\n         '@src': path.join(__dirname, 'src'),\n         '@components': path.join(__dirname, 'src', 'components'),\n         '@containers': path.join(__dirname, 'src', 'containers'),\n         '@store': path.join(__dirname, 'src', 'store'),\n         '@interface': path.join(__dirname, 'src', '@types/interface.ts')\n       },\n       ...config.resolve\n     }\n\n     // config.resolve.alias['@src'] = path.join(__dirname, 'src')\n     // config.resolve.alias['@components'] = path.join(__dirname, 'src', 'components')\n     // config.resolve.alias['@interface'] = path.join(__dirname, 'src', '@types/interface.ts')\n     // config.resolve.extensions = ['js', 'ts', 'tsx']\n     return config\n   }\n   ```\n\n   이렇게 webpack - config.resolve.alias 설정을 해준다. 아래처럼 단일로 지정하면 이전의 다른 설정값이 날라가서 저장이 되지 않는다.\n\n2. .babelrc 추가\n\n   ```javascript {numberLines}\n   \"plugins\": [\n     ...\n     [\"module-resolver\", {\n       \"root\": [\"./src\"],\n       \"alias\": {\n         \"@src\": \"./src\",\n         \"@components\": \"./src/components\",\n         \"@interface\": \"./src/@types/interface.ts\"\n       }\n     }],\n     ...\n   ]\n   ```\n\n   babelrc 설정에 추가해서 webpack compile시에 alias path를 알 수 있도록 설정한다.\n\n3. TypeScript를 사용한다면 tsconfig에도 지정해준다.\n\n   ```javascript {numberLines}\n   {\n     \"compilerOptions\": {\n       ...\n       \"paths\": {\n         \"@src/*\": [\"src/*\"],\n         \"@components/*\": [\"src/components/*\"],\n         \"@interface\": [\"src/@types/interface\"],\n       },\n       ...\n     }\n   }\n   ```\n\n   compilerOptions ⇒ paths에 추가해준다. 이렇게 해주는 이유는 TypeScript → JavaScript로 transfiling 될 때 제대로 트랜스파일링 해주기 위함이다."
+}

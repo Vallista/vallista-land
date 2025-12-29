@@ -1,0 +1,12 @@
+{
+  "title": "리듀스 (Reduce)",
+  "description": "Reduce는 줄이다, 감속하다 라는 뜻으로써, JavaScript에서 배열 작업 할 때 원하는 부분을 줄여서 사용할 수 있다. JavaScript의 Reduce는 Array의 고차함수로써, map 같은 함수들을 커스터마이징 해서 사용할 수 있다. 받는 인자 정보 ja...",
+  "date": "2019-05-12T11:01:13.000Z",
+  "tags": [],
+  "slug": "reduce",
+  "url": "/articles/reduce",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 2,
+  "content": "Reduce는 줄이다, 감속하다 라는 뜻으로써, JavaScript에서 배열 작업 할 때 원하는 부분을 줄여서 사용할 수 있다.\n\nJavaScript의 Reduce는 Array의 고차함수로써, map 같은 함수들을 커스터마이징 해서 사용할 수 있다.\n\n## 받는 인자 정보\n\n```javascript {numberLines}\nArray.prototype.reduce(callback: (accumulator, value, index, array), optional: initValue)\n```\n\nreduce 함수는 인자 callback 함수와 optional로 초기화 값을 받는다.\n\nreduce의 callback은 4개의 인자를 순서대로 받는다.\n\n- accumulator : 저장되는 값 (initValue를 기준으로 시작된다. initValue가 없다면, 첫번째 값을 넣습니다.\n- now : 현재 값을 말한다.\n- index : 인덱스 번호 (순서)\n- array : 원본 전체 배열\n\n## 사용 예시\n\n간단한 사용 예를 들어보자\n\nflatten 함수는 인자에 배열이 있다면 배열을 풀어서 대입 해주는 역할을 한다.\n\n```javascript {numberLines}\nconst array = [1, 2, [3, 4], 5, 6, [7, 8], 9]\n\nfunction flatten() {\n  const result = array.reduce((acc, now) => {\n    before = Array.isArray(before) ? before.concat(now) : (before = [before, now])\n\n    return before\n  })\n\n  return result\n}\n\nconst result = flatten()\nconsole.log(result)\n```\n\n## 좀 더 깊게\n\n- flatten 재귀 호출\n\n```javascript {numberLines}\nconst array = [1, 2, [3, 4, [5, 6, [7, 8]]], 9, 10, [11, 12, [13, [14, 15], 16]]]\n\nfunction flatten(array) {\n  const result = array.reduce((accel, value) => {\n    if (!Array.isArray(value)) accel.push(value)\n    else {\n      accel = accel.concat(flatten(value))\n    }\n    return accel\n  }, [])\n\n  return result\n}\n\nconst result = flatten(array)\nconsole.log(result)\n```\n\n- Map\n\n```javascript {numberLines}\nfunction map(arr, func) {\n  return arr.reduce((stack, value) => {\n    stack.push(func(value))\n    return stack\n  }, [])\n}\n```\n\n- Filter\n\n```javascript {numberLines}\nfunction filter(arr, func) {\n  return arr.reduce((stack, value) => {\n    if (func(value)) stack.push(value)\n    return stack\n  }, [])\n}\n```"
+}
