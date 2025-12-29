@@ -25,24 +25,29 @@ async function deploy() {
     // Deploy to vallista.github.io repository (note: case-sensitive)
     const targetRepo = 'Vallista/vallista.github.io'
 
-    if (token) {
-      // In CI/CD environment, use --repo option with token
-      // Deploy to vallista.github.io repository
-      const repoUrl = `https://x-access-token:${token}@github.com/${targetRepo}.git`
-      console.log(chalk.gray(`Deploying to: ${targetRepo}`))
-      // Quote the URL to handle special characters in token
-      try {
-        execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
-      } catch (error) {
-        console.error(chalk.red('Deployment error details:'))
-        console.error(error)
-        throw error
-      }
-    } else {
-      // Local deployment - also deploy to vallista.github.io
-      const repoUrl = `https://github.com/${targetRepo}.git`
-      console.log(chalk.gray(`Deploying to: ${targetRepo}`))
+    if (!token) {
+      console.error(chalk.red('❌ No token found!'))
+      console.error(chalk.yellow('Please set TOKEN or GITHUB_TOKEN environment variable.'))
+      process.exit(1)
+    }
+
+    // In CI/CD environment, use --repo option with token
+    // Deploy to vallista.github.io repository
+    const repoUrl = `https://x-access-token:${token}@github.com/${targetRepo}.git`
+    console.log(chalk.gray(`Deploying to: ${targetRepo}`))
+    console.log(chalk.gray(`Token present: ${token ? 'Yes' : 'No'} (${token ? token.substring(0, 4) + '...' : 'N/A'})`))
+
+    // Quote the URL to handle special characters in token
+    try {
       execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
+    } catch (error) {
+      console.error(chalk.red('Deployment error details:'))
+      console.error(error)
+      console.error(chalk.yellow('\n💡 Troubleshooting:'))
+      console.error(chalk.yellow('1. Check if TOKEN secret is set in GitHub repository settings'))
+      console.error(chalk.yellow('2. Verify the token has "repo" scope permissions'))
+      console.error(chalk.yellow('3. Ensure the token has access to Vallista/vallista.github.io repository'))
+      throw error
     }
 
     console.log(chalk.green('🎉 Deployment completed!'))
