@@ -27,17 +27,17 @@ export function useAutoFitText(options: UseAutoFitTextOptions) {
 
       // 초기 크기에서 시작 (maxFontSize부터 줄여가며 시도)
       let fontSize = maxFontSize
-      textElement.style.fontSize = `${fontSize}px`
+      textElement.style.fontSize = `${fontSize}px !important`
 
       // 컨테이너 높이가 maxHeight를 넘지 않을 때까지 font-size 줄이기
       while (container.scrollHeight > maxHeight && fontSize > minFontSize) {
         fontSize -= 1
-        textElement.style.fontSize = `${fontSize}px`
+        textElement.style.fontSize = `${fontSize}px !important`
       }
 
       // 최소 크기보다 작아지면 최소 크기로 고정
       if (fontSize < minFontSize) {
-        textElement.style.fontSize = `${minFontSize}px`
+        textElement.style.fontSize = `${minFontSize}px !important`
       }
     }
 
