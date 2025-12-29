@@ -57,6 +57,9 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     if (typeof window !== 'undefined') {
       localStorage.setItem('theme', theme)
     }
+
+    // 테마 스위치 버튼 클릭 시 즉시 iOS 메타 태그 업데이트
+    updateIOSMetaTags(theme)
   }
 
   // iOS 메타 태그 업데이트 함수 (useCallback으로 메모이제이션)
@@ -134,9 +137,10 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     document.body.style.backgroundColor = themeState === 'DARK' ? '#000000' : '#ffffff'
     document.body.style.color = themeState === 'DARK' ? '#ffffff' : '#000000'
 
-    // iOS 노치 영역 색상 업데이트 (초기 로드 및 테마 변경 시 모두 실행)
+    // iOS 노치 영역 색상 업데이트 (초기 로드 시 실행)
+    // 테마 스위치 버튼 클릭 시에는 changeTheme에서 직접 호출됨
     updateIOSMetaTags(themeState)
-  }, [themeState])
+  }, [themeState, updateIOSMetaTags])
 
   // 시스템 테마 변경 감지 및 React 상태 업데이트
   useEffect(() => {
