@@ -318,7 +318,7 @@ function copyImages(sourceDir, targetDir) {
 function generateContent() {
   console.log('Generating content index...')
 
-  const contentsDir = path.join(__dirname, '../contents')
+  const contentsDir = path.join(__dirname, '../../contents')
   const outputDir = path.join(__dirname, '../public')
   const articlesDir = path.join(outputDir, 'contents', 'articles')
 

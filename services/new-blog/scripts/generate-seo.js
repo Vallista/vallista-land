@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename)
 
 const SITE_URL = 'https://vallista.kr'
 const DIST_DIR = path.join(__dirname, '../dist')
-const CONTENTS_DIR = path.join(__dirname, '../contents')
+const CONTENTS_DIR = path.join(__dirname, '../../contents')
 
 async function generateSitemap() {
   console.log(chalk.blue('🔍 Generating sitemap...'))

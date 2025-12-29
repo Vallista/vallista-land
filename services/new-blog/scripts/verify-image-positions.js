@@ -31,7 +31,7 @@ function findImagesByLine(body) {
 
 function compareArticle(slug) {
   const blogPath = path.join(__dirname, '../../blog/contents/articles', slug, 'index.md')
-  const newPath = path.join(__dirname, '../contents/articles', slug, 'index.md')
+  const newPath = path.join(__dirname, '../../contents/articles', slug, 'index.md')
 
   if (!fs.existsSync(blogPath) || !fs.existsSync(newPath)) {
     console.log(`⚠️  경로 없음: ${slug}`)

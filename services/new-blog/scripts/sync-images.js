@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const ORIGINAL_BLOG_DIR = path.join(__dirname, '../../blog/contents/articles')
-const NEW_BLOG_DIR = path.join(__dirname, '../contents/articles')
+const NEW_BLOG_DIR = path.join(__dirname, '../../contents/articles')
 
 function syncImages() {
   console.log('🔄 이미지 동기화 시작...')
