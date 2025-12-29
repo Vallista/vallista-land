@@ -108,30 +108,33 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     document.body.style.color = themeState === 'DARK' ? '#ffffff' : '#000000'
 
     // iOS 노치 영역 색상 업데이트
-    if (typeof document !== 'undefined') {
-      // theme-color 메타 태그 업데이트
-      let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
-      if (!themeColorMeta) {
-        themeColorMeta = document.createElement('meta')
-        themeColorMeta.name = 'theme-color'
-        document.head.appendChild(themeColorMeta)
-      }
-      themeColorMeta.content = themeState === 'DARK' ? '#000000' : '#ffffff'
-
-      // apple-mobile-web-app-status-bar-style 업데이트
-      let statusBarMeta = document.querySelector(
-        'meta[name="apple-mobile-web-app-status-bar-style"]'
-      ) as HTMLMetaElement
-      if (!statusBarMeta) {
-        statusBarMeta = document.createElement('meta')
-        statusBarMeta.name = 'apple-mobile-web-app-status-bar-style'
-        document.head.appendChild(statusBarMeta)
-      }
-      // 다크모드일 때는 'black-translucent' 사용 (콘텐츠가 상태바 영역까지 확장)
-      // 라이트모드일 때는 'default' 사용 (흰색 배경)
-      statusBarMeta.content = themeState === 'DARK' ? 'black-translucent' : 'default'
-    }
+    updateIOSMetaTags(themeState)
   }, [themeState])
+
+  // iOS 메타 태그 업데이트 함수
+  const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
+    if (typeof document === 'undefined') return
+
+    // theme-color 메타 태그 업데이트
+    let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
+    if (!themeColorMeta) {
+      themeColorMeta = document.createElement('meta')
+      themeColorMeta.name = 'theme-color'
+      document.head.appendChild(themeColorMeta)
+    }
+    themeColorMeta.content = theme === 'DARK' ? '#000000' : '#ffffff'
+
+    // apple-mobile-web-app-status-bar-style 업데이트
+    let statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]') as HTMLMetaElement
+    if (!statusBarMeta) {
+      statusBarMeta = document.createElement('meta')
+      statusBarMeta.name = 'apple-mobile-web-app-status-bar-style'
+      document.head.appendChild(statusBarMeta)
+    }
+    // 다크모드일 때는 'black' 또는 'black-translucent' 사용
+    // 'black-translucent'는 콘텐츠가 상태바 영역까지 확장됨
+    statusBarMeta.content = theme === 'DARK' ? 'black-translucent' : 'default'
+  }
 
   // 시스템 테마 변경 감지
   useEffect(() => {
