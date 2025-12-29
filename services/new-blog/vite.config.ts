@@ -7,25 +7,17 @@ import svgr from 'vite-plugin-svgr'
 export default defineConfig({
   plugins: [vanillaExtractPlugin(), react(), svgr()],
   resolve: {
-    alias: [
-      { find: /^@\/(.*)/, replacement: resolve(__dirname, 'src/$1') },
-      { find: /^@configs\/(.*)/, replacement: resolve(__dirname, 'configs/$1') },
-      { find: /^@shared\/(.*)/, replacement: resolve(__dirname, 'src/shared/$1') },
-      { find: /^@entities\/(.*)/, replacement: resolve(__dirname, 'src/entities/$1') },
-      { find: /^@features\/(.*)/, replacement: resolve(__dirname, 'src/features/$1') },
-      { find: /^@widgets\/(.*)/, replacement: resolve(__dirname, 'src/widgets/$1') },
-      { find: /^@pages\/(.*)/, replacement: resolve(__dirname, 'src/pages/$1') },
-      { find: /^@app\/(.*)/, replacement: resolve(__dirname, 'src/app/$1') },
-      { find: '@', replacement: resolve(__dirname, 'src') },
-      { find: '@configs', replacement: resolve(__dirname, 'configs') },
-      { find: '@shared', replacement: resolve(__dirname, 'src/shared') },
-      { find: '@entities', replacement: resolve(__dirname, 'src/entities') },
-      { find: '@features', replacement: resolve(__dirname, 'src/features') },
-      { find: '@widgets', replacement: resolve(__dirname, 'src/widgets') },
-      { find: '@pages', replacement: resolve(__dirname, 'src/pages') },
-      { find: '@app', replacement: resolve(__dirname, 'src/app') }
-    ],
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.mts', '.json']
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '@configs': resolve(__dirname, 'configs'),
+      '@shared': resolve(__dirname, 'src/shared'),
+      '@entities': resolve(__dirname, 'src/entities'),
+      '@features': resolve(__dirname, 'src/features'),
+      '@widgets': resolve(__dirname, 'src/widgets'),
+      '@pages': resolve(__dirname, 'src/pages'),
+      '@app': resolve(__dirname, 'src/app')
+    },
+    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
   },
   define: {
     'process.env.NODE_ENV': '"production"',
