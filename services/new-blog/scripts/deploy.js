@@ -23,28 +23,29 @@ async function deploy() {
     const token = process.env.GITHUB_TOKEN
 
     if (token) {
-      // In CI/CD environment, update remote URL to include token
-      // Get current remote URL
+      // In CI/CD environment, use --repo option with token
+      // Get current remote URL to extract repo path
       const currentRemote = execSync('git config --get remote.origin.url', { encoding: 'utf-8' }).trim()
 
       // Extract repo path from remote URL (handles both https and git@ formats)
       let repoPath = currentRemote
-      if (currentRemote.includes('@')) {
+      if (currentRemote.includes('@') && currentRemote.includes(':')) {
         // git@github.com:user/repo.git format
         repoPath = currentRemote.split(':')[1]?.replace('.git', '') || ''
       } else {
         // https://github.com/user/repo.git format
-        repoPath = currentRemote.replace('https://github.com/', '').replace('.git', '')
+        repoPath = currentRemote.replace(/^https?:\/\/[^\/]+\//, '').replace('.git', '')
       }
 
       if (repoPath) {
-        // Update remote URL with token
-        const repoUrl = `https://${token}@github.com/${repoPath}.git`
-        execSync(`git remote set-url origin ${repoUrl}`, { stdio: 'inherit' })
+        // Use x-access-token format for GitHub Actions
+        const repoUrl = `https://x-access-token:${token}@github.com/${repoPath}.git`
+        // Quote the URL to handle special characters in token
+        execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
+      } else {
+        // Fallback: use default behavior
+        execSync('npx gh-pages -d dist --dotfiles', { stdio: 'inherit' })
       }
-
-      // Deploy using gh-pages (it will use the updated remote)
-      execSync('npx gh-pages -d dist --dotfiles', { stdio: 'inherit' })
     } else {
       // Local deployment
       execSync('npx gh-pages -d dist --dotfiles', { stdio: 'inherit' })
