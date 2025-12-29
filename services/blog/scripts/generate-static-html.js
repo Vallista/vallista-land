@@ -5,6 +5,7 @@ import { render } from '../src/ssr-entry'
 const distDir = path.resolve('dist')
 const contentsSourceDir = path.resolve('contents')
 const filesSourceDir = path.resolve('public/contents')
+const outputBaseDir = path.resolve('public')
 
 function escapeHtml(text = '') {
   return text

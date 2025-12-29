@@ -37,11 +37,11 @@ export function MarkdownRenderer({ content, className, articleSlug }: MarkdownRe
                 />
               </div>
             ) : (
-              <div className={styles.inlineCodeWrapper}>
+              <span className={styles.inlineCodeWrapper}>
                 <code className={styles.inlineCode} {...props}>
                   {children}
                 </code>
-              </div>
+              </span>
             )
           },
 
