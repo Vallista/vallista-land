@@ -19,8 +19,9 @@ async function deploy() {
     // Deploy to GitHub Pages
     console.log(chalk.blue('📤 Deploying to GitHub Pages...'))
 
-    // Use GITHUB_TOKEN if available (for CI/CD), otherwise use default git config
-    const token = process.env.GITHUB_TOKEN
+    // Use TOKEN (PAT) or GITHUB_TOKEN if available (for CI/CD), otherwise use default git config
+    // TOKEN is a Personal Access Token with repo permissions for cross-repo access
+    const token = process.env.TOKEN || process.env.GITHUB_TOKEN
     // Deploy to vallista.github.io repository (note: case-sensitive)
     const targetRepo = 'Vallista/vallista.github.io'
 

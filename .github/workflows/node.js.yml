@@ -44,6 +44,7 @@ jobs:
         run: git config --global user.name "vallista"
       - name: new-blog 배포
         env:
+          TOKEN: ${{ secrets.TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: pnpm deploy:new-blog
