@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react'
+import { createContext, useContext, useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import { ToastProvider } from '../Toast/ToastProvider'
 
 interface ThemeContextType {
@@ -59,8 +59,8 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     }
   }
 
-  // iOS 메타 태그 업데이트 함수
-  const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
+  // iOS 메타 태그 업데이트 함수 (useCallback으로 메모이제이션)
+  const updateIOSMetaTags = useCallback((theme: 'LIGHT' | 'DARK') => {
     if (typeof document === 'undefined') return
 
     // theme-color 메타 태그 업데이트
@@ -82,7 +82,7 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     // 다크모드일 때는 'black' 또는 'black-translucent' 사용
     // 'black-translucent'는 콘텐츠가 상태바 영역까지 확장됨
     statusBarMeta.content = theme === 'DARK' ? 'black-translucent' : 'default'
-  }
+  }, [])
 
   // useLayoutEffect를 사용하여 브라우저 페인트 전에 동기적으로 실행
   // 이렇게 하면 테마 변경이 즉시 반영되어 nav와 sidebar가 빠르게 업데이트됨
@@ -138,7 +138,7 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     updateIOSMetaTags(themeState)
   }, [themeState])
 
-  // 시스템 테마 변경 감지
+  // 시스템 테마 변경 감지 및 React 상태 업데이트
   useEffect(() => {
     if (!enableSystemTheme || typeof window === 'undefined') return
 
@@ -153,6 +153,42 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [enableSystemTheme])
+
+  // 시스템 테마를 지속적으로 추적하여 iOS 메타 태그 업데이트
+  // React 상태와 무관하게 시스템 테마 변경을 감지하고 iOS 메타 태그를 업데이트
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+    // 현재 적용된 테마 결정 (localStorage 우선, 없으면 시스템 테마)
+    const getCurrentTheme = (): 'LIGHT' | 'DARK' => {
+      const savedTheme = localStorage.getItem('theme') as 'LIGHT' | 'DARK' | null
+      if (savedTheme && (savedTheme === 'LIGHT' || savedTheme === 'DARK')) {
+        return savedTheme
+      }
+      return mediaQuery.matches ? 'DARK' : 'LIGHT'
+    }
+
+    // 초기 로드 시 iOS 메타 태그 설정
+    updateIOSMetaTags(getCurrentTheme())
+
+    // 시스템 테마 변경 시 iOS 메타 태그 업데이트
+    // localStorage에 저장된 테마가 있으면 그것을 사용, 없으면 시스템 테마 사용
+    const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      const savedTheme = localStorage.getItem('theme') as 'LIGHT' | 'DARK' | null
+      if (savedTheme && (savedTheme === 'LIGHT' || savedTheme === 'DARK')) {
+        // localStorage에 저장된 테마가 있으면 그것을 사용
+        updateIOSMetaTags(savedTheme)
+      } else {
+        // localStorage에 저장된 테마가 없으면 시스템 테마 사용
+        updateIOSMetaTags(e.matches ? 'DARK' : 'LIGHT')
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange)
+    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange)
+  }, [updateIOSMetaTags]) // updateIOSMetaTags를 의존성 배열에 포함
 
   return (
     <ThemeContext.Provider value={{ currentTheme: themeState, changeTheme }}>
