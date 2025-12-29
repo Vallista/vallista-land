@@ -1,8 +1,7 @@
-import styled from '@emotion/styled'
-
 import { Input } from '.'
 import { SearchInputProps } from './type'
 import { useInput } from './useInput'
+import { searchInputRemoveText } from './SearchInput.css'
 
 /**
  * # SearchInput
@@ -45,32 +44,34 @@ export const SearchInput = (
         </svg>
       }
       suffix={
-        value.length > 0 && (
-          <RemoveText onClick={() => (onReset ? onReset() : onChange(''))}>
-            <svg
-              viewBox='0 0 24 24'
-              width='18'
-              height='18'
-              stroke='currentColor'
-              strokeWidth='1.5'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              fill='none'
-              shapeRendering='geometricPrecision'
-            >
-              <path d='M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z' />
-              <path d='M18 9l-6 6' />
-              <path d='M12 9l6 6' />
-            </svg>
-          </RemoveText>
-        )
+        <div
+          className={searchInputRemoveText}
+          onClick={() => value.length > 0 && (onReset ? onReset() : onChange(''))}
+          style={{
+            opacity: value.length > 0 ? 1 : 0,
+            pointerEvents: value.length > 0 ? 'auto' : 'none',
+            transition: 'opacity 0.15s ease'
+          }}
+        >
+          <svg
+            viewBox='0 0 24 24'
+            width='18'
+            height='18'
+            stroke='currentColor'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            fill='none'
+            shapeRendering='geometricPrecision'
+          >
+            <path d='M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z' />
+            <path d='M18 9l-6 6' />
+            <path d='M12 9l6 6' />
+          </svg>
+        </div>
       }
       prefixStyling={false}
       suffixStyling={false}
     />
   )
 }
-
-const RemoveText = styled.div`
-  cursor: pointer;
-`

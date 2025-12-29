@@ -1,0 +1,13 @@
+{
+  "title": "효율적인 Storybook 컴포넌트 구조 만들기",
+  "description": "최근 Storybook을 활용한 디자인 시스템 개발을 많은 회사에서 진행하고 있습니다. 디자인 시스템을 구축하면서 수많은 컴포넌트가 생성되고 사라지고를 반복하는데 이러한 컴포넌트 관리를 위해 Atomic Design을 많은 회사에서 채택하고 있는 듯 보입니다. 여기서 ...",
+  "date": "2020-04-26T15:19:08.000Z",
+  "tags": [],
+  "image": "assets/9.png",
+  "slug": "efficient-component-structure-making",
+  "url": "/articles/efficient-component-structure-making",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 6,
+  "draft": false
+}

@@ -1,8 +1,13 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
 import { NeedTabsProps } from './type'
 import { useTabs } from './useTabs'
+import {
+  tabsContainer,
+  tabsIconWrapper,
+  tabsTab,
+  tabsTabContents,
+  tabsTabContentsActive,
+  tabsTabDisabled
+} from './Tabs.css'
 
 /**
  *
@@ -11,16 +16,20 @@ export const Tabs = (props: NeedTabsProps) => {
   const { selected, setSelected, tabs, disabled } = useTabs(props)
 
   return (
-    <Container>
+    <div className={tabsContainer}>
       {tabs.map((it, idx) => (
-        <Tab key={`tab-${idx}`} active={isActive(it.value)} onClick={() => handleSelect(it.value)} disabled={disabled}>
-          <TabContents active={isActive(it.value)} disabled={disabled}>
-            {it.icon && <IconWrapper>{it.icon}</IconWrapper>}
+        <div
+          key={`tab-${idx}`}
+          className={`${tabsTab} ${disabled ? tabsTabDisabled : ''}`}
+          onClick={() => handleSelect(it.value)}
+        >
+          <div className={`${tabsTabContents} ${isActive(it.value) ? tabsTabContentsActive : ''}`}>
+            {it.icon && <div className={tabsIconWrapper}>{it.icon}</div>}
             {it.title}
-          </TabContents>
-        </Tab>
+          </div>
+        </div>
       ))}
-    </Container>
+    </div>
   )
 
   function isActive(target: string): boolean {
@@ -33,64 +42,3 @@ export const Tabs = (props: NeedTabsProps) => {
     setSelected(target)
   }
 }
-
-const Container = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: baseline;
-  padding-bottom: 1px;
-  overflow-x: auto;
-  ${({ theme }) => css`
-    box-shadow: 0 -1px 0 ${theme.colors.PRIMARY.ACCENT_2} inset;
-  `}
-
-  &, & > * {
-    gap: 0 !important;
-  }
-`
-
-const Tab = styled.div<{ active: boolean; disabled?: boolean }>`
-  ${({ theme, disabled }) => css`
-    cursor: pointer;
-    padding: 0 0.75rem;
-    margin-bottom: -1px;
-    border-bottom: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-    outline: 0;
-
-    &:first-of-type {
-      padding-left: 0.75rem;
-    }
-
-    ${disabled &&
-    css`
-      cursor: not-allowed;
-    `}
-  `}
-`
-
-const TabContents = styled.div<{ active: boolean; disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  padding: 6px 2px;
-  margin-bottom: -1px;
-  ${({ theme, active }) => css`
-    color: ${theme.colors.PRIMARY.ACCENT_4};
-    border-bottom: 1px solid transparent;
-
-    ${active &&
-    css`
-      border-bottom: 2px solid ${theme.colors.PRIMARY.FOREGROUND};
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-    `}
-  `}
-`
-
-const IconWrapper = styled.div`
-  margin-right: 6px;
-  margin-bottom: -3px;
-
-  & > svg {
-    width: 14px !important;
-    height: 14px !important;
-  }
-`

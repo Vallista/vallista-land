@@ -1,24 +1,18 @@
-import { useTheme } from '@emotion/react'
-
-import { ReturningUseButton, ButtonProps, createColorSets } from './type'
+import { ButtonProps } from './type'
 
 const initProps: Partial<ButtonProps> = {
   shape: 'square',
   size: 'medium',
   loading: false,
-  disabled: false
+  disabled: false,
+  variant: 'default',
+  color: 'primary',
+  type: 'button'
 }
 
-export function useButton<T extends Partial<ButtonProps>>(props: T): ReturningUseButton<T> {
-  const theme = useTheme()
-  const color = props.color ?? 'primary'
-  const variant = props.variant ?? 'default'
-  const colorSets = createColorSets(variant, theme, color)
+export function useButton<T extends Partial<ButtonProps>>(props: T): T {
   return {
     ...initProps,
-    ...props,
-    normal: colorSets.normal,
-    hover: colorSets.hover,
-    active: colorSets.active
+    ...props
   }
 }

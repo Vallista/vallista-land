@@ -1,6 +1,5 @@
-import styled from '@emotion/styled'
-
 import { useModalContext } from '../context'
+import { modalHeader } from './Header.css'
 
 interface ModalHeaderProps {
   children: React.ReactNode
@@ -19,18 +18,10 @@ const Header = (props: ModalHeaderProps) => {
   const { children } = useModalContext(props)
 
   return (
-    <Wrapper>
+    <header className={modalHeader}>
       <div>{children}</div>
-    </Wrapper>
+    </header>
   )
 }
-
-const Wrapper = styled.header`
-  background: ${({ theme }) => theme.colors.PRIMARY.BACKGROUND};
-  color: ${({ theme }) => theme.colors.PRIMARY.FOREGROUND};
-  padding: 19px 14px;
-  text-align: center;
-  text-transform: uppercase;
-`
 
 export { Header }

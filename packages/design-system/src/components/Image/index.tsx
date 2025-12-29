@@ -1,9 +1,17 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
 import { useEffect, useRef, useState } from 'react'
 
 import { raiseDecimalPoint } from '../../utils/math'
 import { ImageProps } from './type'
+import {
+  imageCaption,
+  imageContainer,
+  imageImg,
+  imageMain,
+  imageWrapper,
+  imageHeader,
+  imageTitle,
+  imageCloseButton
+} from './Image.css'
 
 /**
  * # Image
@@ -12,6 +20,7 @@ import { ImageProps } from './type'
  * 
  * 1. 이미지를 불러오기 전 로딩을 진행하고
  * 2. 로딩이 완료되면 fade-in 애니메이션으로 보여줍니다.
+ * 3. 선택적으로 헤더와 닫기 버튼을 포함할 수 있습니다.
  * 
  * @param {ImageProps} {@link ImageProps} 기본적인 프롭
  * 
@@ -30,17 +39,19 @@ import { ImageProps } from './type'
     margin={0}
     caption='Source: giphy.com'
     captionSpacing={20}
+    title='Image Title'
+    onClose={() => {}}
   />
  * ```
  */
-export const ImageComponent = (props: ImageProps) => {
-  const { caption, captionSpacing, src, objectFit, objectPosition, ...otherProps } = props
+export const Image = (props: ImageProps) => {
+  const { caption, captionSpacing, src, objectFit, objectPosition, title, onClose, ...otherProps } = props
 
   const ref = useRef<HTMLImageElement>(null)
   const [imgSrc, setImgSrc] = useState<string | null>(null)
 
   useEffect(() => {
-    const imageLoader = new Image()
+    const imageLoader = new window.Image()
     imageLoader.src = src
 
     imageLoader.onload = () => {
@@ -50,77 +61,60 @@ export const ImageComponent = (props: ImageProps) => {
     return () => {
       imageLoader.onload = null
     }
-  }, [])
+  }, [src])
 
   const height = raiseDecimalPoint((otherProps.height / otherProps.width) * 100)
-  const onlyProps = {
-    src: imgSrc
-  }
 
   return (
-    <Container {...onlyProps} {...otherProps} show={!!imgSrc}>
-      <Main width={otherProps.width}>
-        <Wrapper height={height}>
+    <figure
+      className={imageContainer}
+      style={{
+        margin: `${otherProps.margin ?? 0}px 0`,
+        opacity: imgSrc ? 1 : 0,
+        transition: 'opacity 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955)'
+      }}
+    >
+      <main className={imageMain} style={{ width: `${otherProps.width}px` }}>
+        {/* 헤더 영역 - title이 있을 때만 표시 */}
+        {title && (
+          <div className={imageHeader}>
+            <p className={imageTitle}>{title}</p>
+            {onClose && (
+              <button className={imageCloseButton} onClick={onClose} type='button' aria-label='Close image'>
+                <svg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                  <path
+                    d='M12 4L4 12M4 4L12 12'
+                    stroke='currentColor'
+                    strokeWidth='1.5'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className={imageWrapper} style={{ paddingBottom: `${height}%` }}>
           {imgSrc && (
-            <Img ref={ref} decoding='async' src={imgSrc ?? ''} objectFit={objectFit} objectPosition={objectPosition} />
+            <img
+              ref={ref}
+              className={imageImg}
+              decoding='async'
+              src={imgSrc ?? ''}
+              style={{
+                objectFit: objectFit || undefined,
+                objectPosition: objectPosition || 'center'
+              }}
+            />
           )}
-        </Wrapper>
-        {caption && <Caption style={{ marginTop: `${captionSpacing}px` }}>{caption}</Caption>}
-      </Main>
-    </Container>
+        </div>
+        {caption && (
+          <p className={imageCaption} style={{ marginTop: `${captionSpacing}px` }}>
+            {caption}
+          </p>
+        )}
+      </main>
+    </figure>
   )
 }
-
-const Container = styled.figure<{ show: boolean } & Pick<ImageProps, 'width' | 'height' | 'margin'>>`
-  display: block;
-  text-align: center;
-
-  ${({ show, margin }) => css`
-    margin: ${margin ?? 0}px 0;
-    opacity: ${show ? 1 : 0};
-    transition: opacity 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
-  `}
-`
-
-const Main = styled.main<Pick<ImageProps, 'width'>>`
-  ${({ width }) => css`
-    width: ${width}px;
-    margin: 0 auto;
-    max-width: 100%;
-  `}
-`
-
-const Wrapper = styled.div<{ height: number }>`
-  display: flex;
-  justify-content: center;
-  position: relative;
-  ${({ height }) => css`
-    padding-bottom: ${height}%;
-  `}
-`
-
-const Img = styled.img<Pick<ImageProps, 'objectFit' | 'objectPosition'>>`
-  height: 100%;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  ${({ objectFit }) =>
-    objectFit &&
-    css`
-      object-fit: ${objectFit};
-    `}
-  ${({ objectPosition }) =>
-    objectPosition &&
-    css`
-      object-position: center;
-    `}
-`
-
-const Caption = styled.p`
-  ${({ theme }) => css`
-    color: ${theme.colors.PRIMARY.ACCENT_5};
-    font-size: 0.875rem;
-    text-align: center;
-  `}
-`

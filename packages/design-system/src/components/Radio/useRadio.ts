@@ -2,15 +2,15 @@ import { useRadioContext } from './context'
 import { UseNeedRadioProp, ReturningUseRadio } from './type'
 
 export function useRadio<T extends UseNeedRadioProp>(props: T): T & ReturningUseRadio {
-  const { state } = useRadioContext()
-  const { disabled } = state
+  const context = useRadioContext()
+  const { disabled, uniqueId, onChange } = context
 
   return {
     ...props,
-    ...state,
     value: props.value,
-    name: `radio-name-${state.uniqueId}`,
+    name: `radio-name-${uniqueId}`,
     disabled: disabled || props.disabled || false,
-    checked: props.value === state.value || false
+    checked: props.value === context.value || false,
+    onChange
   }
 }

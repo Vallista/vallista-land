@@ -1,33 +1,27 @@
 import { renderToString } from 'react-dom/server'
-import { StaticRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import App from './app'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ThemeProvider } from '@vallista/design-system'
-
-import { CacheProvider } from '@emotion/react'
-import createEmotionCache from './libs/createEmotionCache'
-import createEmotionServer from '@emotion/server/create-instance'
+import { GlobalProvider } from './context'
+import '@vallista/design-system/design-system.css'
 
 export function render(url: string) {
   const queryClient = new QueryClient()
-  const emotionCache = createEmotionCache()
-  const { extractCriticalToChunks, constructStyleTagsFromChunks } = createEmotionServer(emotionCache)
 
   const app = (
-    <CacheProvider value={emotionCache}>
-      <StaticRouter location={url}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
+    <MemoryRouter initialEntries={[url]}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider enableSystemTheme={false}>
+          <GlobalProvider>
             <App />
-          </ThemeProvider>
-        </QueryClientProvider>
-      </StaticRouter>
-    </CacheProvider>
+          </GlobalProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </MemoryRouter>
   )
 
   const html = renderToString(app)
-  const emotionChunks = extractCriticalToChunks(html)
-  const styleTags = constructStyleTagsFromChunks(emotionChunks)
 
-  return { html, styleTags } // ← 이제 styleTags를 외부에서 <head>에 삽입할 수 있음
+  return { html }
 }

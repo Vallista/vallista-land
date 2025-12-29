@@ -1,415 +1,430 @@
+import { style, keyframes } from '@vanilla-extract/css'
 import { DEFINE_CONTENTS_MIN_WIDTH, DEFINE_CONTENTS_PADDING, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
-import { keyframes, Theme } from '@emotion/react'
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+import { COLOR_TOKENS } from '@vallista/design-system'
 
 // shimmer 애니메이션 정의
-const shimmer = keyframes`
-  0% {
-    background-position: -200% 0;
+const shimmer = keyframes({
+  '0%': {
+    backgroundPosition: '-200% 0'
+  },
+  '100%': {
+    backgroundPosition: '200% 0'
   }
-  100% {
-    background-position: 200% 0;
-  }
-`
+})
 
 // 공통 스켈레톤 스타일
-const skeletonBase = css`
-  background-color: #e0e0e0;
-  background-image: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-  animation: ${shimmer} 1.5s infinite;
-  border-radius: 8px;
-`
+const skeletonBase = {
+  backgroundColor: COLOR_TOKENS.PRIMARY.GRAY_300,
+  backgroundImage:
+    'linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%)',
+  backgroundSize: '200% 100%',
+  backgroundRepeat: 'no-repeat',
+  animation: `${shimmer} 1.5s infinite`,
+  borderRadius: '8px'
+}
 
-export const SkeletonImage = styled.div`
-  ${skeletonBase};
-  width: 100%;
-  aspect-ratio: 2 / 1;
-  border-radius: 12px;
-  margin-bottom: 24px;
-`
+export const skeletonImage = style({
+  ...skeletonBase,
+  width: '100%',
+  aspectRatio: '2 / 1',
+  borderRadius: '12px',
+  marginBottom: '24px'
+})
 
-export const SkeletonTextLine = styled.div<{ width: string }>`
-  ${skeletonBase};
-  height: 16px;
-  width: ${({ width }) => width};
-  margin-bottom: 12px;
-  border-radius: 6px;
-`
+export const skeletonTextLine = style({
+  ...skeletonBase,
+  height: '16px',
+  marginBottom: '12px',
+  borderRadius: '6px'
+})
 
-export const SkeletonWrap = styled.div`
-  box-sizing: border-box;
-  min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
-  max-width: ${DEFINE_CONTENTS_WIDTH}px;
-  padding: ${DEFINE_CONTENTS_PADDING}px;
-`
+export const skeletonWrap = style({
+  boxSizing: 'border-box',
+  minWidth: `${DEFINE_CONTENTS_MIN_WIDTH}px`,
+  maxWidth: `${DEFINE_CONTENTS_WIDTH}px`,
+  padding: `${DEFINE_CONTENTS_PADDING}px`
+})
 
-const root = css`
-  margin: 0 auto;
-  box-sizing: border-box;
-  min-width: ${DEFINE_CONTENTS_MIN_WIDTH}px;
-  max-width: ${DEFINE_CONTENTS_WIDTH}px;
-  padding: ${DEFINE_CONTENTS_PADDING}px;
+const root = style({
+  margin: '0 auto',
+  boxSizing: 'border-box',
+  minWidth: `${DEFINE_CONTENTS_MIN_WIDTH}px`,
+  maxWidth: `${DEFINE_CONTENTS_WIDTH}px`,
+  padding: `${DEFINE_CONTENTS_PADDING}px`,
 
-  & > p,
-  & > ul,
-  & > ol {
-    font-size: 1rem;
-  }
+  selectors: {
+    '& > p, & > ul, & > ol': {
+      fontSize: '1rem'
+    }
+  },
 
-  @media screen and (max-width: 1024px) {
-    padding: ${DEFINE_CONTENTS_PADDING}px 16px;
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      padding: `${DEFINE_CONTENTS_PADDING}px 16px`,
 
-    & > p,
-    & > ul,
-    & > ol {
-      font-size: 0.875em; /* 14px */
+      selectors: {
+        '& > p, & > ul, & > ol': {
+          fontSize: '0.875em' // 14px
+        }
+      }
     }
   }
-`
+})
 
-const image = (theme: Theme) => css`
-  @keyframes fade-in {
-    0% {
-      opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
+const fadeIn = keyframes({
+  '0%': {
+    opacity: 0
+  },
+  '100%': {
+    opacity: 1
   }
+})
 
-  & > p:has(img) {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 32px 0 !important;
-    gap: 12px;
-    font-size: 0.875em;
-    line-height: 1.5em;
-    color: ${theme.colors.PRIMARY.ACCENT_7};
+const image = style({
+  selectors: {
+    '& > p:has(img)': {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: '32px 0 !important',
+      gap: '12px',
+      fontSize: '0.875em',
+      lineHeight: '1.5em',
+      color: COLOR_TOKENS.PRIMARY.GRAY_700
+    },
 
-    &:first-of-type {
-      margin-top: 0 !important;
-    }
-  }
+    '& > p:has(img):first-of-type': {
+      marginTop: '0 !important'
+    },
 
-  & > p > img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
+    '& > p > img': {
+      display: 'block',
+      width: '100%',
+      height: 'auto',
+      borderRadius: '8px',
+      aspectRatio: '2 / 1',
+      objectFit: 'cover',
+      opacity: 0,
+      animation: `${fadeIn} 0.1s ease-in-out`
+    },
 
-    aspect-ratio: 2 / 1;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 0.1s ease-in-out;
-
-    &.loaded {
-      opacity: 1 !important;
-    }
-  }
-`
-
-const text = css`
-  & > p {
-    line-height: 1.6em;
-  }
-
-  & > p:not(:last-of-type) {
-    margin: 1.5em 0;
-  }
-`
-
-const heading = css`
-  & > h1,
-  & > h2,
-  & > h3,
-  & > h4 {
-    font-weight: 700;
-    line-height: 1.4;
-  }
-`
-
-const h1 = css`
-  & > h1,
-  & > blockquote > h1 {
-    font-size: 2em; /* 32px */
-    margin-bottom: 1em;
-  }
-
-  & > h1 {
-    margin-top: 2.5em;
-  }
-
-  @media screen and (max-width: 1024px) {
-    & > h1,
-    & > blockquote > h1 {
-      font-size: 1.75em; /* 28px */
+    '& > p > img.loaded': {
+      opacity: '1 !important'
     }
   }
-`
+})
 
-const h2 = css`
-  & > h2,
-  & > blockquote > h2 {
-    font-size: 1.75em; /* 26px */
-    margin-bottom: 1em;
-  }
+const text = style({
+  selectors: {
+    '& > p': {
+      lineHeight: '1.6em'
+    },
 
-  & > h2 {
-    margin-top: 2em;
-  }
-
-  @media screen and (max-width: 1024px) {
-    & > h2,
-    & > blockquote > h2 {
-      font-size: 1.5em; /* 24px */
+    '& > p:not(:last-of-type)': {
+      margin: '1.5em 0'
     }
   }
-`
+})
 
-const h3 = css`
-  & > h3,
-  & > blockquote > h3 {
-    font-size: 1.5em; /* 22px */
-    margin-bottom: 1em;
-  }
-
-  & > h3 {
-    margin-top: 1.725em;
-  }
-
-  @media screen and (max-width: 1024px) {
-    & > h3,
-    & > blockquote > h3 {
-      font-size: 1.25em; /* 20px */
+const heading = style({
+  selectors: {
+    '& > h1, & > h2, & > h3, & > h4': {
+      fontWeight: 700,
+      lineHeight: 1.4
     }
   }
-`
+})
 
-const h4 = css`
-  & > h4,
-  & > blockquote > h4 {
-    font-size: 1.25em; /* 18px */
-    font-weight: 600;
-    margin-bottom: 1em;
-  }
+const h1 = style({
+  selectors: {
+    '& > h1, & > blockquote > h1': {
+      fontSize: '2em', // 32px
+      marginBottom: '1em'
+    },
 
-  & > h4 {
-    margin-top: 1.5em;
-  }
+    '& > h1': {
+      marginTop: '2.5em'
+    }
+  },
 
-  @media screen and (max-width: 1024px) {
-    & > h4,
-    & > blockquote > h4 {
-      font-size: 1.125em; /* 18px */
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      selectors: {
+        '& > h1, & > blockquote > h1': {
+          fontSize: '1.75em' // 28px
+        }
+      }
     }
   }
-`
+})
 
-const h5 = css`
-  & > h5,
-  & > blockquote > h5 {
-    font-size: 1em; /* 18px */
-    font-weight: 600;
-    margin-bottom: 1em;
-  }
+const h2 = style({
+  selectors: {
+    '& > h2, & > blockquote > h2': {
+      fontSize: '1.75em', // 26px
+      marginBottom: '1em'
+    },
 
-  & > h4 {
-    margin-top: 1.5em;
-  }
+    '& > h2': {
+      marginTop: '2em'
+    }
+  },
 
-  @media screen and (max-width: 1024px) {
-    & > h5,
-    & > blockquote > h5 {
-      font-size: 0.875em; /* 14px */
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      selectors: {
+        '& > h2, & > blockquote > h2': {
+          fontSize: '1.5em' // 24px
+        }
+      }
     }
   }
-`
+})
 
-const ul = css`
-  & > ul {
-    list-style: none;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
-  }
-`
+const h3 = style({
+  selectors: {
+    '& > h3, & > blockquote > h3': {
+      fontSize: '1.5em', // 22px
+      marginBottom: '1em'
+    },
 
-const ol = css`
-  & > ol {
-    list-style: none;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
-    counter-reset: list-counter;
-  }
-
-  & > blockquote > ol {
-    list-style: none;
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
-    counter-reset: list-counter;
-  }
-`
-
-const li = (theme: Theme) => css`
-  & > ul code {
-    white-space: normal;
-    word-wrap: break-word;
-    word-break: break-word;
-  }
-
-  & > ul > li,
-  & > blockquote > ul > li {
-    position: relative;
-    padding-left: 1.5em;
-    line-height: 1.5em;
-
-    &:not(:last-of-type) {
-      margin-bottom: 0.5em;
+    '& > h3': {
+      marginTop: '1.725em'
     }
+  },
 
-    &::before {
-      content: '';
-      position: absolute;
-      background: ${theme.colors.PRIMARY.ACCENT_8};
-      left: 0;
-      top: 0.6em;
-      width: 0.4em;
-      height: 0.4em;
-      border-radius: 50%;
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      selectors: {
+        '& > h3, & > blockquote > h3': {
+          fontSize: '1.25em' // 20px
+        }
+      }
     }
   }
+})
 
-  & > ol > li,
-  & > blockquote > ol > li {
-    counter-increment: list-counter;
-    position: relative;
-    padding-left: 1.5em;
-    line-height: 1.5em;
+const h4 = style({
+  selectors: {
+    '& > h4, & > blockquote > h4': {
+      fontSize: '1.25em', // 18px
+      fontWeight: 600,
+      marginBottom: '1em'
+    },
 
-    &:not(:last-of-type) {
-      margin-bottom: 0.5em;
+    '& > h4': {
+      marginTop: '1.5em'
     }
+  },
 
-    &::before {
-      content: counter(list-counter) '.';
-      position: absolute;
-      color: ${theme.colors.PRIMARY.ACCENT_8};
-      left: 0;
-      width: 0.4em;
-      height: 0.4em;
-      border-radius: 50%;
-    }
-  }
-`
-
-const blockquote = (theme: Theme) => css`
-  & > blockquote {
-    margin: 2em 0;
-    padding: 1em 1.25em;
-    background: ${theme.colors.PRIMARY.ACCENT_1};
-    border-left: 4px solid ${theme.colors.PRIMARY.ACCENT_5};
-    color: ${theme.colors.PRIMARY.ACCENT_8};
-    font-style: italic;
-    line-height: 1.6;
-  }
-
-  & > blockquote > p:not(:last-of-type) {
-    margin-bottom: 1em;
-  }
-`
-
-const pre = css`
-  & pre code {
-    width: 100%;
-    display: block;
-    overflow-x: auto;
-  }
-
-  & figure pre {
-    box-sizing: border-box;
-    font-family: 'Fira Code', 'Source Code Pro', 'JetBrains Mono', monospace;
-    font-size: 1em;
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    padding: 1rem 1.25rem;
-    border-radius: 8px;
-    line-height: 1.6;
-    overflow-x: auto;
-    white-space: pre;
-    word-break: normal;
-    margin: 2rem 0;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-
-    @media screen and (max-width: 1024px) {
-      font-size: 0.75em; /* 12px */
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      selectors: {
+        '& > h4, & > blockquote > h4': {
+          fontSize: '1.125em' // 18px
+        }
+      }
     }
   }
+})
 
-  & figure pre code {
-    display: block;
+const h5 = style({
+  selectors: {
+    '& > h5, & > blockquote > h5': {
+      fontSize: '1em', // 18px
+      fontWeight: 600,
+      marginBottom: '1em'
+    },
+
+    '& > h4': {
+      marginTop: '1.5em'
+    }
+  },
+
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      selectors: {
+        '& > h5, & > blockquote > h5': {
+          fontSize: '0.875em' // 14px
+        }
+      }
+    }
   }
+})
 
-  /* 줄별 하이라이트 지원 (rehype-pretty-code에서 생성) */
-  & figure pre .line {
-    display: block;
-    padding: 0 0.25rem;
+const ul = style({
+  selectors: {
+    '& > ul': {
+      listStyle: 'none',
+      marginTop: '1.5em',
+      marginBottom: '1.5em'
+    }
   }
+})
 
-  & figure pre .line.highlighted {
-    background-color: rgba(255, 255, 255, 0.07);
+const ol = style({
+  selectors: {
+    '& > ol': {
+      listStyle: 'none',
+      marginTop: '1.5em',
+      marginBottom: '1.5em',
+      counterReset: 'list-counter'
+    },
+
+    '& > blockquote > ol': {
+      listStyle: 'none',
+      marginTop: '1.5em',
+      marginBottom: '1.5em',
+      counterReset: 'list-counter'
+    }
   }
+})
 
-  /* 문자 강조 (예: [6:14]) */
-  & figure pre .word {
-    background-color: rgba(255, 255, 255, 0.12);
-    padding: 0.1em 0.2em;
-    border-radius: 4px;
+const li = style({
+  selectors: {
+    '& > ul code': {
+      whiteSpace: 'normal',
+      wordWrap: 'break-word',
+      wordBreak: 'break-word'
+    },
+
+    '& > ul > li, & > blockquote > ul > li': {
+      position: 'relative',
+      paddingLeft: '1.5em',
+      lineHeight: '1.5em'
+    },
+
+    '& > ul > li:not(:last-of-type), & > blockquote > ul > li:not(:last-of-type)': {
+      marginBottom: '0.5em'
+    },
+
+    '& > ul > li::before, & > blockquote > ul > li::before': {
+      content: "''",
+      position: 'absolute',
+      background: COLOR_TOKENS.PRIMARY.GRAY_800,
+      left: 0,
+      top: '0.6em',
+      width: '0.4em',
+      height: '0.4em',
+      borderRadius: '50%'
+    },
+
+    '& > ol > li, & > blockquote > ol > li': {
+      counterIncrement: 'list-counter',
+      position: 'relative',
+      paddingLeft: '1.5em',
+      lineHeight: '1.5em'
+    },
+
+    '& > ol > li:not(:last-of-type), & > blockquote > ol > li:not(:last-of-type)': {
+      marginBottom: '0.5em'
+    },
+
+    '& > ol > li::before, & > blockquote > ol > li::before': {
+      content: 'counter(list-counter) "."',
+      position: 'absolute',
+      color: COLOR_TOKENS.PRIMARY.GRAY_800,
+      left: 0,
+      width: '0.4em',
+      height: '0.4em',
+      borderRadius: '50%'
+    }
   }
+})
 
-  /* 스크롤바 커스텀 */
-  & figure pre::-webkit-scrollbar {
-    height: 8px;
+const blockquote = style({
+  selectors: {
+    '& > blockquote': {
+      margin: '2em 0',
+      padding: '1em 1.25em',
+      background: COLOR_TOKENS.PRIMARY.GRAY_50,
+      borderLeft: `4px solid ${COLOR_TOKENS.PRIMARY.GRAY_500}`,
+      color: COLOR_TOKENS.PRIMARY.GRAY_800,
+      fontStyle: 'italic',
+      lineHeight: 1.6
+    },
+
+    '& > blockquote > p:not(:last-of-type)': {
+      marginBottom: '1em'
+    }
   }
+})
 
-  & figure pre::-webkit-scrollbar-thumb {
-    background-color: #444;
-    border-radius: 4px;
+const pre = style({
+  selectors: {
+    '& pre code': {
+      width: '100%',
+      display: 'block',
+      overflowX: 'auto'
+    },
+
+    '& figure pre': {
+      boxSizing: 'border-box',
+      fontFamily: "'Fira Code', 'Source Code Pro', 'JetBrains Mono', monospace",
+      fontSize: '1em',
+      backgroundColor: COLOR_TOKENS.PRIMARY.GRAY_800,
+      color: COLOR_TOKENS.PRIMARY.GRAY_100,
+      padding: '1rem 1.25rem',
+      borderRadius: '8px',
+      lineHeight: 1.6,
+      overflowX: 'auto',
+      whiteSpace: 'pre',
+      wordBreak: 'normal',
+      margin: '2rem 0',
+      boxShadow: '0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+    },
+
+    '& figure pre code': {
+      display: 'block'
+    },
+
+    '& figure pre .line': {
+      display: 'block',
+      padding: '0 0.25rem'
+    },
+
+    '& figure pre .line.highlighted': {
+      backgroundColor: 'rgba(255, 255, 255, 0.07)'
+    },
+
+    '& figure pre .word': {
+      backgroundColor: 'rgba(255, 255, 255, 0.12)',
+      padding: '0.1em 0.2em',
+      borderRadius: '4px'
+    },
+
+    '& figure pre::-webkit-scrollbar': {
+      height: '8px'
+    },
+
+    '& figure pre::-webkit-scrollbar-thumb': {
+      backgroundColor: COLOR_TOKENS.PRIMARY.GRAY_600,
+      borderRadius: '4px'
+    },
+
+    '& figure pre::-webkit-scrollbar-track': {
+      background: 'transparent'
+    }
+  },
+
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      selectors: {
+        '& figure pre': {
+          fontSize: '0.75em' // 12px
+        }
+      }
+    }
   }
+})
 
-  & figure pre::-webkit-scrollbar-track {
-    background: transparent;
+const strong = style({
+  selectors: {
+    '& > p > strong': {
+      fontWeight: 700
+    }
   }
-`
+})
 
-const strong = css`
-  & > p > strong {
-    font-weight: 700;
-  }
-`
-
-export const _Markdown = styled.div`
-  ${root}
-  ${({ theme }) => image(theme)}
-  ${text}
-  ${heading}
-  ${h1}
-  ${h2}
-  ${h3}
-  ${h4}
-  ${h5}
-  ${ul}
-  ${({ theme }) => li(theme)}
-  ${ol}
-  ${({ theme }) => blockquote(theme)}
-  ${pre}
-  ${strong}
-`
+export const markdown = style([root, image, text, heading, h1, h2, h3, h4, h5, ul, li, ol, blockquote, pre, strong])

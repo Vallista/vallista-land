@@ -1,204 +1,132 @@
-import { Global, ThemeProvider as BaseThemeProvider, css } from '@emotion/react'
-import { ReactNode, useEffect, useState } from 'react'
-import { createContext } from '../../utils/createContext'
-import { ToastProvider } from '../Toast'
-import { BaseThemeMapper, Colors, Layers, Shadows } from './type'
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState } from 'react'
+import { ToastProvider } from '../Toast/ToastProvider'
 
-const Themes: BaseThemeMapper = {
-  LIGHT: {
-    colors: Colors,
-    layers: Layers,
-    shadows: Shadows()
-  },
-  DARK: {
-    colors: {
-      ...Colors,
-      PRIMARY: {
-        ACCENT_1: Colors.PRIMARY.ACCENT_8,
-        ACCENT_2: Colors.PRIMARY.ACCENT_7,
-        ACCENT_3: Colors.PRIMARY.ACCENT_6,
-        ACCENT_4: Colors.PRIMARY.ACCENT_5,
-        ACCENT_5: Colors.PRIMARY.ACCENT_4,
-        ACCENT_6: Colors.PRIMARY.ACCENT_3,
-        ACCENT_7: Colors.PRIMARY.ACCENT_2,
-        ACCENT_8: Colors.PRIMARY.ACCENT_1,
-        BACKGROUND: Colors.PRIMARY.FOREGROUND,
-        FOREGROUND: Colors.PRIMARY.BACKGROUND
-      }
-    },
-    layers: Layers,
-    shadows: Shadows(true)
-  }
-}
-
-const [Context, useTheme] = createContext<{
+interface ThemeContextType {
+  currentTheme: 'LIGHT' | 'DARK'
   changeTheme: (theme: 'LIGHT' | 'DARK') => void
-}>()
-
-type ThemeKeys = keyof typeof Themes
-
-function getInitialTheme(): ThemeKeys {
-  if (typeof window === 'undefined') return 'LIGHT'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'DARK' : 'LIGHT'
 }
 
-export const ThemeProvider = ({ theme = 'LIGHT', children }: { theme?: ThemeKeys; children: ReactNode }) => {
-  const [themeState, setThemeState] = useState<ThemeKeys>(theme)
-  const [mounted, setMounted] = useState(false)
+const ThemeContext = createContext<ThemeContextType | null>(null)
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const appliedTheme = Themes[themeState]
-
-    // document.body.style.backgroundColor = appliedTheme.colors.PRIMARY.BACKGROUND
-    // document.body.style.color = appliedTheme.colors.PRIMARY.FOREGROUND
-    // document.body.style.transition = 'background-color 0.2s ease-in-out'
-
-    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
-    if (!meta) {
-      meta = document.createElement('meta')
-      meta.name = 'theme-color'
-      document.head.appendChild(meta)
-    }
-    meta.content = appliedTheme.colors.PRIMARY.BACKGROUND
-
-    setMounted(true)
-  }, [themeState])
-
-  const changeTheme = (next: ThemeKeys) => setThemeState(next)
-
-  const currentTheme = mounted ? Themes[themeState] : Themes[getInitialTheme()]
-
-  return (
-    <Context state={{ changeTheme }}>
-      <Reset />
-      <BaseThemeProvider theme={currentTheme}>
-        <ToastProvider>{children}</ToastProvider>
-      </BaseThemeProvider>
-    </Context>
-  )
+const useTheme = () => {
+  const context = useContext(ThemeContext)
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider')
+  }
+  return context
 }
 
 export { useTheme }
 
-const Reset = () => (
-  <Global
-    styles={css`
-      /* Pretendard font-face declarations */
-      ${[900, 800, 700, 600, 500, 400, 300, 200, 100]
-        .map(
-          (weight) => `
-        @font-face {
-          font-family: 'Pretendard';
-          font-weight: ${weight};
-          font-display: swap;
-          src: local('Pretendard'), 
-               url(/fonts/pretendard/Pretendard-${getWeightName(weight)}.subset.woff2) format('woff2'),
-               url(/fonts/pretendard/Pretendard-${getWeightName(weight)}.subset.woff) format('woff');
-        }
-      `
-        )
-        .join('\n')}
+interface ThemeProviderProps {
+  children: React.ReactNode
+  theme?: 'LIGHT' | 'DARK'
+  enableSystemTheme?: boolean
+}
 
-      :root {
-        --vh: 1vh;
-        --font-family: 'Pretendard', -apple-system, sans-serif;
-        --code-font-family: Menlo, 'DM Mono', 'Roboto Mono', Courier New, monospace;
-        --scrollbar-background: #1e1e1e;
-        --scrollbar-thumb: #666;
-        --scrollbar-thumb-highlight: #ff0080;
+export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme = true }: ThemeProviderProps) => {
+  const [themeState, setThemeState] = useState<'LIGHT' | 'DARK'>(() => {
+    // 초기 테마 결정 로직
+    if (initialTheme) {
+      return initialTheme
+    }
+
+    // localStorage에서 저장된 테마 확인
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as 'LIGHT' | 'DARK' | null
+      if (savedTheme && (savedTheme === 'LIGHT' || savedTheme === 'DARK')) {
+        return savedTheme
       }
+    }
 
-      html {
-        font-size: 14px;
-        @media screen and (max-width: 1024px) {
-          font-size: 14px;
-          height: 100%;
-          overflow-x: hidden;
-          overflow-y: scroll;
-          -webkit-overflow-scrolling: touch;
-        }
-        scrollbar-width: 8px;
-        scrollbar-color: var(--scrollbar-thumb-highlight) var(--scrollbar-background);
-        &::-webkit-scrollbar {
-          background: var(--scrollbar-background);
-          height: 8px;
-          width: 8px;
-        }
-        &::-webkit-scrollbar-thumb {
-          background: var(--scrollbar-thumb-highlight);
-        }
-      }
+    // 시스템 테마 감지
+    if (enableSystemTheme && typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      return mediaQuery.matches ? 'DARK' : 'LIGHT'
+    }
 
-      html,
-      body {
-        font-family: var(--font-family) !important;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        font-size: 1rem;
-        margin: 0;
-        padding: 0;
-      }
+    // 기본값
+    return 'LIGHT'
+  })
 
-      * {
-        box-sizing: border-box;
-      }
+  const changeTheme = (theme: 'LIGHT' | 'DARK') => {
+    setThemeState(theme)
 
-      ol,
-      ul {
-        list-style: none;
-      }
-
-      table {
-        border-collapse: collapse;
-        border-spacing: 0;
-      }
-
-      blockquote,
-      q {
-        quotes: none;
-        &:before,
-        &:after {
-          content: '';
-        }
-      }
-
-      label,
-      input,
-      button,
-      a {
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      body {
-        line-height: 1;
-      }
-    `}
-  />
-)
-
-function getWeightName(weight: number): string {
-  switch (weight) {
-    case 900:
-      return 'Black'
-    case 800:
-      return 'ExtraBold'
-    case 700:
-      return 'Bold'
-    case 600:
-      return 'SemiBold'
-    case 500:
-      return 'Medium'
-    case 400:
-      return 'Regular'
-    case 300:
-      return 'Light'
-    case 200:
-      return 'ExtraLight'
-    case 100:
-      return 'Thin'
-    default:
-      return ''
+    // localStorage에 저장
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', theme)
+    }
   }
+
+  useEffect(() => {
+    // CSS 변수 설정
+    const root = document.documentElement
+
+    // 테마 변경을 위한 data 속성 추가
+    root.setAttribute('data-theme', themeState.toLowerCase())
+
+    // CSS 변수 설정
+    if (themeState === 'DARK') {
+      // Dark theme CSS variables
+      root.style.setProperty('--primary-foreground', '#ffffff')
+      root.style.setProperty('--primary-background', '#000000')
+      root.style.setProperty('--primary-accent-1', '#111111')
+      root.style.setProperty('--primary-accent-2', '#333333')
+      root.style.setProperty('--primary-accent-3', '#666666')
+      root.style.setProperty('--primary-accent-4', '#888888')
+      root.style.setProperty('--primary-accent-5', '#999999')
+      root.style.setProperty('--success-default', '#3291ff')
+      root.style.setProperty('--error-default', '#ff1a1a')
+      root.style.setProperty('--warning-default', '#f7b955')
+
+      console.log('🌙 Dark theme applied:', {
+        '--primary-foreground': '#ffffff',
+        '--primary-background': '#000000'
+      })
+    } else {
+      // Light theme CSS variables
+      root.style.setProperty('--primary-foreground', '#000000')
+      root.style.setProperty('--primary-background', '#ffffff')
+      root.style.setProperty('--primary-accent-1', '#f5f5f5')
+      root.style.setProperty('--primary-accent-2', '#e5e5e5')
+      root.style.setProperty('--primary-accent-3', '#d4d4d4')
+      root.style.setProperty('--primary-accent-4', '#a3a3a3')
+      root.style.setProperty('--primary-accent-5', '#737373')
+      root.style.setProperty('--success-default', '#0070f3')
+      root.style.setProperty('--error-default', '#e00')
+      root.style.setProperty('--warning-default', '#f5a623')
+
+      console.log('☀️ Light theme applied:', {
+        '--primary-foreground': '#000000',
+        '--primary-background': '#ffffff'
+      })
+    }
+
+    // body 배경색 설정
+    document.body.style.backgroundColor = themeState === 'DARK' ? '#000000' : '#ffffff'
+    document.body.style.color = themeState === 'DARK' ? '#ffffff' : '#000000'
+  }, [themeState])
+
+  // 시스템 테마 변경 감지
+  useEffect(() => {
+    if (!enableSystemTheme || typeof window === 'undefined') return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (e: MediaQueryListEvent) => {
+      // localStorage에 저장된 테마가 없을 때만 시스템 테마 적용
+      if (!localStorage.getItem('theme')) {
+        setThemeState(e.matches ? 'DARK' : 'LIGHT')
+      }
+    }
+
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [enableSystemTheme])
+
+  return (
+    <ThemeContext.Provider value={{ currentTheme: themeState, changeTheme }}>
+      <ToastProvider>{children}</ToastProvider>
+    </ThemeContext.Provider>
+  )
 }

@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef } from 'react'
 import * as Styled from './index.style'
+import { COLOR_TOKENS } from '@vallista/design-system'
 
 interface MarkdownProps {
   mdx?: string
@@ -27,12 +28,12 @@ export const Markdown = memo((props: MarkdownProps) => {
             aspect-ratio: 2 / 1;
             width: 100%;
             height: auto;
-            background: #eee;
+            background: ${COLOR_TOKENS.PRIMARY.GRAY_300};
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
-            color: #888;
+            color: ${COLOR_TOKENS.PRIMARY.GRAY_400};
             animation: fade-in 0.1s ease-in-out;
           `
           img.replaceWith(fallback)
@@ -70,5 +71,5 @@ export const Markdown = memo((props: MarkdownProps) => {
   //   )
   // }
 
-  return <Styled._Markdown ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx ? mdx : '' }} />
+  return <div className={Styled.markdown} ref={containerRef} dangerouslySetInnerHTML={{ __html: mdx ? mdx : '' }} />
 })

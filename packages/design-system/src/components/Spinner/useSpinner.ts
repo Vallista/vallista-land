@@ -1,12 +1,14 @@
-import { ReturningUseSpinner, SpinnerProps } from './type'
+import { SpinnerProps, ReturningUseSpinner } from './type'
 
 const initProps: Partial<SpinnerProps> = {
-  size: 20
+  size: 24
 }
 
 export function useSpinner<T extends Partial<SpinnerProps>>(props: T): ReturningUseSpinner<T> {
   return {
     ...initProps,
-    ...props
+    ...props,
+    size: props.size ?? initProps.size!,
+    'aria-label': props['aria-label'] ?? 'Loading...'
   }
 }

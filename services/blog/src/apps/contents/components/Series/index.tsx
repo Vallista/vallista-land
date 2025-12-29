@@ -21,20 +21,20 @@ export const Series: FC<SeriesProps> = (props) => {
   }
 
   return (
-    <Styled._Wrap id='article-series'>
+    <div className={Styled.wrap} id='article-series'>
       <CollapseGroup>
         <Collapse title={name} card size='medium' subtitle={`시리즈의 글 (${posts.length}개)`}>
           <Container>
-            <Styled._List>
+            <ol className={Styled.list}>
               {posts.map((it) => (
-                <Styled._Item key={it.title}>
+                <li className={Styled.item} key={it.title}>
                   <span onClick={() => moveToLocation(it.url)}>{it.title}</span>
-                </Styled._Item>
+                </li>
               ))}
-            </Styled._List>
+            </ol>
           </Container>
         </Collapse>
       </CollapseGroup>
-    </Styled._Wrap>
+    </div>
   )
 }

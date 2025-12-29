@@ -1,10 +1,10 @@
 import { useTheme } from '@vallista/design-system'
 import { useEffect, useState } from 'react'
 import { ThemeModeType } from '../utils/type'
-import { isDarkMode, onChangeThemeEvent } from '@/utils'
+import { isDarkMode } from '@/utils'
 
 export const useThemeSwitch = () => {
-  const theme = useTheme()
+  const themeContext = useTheme()
 
   const [mode, setMode] = useState<ThemeModeType>(() => {
     if (typeof window === 'undefined') return 'LIGHT'
@@ -12,27 +12,17 @@ export const useThemeSwitch = () => {
   })
 
   const handleThemeSwitch = (state: boolean) => {
-    if (state) {
-      changeTheme('DARK')
-    } else {
-      changeTheme('LIGHT')
+    const newTheme = state ? 'DARK' : 'LIGHT'
+    setMode(newTheme)
+    themeContext.changeTheme(newTheme)
+  }
+
+  // Sync with theme provider
+  useEffect(() => {
+    if (themeContext.currentTheme && themeContext.currentTheme !== mode) {
+      setMode(themeContext.currentTheme)
     }
-  }
-
-  const changeTheme = (_theme: ThemeModeType) => {
-    setMode(_theme)
-  }
-
-  useEffect(() => {
-    onChangeThemeEvent((_theme) => {
-      setMode(_theme)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!mode) return
-    theme.state.changeTheme(mode)
-  }, [mode, theme.state])
+  }, [themeContext.currentTheme, mode])
 
   return {
     mode,

@@ -1,5 +1,3 @@
-import { AvailablePickedColor } from '../ThemeProvider/type'
-
 export interface NoteProps {
   action: React.ReactNode
   label: boolean | string
@@ -12,4 +10,4 @@ export interface NoteProps {
 
 export type NoteType = 'success' | 'error' | 'warning' | 'primary' | 'secondary'
 
-export type NoteMapperType = Record<NoteType, Record<'background' | 'border' | 'color', AvailablePickedColor>>
+export type NoteMapperType = Record<NoteType, Record<'background' | 'border' | 'color', string>>

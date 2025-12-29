@@ -18,9 +18,9 @@ export const Sidebar = (props: SidebarProps) => {
 
   return (
     <SidebarProvider>
-      <Styled._Wrap fold={fold} visible={visible}>
+      <aside className={fold ? Styled.wrapFolded : Styled.wrap}>
         <Contents count={props.contents.length} contents={props.contents} />
-      </Styled._Wrap>
+      </aside>
     </SidebarProvider>
   )
 }

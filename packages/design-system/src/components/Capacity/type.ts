@@ -1,4 +1,5 @@
 export interface CapacityProps {
   value: number
-  limit?: number
+  width?: number
+  color?: 'primary' | 'success' | 'warning' | 'error' | 'low' | 'medium' | 'high'
 }

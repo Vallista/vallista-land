@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript 디자인 패턴 - 팩토리 패턴",
+  "description": "팩토리-패턴 --- 팩토리 패턴이란 설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 팩토리 패턴은 생성과 관련된 디자인 패턴 입니다. 팩토리 패턴은 말 그대로 공장이라고 생각하면 편합니다. 하나...",
+  "date": "2020-05-05T20:44:56.000Z",
+  "tags": [],
+  "image": "assets/3.jpg",
+  "slug": "design-pattern-factory-pattern",
+  "url": "/articles/design-pattern-factory-pattern",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 6,
+  "draft": false
+}

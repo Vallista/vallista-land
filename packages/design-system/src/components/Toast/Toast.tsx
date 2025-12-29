@@ -1,10 +1,8 @@
-import { css, Theme } from '@emotion/react'
-import styled from '@emotion/styled'
 import { CSSProperties, useEffect, useRef, useState } from 'react'
 
 import { useMount } from '../../hooks/useMount'
-import { AvailablePickedColor } from '../ThemeProvider/type'
-import { ToastElementProps, ToastType } from './type'
+import { ToastElementProps } from './type'
+import { toastContainer, toastContainerDestroy, toastContainerType, toastMessage, toastWrapper } from './Toast.css'
 
 const REMOVE_TIME = 5000
 
@@ -57,77 +55,27 @@ export const Toast = (props: ToastElementProps) => {
     const height = ref.current?.getBoundingClientRect().height ?? '50'
 
     // 폴딩된 height
-    let transform =
-      order === 0
-        ? 'none'
-        : `translate3d(0, calc(${height}px + -100% + ${-20 * order}px), -${order}px) scale(${1 - order * 0.05})`
+    let transform = order === 0 ? 'none' : `translate3d(0, calc(${height}px + -100% + ${-20 * order}px), -${order}px)`
 
     // 폴딩 되지 않을 경우 계산된 height 높이만큼 올린다.
     if (hover && order !== 0) {
-      transform = `translate3d(0, -${beforeHeight}px, -${order}px) scale(1)`
+      transform = `translate3d(0, -${beforeHeight}px, -${order}px)`
     }
 
     setStyleProps({
-      opacity: '1',
       transform
     })
   }, [order, hover])
 
   return (
-    <ToastContainer ref={ref} style={styleProps} type={type} destroy={destroy}>
-      <ToastWrapper>
-        <ToastMessage>{text}</ToastMessage>
-      </ToastWrapper>
-    </ToastContainer>
+    <div
+      ref={ref}
+      className={`${toastContainer} ${toastContainerType[type]} ${destroy ? toastContainerDestroy : ''}`}
+      style={styleProps}
+    >
+      <div className={toastWrapper}>
+        <div className={toastMessage}>{text}</div>
+      </div>
+    </div>
   )
 }
-
-const ToastTypeMapper: (theme: Theme) => Record<ToastType, AvailablePickedColor> = (theme) => ({
-  primary: theme.colors.PRIMARY.BACKGROUND,
-  success: theme.colors.SUCCESS.DEFAULT,
-  error: theme.colors.ERROR.DEFAULT
-})
-
-const ToastContainer = styled.div<Pick<ToastElementProps, 'type'> & { destroy: boolean }>`
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  border-radius: 5px;
-  padding: 24px;
-  transition: all 0.4s ease;
-  box-sizing: border-box;
-  opacity: 0;
-  transform: translate3d(0, 100%, 150px) scale(1);
-
-  ${({ theme, type, destroy }) => css`
-    box-shadow: ${theme.shadows.SMALL};
-    background: ${ToastTypeMapper(theme)[type]};
-    color: ${type === 'primary' ? theme.colors.PRIMARY.FOREGROUND : '#fff'};
-    z-index: ${theme.layers.SNACKBAR};
-
-    ${destroy &&
-    css`
-      opacity: 0 !important;
-    `}
-  `}
-
-  @media (max-width: 440px) {
-    width: 90vw;
-  }
-`
-
-const ToastWrapper = styled.div`
-  max-width: 100%;
-  width: 420px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.875rem;
-`
-
-const ToastMessage = styled.div`
-  margin-top: -1px;
-  width: 100%;
-  height: 100%;
-  word-break: break-word;
-`

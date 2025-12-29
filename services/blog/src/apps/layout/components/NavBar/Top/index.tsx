@@ -11,12 +11,16 @@ export const Top = () => {
   }
 
   return (
-    <Styled._Wrapper>
+    <nav className={Styled.wrapper}>
       {categories.map((it) => (
-        <Styled._Category checked={isCategoryActive(it.id)} key={it.name} onClick={() => changeCategory(it.id)}>
+        <a
+          className={isCategoryActive(it.id) ? Styled.categoryActive : Styled.category}
+          key={it.name}
+          onClick={() => changeCategory(it.id)}
+        >
           {it.icon}
-        </Styled._Category>
+        </a>
       ))}
-    </Styled._Wrapper>
+    </nav>
   )
 }

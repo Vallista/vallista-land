@@ -1,9 +1,6 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
-import { AvailablePickedColor, Colors } from '../ThemeProvider/type'
-import { ProgressMapperType, ProgressProps, ProgressType } from './type'
+import { ProgressProps } from './type'
 import { useProgress } from './useProgress'
+import { progress, customProgress } from './Progress.css'
 
 /**
  * # Progress
@@ -17,6 +14,7 @@ import { useProgress } from './useProgress'
  * 
   <Progress
     value={value}
+    width="300px"
     colors={{
       0: Colors.PRIMARY.FOREGROUND,
       25: Colors.PRIMARY.ACCENT_5,
@@ -45,74 +43,18 @@ import { useProgress } from './useProgress'
  * ```
  */
 export const Progress = (props: Partial<ProgressProps>) => {
-  const { ...otherProps } = useProgress(props)
+  const { type = 'primary', nowColor, width, ...otherProps } = useProgress(props)
 
-  return <Bar {...otherProps} />
+  const progressClass = nowColor ? customProgress({ type }) : progress({ type })
+
+  return (
+    <progress
+      className={progressClass}
+      style={{
+        width: width || '100%',
+        ...(nowColor ? { '--progress-color': nowColor } : {})
+      }}
+      {...otherProps}
+    />
+  )
 }
-
-const ProgressTypeMapper: ProgressMapperType = {
-  primary: {
-    background: Colors.PRIMARY.FOREGROUND
-  },
-  secondary: {
-    background: Colors.PRIMARY.ACCENT_5
-  },
-  success: {
-    background: Colors.SUCCESS.DEFAULT
-  },
-  error: {
-    background: Colors.ERROR.DEFAULT
-  },
-  warning: {
-    background: Colors.WARNING.DEFAULT
-  }
-}
-
-const Bar = styled.progress<{ nowColor?: AvailablePickedColor; type: ProgressType }>`
-  appearance: none;
-  border: none;
-  width: 100%;
-  height: 10px;
-  display: block;
-  vertical-align: unset;
-
-  ${({ type }) => css`
-    &[value]::-webkit-progress-value {
-      background: ${ProgressTypeMapper[type].background};
-    }
-
-    &[value]::-moz-progress-bar {
-      background: ${ProgressTypeMapper[type].background};
-    }
-  `}
-
-  ${({ theme, nowColor }) => css`
-    &[value]::-webkit-progress-bar {
-      background: ${theme.colors.PRIMARY.ACCENT_2};
-      border-radius: 5px;
-    }
-
-    @-moz-document url-prefix() {
-      border-radius: 5px;
-      background: ${theme.colors.PRIMARY.ACCENT_2};
-    }
-
-    &[value]::-webkit-progress-value {
-      ${nowColor &&
-      css`
-        background: ${nowColor};
-      `};
-      border-radius: 5px;
-      transition: width 0.15s ease;
-    }
-
-    &[value]::-moz-progress-bar {
-      ${nowColor &&
-      css`
-        background: ${nowColor};
-      `};
-      border-radius: 5px;
-      transition: width 0.15s ease;
-    }
-  `}
-`

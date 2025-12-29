@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { lazy, Suspense, useState } from 'react'
 import { ToastContextState, ToastProps, ToastState, ToastType } from './type'
 import { createContext } from '../../utils/createContext'
@@ -26,15 +27,7 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   const ToastRoot = lazy(() => import('./ToastRoot'))
 
   return (
-    <Context
-      state={{
-        toastList: state.toastList,
-        message,
-        success,
-        error,
-        remove
-      }}
-    >
+    <Context toastList={state.toastList} message={message} success={success} error={error} remove={remove}>
       {children}
       <Suspense fallback={null}>{typeof window !== 'undefined' && <ToastRoot />}</Suspense>
     </Context>

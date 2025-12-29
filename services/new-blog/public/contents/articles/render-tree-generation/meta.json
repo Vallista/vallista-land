@@ -1,0 +1,13 @@
+{
+  "title": "렌더 트리 생성",
+  "description": "렌더링 엔진에서DOM (Document Object Model) 과 CSSOM (CSS Object Model) 을 생성한 후, Attachment 과정을 통해 Render Tree를 만들게 된다. 이 Render Tree는 각 요소의 레이아웃을 계산하는데 사용되며, ...",
+  "date": "2019-05-08T19:13:17.000Z",
+  "tags": [],
+  "image": "https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/render-tree-construction.png?hl=ko",
+  "slug": "render-tree-generation",
+  "url": "/articles/render-tree-generation",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 1,
+  "draft": true
+}

@@ -1,3 +1,3 @@
+/* eslint-disable react-refresh/only-export-components */
 export * from './Toast'
-export * from './ToastRoot'
 export * from './ToastProvider'

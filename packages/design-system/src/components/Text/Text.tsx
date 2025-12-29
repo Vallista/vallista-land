@@ -1,9 +1,8 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+import { ElementType } from 'react'
 
-import { FontSizeType } from '.'
-import { TextProps, ReturningUseText } from './type'
+import { TextProps } from './type'
 import { useText } from './useText'
+import { text } from './Text.css'
 
 /**
  * # Text
@@ -19,51 +18,38 @@ import { useText } from './useText'
  * ```
  */
 export const Text = (props: Partial<TextProps>) => {
-  const { as, children, ...otherProps } = useText(props)
+  const {
+    as = 'p',
+    children,
+    size,
+    lineHeight,
+    weight,
+    transform,
+    align,
+    color,
+    textWrap,
+    ...otherProps
+  } = useText(props)
 
-  const Render = Element.withComponent(as as keyof React.JSX.IntrinsicElements)
-  return <Render {...otherProps}>{children}</Render>
+  const textClass = text({
+    size,
+    lineHeight,
+    weight,
+    transform,
+    align,
+    color: color as 'primary' | 'success' | 'error' | 'white' | 'secondary' | 'warning' | undefined
+  })
+
+  const Component = as as ElementType
+  return (
+    <Component
+      className={textClass}
+      style={{
+        whiteSpace: textWrap === false ? 'nowrap' : undefined
+      }}
+      {...otherProps}
+    >
+      {children}
+    </Component>
+  )
 }
-
-const fontSizeMapper: Record<FontSizeType, number> = {
-  10: 0.625,
-  12: 0.75,
-  14: 0.875,
-  16: 1,
-  20: 1.25,
-  24: 1.5,
-  32: 2,
-  40: 2.5,
-  48: 3
-}
-
-const Element = styled.p<ReturningUseText>`
-  ${({ size, lineHeight, color, weight, align, textWrap }) => css`
-    color: ${color || 'inherit'};
-    font-size: ${fontSizeMapper[size ?? 16]}rem;
-    line-height: ${lineHeight ? `${lineHeight}px` : 1.5};
-    
-    ${
-      weight &&
-      css`
-        font-weight: ${weight};
-      `
-    };};
-    ${
-      align &&
-      css`
-        text-align: ${align};
-      `
-    };
-    ${
-      !textWrap &&
-      css`
-        white-space: nowrap;
-      `
-    };
-
-    & strong, & bold {
-      font-weight: 800;
-    }
-  `}
-`

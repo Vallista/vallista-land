@@ -5,7 +5,7 @@ import Seo from '@/apps/layout/components/Seo'
 import { Comment } from '@/apps/layout/components/Comment'
 
 import { useContentLayout } from './useContentLayout'
-import { Loading } from './index.style'
+import { loading } from './index.style'
 import { useEffect, useState } from 'react'
 // import { useScrollTo } from '@/hooks/useScrollTo'
 
@@ -15,7 +15,7 @@ export const ContentLayout = () => {
   const [hydrated, setHydrated] = useState(false)
   // const [nowSlug, setSlug] = useState(slug)
 
-  const EmptyLayout = Loading(articleHeight, articleSeriesHeight)
+  const emptyLayoutClass = loading(articleHeight, articleSeriesHeight)
 
   useEffect(() => {
     setHydrated(true)
@@ -47,7 +47,7 @@ export const ContentLayout = () => {
           <Comment />
         </>
       ) : (
-        <EmptyLayout />
+        <div className={emptyLayoutClass} />
       )}
     </MDXProvider>
   )

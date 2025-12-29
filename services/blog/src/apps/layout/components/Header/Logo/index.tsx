@@ -18,12 +18,12 @@ export const Logo = () => {
   }
 
   return (
-    <Styled._Wrap onClick={moveToHome}>
+    <div className={Styled.wrap} onClick={moveToHome}>
       <LogoIcon />
       <Spacer x={0.5} />
       <Text size={20} weight={800}>
         vallista.dev
       </Text>
-    </Styled._Wrap>
+    </div>
   )
 }

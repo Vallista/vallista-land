@@ -10,9 +10,9 @@ import { Contents } from './Contents'
  */
 export const Footer = () => {
   return (
-    <Styled._Wrap>
+    <footer className={Styled.wrap} role='contentinfo'>
       <Contents />
       <Copyright />
-    </Styled._Wrap>
+    </footer>
   )
 }

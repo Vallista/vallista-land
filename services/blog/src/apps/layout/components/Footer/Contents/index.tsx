@@ -31,8 +31,8 @@ export const Contents = () => {
   })
 
   return (
-    <Styled._FooterBox>
+    <div className={Styled.footerBox}>
       <Footer>{groups}</Footer>
-    </Styled._FooterBox>
+    </div>
   )
 }

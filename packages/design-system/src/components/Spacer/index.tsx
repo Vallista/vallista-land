@@ -1,5 +1,4 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+import { spacer } from './Spacer.css'
 
 interface SpacerProps {
   x: number
@@ -37,17 +36,17 @@ interface SpacerProps {
 export const Spacer = (props: Partial<SpacerProps>) => {
   const { x = 1, y = 1 } = props
 
-  return <Space x={x} y={y} />
+  return (
+    <span
+      className={spacer()}
+      style={{
+        marginLeft: `calc(${1.5 * x}rem - 1px)`,
+        marginTop: `calc(${1.5 * y}rem - 1px)`,
+        width: '1px',
+        height: '1px',
+        minWidth: '1px',
+        minHeight: '1px'
+      }}
+    />
+  )
 }
-
-const Space = styled.span<SpacerProps>`
-  ${({ x, y }) => css`
-    margin-left: calc(${1.5 * x}rem - 1px);
-    margin-top: calc(${1.5 * y}rem - 1px);
-  `}
-
-  width: 1px;
-  height: 1px;
-  min-width: 1px;
-  min-height: 1px;
-`

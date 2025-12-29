@@ -1,63 +1,81 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+import { style } from '@vanilla-extract/css'
 
-export const _ListStyle = styled.nav`
-  display: flex;
-  flex-direction: column;
-  margin: 12px 0 0;
-  width: 100%;
+export const listStyle = style({
+  display: 'flex',
+  flexDirection: 'column',
+  margin: '12px 0 0',
+  width: '100%',
 
-  &:first-of-type {
-    margin-top: 0;
-  }
-`
-
-export const _ListHeader = styled.div`
-  cursor: pointer;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  font-size: 14px;
-
-  padding: 0;
-  margin: 0 0 6px 0;
-  height: 30px;
-  gap: 6px;
-
-  @media screen and (min-width: 1025px) {
-    background-color: none;
-  }
-`
-
-export const _ListFoldIcon = styled.div<{ fold: boolean }>`
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
-  width: 20px;
-
-  & > div {
-    & > svg {
-      position: relative;
-      ${({ fold }) =>
-        !fold &&
-        css`
-          top: -2px;
-          left: -2px;
-        `}
+  selectors: {
+    '&:first-of-type': {
+      marginTop: 0
     }
   }
-`
+})
 
-export const _ListBody = styled.div<{ fold: boolean }>`
-  overflow-y: hidden;
-  will-change: height;
-  transition: height 0.2s ease;
+export const listHeader = style({
+  cursor: 'pointer',
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'center',
+  fontSize: '14px',
+  padding: 0,
+  margin: '0 0 6px 0',
+  height: '30px',
+  gap: '6px',
 
-  ${({ fold }) => css`
-    height: ${fold ? 0 : 'auto'};
-  `}
-
-  & > a {
-    padding-left: 12px;
+  '@media': {
+    'screen and (min-width: 1025px)': {
+      backgroundColor: 'none'
+    }
   }
-`
+})
+
+export const listFoldIcon = style({
+  display: 'flex',
+  justifyContent: 'flex-start',
+  alignItems: 'flex-end',
+  width: '20px',
+
+  selectors: {
+    '& > div > svg': {
+      position: 'relative'
+    }
+  }
+})
+
+export const listFoldIconUnfolded = style({
+  selectors: {
+    '& > div > svg': {
+      position: 'relative',
+      top: '-2px',
+      left: '-2px'
+    }
+  }
+})
+
+export const listBody = style({
+  overflowY: 'hidden',
+  willChange: 'height',
+  transition: 'height 0.2s ease',
+  height: 'auto',
+
+  selectors: {
+    '& > a': {
+      paddingLeft: '12px'
+    }
+  }
+})
+
+export const listBodyFolded = style({
+  overflowY: 'hidden',
+  willChange: 'height',
+  transition: 'height 0.2s ease',
+  height: 0,
+
+  selectors: {
+    '& > a': {
+      paddingLeft: '12px'
+    }
+  }
+})

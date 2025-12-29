@@ -1,5 +1,5 @@
 export type BadgeType = 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'violet'
-export type BadgeVariant = 'primary' | 'contrast'
+export type BadgeVariant = 'primary' | 'outline' | 'contrast'
 
 export interface BadgeProps {
   type: BadgeType

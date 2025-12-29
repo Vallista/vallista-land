@@ -1,54 +1,97 @@
-import { DEFINE_CONTENTS_HEADER_PADDING_TOP, DEFINE_CONTENTS_WIDTH } from '@/utils/constant'
+export const header = 'about-me-header'
+export const wrapper = 'about-me-wrapper'
+export const title = 'about-me-title'
+export const subTitle = 'about-me-subtitle'
 
-import styled from '@emotion/styled'
-import { DEFINE_HEADER_HEIGHT } from '../layout/components/Header/utils'
+// CSS 스타일을 동적으로 생성
+const styles = `
+.${header} {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
 
-export const Header = styled.header`
-  margin-top: ${DEFINE_HEADER_HEIGHT + DEFINE_CONTENTS_HEADER_PADDING_TOP}px;
-  width: ${DEFINE_CONTENTS_WIDTH}px;
+.${wrapper} {
+  max-width: 800px;
+  width: 100%;
+}
 
-  @media screen and (max-width: 1024px) {
-    width: 100vw;
-  }
-`
+.${title} {
+  margin-bottom: 32px;
+}
 
-export const Wrapper = styled.div`
-  max-width: 720px;
+.${subTitle} {
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 28px;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.text-span {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1.2;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.text-h1 {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 56px;
+  margin: 0;
+}
+
+.text-highlight {
+  color: #ff4757;
+}
+
+.text-p {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 32px;
+  margin: 0;
+}
+
+.text-bold {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+@media screen and (max-width: 1024px) {
+  .${header} {
+    padding: 0 16px;
+  }
+  
+  .container {
+    padding: 0 16px;
+  }
+  
+  .text-span,
+  .text-h1 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+  
+  .text-p,
+  .text-bold {
+    font-size: 16px;
+    line-height: 24px;
+  }
+}
 `
 
-export const Title = styled.div`
-  margin-bottom: 3rem;
-
-  & > span,
-  & > h1 {
-    position: relative;
-    line-height: 1.4;
-    letter-spacing: -1px;
-  }
-
-  @media screen and (max-width: 1024px) {
-    margin-bottom: 2rem;
-
-    & span,
-    & h1 {
-      font-size: 2rem;
-    }
-  }
-`
-
-export const SubTitle = styled.div`
-  margin-bottom: 2rem;
-
-  @media screen and (max-width: 1024px) {
-    & p {
-      font-size: 1rem;
-    }
-
-    & strong,
-    & span {
-      font-size: 1rem;
-    }
-  }
-`
+// 스타일을 DOM에 주입
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style')
+  styleElement.textContent = styles
+  document.head.appendChild(styleElement)
+}

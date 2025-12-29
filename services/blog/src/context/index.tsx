@@ -1,8 +1,8 @@
-import { ActionDispatch, createContext, ReactNode, useReducer } from 'react'
+import { createContext, ReactNode, useReducer, Dispatch } from 'react'
 import { Actions, State } from './type'
 import { initialState, reducer } from './reducer'
 
-const GlobalContext = createContext<{ state: State; dispatch: ActionDispatch<[action: Actions]> } | null>(null)
+const GlobalContext = createContext<{ state: State; dispatch: Dispatch<Actions> } | null>(null)
 
 interface GlobalProviderProps {
   children: ReactNode

@@ -1,7 +1,5 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
 import { useModalContext } from '../context'
+import { modalInset } from './Inset.css'
 
 interface ModalInsetProps {
   children: React.ReactNode
@@ -10,17 +8,7 @@ interface ModalInsetProps {
 const Inset = (props: ModalInsetProps) => {
   const { children } = useModalContext(props)
 
-  return <Wrapper>{children}</Wrapper>
+  return <div className={modalInset}>{children}</div>
 }
-
-const Wrapper = styled.div`
-  margin: 0 -1.5rem;
-  ${({ theme }) => css`
-    border-top: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-    border-bottom: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-    background: 1px solid ${theme.colors.PRIMARY.ACCENT_1};
-    padding: 1.5rem;
-  `}
-`
 
 export { Inset }

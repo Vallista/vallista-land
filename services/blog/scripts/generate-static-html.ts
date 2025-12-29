@@ -1,11 +1,8 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { render } from '../src/ssr-entry'
 
-const distDir = path.resolve('dist')
-const contentsSourceDir = path.resolve('contents')
-const outputBaseDir = path.resolve('public/contents')
-const rootOutputDir = path.resolve('public')
+const distDir = path.join(process.cwd(), 'dist')
+const contentsSourceDir = path.join(process.cwd(), 'contents')
 
 function escapeHtml(text = '') {
   return text
@@ -19,7 +16,9 @@ function escapeHtml(text = '') {
 async function loadEntryJsPath() {
   const manifestPath = path.join(distDir, '.vite', 'manifest.json')
   const manifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'))
-  const mainEntry = Object.values(manifest).find((m: any) => m.isEntry)
+  const mainEntry = Object.values(manifest).find((m: unknown) => (m as { isEntry?: boolean }).isEntry) as
+    | { file: string }
+    | undefined
   if (!mainEntry) throw new Error('❌ Main entry not found in manifest.json')
   return mainEntry.file
 }
@@ -58,19 +57,20 @@ function parseFrontmatter(text: string) {
   const match = text.match(/^---\s*[\r\n]+([\s\S]*?)\r?\n---/)
   if (!match) return null
   const lines = match[1].split(/\r?\n/)
-  const result: Record<string, any> = {}
+  const result: Record<string, unknown> = {}
   for (const line of lines) {
     const trimmed = line.trim()
     if (!trimmed || !trimmed.includes(':')) continue
     const [keyPart, ...valueParts] = trimmed.split(':')
     const key = keyPart.trim()
     const rawValue = valueParts.join(':').trim()
-    let value: any = rawValue
+    let value: unknown = rawValue
     if (value === 'null') value = null
     else if (value === 'true') value = true
     else if (value === 'false') value = false
-    else if (!isNaN(Date.parse(value))) value = value
-    else if (!isNaN(Number(value))) value = Number(value)
+    else if (!isNaN(Date.parse(value as string))) {
+      // value is already a valid date string, keep it as is
+    } else if (!isNaN(Number(value))) value = Number(value)
     result[key] = value
   }
   return result
@@ -150,42 +150,26 @@ async function generateStaticHtml() {
         actualSlug = meta.slug.trim()
         slugPathSegments = [...trail, actualSlug]
       }
-      title = meta.title || actualSlug
-      description = meta.description || generateDescriptionFromContent(contentRaw)
-      isPost = meta.isPost || false
+      title = (meta.title as string) || actualSlug
+      description = (meta.description as string) || generateDescriptionFromContent(contentRaw)
+      isPost = (meta.isPost as boolean) || false
       imagePath = meta.image ? `https://vallista.kr/contents/${actualSlug}/${meta.image}` : imagePath
     }
 
     const finalPathname = isRoot ? '/' : '/contents' + '/' + slugPathSegments.join('/')
     const headHtml = createSeoHead({ name: title, description, image: imagePath, isPost, pathname: finalPathname })
-    const { html: mainContent, styleTags } = render(finalPathname)
 
-    let finalHtml = layoutTemplate
-      .replace(/<!--\s*\{\{head\}\}\s*-->/, headHtml + '\n' + styleTags)
-      .replace(/<!--\s*\{\{content\}\}\s*-->/, mainContent)
+    // SSR을 비활성화하고 기본 HTML만 생성
+    const finalHtml = layoutTemplate
+      .replace(/<!--\s*\{\{head\}\}\s*-->/, headHtml)
+      .replace(/<!--\s*\{\{style\}\}\s*-->/, '')
 
-    const scriptTagMatch = finalHtml.match(/<script type="module"[\s\S]*?<\/script>/)
-    if (scriptTagMatch) {
-      const scriptTag = scriptTagMatch[0]
-      finalHtml = finalHtml.replace(scriptTag, '')
-      finalHtml = finalHtml.includes('</body>')
-        ? finalHtml.replace('</body>', `${scriptTag}\n</body>`)
-        : finalHtml + scriptTag
-    }
+    const outputPath = path.join(distDir, 'public', 'files', 'contents', 'articles', actualSlug, 'index.html')
+    await fs.mkdir(path.dirname(outputPath), { recursive: true })
+    await fs.writeFile(outputPath, finalHtml)
 
-    const targetDir = isRoot ? rootOutputDir : path.join(outputBaseDir, ...slugPathSegments)
-    await fs.mkdir(targetDir, { recursive: true })
-    await fs.writeFile(path.join(targetDir, 'index.html'), finalHtml)
-
-    console.log(`✅ Generated: ${finalPathname}`)
+    console.log(`✅ Generated: ${outputPath}`)
   }
-
-  console.log('🎉 All static HTML files generated!')
 }
 
-generateStaticHtml()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error('❌ Error:', err)
-    process.exit(1)
-  })
+generateStaticHtml().catch(console.error)

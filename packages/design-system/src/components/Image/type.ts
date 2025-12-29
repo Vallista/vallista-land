@@ -7,4 +7,6 @@ export interface ImageProps {
   captionSpacing?: number
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down'
   objectPosition?: string
+  title?: string
+  onClose?: () => void
 }

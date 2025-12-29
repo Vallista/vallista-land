@@ -16,5 +16,8 @@ export interface TabsProps {
 export type NeedTabsProps = Omit<TabsProps, 'disabled'> & Partial<Pick<TabsProps, 'disabled'>>
 
 export interface ReturningTabsProps {
-  //
+  tabs: (Omit<Tab, 'icon'> & Partial<Pick<Tab, 'icon'>>)[]
+  selected: string
+  setSelected: (value: string) => void
+  disabled: boolean
 }

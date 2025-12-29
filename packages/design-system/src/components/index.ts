@@ -28,6 +28,6 @@ export * from './Tooltip'
 export * from './Input'
 export * from './Toast'
 
-export { ImageComponent as Image } from './Image'
+export * from './Image'
 
 export * from '../hooks'

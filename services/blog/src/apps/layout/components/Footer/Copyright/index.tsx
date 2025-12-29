@@ -7,7 +7,7 @@ export const Copyright = () => {
   const nowYear = new Date().getFullYear()
 
   return (
-    <Styled._FooterAllRightReserve>
+    <p className={Styled.footerAllRightReserve}>
       <Text as='span' size={12}>
         Copyright ⓒ {nowYear} <Link to='https://vallista.kr'>Vallista</Link> All rights reserved.
       </Text>
@@ -17,6 +17,6 @@ export const Copyright = () => {
         <Link to='https://github.com/Vallista/vallista-land'>@Vallista-land</Link>
       </Text>
       <Spacer y={0.5} />
-    </Styled._FooterAllRightReserve>
+    </p>
   )
 }

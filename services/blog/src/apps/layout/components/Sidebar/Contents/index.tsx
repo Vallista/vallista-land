@@ -1,4 +1,4 @@
-import { Colors, Container, Text } from '@vallista/design-system'
+import { COLOR_TOKENS, Container, Text } from '@vallista/design-system'
 import * as Styled from './index.style'
 
 import EmptyImage from '@/assets/images/empty.svg?react'
@@ -9,7 +9,6 @@ import { Menu } from './Menu'
 import { Category } from './Category'
 import { Title } from './Title'
 import { Search } from './Search'
-import { useAgent } from '@/hooks/useAgent'
 
 interface ContentsProps {
   count: number
@@ -17,8 +16,7 @@ interface ContentsProps {
 }
 
 export const Contents = (props: ContentsProps) => {
-  const { ref, count, scrollState, contents, view, taggedContents, isNowPage, moveToLocation } = useContents(props)
-  const { isIOS } = useAgent()
+  const { ref, count, contents, view, taggedContents, isNowPage, moveToLocation } = useContents(props)
 
   const list =
     view === 'TAG' ? (
@@ -35,7 +33,7 @@ export const Contents = (props: ContentsProps) => {
         </Category>
       ))
     ) : (
-      <Styled._MenuWrap>
+      <nav className={Styled.menuWrap}>
         {contents.map((content, idx) => {
           return (
             <Menu
@@ -46,37 +44,37 @@ export const Contents = (props: ContentsProps) => {
             />
           )
         })}
-      </Styled._MenuWrap>
+      </nav>
     )
 
   return (
-    <Styled._Wrap>
-      <Styled._HeaderWrap>
+    <div className={Styled.wrap}>
+      <div className={Styled.headerWrap}>
         <Title count={count} />
         <Search />
-      </Styled._HeaderWrap>
+      </div>
       {contents.length === 0 ? (
-        <Styled._EmptyWrap>
+        <div className={Styled.emptyWrap}>
           <EmptyContents />
-        </Styled._EmptyWrap>
+        </div>
       ) : (
-        <Styled._ListWrap ref={ref} scrollState={scrollState} isIos={isIOS}>
-          <Styled._Padding>
+        <div className={Styled.listWrap} ref={ref}>
+          <div className={Styled.padding}>
             <Container>{list}</Container>
-          </Styled._Padding>
-        </Styled._ListWrap>
+          </div>
+        </div>
       )}
-    </Styled._Wrap>
+    </div>
   )
 }
 
 const EmptyContents = () => {
   return (
-    <Styled._EmptyContents>
+    <div className={Styled.emptyContents}>
       <EmptyImage width={200} height={200} />
-      <Text size={14} weight={600} color={Colors.PRIMARY.ACCENT_4}>
+      <Text size={14} weight={600} color={COLOR_TOKENS.PRIMARY.GRAY_500}>
         콘텐츠가 없어요!
       </Text>
-    </Styled._EmptyContents>
+    </div>
   )
 }

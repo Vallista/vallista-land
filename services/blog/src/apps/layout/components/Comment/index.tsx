@@ -26,9 +26,9 @@ export const Comment: FC = () => {
   })
 
   return (
-    <Styled._Wrapper>
+    <div className={Styled.wrapper}>
       {state !== 'success' && <Spinner size={50} />}
       <div ref={ref} />
-    </Styled._Wrapper>
+    </div>
   )
 }

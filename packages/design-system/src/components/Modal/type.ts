@@ -1,7 +1,14 @@
 export interface ModalProps {
-  active: boolean
-  onClickOutSide: () => void
-  children: React.ReactNode
+  active?: boolean
+  onClickOutSide?: () => void
+  children?: React.ReactNode
+  // Accessibility props
+  'aria-label'?: string
+  'aria-describedby'?: string
+  'aria-labelledby'?: string
+  // Event handlers
+  onClose?: () => void
+  onOpen?: () => void
 }
 
 export interface ReturningUseModal {

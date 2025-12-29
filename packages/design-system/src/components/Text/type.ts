@@ -1,5 +1,4 @@
 import React from 'react'
-import { AvailablePickedColor } from '../ThemeProvider/type'
 
 export type FontSizeType = 10 | 12 | 14 | 16 | 20 | 24 | 32 | 40 | 48
 export type LineHeightType = 12 | 16 | 20 | 24 | 32 | 40 | 48 | 56
@@ -9,9 +8,9 @@ export interface TextProps {
   size: FontSizeType
   lineHeight: 12 | 16 | 20 | 24 | 32 | 40 | 48 | 56
   weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900
-  transform: 'capitalize' | 'uppercase' | 'lowercase'
+  transform: 'capitalize' | 'uppercase' | 'lowercase' | 'none'
   align: 'left' | 'center' | 'right'
-  color: AvailablePickedColor
+  color?: string | 'primary' | 'success' | 'error' | 'white' | 'secondary' | 'warning'
   textWrap: boolean
   children: React.ReactNode
 }

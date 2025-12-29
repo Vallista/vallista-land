@@ -1,0 +1,12 @@
+{
+  "title": "Jest, enzyme를 활용한 테스팅 환경",
+  "description": "먼저 설명에 들어가기 앞서, 테스트에 대해서 조금 알아보도록 하자. 왜 테스트를 해야하는가? Product를 만들면서 다양한 상황에 대해 프로그래머가 시뮬레이션을 펼치는 건 한계가 있다. 대표적으로 safari, chrome, firefox 등의 다양한 브라우저의 늪에...",
+  "date": "2019-05-13T11:08:23.000Z",
+  "tags": [],
+  "slug": "utilizing-testing-environment",
+  "url": "/articles/utilizing-testing-environment",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 3,
+  "draft": true
+}

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { useCollapseContext } from '.'
 import { CollapseProps, ReturningUseCollapse } from './type'
 
 export function useCollapse<T extends Pick<Partial<CollapseProps>, 'defaultExpanded' | 'size' | 'card' | 'title'>>(
@@ -9,19 +8,13 @@ export function useCollapse<T extends Pick<Partial<CollapseProps>, 'defaultExpan
   const { defaultExpanded = true, size = 'medium', card = false, title } = props
   const [expanded, setExpanded] = useState(defaultExpanded)
 
-  const { state } = useCollapseContext()
-
+  // Context 없이 독립적으로 동작
   useEffect(() => {
-    if (expanded) {
-      state.setExpandedTarget(title || '')
+    // 초기 마운트 시 defaultExpanded가 true이면 펼쳐진 상태로 설정
+    if (defaultExpanded) {
+      setExpanded(true)
     }
-  }, [expanded, state, title])
-
-  useEffect(() => {
-    if (state.expandedTarget !== title) {
-      setExpanded(false)
-    }
-  }, [state.expandedTarget, title])
+  }, [defaultExpanded])
 
   return {
     ...props,

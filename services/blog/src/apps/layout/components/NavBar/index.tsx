@@ -12,11 +12,11 @@ import * as Styled from './index.style'
  */
 export const NavBar = () => {
   return (
-    <Styled._Container>
-      <Styled._Section>
+    <aside className={Styled.container} role='navigation' aria-label='Main navigation'>
+      <section className={Styled.section}>
         <Top />
         <Bottom />
-      </Styled._Section>
-    </Styled._Container>
+      </section>
+    </aside>
   )
 }

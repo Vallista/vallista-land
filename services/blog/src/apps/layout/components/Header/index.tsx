@@ -7,23 +7,23 @@ import { Logo } from './Logo'
 
 export const Header = () => {
   return (
-    <Styled._Container>
-      <Styled._Wrapper>
-        <Styled._Left>
-          <Styled._LeftFirst />
+    <header className={Styled.container} role='banner'>
+      <div className={Styled.wrapper}>
+        <div className={Styled.left}>
+          <div className={Styled.leftFirst} />
           <Logo />
           <SidebatButtons />
-        </Styled._Left>
+        </div>
         <ThemeSwitch />
-      </Styled._Wrapper>
-    </Styled._Container>
+      </div>
+    </header>
   )
 }
 
 const SidebatButtons = () => {
   return (
-    <Styled._Wrap>
+    <div className={Styled.wrap}>
       <SidebarFolder />
-    </Styled._Wrap>
+    </div>
   )
 }

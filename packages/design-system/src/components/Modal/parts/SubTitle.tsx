@@ -1,6 +1,5 @@
-import styled from '@emotion/styled'
-
 import { useModalContext } from '../context'
+import { modalSubTitle } from './SubTitle.css'
 
 interface ModalSubTitleProps {
   children: React.ReactNode
@@ -18,13 +17,7 @@ interface ModalSubTitleProps {
 const SubTitle = (props: ModalSubTitleProps) => {
   const { children } = useModalContext(props)
 
-  return <P>{children}</P>
+  return <p className={modalSubTitle}>{children}</p>
 }
-
-const P = styled.p`
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.6;
-`
 
 export { SubTitle }

@@ -1,41 +1,38 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+import { style } from '@vanilla-extract/css'
+import { COLOR_TOKENS } from '@vallista/design-system'
 
-export const _Wrap = styled.div`
-  margin-top: 24px;
-`
+export const wrap = style({
+  marginTop: '24px'
+})
 
-export const _List = styled.ol`
-  padding-left: 1.5rem;
-  box-sizing: border-box;
-  line-height: 1.6;
-  list-style: decimal;
-`
+export const list = style({
+  paddingLeft: '1.5rem',
+  boxSizing: 'border-box',
+  lineHeight: 1.6,
+  listStyle: 'decimal'
+})
 
-export const _Item = styled.li`
-  ${({ theme }) => css`
-    &:not(:last-child) {
-      margin-bottom: 0.5rem;
+export const item = style({
+  selectors: {
+    '&:not(:last-child)': {
+      marginBottom: '0.5rem'
+    },
+    '&::marker': {
+      fontWeight: 600,
+      color: COLOR_TOKENS.HIGHLIGHT.RED
+    },
+    '& > span': {
+      cursor: 'pointer',
+      borderBottom: `2px solid ${COLOR_TOKENS.HIGHLIGHT.RED}`,
+      fontWeight: 600,
+      textDecoration: 'none',
+      color: COLOR_TOKENS.PRIMARY.BLACK,
+      transition: 'all 0.1s ease-out'
+    },
+    '& > span:hover': {
+      background: COLOR_TOKENS.HIGHLIGHT.RED,
+      borderTop: `2px solid ${COLOR_TOKENS.HIGHLIGHT.RED}`,
+      color: COLOR_TOKENS.PRIMARY.WHITE
     }
-
-    &::marker {
-      font-weight: 600;
-      color: ${theme.colors.HIGHLIGHT.PINK};
-    }
-
-    & > span {
-      cursor: pointer;
-      border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-      font-weight: 600;
-      text-decoration: none;
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      transition: all 0.1s ease-out;
-
-      &:hover {
-        background: ${theme.colors.HIGHLIGHT.PINK};
-        border-top: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-        color: ${theme.colors.PRIMARY.BACKGROUND};
-      }
-    }
-  `}
-`
+  }
+})

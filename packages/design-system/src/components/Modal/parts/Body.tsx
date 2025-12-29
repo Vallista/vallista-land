@@ -1,6 +1,5 @@
-import styled from '@emotion/styled'
-
 import { useModalContext } from '../context'
+import { modalBody } from './Body.css'
 
 interface ModalBodyProps {
   children: React.ReactNode
@@ -18,13 +17,7 @@ interface ModalBodyProps {
 const Body = (props: ModalBodyProps) => {
   const { children } = useModalContext(props)
 
-  return <Wrapper>{children}</Wrapper>
+  return <div className={modalBody}>{children}</div>
 }
-
-const Wrapper = styled.div`
-  padding: 1.5rem;
-  font-size: 0.875rem;
-  line-height: 1.6;
-`
 
 export { Body }

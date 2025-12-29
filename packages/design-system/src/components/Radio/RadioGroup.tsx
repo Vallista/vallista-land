@@ -24,13 +24,8 @@ export const RadioGroup = ({ children, ...props }: Partial<RadioGroupProps>) => 
   const uniqueId = useUniqueId()
 
   return (
-    <RadioContext
-      state={{
-        uniqueId,
-        ...state
-      }}
-    >
-      {children}
+    <RadioContext uniqueId={uniqueId} {...state}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>{children}</div>
     </RadioContext>
   )
 }

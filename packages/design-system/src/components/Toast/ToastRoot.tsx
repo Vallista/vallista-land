@@ -1,11 +1,12 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+/* eslint-disable react-refresh/only-export-components */
 import { useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import { Toast } from './Toast'
 import { ReturningUseToasts } from './type'
 import { useToastContext } from './ToastProvider'
+import { toastRootLayer, toastItem, toastStackLimit } from './ToastRoot.css'
+import { clsx } from 'clsx'
 
 /**
  * # useToasts
@@ -21,21 +22,40 @@ import { useToastContext } from './ToastProvider'
  * ```
  */
 export function useToasts(): Omit<ReturningUseToasts, 'toastList'> {
-  const { state } = useToastContext()
+  const context = useToastContext()
 
   return {
-    message: state.message,
-    success: state.success,
-    error: state.error
+    message: context.message,
+    success: context.success,
+    error: context.error
+  }
+}
+
+// SSR 안전한 Portal 생성
+const createPortal = (children: React.ReactNode, container: Element) => {
+  if (typeof window === 'undefined') return null
+  try {
+    return ReactDOM.createPortal(children, container)
+  } catch {
+    // Portal 생성 실패 시 null 반환
+    return null
   }
 }
 
 export default function ToastRoot() {
-  const { state } = useToastContext()
+  const context = useToastContext()
   const ref = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // SSR 안전한 마운트
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
+    if (!mounted || typeof window === 'undefined') return
+
     const mouseEnter = (): void => {
       setHover(true)
     }
@@ -44,72 +64,43 @@ export default function ToastRoot() {
       setHover(false)
     }
 
-    ref.current?.addEventListener('mouseenter', mouseEnter)
-    ref.current?.addEventListener('mouseleave', mouseOut)
+    const node = ref.current
+    if (!node) return
+
+    node.addEventListener('mouseenter', mouseEnter)
+    node.addEventListener('mouseleave', mouseOut)
 
     return () => {
-      ref.current?.removeEventListener('mouseenter', mouseEnter)
-      ref.current?.removeEventListener('mouseleave', mouseOut)
+      node.removeEventListener('mouseenter', mouseEnter)
+      node.removeEventListener('mouseleave', mouseOut)
     }
-  }, [])
+  }, [mounted])
 
   useEffect(() => {
-    if (state.toastList.length === 0) {
+    if (context.toastList.length === 0) {
       setHover(false)
     }
-  }, [state.toastList])
+  }, [context.toastList])
 
-  if (typeof document === 'undefined') return <></>
+  // SSR에서는 아무것도 렌더링하지 않음
+  if (!mounted || typeof document === 'undefined') return null
 
-  return ReactDOM.createPortal(
-    <ToastRootLayer ref={ref}>
-      {state.toastList.map((it, idx, arr) => (
-        <Toast
-          hover={hover}
-          {...it}
-          order={arr.length - 1 - idx}
-          key={it.toastUniqueCount}
-          remove={() => state.remove(it.toastUniqueCount)}
-        />
+  // 안전한 Portal 생성
+  const portal = createPortal(
+    <div ref={ref} className={toastRootLayer}>
+      {context.toastList.map((it, idx, arr) => (
+        <div key={it.toastUniqueCount} className={clsx(toastItem, idx >= 3 && toastStackLimit)}>
+          <Toast
+            hover={hover}
+            {...it}
+            order={arr.length - 1 - idx}
+            remove={() => context.remove(it.toastUniqueCount)}
+          />
+        </div>
       ))}
-    </ToastRootLayer>,
+    </div>,
     document.body
   )
+
+  return portal
 }
-
-const ToastRootLayer = styled.div`
-  position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  max-width: 420px;
-  transition: all 0.4s ease;
-
-  ${({ theme }) => css`
-    z-index: ${theme.layers.SNACKBAR};
-  `}
-
-  @media (max-width: 440px) {
-    max-width: 90vw;
-    right: 5vw;
-  }
-
-  & > div:not(:first-of-type)::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% + 1px);
-    width: 100%;
-    height: 20px;
-    background: transparent;
-  }
-
-  & > div:nth-last-of-type(n + 4) {
-    opacity: 0 !important;
-    pointer-events: none;
-  }
-
-  &:hover {
-    transform: translate3d(0, -10px, 0);
-  }
-`

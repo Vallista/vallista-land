@@ -1,0 +1,12 @@
+{
+  "title": "동일 출처 정책 (Same Origin Policy)",
+  "description": "XSS (Cross-Site-Scripting) 와 같은 공격 기법은 사이트 내에서 해커 서버의 민감한 정보를 탈취하는 코드를 실행시키는 방식이다. 이러한 방식을 막으려는 노력중 하나가 Same Origin Policy이다. Same Origin Policy는 '동일 ...",
+  "date": "2019-05-12T11:03:24.000Z",
+  "tags": [],
+  "slug": "identical-source-policy",
+  "url": "/articles/identical-source-policy",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 1,
+  "draft": true
+}

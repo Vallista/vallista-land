@@ -7,8 +7,8 @@ export const SidebarFolder = () => {
   const { fold, changeFold } = useSidebarFolder()
 
   return (
-    <Styled._Button fold={fold} onClick={changeFold}>
+    <button className={fold ? Styled.buttonActive : Styled.button} onClick={changeFold}>
       <HeaderSplitBtn />
-    </Styled._Button>
+    </button>
   )
 }

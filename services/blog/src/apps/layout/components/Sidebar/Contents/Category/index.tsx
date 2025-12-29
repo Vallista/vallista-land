@@ -16,14 +16,14 @@ export const Category = (props: Props) => {
   const [fold, setFold] = useState(false)
 
   return (
-    <Styled._ListStyle>
-      <Styled._ListHeader onClick={() => setFold(!fold)}>
-        <Styled._ListFoldIcon fold={fold}>
+    <nav className={Styled.listStyle}>
+      <div className={Styled.listHeader} onClick={() => setFold(!fold)}>
+        <div className={fold ? Styled.listFoldIcon : `${Styled.listFoldIcon} ${Styled.listFoldIconUnfolded}`}>
           {fold ? <SidebarFolderCloseIcon /> : <SidebarFolderOpenIcon />}
-        </Styled._ListFoldIcon>
+        </div>
         <Text>{title}</Text>
-      </Styled._ListHeader>
-      <Styled._ListBody fold={fold}>{children}</Styled._ListBody>
-    </Styled._ListStyle>
+      </div>
+      <div className={fold ? Styled.listBodyFolded : Styled.listBody}>{children}</div>
+    </nav>
   )
 }

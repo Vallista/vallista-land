@@ -1,8 +1,23 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
-import { CheckboxProps, ReturningUseCheckbox } from './type'
+import { CheckboxProps } from './type'
 import { useCheckbox } from './useCheckbox'
+import {
+  checkboxBox,
+  checkboxBoxChecked,
+  checkboxBoxCheckedDisabled,
+  checkboxBoxDisabled,
+  checkboxCaption,
+  checkboxCheckMarker,
+  checkboxContainer,
+  checkboxContent,
+  checkboxIndeterminateMarker,
+  checkboxInput,
+  checkboxLabel,
+  checkboxLabelDisabled,
+  checkboxLabelFullWidth,
+  checkboxLabelHover,
+  checkboxLabelWithLabel,
+  checkboxLabelWithoutLabel
+} from './Checkbox.css'
 
 /**
  * # Checkbox
@@ -20,162 +35,44 @@ import { useCheckbox } from './useCheckbox'
  * ```
  */
 export const Checkbox = (props: Partial<CheckboxProps>) => {
-  const { label, marker, children, onChange, ...otherProps } = useCheckbox(props)
+  const { label, marker, children, onChange, fullWidth, indeterminate, ...otherProps } = useCheckbox(props)
+
+  const labelClasses = [
+    checkboxLabel,
+    label ? checkboxLabelWithLabel : checkboxLabelWithoutLabel,
+    !otherProps.disabled ? checkboxLabelHover : '',
+    fullWidth ? checkboxLabelFullWidth : '',
+    otherProps.disabled ? checkboxLabelDisabled : ''
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const boxClasses = [
+    checkboxBox,
+    otherProps.disabled ? checkboxBoxDisabled : '',
+    otherProps.checked && !indeterminate ? checkboxBoxChecked : '',
+    otherProps.checked && !indeterminate && otherProps.disabled ? checkboxBoxCheckedDisabled : ''
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <div>
-      <Label label={label} {...otherProps}>
-        {label && <Caption>{label}</Caption>}
-        <Input type='checkbox' {...otherProps} onChange={onChange} />
-        {label && (
-          <Container>
-            <Box {...otherProps}>
-              <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
-                {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
-                {marker === 'indeterminate' && (
-                  <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>
-                )}
-              </svg>
-            </Box>
-            {children && <Content>{children}</Content>}
-          </Container>
-        )}
-        {!label && (
-          <>
-            <Box {...otherProps}>
-              <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
-                {marker === 'checked' && <CheckMarker d='M14 7L8.5 12.5L6 10'></CheckMarker>}
-                {marker === 'indeterminate' && (
-                  <IndeterminateMarker x1='5' y1='10' x2='15' y2='10'></IndeterminateMarker>
-                )}
-              </svg>
-            </Box>
-            {children && <Content>{children}</Content>}
-          </>
-        )}
-      </Label>
+      <label className={labelClasses}>
+        <input className={checkboxInput} type='checkbox' {...otherProps} onChange={onChange} />
+        <span className={checkboxContainer}>
+          <div className={boxClasses}>
+            <svg viewBox='0 0 20 20' width='16' height='16' fill='none'>
+              {marker === 'checked' && <path className={checkboxCheckMarker} d='M14 7L8.5 12.5L6 10'></path>}
+              {marker === 'indeterminate' && (
+                <line className={checkboxIndeterminateMarker} x1='5' y1='10' x2='15' y2='10'></line>
+              )}
+            </svg>
+          </div>
+          {label && <span className={checkboxCaption}>{label}</span>}
+          {children && <span className={checkboxContent}>{children}</span>}
+        </span>
+      </label>
     </div>
   )
 }
-
-const Label = styled.label<Pick<ReturningUseCheckbox, 'fullWidth' | 'disabled' | 'label'>>`
-  font-size: 1em;
-  display: flex;
-  cursor: pointer;
-  outline: none;
-
-  ${({ fullWidth, disabled, label, theme }) => css`
-    ${label &&
-    css`
-      flex-direction: column;
-    `}
-
-    ${!label &&
-    css`
-      flex-direction: row;
-    `}
-
-    ${!disabled &&
-    css`
-      &:hover > div {
-        border-color: ${theme.colors.PRIMARY.FOREGROUND};
-      }
-    `}
-
-    ${fullWidth &&
-    css`
-      width: 100%;
-    `}
-
-    ${disabled &&
-    css`
-      color: ${theme.colors.PRIMARY.ACCENT_3};
-      cursor: not-allowed;
-    `}
-  `}
-`
-
-const Caption = styled.span`
-  color: ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
-  font-size: 0.98rem;
-  font-weight: 500;
-  display: flex;
-  max-width: 100%;
-  margin-bottom: 0.5rem;
-  cursor: text;
-`
-
-const Input = styled.input`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-  opacity: 0;
-  outline: none;
-  /* ${({ theme }) => css`
-    &:focus ~ div {
-      box-shadow:
-        0 0 0 2px ${theme.colors.PRIMARY.BACKGROUND},
-        0 0 0 4px ${theme.colors.PRIMARY.ACCENT_3};
-    }
-  `} */
-`
-
-const Box = styled.div<Pick<ReturningUseCheckbox, 'checked' | 'disabled' | 'indeterminate'>>`
-  width: 18px;
-  height: 18px;
-  border: 1px solid ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
-  border-radius: 3px;
-  transition: border-color 0.15s ease;
-
-  ${({ checked, indeterminate, disabled, theme }) => css`
-    ${disabled &&
-    css`
-      background-color: ${theme.colors.PRIMARY.ACCENT_1};
-      border-color: ${theme.colors.PRIMARY.ACCENT_3};
-    `}
-
-    ${checked &&
-    !indeterminate &&
-    css`
-      background-color: ${theme.colors.PRIMARY.FOREGROUND};
-      border-color: ${theme.colors.PRIMARY.FOREGROUND};
-
-      ${disabled &&
-      css`
-        background-color: ${theme.colors.PRIMARY.ACCENT_3};
-        border-color: ${theme.colors.PRIMARY.ACCENT_3};
-      `}
-    `}
-  `}
-`
-
-const Container = styled.span`
-  display: flex;
-  flex-direction: row;
-`
-
-const Content = styled.span`
-  display: flex;
-  margin-left: 8px;
-  align-items: flex-end;
-`
-
-const CheckMarker = styled.path`
-  stroke: ${({ theme }) => theme.colors.PRIMARY.BACKGROUND};
-  stroke-width: 2;
-  stroke-linecap: 'round';
-  stroke-linejoin: 'round';
-`
-
-const IndeterminateMarker = styled.line`
-  stroke: ${({ theme }) => theme.colors.PRIMARY.ACCENT_5};
-  stroke-width: 2;
-  stroke-linecap: 'round';
-  stroke-linejoin: 'round';
-`

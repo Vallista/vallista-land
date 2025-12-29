@@ -1,9 +1,7 @@
-import { AvailablePickedColor } from '../ThemeProvider/type'
-
 export interface IconProps {
   size: number
-  fill: AvailablePickedColor
-  color: AvailablePickedColor
+  fill: string
+  color: string
   align: 'top' | 'middle' | 'bottom'
 }
 

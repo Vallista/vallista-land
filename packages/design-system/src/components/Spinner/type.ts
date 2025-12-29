@@ -1,7 +1,12 @@
 export interface SpinnerProps {
-  size: number
+  size?: number
+  'aria-label'?: string
+  'aria-describedby'?: string
+  'aria-live'?: 'polite' | 'assertive' | 'off'
+  role?: string
 }
 
 export type ReturningUseSpinner<T extends Partial<SpinnerProps> = Partial<SpinnerProps>> = T & {
-  // Element: React.ElementType
+  size: number
+  'aria-label': string
 }

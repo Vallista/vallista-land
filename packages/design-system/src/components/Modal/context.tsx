@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState } from 'react'
 
 import { useUniqueId } from '../../hooks/useUniqueId'
@@ -16,13 +17,11 @@ export const ModalProvider = (props: Partial<ModalProps>) => {
 
   return (
     <ModalContext
-      state={{
-        uniqueId,
-        animationState,
-        changeAnimationState,
-        nextAnimationState,
-        ...otherProps
-      }}
+      uniqueId={uniqueId}
+      animationState={animationState}
+      changeAnimationState={changeAnimationState}
+      nextAnimationState={nextAnimationState}
+      {...otherProps}
     >
       {children}
     </ModalContext>
@@ -43,10 +42,10 @@ export const ModalProvider = (props: Partial<ModalProps>) => {
 
 // export const useModalContext = useContext
 export function useModalContext<T>(props: T): T & ModalContextStateWithProps {
-  const { state } = useContext()
+  const context = useContext()
 
   return {
     ...props,
-    ...state
+    ...context
   }
 }

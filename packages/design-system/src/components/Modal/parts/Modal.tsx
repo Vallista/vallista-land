@@ -1,122 +1,80 @@
-import { KeyboardEventHandler, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { modalOverlay, modalContent, modalCloseButton } from './Modal.css'
 
-import { ModalProvider, useModalContext } from '../context'
-import { ModalAnimationState, ModalProps } from '../type'
-import { BackDrop, Container, ModalContainer, Wrap, Wrapper } from './Modal.style'
-
-/**
- * # Modal.Modal
- *
- * @description [vercel design modal](https://vercel.com/design/modal)
- *
- * 모달의 베이스가 되는 컴포넌트입니다.
- * 하위에 Modal의 요소들을 선언하여 사용하셔야합니다.
- *
- * @param {ModalProps} {@link ModalProps} 기본적인 modal 요소
- *
- * @example ```tsx
- * const { active, open, close } = useModal()
- *
- * return (
- * <>
- *   <TemporaryContainer>
- *     <Button onClick={open}>알럿 출력</Button>
- *   </TemporaryContainer>
- *
- *   <Modal.Modal active={active} onClickOutSide={close}>
- *    <Modal.Body>
- *      <Modal.Header>
- *        <Modal.Title>안녕하세요?</Modal.Title>
- *        <Modal.SubTitle>This is a modal</Modal.SubTitle>
- *      </Modal.Header>
- *      <Modal.Inset>
- *        <Text>Content within the inset.</Text>
- *      </Modal.Inset>
- *      <br />
- *      <Text>Content outside the inset.</Text>
- *    </Modal.Body>
- *    <Modal.Actions>
- *      <Modal.Action onClick={close}>Cancel</Modal.Action>
- *      <Modal.Action onClick={close}>Submit</Modal.Action>
- *    </Modal.Actions>
- *  </Modal.Modal>
- * </>
- * )
- * ```
- */
-export const Modal = ({ children, ...props }: Partial<ModalProps>) => {
-  if (typeof document === 'undefined') return null
-
-  return createPortal(
-    <ModalProvider>
-      <Contents {...props}>{children}</Contents>
-    </ModalProvider>,
-    document.getElementById('modal-root') ?? document.body
-  )
+interface ModalProps {
+  active?: boolean
+  onClose?: () => void
+  children?: React.ReactNode
+  title?: string
+  closeOnOverlayClick?: boolean
+  closeOnEscape?: boolean
 }
 
-const Contents = (props: Partial<ModalProps>) => {
-  const {
-    children,
-    uniqueId,
-    nextAnimationState,
-    changeAnimationState,
-    active,
-    animationState,
-    onClickOutSide,
-    ...otherProps
-  } = useModalContext(props)
-
-  const ref = useRef<HTMLDivElement>(null)
+export const Modal = ({
+  active = false,
+  onClose,
+  children,
+  title,
+  closeOnOverlayClick = true,
+  closeOnEscape = true
+}: ModalProps) => {
+  const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (active) {
-      document.body.style.overflow = 'hidden'
-      changeAnimationState(ModalAnimationState.FADE_IN)
-    } else {
-      if (animationState === ModalAnimationState.ALIVE) {
-        document.body.style.overflow = ''
-        changeAnimationState(ModalAnimationState.FADE_OUT)
+    if (!active) return
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && closeOnEscape) {
+        onClose?.()
       }
     }
-  }, [active])
 
-  useEffect(() => {
-    if (animationState === ModalAnimationState.ALIVE) {
-      ref.current?.focus()
+    const handleClickOutside = (event: MouseEvent) => {
+      if (closeOnOverlayClick && modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose?.()
+      }
     }
-  }, [animationState])
 
-  return (
-    <Wrap id={uniqueId} animationState={animationState}>
-      <BackDrop animationState={animationState} {...otherProps} />
-      <Container animationState={animationState} onAnimationEnd={nextAnimation}>
-        <Wrapper
-          ref={ref}
-          tabIndex={1}
-          role='dialog'
-          aria-hidden
-          aria-modal
-          aria-labelledby='modal'
-          onBlur={handleReset}
-          onKeyDown={handleESCKeyDown}
-        >
-          <ModalContainer>{children}</ModalContainer>
-        </Wrapper>
-      </Container>
-    </Wrap>
+    // Prevent body scroll when modal is open
+    const safeSetBodyStyle = (property: string, value: string) => {
+      if (typeof document !== 'undefined' && document.body) {
+        const style = document.body.style as CSSStyleDeclaration & { [key: string]: string }
+        style[property] = value
+      }
+    }
+
+    safeSetBodyStyle('overflow', 'hidden')
+
+    document.addEventListener('keydown', handleEscape)
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('mousedown', handleClickOutside)
+      safeSetBodyStyle('overflow', '')
+    }
+  }, [active, onClose, closeOnOverlayClick, closeOnEscape])
+
+  if (!active) return null
+
+  return createPortal(
+    <div className={modalOverlay}>
+      <div ref={modalRef} className={modalContent}>
+        {title && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{title}</h2>
+            <button className={modalCloseButton} onClick={onClose} aria-label='Close modal'>
+              <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2'>
+                <line x1='18' y1='6' x2='6' y2='18'></line>
+                <line x1='6' y1='6' x2='18' y2='18'></line>
+              </svg>
+            </button>
+          </div>
+        )}
+        {children}
+      </div>
+    </div>,
+    document.body
   )
-
-  function nextAnimation(): void {
-    nextAnimationState()
-  }
-
-  function handleReset(): void {
-    onClickOutSide?.()
-  }
-
-  function handleESCKeyDown(e: Parameters<KeyboardEventHandler<HTMLDivElement>>[0]): void {
-    if (e.key === 'Escape') handleReset()
-  }
 }

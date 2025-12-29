@@ -1,57 +1,50 @@
-import styled from '@emotion/styled'
+import { style } from '@vanilla-extract/css'
 import { DEFINE_SIDEBAR_HEADER_HEIGHT } from '../../utils'
-import { css } from '@emotion/react'
+import { COLOR_TOKENS } from '@vallista/design-system'
 
-export const _Title = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: ${DEFINE_SIDEBAR_HEADER_HEIGHT}px;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 0 16px 2px;
-
-  & > p {
-    padding-top: 3px;
+export const title = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  height: `${DEFINE_SIDEBAR_HEADER_HEIGHT}px`,
+  fontWeight: 600,
+  fontSize: '14px',
+  padding: '0 16px 2px',
+  color: COLOR_TOKENS.PRIMARY.BLACK,
+  selectors: {
+    '& > p': {
+      paddingTop: '3px'
+    }
   }
-`
+})
 
-export const _TitleWrap = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+export const titleWrap = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%'
+})
 
-  width: 100%;
-`
+export const titleBox = style({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: '6px'
+})
 
-export const _TitleBox = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  gap: 6px;
-`
-
-export const _TypeButton = styled.button`
-  cursor: pointer;
-  border: none;
-  background: none;
-  outline: none;
-  padding: 0;
-  margin: 0;
-  height: 18px;
-  transition: color 0.2s cubic-bezier(0.215, 0.61, 0.355, 1);
-
-  ${({ theme }) => css`
-    &:hover {
-      color: ${theme.colors.PRIMARY.FOREGROUND};
+export const typeButton = style({
+  cursor: 'pointer',
+  border: 'none',
+  background: 'none',
+  outline: 'none',
+  padding: 0,
+  margin: 0,
+  height: '18px',
+  transition: 'color 0.2s cubic-bezier(0.215, 0.61, 0.355, 1)',
+  color: COLOR_TOKENS.PRIMARY.GRAY_500,
+  selectors: {
+    '&:hover': {
+      color: COLOR_TOKENS.PRIMARY.BLACK
     }
-    color: ${theme.colors.PRIMARY.ACCENT_4};
-  `}/* @media screen and (max-width: 1024px) {
-    display: none;
-
-    & + span {
-      display: none;
-    }
-  } */
-`
+  }
+})

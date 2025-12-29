@@ -7,7 +7,7 @@ export const Search = () => {
   const { search, setSearch } = useSearch()
 
   return (
-    <Styled._Search>
+    <div className={Styled.search}>
       <SearchInput
         value={search}
         onReset={() => setSearch('')}
@@ -15,6 +15,6 @@ export const Search = () => {
         size='small'
         placeholder='검색..'
       />
-    </Styled._Search>
+    </div>
   )
 }

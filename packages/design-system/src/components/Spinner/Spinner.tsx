@@ -1,9 +1,8 @@
-import { css, keyframes } from '@emotion/react'
-import styled from '@emotion/styled'
+import { forwardRef } from 'react'
 
-import { Colors } from '../ThemeProvider/type'
-import { SpinnerProps, ReturningUseSpinner } from './type'
+import { SpinnerProps } from './type'
 import { useSpinner } from './useSpinner'
+import { spinnerWrapper, spinnerContainer, spinnerSticks } from './Spinner.css'
 
 /**
  * # Spinner
@@ -18,47 +17,25 @@ import { useSpinner } from './useSpinner'
  * <Spinner size={30} />
  * ```
  */
-export const Spinner = (props: Partial<SpinnerProps>) => {
-  const { size } = useSpinner(props)
+export const Spinner = forwardRef<HTMLDivElement, Partial<SpinnerProps>>((props, ref) => {
+  const { size, 'aria-label': ariaLabel = 'Loading...' } = useSpinner(props)
 
   return (
-    <SpinnerWrapper size={size}>
-      {[...Array(12)].map((_, index) => {
-        return <SpinnerStick key={`spinner-stick-${index}`} index={index} />
-      })}
-    </SpinnerWrapper>
+    <div
+      ref={ref}
+      className={spinnerWrapper}
+      style={{ width: `${size}px`, height: `${size}px` }}
+      role='status'
+      aria-label={ariaLabel}
+      aria-live='polite'
+    >
+      <div className={spinnerContainer}>
+        {spinnerSticks.map((stick, index) => (
+          <div key={`spinner-stick-${index}`} className={stick.className} style={stick.style} />
+        ))}
+      </div>
+    </div>
   )
-}
+})
 
-const SpinnerStickAnimation = keyframes`
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.15;
-  }
-`
-
-const SpinnerWrapper = styled.div<ReturningUseSpinner>`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  ${(props) => css`
-    width: ${`${props.size}px`};
-    height: ${`${props.size}px`};
-  `}
-`
-
-const SpinnerStick = styled.div<{ index: number }>`
-  animation: ${SpinnerStickAnimation} 1.2s linear infinite;
-  position: absolute;
-  width: 24%;
-  height: 8%;
-  border-radius: 5px;
-  background: ${Colors.PRIMARY.ACCENT_7};
-  ${(props) => css`
-    animation-delay: ${-1.2 + props.index * 0.1}s;
-    transform: rotate(${30 * props.index}deg) translate(146%);
-  `}
-`
+Spinner.displayName = 'Spinner'

@@ -10,10 +10,16 @@ export const ThemeSwitch = () => {
   const { mode, handleThemeSwitch } = useThemeSwitch()
 
   return (
-    <Styled._ThemeToggleContainer>
-      <HeaderDarkmodeSun />
-      <Toggle toggle={mode === 'DARK'} size='medium' onChange={handleThemeSwitch} color='pink' />
-      <HeaderDarkmodeMoon />
-    </Styled._ThemeToggleContainer>
+    <div className={Styled.themeToggleContainer}>
+      <HeaderDarkmodeSun aria-hidden='true' />
+      <Toggle
+        toggle={mode === 'DARK'}
+        size='medium'
+        onChange={handleThemeSwitch}
+        color='pink'
+        aria-label={`Switch to ${mode === 'DARK' ? 'light' : 'dark'} mode`}
+      />
+      <HeaderDarkmodeMoon aria-hidden='true' />
+    </div>
   )
 }

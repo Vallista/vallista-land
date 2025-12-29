@@ -1,0 +1,12 @@
+{
+  "title": "Virtual DOM",
+  "description": "Virtual DOM은Vue.js, React.js 와 같은 SPA 프레임워크에서 사용된다. 사용하는 이유 JavaScript로 DOM 조작을 하게 되면 브라우저의 렌더링 엔진에서 수많은 일들이 일어난다. DOM (Document Object Model) 브라우저 렌더...",
+  "date": "2019-05-04T19:04:34.000Z",
+  "tags": [],
+  "slug": "virtual-dom",
+  "url": "/articles/virtual-dom",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 2,
+  "draft": true
+}

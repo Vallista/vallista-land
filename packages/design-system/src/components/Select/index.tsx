@@ -1,146 +1,187 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-import { ChangeEvent } from 'react'
+import React, { ReactNode, useState, useRef, useEffect } from 'react'
+import {
+  selectContainer,
+  selectTrigger,
+  selectDropdown,
+  selectOption,
+  selectArrow,
+  selectArrowOpen
+} from './Select.css'
+import { clsx } from 'clsx'
 
-import { SelectProps } from './type'
-import { useSelect } from './useSelect'
-
-/**
- * # Select
- * 
- * select 컴포넌트, 하위에 option을 정의해서 사용해주세요.
- * 
- * @param {SelectProps} {@link SelectProps} 기본적인 프랍
- * 
- * @example ```tsx 
-  const [select1, setSelect1] = useState('Second option')
-
-  <Select value={select1} onChange={setSelect1}>
-    <option>First option</option>
-    <option>Second option</option>
-  </Select>
- * ```
- * 
- */
-export const Select = (props: Partial<SelectProps>) => {
-  const { children, onChange, icon, isAnotherIcon, ...otherProps } = useSelect(props)
-
-  return (
-    <_Wrapper {...otherProps}>
-      <_Select {...otherProps} onChange={handleChange}>
-        {children}
-      </_Select>
-      <_IconWrapper>
-        {isAnotherIcon ? (
-          icon
-        ) : (
-          <svg
-            viewBox='0 0 24 24'
-            width='18'
-            height='18'
-            stroke='currentColor'
-            strokeWidth='1.5'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            fill='none'
-            shapeRendering='geometricPrecision'
-          >
-            <path d='M6 9l6 6 6-6' />
-          </svg>
-        )}
-      </_IconWrapper>
-    </_Wrapper>
-  )
-
-  function handleChange(e: ChangeEvent<HTMLSelectElement>): void {
-    const { selectedIndex, options } = e.target
-    onChange?.(options[selectedIndex]?.innerHTML ?? '')
-  }
+// Option 요소의 props 타입 정의
+interface OptionProps {
+  value?: string
+  disabled?: boolean
+  children?: ReactNode
 }
 
-const _Wrapper = styled.div<Partial<Pick<SelectProps, 'disabled'>>>`
-  position: relative;
-  overflow: hidden;
-  border-radius: 4px;
-  transition:
-    border 0.2s,
-    color 0.2s ease-out,
-    box-shadow 0.2s ease;
-  white-space: nowrap;
-  line-height: 0;
-  height: calc(9 * 4px);
-  width: auto;
-  min-width: 160px;
-  display: inline-flex;
-  outline: none;
-  appearance: none;
-  box-sizing: border-box;
+// 타입 가드 함수
+function isOptionElement(element: React.ReactElement): element is React.ReactElement<OptionProps> {
+  return element.type === 'option'
+}
 
-  ${({ theme, disabled }) => css`
-    color: ${theme.colors.PRIMARY.FOREGROUND};
-    background: ${theme.colors.PRIMARY.BACKGROUND};
-    border: 1px solid ${theme.colors.PRIMARY.ACCENT_2};
-    text-transform: uppercase;
-    user-select: none;
-    font-weight: 100;
+export interface SelectProps {
+  children: ReactNode
+  value?: string
+  onChange?: (value: string) => void
+  disabled?: boolean
+  placeholder?: string
+  width?: string | number
+  maxWidth?: string | number
+  'aria-label'?: string
+  'aria-describedby'?: string
+}
 
-    ${
-      disabled
-        ? css`
-          background: ${theme.colors.PRIMARY.ACCENT_1};
+export const Select = ({
+  children,
+  value,
+  onChange,
+  disabled = false,
+  placeholder = 'Select an option',
+  width,
+  maxWidth,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedby
+}: SelectProps) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
-          & > select {
-            color: ${theme.colors.PRIMARY.ACCENT_4};
-            cursor: not-allowed;
-          }
-        `
-        : css`
-          &:hover,
-          &:focus-within {
-            border-color: ${theme.colors.PRIMARY.ACCENT_5};
-          }
-        `
+  // SSR safe mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // SSR safe event listener
+  useEffect(() => {
+    if (!mounted || typeof document === 'undefined') return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(event.target as Node) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false)
+      }
     }
-  `}
-`
 
-const _Select = styled.select`
-  height: 100%;
-  border: none;
-  box-shadow: none;
-  outline: none;
-  cursor: pointer;
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [mounted])
 
-  ${({ theme }) => css`
-    color: ${theme.colors.PRIMARY.FOREGROUND};
-    background: ${theme.colors.PRIMARY.BACKGROUND};
-    font-size: 0.875rem;
-    margin-right: -1.125rem;
-    width: calc(100% + 20px);
-    padding: 0 0.75rem;
-    text-transform: none;
-    box-sizing: border-box;
-  `}
-`
-
-const _IconWrapper = styled.div`
-  width: 30px;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border 0.2s;
-  box-sizing: inherit;
-
-  ${({ theme }) => css`
-    background: ${theme.colors.PRIMARY.BACKGROUND};
-  `}
-
-  & > svg {
-    box-sizing: border-box;
-    transform-origin: 0 0;
+  const handleTriggerClick = () => {
+    if (!disabled) {
+      setIsOpen(!isOpen)
+    }
   }
-`
+
+  const handleOptionClick = (optionValue: string) => {
+    onChange?.(optionValue)
+    setIsOpen(false)
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (disabled) return
+
+    switch (event.key) {
+      case 'Enter':
+      case ' ':
+        event.preventDefault()
+        setIsOpen(!isOpen)
+        break
+      case 'Escape':
+        setIsOpen(false)
+        break
+      case 'ArrowDown':
+        event.preventDefault()
+        if (!isOpen) {
+          setIsOpen(true)
+        }
+        break
+      case 'ArrowUp':
+        event.preventDefault()
+        if (!isOpen) {
+          setIsOpen(true)
+        }
+        break
+    }
+  }
+
+  // 선택된 옵션의 텍스트 찾기
+  const selectedOptionText =
+    React.Children.toArray(children)
+      .filter(
+        (child): child is React.ReactElement<OptionProps> => React.isValidElement(child) && isOptionElement(child)
+      )
+      .find((option) => option.props.value === value)?.props.children || placeholder
+
+  return (
+    <div
+      className={selectContainer()}
+      style={{
+        width: width || 'auto',
+        maxWidth: maxWidth || 'none'
+      }}
+    >
+      <div
+        ref={triggerRef}
+        className={selectTrigger({ open: isOpen })}
+        onClick={handleTriggerClick}
+        onKeyDown={handleKeyDown}
+        tabIndex={disabled ? -1 : 0}
+        role='combobox'
+        aria-expanded={isOpen}
+        aria-haspopup='listbox'
+        aria-label={ariaLabel}
+        aria-describedby={ariaDescribedby}
+        aria-disabled={disabled}
+      >
+        <span>{selectedOptionText}</span>
+        <svg
+          className={clsx(selectArrow, isOpen && selectArrowOpen)}
+          width='16'
+          height='16'
+          viewBox='0 0 24 24'
+          fill='none'
+          stroke='currentColor'
+          strokeWidth='2'
+          strokeLinecap='round'
+          strokeLinejoin='round'
+        >
+          <polyline points='6,9 12,15 18,9' />
+        </svg>
+      </div>
+
+      {isOpen && mounted && (
+        <div ref={dropdownRef} className={selectDropdown()} role='listbox'>
+          {React.Children.map(children, (child) => {
+            if (!React.isValidElement(child) || !isOptionElement(child)) return null
+
+            const optionValue = child.props.value
+            const isSelected = optionValue === value
+            const isDisabled = child.props.disabled
+
+            return (
+              <div
+                key={optionValue}
+                className={selectOption()}
+                onClick={() => !isDisabled && handleOptionClick(optionValue || '')}
+                role='option'
+                aria-selected={isSelected}
+                aria-disabled={isDisabled}
+                data-selected={isSelected}
+                tabIndex={-1}
+              >
+                {child.props.children}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}

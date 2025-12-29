@@ -1,8 +1,7 @@
 import { Container, Spacer, Button, Text } from '@vallista/design-system'
 import Seo from '../layout/components/Seo'
-import styled from '@emotion/styled'
 import { useConfig } from '@/hooks/useConfig'
-import { css } from '@emotion/react'
+import * as Styled from './index.style'
 
 const Page = () => {
   const { resume } = useConfig()
@@ -14,10 +13,10 @@ const Page = () => {
   return (
     <Container>
       <Seo name='이력서' image='/resume.png' description='마광휘의 이력서' pathname={'/resume'} />
-      <Header>
-        <Wrapper>
+      <header className={Styled.header}>
+        <div className={Styled.wrapper}>
           <Container>
-            <Title>
+            <div className={Styled.title}>
               <Container>
                 <Text as='h2' size={48} weight={800}>
                   {resume.config.name}
@@ -26,9 +25,9 @@ const Page = () => {
                   {resume.config.role}
                 </Text>
               </Container>
-            </Title>
+            </div>
             <Spacer y={1} />
-            <SubTitle>
+            <div className={Styled.subTitle}>
               {resume.config.bio.map((it) => (
                 <Text as='p' size={20} weight={400} lineHeight={40} key={it}>
                   <span dangerouslySetInnerHTML={{ __html: it }} />
@@ -82,20 +81,20 @@ const Page = () => {
                   </Container>
                 </Button>
               </Container>
-            </SubTitle>
+            </div>
           </Container>
-        </Wrapper>
-      </Header>
+        </div>
+      </header>
       <Spacer />
-      <Box id='career'>
-        <Contents>
+      <div className={Styled.box} id='career'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.careers.title}
             </Text>
             <Spacer y={1.5} />
             {resume.careers.list.map((it) => (
-              <TwoColumn key={it.name}>
+              <div className={Styled.twoColumn} key={it.name}>
                 <Container>
                   <div>
                     <Text as='h3' size={24} weight={500}>
@@ -144,13 +143,13 @@ const Page = () => {
                     ))}
                   </div>
                 </Container>
-              </TwoColumn>
+              </div>
             ))}
           </Container>
-        </Contents>
-      </Box>
-      <Box id='skills'>
-        <Contents>
+        </div>
+      </div>
+      <div className={Styled.box} id='skills'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.skills.title}
@@ -167,13 +166,13 @@ const Page = () => {
                       <li>
                         <Container>
                           <Text size={16}>{it_.title}</Text>
-                          <SubTitleText>
+                          <div className={Styled.subTitleText}>
                             {it_.subTitle.map((it__, idx) => (
                               <Text size={14} key={idx}>
                                 {it__}
                               </Text>
                             ))}
-                          </SubTitleText>
+                          </div>
                         </Container>
                       </li>
                     </ul>
@@ -183,10 +182,10 @@ const Page = () => {
               </Container>
             ))}
           </Container>
-        </Contents>
-      </Box>
-      <Box id='hobby'>
-        <Contents>
+        </div>
+      </div>
+      <div className={Styled.box} id='hobby'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.hobby.description}
@@ -212,10 +211,10 @@ const Page = () => {
               </Container>
             ))}
           </Container>
-        </Contents>
-      </Box>
-      <Box id='speaker'>
-        <Contents>
+        </div>
+      </div>
+      <div className={Styled.box} id='speaker'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.speaker.description}
@@ -231,10 +230,10 @@ const Page = () => {
               ))}
             </ul>
           </Container>
-        </Contents>
-      </Box>
-      <Box id='activities'>
-        <Contents>
+        </div>
+      </div>
+      <div className={Styled.box} id='activities'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.activities.description}
@@ -256,10 +255,10 @@ const Page = () => {
               )}
             </ul>
           </Container>
-        </Contents>
-      </Box>
-      <Box id='lectures'>
-        <Contents>
+        </div>
+      </div>
+      <div className={Styled.box} id='lectures'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.lectures.description}
@@ -281,10 +280,10 @@ const Page = () => {
               )}
             </ul>
           </Container>
-        </Contents>
-      </Box>
-      <Box id='awards'>
-        <Contents>
+        </div>
+      </div>
+      <div className={Styled.box} id='awards'>
+        <div className={Styled.contents}>
           <Container>
             <Text size={40} weight={800}>
               {resume.awards.description}
@@ -306,118 +305,10 @@ const Page = () => {
               )}
             </ul>
           </Container>
-        </Contents>
-      </Box>
+        </div>
+      </div>
     </Container>
   )
 }
-
-const Wrapper = styled.div`
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 900px;
-  padding: 2rem;
-`
-
-const Box = styled.div``
-
-const Header = styled.header`
-  padding: 2rem 0;
-`
-
-const Title = styled.div`
-  max-width: 550px;
-`
-
-const SubTitle = styled.div`
-  max-width: 550px;
-
-  @media screen and (max-width: 1024px) {
-    & > div:last-of-type {
-      flex-direction: column !important;
-
-      & > * {
-        margin-left: 0;
-        margin-bottom: 1rem;
-      }
-    }
-  }
-`
-
-const Contents = styled.div`
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 900px;
-  padding: 2rem;
-
-  ul {
-    list-style: disc;
-    padding-left: 1.2rem;
-  }
-
-  li {
-    margin-bottom: 0.5rem;
-    padding: 0.2rem 0;
-    line-height: 1.4;
-
-    &::marker {
-      ${({ theme }) => css`
-        color: ${theme.colors.HIGHLIGHT.PINK};
-      `}
-    }
-  }
-`
-
-const TwoColumn = styled.div`
-  display: flex;
-  margin-bottom: 2rem;
-
-  & > div:first-of-type {
-    height: auto;
-    box-sizing: border-box;
-    flex: 3;
-    padding-right: 2rem;
-
-    & > div {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      position: sticky;
-      top: 85px;
-
-      & > div:last-of-type {
-        ${({ theme }) => css`
-          color: ${theme.colors.PRIMARY.ACCENT_5};
-
-          & > p {
-            margin-bottom: 0.5rem !important;
-          }
-        `}
-      }
-    }
-  }
-
-  & > div:last-of-type {
-    flex: 7;
-  }
-
-  @media screen and (max-width: 1024px) {
-    flex-direction: column;
-
-    & > div:last-of-type {
-      padding-left: 1rem;
-
-      ${({ theme }) => css`
-        border-left: 3px solid ${theme.colors.HIGHLIGHT.PINK};
-      `}
-    }
-  }
-`
-
-const SubTitleText = styled.div`
-  ${({ theme }) => css`
-    color: ${theme.colors.PRIMARY.ACCENT_5};
-  `}
-`
 
 export default Page

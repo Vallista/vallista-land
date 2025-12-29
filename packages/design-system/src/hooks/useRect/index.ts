@@ -29,7 +29,7 @@ export function useRect<T extends Element>(): [DOMRect | undefined, MutableRefOb
       set()
       window.addEventListener(event, set, useCapture)
       return () => window.removeEventListener(event, set, useCapture)
-    }, [])
+    }, [event, useCapture])
   }
 
   useEffectInEvent('resize')

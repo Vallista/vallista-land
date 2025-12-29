@@ -1,17 +1,21 @@
-import styled from '@emotion/styled'
+import { style } from '@vanilla-extract/css'
 
-export const _Search = styled.div`
-  display: flex;
-  align-items: center;
-  height: 38px;
-  padding: 0 24px;
-  max-width: 100%;
+export const search = style({
+  display: 'flex',
+  alignItems: 'center',
+  height: '38px',
+  padding: '0 24px',
+  maxWidth: '100%',
 
-  & > div {
-    width: 100%;
+  selectors: {
+    '& > div': {
+      width: '100%'
+    }
+  },
+
+  '@media': {
+    'screen and (max-width: 1024px)': {
+      padding: '0 16px'
+    }
   }
-
-  @media screen and (max-width: 1024px) {
-    padding: 0 16px;
-  }
-`
+})

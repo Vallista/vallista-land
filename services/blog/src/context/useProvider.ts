@@ -1,17 +1,10 @@
 import { use } from 'react'
-import { GlobalContext } from '.'
+import { GlobalContext } from './index'
 
 export const useGlobalProvider = () => {
   const context = use(GlobalContext)
-
   if (!context) {
-    throw new Error('useProvider must be used within a SidebarProvider')
+    throw new Error('useGlobalProvider must be used within a GlobalProvider')
   }
-
-  const { state, dispatch } = context
-
-  return {
-    state,
-    dispatch
-  }
+  return context
 }

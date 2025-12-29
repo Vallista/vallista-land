@@ -2,7 +2,6 @@ import React from 'react'
 
 import { ErrorMessage } from '../constants/messages'
 
-type Consumer<C> = () => C
 type Nullable<C> = C | null
 
 /**
@@ -27,25 +26,21 @@ export interface ContextInterface<S> {
  * const [context, useContext] = createContext<StateInterface>()
  * ```
  */
-export function createContext<S, C = ContextInterface<S>>(): readonly [
-  React.FC<C & { children: React.ReactNode }>,
-  Consumer<C>
-] {
+export function createContext<S, C = S>(): readonly [React.FC<C & { children: React.ReactNode }>, () => C] {
   const context = React.createContext<Nullable<C>>(null)
 
   const Provider: React.FC<C & { children: React.ReactNode }> = ({ children, ...otherProps }) => {
     return <context.Provider value={otherProps as C}>{children}</context.Provider>
   }
 
-  const useContext: Consumer<C> = () => {
+  const useContext = (): C => {
     const _context = React.useContext(context)
     if (!_context) {
-      // TODO: 에러 코드 보강 필요
       throw new Error(ErrorMessage.NOT_FOUND_CONTEXT)
     }
 
     return _context
   }
 
-  return [Provider, useContext]
+  return [Provider, useContext] as const
 }

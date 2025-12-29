@@ -1,19 +1,13 @@
-export interface SwitchItem {
-  name: string
-  value: string
-  width: number
-  disabled?: boolean
-}
-
 export interface SwitchProps {
-  items: SwitchItem[]
-  active: string
-  onChange: (value: string) => void
-  size: SwitchSizeType
+  active: boolean
+  onChange: (value: boolean) => void
+  label?: string
+  disabled?: boolean
+  size?: SwitchSizeType
 }
 
-export type NeedSwitchProp = Partial<Pick<SwitchProps, 'size'>> & Pick<SwitchProps, 'active' | 'items' | 'onChange'>
-export type SwitchSizeType = 'small' | 'middle' | 'large'
+export type NeedSwitchProp = Partial<SwitchProps> & Pick<SwitchProps, 'active' | 'onChange'>
+export type SwitchSizeType = 'small' | 'medium' | 'large'
 
 export type ReturningUseSwitch<T extends NeedSwitchProp = NeedSwitchProp> = T & {
   size: SwitchSizeType

@@ -1,5 +1,4 @@
-import { useTheme } from '@emotion/react'
-
+import { COLOR_TOKENS } from '../../theme/colorTokens'
 import { IconProps, ReturningUseIcon } from './type'
 
 const initProps: Partial<IconProps> = {
@@ -7,10 +6,9 @@ const initProps: Partial<IconProps> = {
 }
 
 export function useIcon<T extends Partial<IconProps>>(props: T): ReturningUseIcon<T> {
-  const theme = useTheme()
   return {
     ...initProps,
     ...props,
-    color: props.color ?? theme.colors.PRIMARY.FOREGROUND
+    color: props.color ?? COLOR_TOKENS.PRIMARY.BLACK
   }
 }

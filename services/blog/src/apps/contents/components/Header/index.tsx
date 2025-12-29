@@ -48,22 +48,24 @@ export const Header = (props: Props) => {
   const series = seriesName ? findSeries(seriesName) : undefined
 
   return (
-    <Styled._Wrap id='article-header' hasLoading={true}>
-      <Styled._TitleIcon>
+    <div className={Styled.wrap} id='article-header'>
+      <div className={Styled.titleIcon}>
         <Icon />
-      </Styled._TitleIcon>
-      <Styled._Title>{title}</Styled._Title>
-      <Styled._DateWrap>
-        <Styled._Date>{formattedDate} 작성</Styled._Date>
-      </Styled._DateWrap>
+      </div>
+      <h1 className={Styled.title}>{title}</h1>
+      <div className={Styled.dateWrap}>
+        <span className={Styled.date}>{formattedDate} 작성</span>
+      </div>
       {tags && tags.length !== 0 && (
-        <Styled._TagWrap>
+        <div className={Styled.tagWrap}>
           {tags.map((tag, index) => (
-            <Styled._Tag key={index}>{tag}</Styled._Tag>
+            <span className={Styled.tag} key={index}>
+              {tag}
+            </span>
           ))}
-        </Styled._TagWrap>
+        </div>
       )}
       {!!series && <Series name={series?.[0]?.series?.name || ''} posts={series} />}
-    </Styled._Wrap>
+    </div>
   )
 }

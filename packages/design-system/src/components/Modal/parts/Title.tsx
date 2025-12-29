@@ -1,9 +1,11 @@
-import styled from '@emotion/styled'
+import { forwardRef } from 'react'
 
 import { useModalContext } from '../context'
+import { modalTitle } from './Title.css'
 
 interface ModalTitleProps {
-  children: React.ReactNode
+  children?: React.ReactNode
+  id?: string
 }
 
 /**
@@ -15,18 +17,17 @@ interface ModalTitleProps {
  * <Modal.Title>This is a modal</Modal.Title>
  * ```
  */
-const Title = (props: ModalTitleProps) => {
-  const { children } = useModalContext(props)
+const Title = forwardRef<HTMLHeadingElement, ModalTitleProps>((props, ref) => {
+  const { children, id } = useModalContext(props)
+  const { uniqueId } = useModalContext({})
 
-  return <H3>{children}</H3>
-}
+  return (
+    <h3 ref={ref} id={id || `${uniqueId}-title`} className={modalTitle}>
+      {children}
+    </h3>
+  )
+})
 
-const H3 = styled.h3`
-  font-size: 1.25rem;
-  letter-spacing: -0.4;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1.5;
-`
+Title.displayName = 'ModalTitle'
 
 export { Title }

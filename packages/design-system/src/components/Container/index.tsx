@@ -1,48 +1,33 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
 import { ContainerProps } from './type'
 
-export const Container = styled.div<Partial<ContainerProps>>`
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  min-width: 1px;
-  max-width: 100%;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex-basis: auto;
-  box-sizing: border-box;
-
-  ${({ row, flex = 1, gap = 1, center, wrap = 'wrap' }) => css`
-    flex: ${flex};
-    flex-wrap: ${wrap};
-
-    ${row
-      ? css`
-          flex-direction: row;
-          & > *:not(:first-of-type) {
-            margin-left: calc(${gap} * 1rem);
-          }
-        `
-      : css`
-          & > section,
-          & > div,
-          & > article,
-          & > header,
-          & > footer {
-            gap: calc(${gap} * 1rem);
-          }
-
-          &:last-of-type {
-            margin-bottom: 0;
-          }
-        `}
-
-    ${center &&
-    css`
-      justify-content: center;
-      align-items: center;
-    `}
-  `}
-`
+export const Container = ({
+  row,
+  flex = 1,
+  gap = 1,
+  center,
+  wrap = 'wrap',
+  children,
+  ...rest
+}: Partial<ContainerProps> & { children?: React.ReactNode }) => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: row ? 'row' : 'column',
+        position: 'relative',
+        minWidth: '1px',
+        maxWidth: '100%',
+        justifyContent: center ? 'center' : 'flex-start',
+        alignItems: center ? 'center' : 'stretch',
+        flexBasis: 'auto',
+        boxSizing: 'border-box',
+        flex,
+        flexWrap: wrap,
+        gap: row ? `calc(${gap} * 1rem)` : undefined
+      }}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
+}

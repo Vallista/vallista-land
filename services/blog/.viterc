@@ -1,0 +1,18 @@
+{
+  "server": {
+    "port": 3000,
+    "host": true
+  },
+  "build": {
+    "target": "esnext",
+    "minify": "esbuild",
+    "sourcemap": false
+  },
+  "optimizeDeps": {
+    "include": [
+      "react",
+      "react-dom",
+      "@vallista/design-system"
+    ]
+  }
+}

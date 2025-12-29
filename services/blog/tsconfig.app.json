@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2020",
+    "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -20,15 +20,19 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
 
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false
   },
   "exclude": ["node_modules"],
-  "include": ["src", "src/types/type.d.ts", "src/types/emotion.d.ts", "config/**/*.ts|tsx"]
+  "include": ["src", "src/types/type.d.ts", "config/**/*.ts|tsx"]
 }

@@ -1,5 +1,3 @@
-import { Colors, Container, Text } from '@vallista/design-system'
-
 import * as Styled from './index.style'
 import Seo from '../layout/components/Seo'
 import { useEffect } from 'react'
@@ -10,31 +8,23 @@ const Page = () => {
 
   useEffect(() => {
     scrollToTop(false)
-  }, [])
+  }, [scrollToTop])
 
   return (
-    <Container>
+    <div className='container'>
       <Seo name='홈' pathname='' description='개발/생각을 적는 블로그 - vallista.dev' />
-      <Styled.Header>
-        <Styled.Wrapper>
-          <Styled.Title>
-            <Text as='span' size={48} weight={800}>
-              안녕하세요.
-            </Text>
-            <Text as='h1' size={48} weight={800} lineHeight={56}>
-              저는{' '}
-              <Text as='span' size={48} weight={800} lineHeight={56} color={Colors.HIGHLIGHT.PINK}>
-                마광휘
-              </Text>
+      <header className={Styled.header}>
+        <div className={Styled.wrapper}>
+          <div className={Styled.title}>
+            <span className='text-span'>안녕하세요.</span>
+            <h1 className='text-h1'>
+              저는 <span className='text-highlight'>마광휘</span>
               입니다.
-            </Text>
-          </Styled.Title>
-          <Styled.SubTitle>
-            <Text as='p' size={20} weight={400} lineHeight={32}>
-              대한민국 서울, 잠실의 우아한형제들에서{' '}
-              <Text as='span' weight={700} size={20}>
-                시니어 소프트웨어 엔지니어
-              </Text>
+            </h1>
+          </div>
+          <div className={Styled.subTitle}>
+            <p className='text-p'>
+              대한민국 서울, 잠실의 우아한형제들에서 <span className='text-bold'>시니어 소프트웨어 엔지니어</span>
               로 일하고 있어요. 한 분야에 국한되지 않는 여러 문제를 해결하는 것에 즐거움을 느낍니다.
               <br />
               <br />
@@ -49,11 +39,11 @@ const Page = () => {
               <br />
               아래의 링크를 통해 사이트맵을 돌아보실 수 있고, 관련 사이트를 확인하실 수 있고, 왼쪽의 메뉴를 통해 다른
               카테고리를 탐색하거나 GitHub, 페이스북을 가실 수 있고 다른 글을 보실 수 있어요.
-            </Text>
-          </Styled.SubTitle>
-        </Styled.Wrapper>
-      </Styled.Header>
-    </Container>
+            </p>
+          </div>
+        </div>
+      </header>
+    </div>
   )
 }
 

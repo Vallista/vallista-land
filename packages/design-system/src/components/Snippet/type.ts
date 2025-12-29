@@ -1,5 +1,3 @@
-import { AvailablePickedColor } from '../ThemeProvider/type'
-
 export type SnippetType = 'success' | 'error' | 'warning' | 'primary' | 'secondary' | 'lite'
 
 export interface SnippetProps {
@@ -10,6 +8,8 @@ export interface SnippetProps {
   onCopy: () => void
   type: SnippetType
   fill: boolean
+  language?: string
+  showSyntaxHighlighting?: boolean
 }
 
 export interface ReturningUseSnippet {
@@ -19,4 +19,4 @@ export interface ReturningUseSnippet {
   type: SnippetType
 }
 
-export type SnippetMapperType = Record<SnippetType, Record<'background' | 'border' | 'color', AvailablePickedColor>>
+export type SnippetMapperType = Record<SnippetType, Record<'background' | 'border' | 'color', string>>

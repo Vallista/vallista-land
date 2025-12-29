@@ -45,6 +45,6 @@ export const NavBottom: NavMenus = [
     id: 'facebook',
     name: 'Facebook',
     icon: <FacebookIcon />,
-    path: 'https://facebook.com/gwangwhi.ma'
+    path: ''
   }
 ]

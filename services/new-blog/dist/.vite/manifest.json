@@ -1,0 +1,62 @@
+{
+  "../../packages/design-system/dist/ToastRoot-yj9IT2Nv.js": {
+    "file": "assets/ToastRoot-yj9IT2Nv-B8nlDg0h.js",
+    "name": "ToastRoot-yj9IT2Nv",
+    "src": "../../packages/design-system/dist/ToastRoot-yj9IT2Nv.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_design-system-B1ame5jL.js",
+      "_react-vendor-gH-7aFTg.js"
+    ]
+  },
+  "_design-system-B1ame5jL.js": {
+    "file": "assets/design-system-B1ame5jL.js",
+    "name": "design-system",
+    "imports": [
+      "_react-vendor-gH-7aFTg.js"
+    ],
+    "dynamicImports": [
+      "../../packages/design-system/dist/ToastRoot-yj9IT2Nv.js"
+    ]
+  },
+  "_query-DhBXFBac.js": {
+    "file": "assets/query-DhBXFBac.js",
+    "name": "query",
+    "imports": [
+      "_design-system-B1ame5jL.js"
+    ]
+  },
+  "_react-vendor-gH-7aFTg.js": {
+    "file": "assets/react-vendor-gH-7aFTg.js",
+    "name": "react-vendor"
+  },
+  "_router-OPKeSxaB.js": {
+    "file": "assets/router-OPKeSxaB.js",
+    "name": "router",
+    "imports": [
+      "_design-system-B1ame5jL.js"
+    ]
+  },
+  "_utils-DnaTj2vd.js": {
+    "file": "assets/utils-DnaTj2vd.js",
+    "name": "utils",
+    "imports": [
+      "_design-system-B1ame5jL.js"
+    ]
+  },
+  "index.html": {
+    "file": "assets/index-DD7WgHF9.js",
+    "name": "index",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_query-DhBXFBac.js",
+      "_design-system-B1ame5jL.js",
+      "_react-vendor-gH-7aFTg.js",
+      "_router-OPKeSxaB.js"
+    ],
+    "css": [
+      "assets/index-C4TQwwzK.css"
+    ]
+  }
+}

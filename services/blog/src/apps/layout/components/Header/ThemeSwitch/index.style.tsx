@@ -1,22 +1,19 @@
+import { style } from '@vanilla-extract/css'
 import { DEFINE_ICON_SIZE } from '@/utils/constant'
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
+import { COLOR_TOKENS } from '@vallista/design-system'
 
-export const _ThemeToggleContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  ${({ theme }) => css`
-    color: ${theme.colors.PRIMARY.FOREGROUND};
-  `}
-
-  & > label {
-    margin: 0 12px;
+export const themeToggleContainer = style({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  color: COLOR_TOKENS.PRIMARY.BLACK,
+  selectors: {
+    '& > label': {
+      margin: '0 12px'
+    },
+    '& > svg': {
+      width: `${DEFINE_ICON_SIZE}px`,
+      height: `${DEFINE_ICON_SIZE}px`
+    }
   }
-
-  & > svg {
-    width: ${DEFINE_ICON_SIZE}px;
-    height: ${DEFINE_ICON_SIZE}px;
-  }
-`
+})

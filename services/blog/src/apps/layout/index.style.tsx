@@ -1,66 +1,75 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
 import { DEFINE_SIDEBAR_WIDTH } from './components/Sidebar/utils'
 import { DEFINE_NAVBAR_WIDTH } from './components/NavBar/utils'
+import { COLOR_TOKENS } from '@vallista/design-system'
 
-export const _Wrapper = styled.div`
+export const wrapper = 'layout-wrapper'
+export const main = 'layout-main'
+export const mainFolded = 'layout-main-folded'
+export const article = 'layout-article'
+
+// CSS 스타일을 동적으로 생성
+const styles = `
+.${wrapper} {
   min-height: 100vh;
-`
+}
 
-const DEFINE_LEFT_POSITION = DEFINE_NAVBAR_WIDTH + DEFINE_SIDEBAR_WIDTH
-
-export const _Main = styled.main<{ fold: boolean }>`
+.${main} {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: calc(100vw - ${DEFINE_LEFT_POSITION}px);
+  width: calc(100vw - ${DEFINE_NAVBAR_WIDTH + DEFINE_SIDEBAR_WIDTH}px);
   height: 100vh;
-  margin-left: ${DEFINE_LEFT_POSITION}px;
+  margin-left: ${DEFINE_NAVBAR_WIDTH + DEFINE_SIDEBAR_WIDTH}px;
+}
 
-  ${({ fold }) => css`
-    ${fold &&
-    css`
-      width: calc(100vw - ${DEFINE_NAVBAR_WIDTH}px);
-      margin-left: ${DEFINE_NAVBAR_WIDTH}px;
-    `}
-  `}
+.${mainFolded} {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: calc(100vw - ${DEFINE_NAVBAR_WIDTH}px);
+  height: 100vh;
+  margin-left: ${DEFINE_NAVBAR_WIDTH}px;
+}
 
-  @media screen and (max-width: 1024px) {
+.${article} {
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.${article} a {
+  cursor: pointer;
+  border-bottom: 2px solid ${COLOR_TOKENS.HIGHLIGHT.RED};
+  font-weight: 600;
+  text-decoration: none;
+  color: ${COLOR_TOKENS.PRIMARY.BLACK};
+  transition: all 0.1s ease-out;
+}
+
+@media screen and (max-width: 1024px) {
+  .${main}, .${mainFolded} {
     margin-left: 0;
     width: 100vw;
     height: auto;
   }
+  
+  .${article} {
+    width: 100vw;
+  }
+}
 
-  @media screen and (min-width: 1025px) {
+@media screen and (min-width: 1025px) {
+  .${main}, .${mainFolded} {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
   }
+}
 `
 
-export const _Article = styled.article`
-  box-sizing: border-box;
-  margin: 0 auto;
-
-  ${({ theme }) => css`
-    a {
-      cursor: pointer;
-      border-bottom: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-      font-weight: 600;
-      text-decoration: none;
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      transition: all 0.1s ease-out;
-
-      &:hover {
-        background: ${theme.colors.HIGHLIGHT.PINK};
-        border-top: 2px solid ${theme.colors.HIGHLIGHT.PINK};
-        color: ${theme.colors.PRIMARY.BACKGROUND};
-      }
-    }
-  `}
-
-  @media screen and (max-width: 1024px) {
-    width: 100vw;
-  }
-`
+// 스타일을 DOM에 주입
+if (typeof document !== 'undefined') {
+  const styleElement = document.createElement('style')
+  styleElement.textContent = styles
+  document.head.appendChild(styleElement)
+}

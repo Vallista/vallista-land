@@ -1,0 +1,13 @@
+{
+  "title": "LDAP (Lightweight Directory Access Protocol)",
+  "description": "얼마 전, 회사에서 데브옵스 개발을 진행하던 중 회사의 조직도, 회사 구성원의 정보에 접근해야하는 일이 생겼다. 구성원들의 민감한 정보가 아닌, 조직구성도 상에서의 팀원 정보가 필요했기에 회사 구성원의 정보가 있는 DB에 들어가서 해당 데이터를 가져와 새벽 6시마다 변...",
+  "date": "2022-09-25T18:26:21.000Z",
+  "tags": [],
+  "image": "assets/3.gif",
+  "slug": "ldap-lightweight-directory-access-protocol",
+  "url": "/articles/ldap-lightweight-directory-access-protocol",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 8,
+  "draft": false
+}

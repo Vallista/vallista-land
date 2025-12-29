@@ -1,0 +1,12 @@
+{
+  "title": "리듀스 (Reduce)",
+  "description": "Reduce는 줄이다, 감속하다 라는 뜻으로써, JavaScript에서 배열 작업 할 때 원하는 부분을 줄여서 사용할 수 있다. JavaScript의 Reduce는 Array의 고차함수로써, map 같은 함수들을 커스터마이징 해서 사용할 수 있다. 받는 인자 정보 ja...",
+  "date": "2019-05-12T11:01:13.000Z",
+  "tags": [],
+  "slug": "reduce",
+  "url": "/articles/reduce",
+  "contentType": "articles",
+  "author": "Vallista",
+  "readingTime": 2,
+  "draft": true
+}

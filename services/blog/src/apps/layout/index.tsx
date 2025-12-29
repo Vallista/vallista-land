@@ -12,18 +12,18 @@ export const Layout = () => {
   const { contents, fold } = useLayout()
 
   return (
-    <Styled._Wrapper>
+    <div className={Styled.wrapper}>
       <Container>
         <NavBar />
         <Sidebar contents={contents} />
         <Header />
-        <Styled._Main fold={fold}>
-          <Styled._Article>
+        <main className={fold ? Styled.mainFolded : Styled.main}>
+          <article className={Styled.article} role='main' aria-label='Main content'>
             <Outlet />
-          </Styled._Article>
+          </article>
           <Footer />
-        </Styled._Main>
+        </main>
       </Container>
-    </Styled._Wrapper>
+    </div>
   )
 }

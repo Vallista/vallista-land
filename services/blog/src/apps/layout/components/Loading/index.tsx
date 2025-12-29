@@ -9,5 +9,5 @@ interface Props {
 export const Loading = (props: Props) => {
   const { children } = props
 
-  return <Styled._Wrap>{children}</Styled._Wrap>
+  return <div className={Styled.wrap}>{children}</div>
 }

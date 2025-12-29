@@ -52,13 +52,8 @@ export function useControlledState<T>(
    * 왜냐하면, onChange가 갑자기 없어진다고 생각해보면 갑자기 사용자 단위에서
    * 행동이 안될 것이기 때문.
    * */
-  // if (wasControlled !== isControlled) {
-  // TODO: 지금은 필요 없음
-  // 다른 처리 해주긴 해야함. 하지만 현재 컴포넌트 체계상 이런 부분이 없을 것
-  // }
 
   /** 갱신하고 현재 상태로 다음 틱에서 wasControlled를 전달하기 위해, 값 덮어쓰기 */
-  // ref.current = isControlled
 
   /** original 값이 변경되었을때 감지해서 값을 변경시키고 virtual dom을 갱신한다. */
   if (isChangedOriginalValue) {
@@ -81,7 +76,7 @@ export function useControlledState<T>(
       if (!isControlled) setStateValue(_value)
       onChangeCaller(_value)
     },
-    [isControlled, value]
+    [isControlled, onChange]
   )
 
   // 제어하고 있으면 이전 값에 최신 값 덮어 씌움

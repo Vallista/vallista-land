@@ -1,7 +1,5 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
-
 import { CapacityProps } from './type'
+import { capacity, capacityProgress, capacityProgressColor } from './Capacity.css'
 
 /**
  * # Capacity
@@ -23,41 +21,15 @@ import { CapacityProps } from './type'
   <Capacity value={100} />
  * ```
  */
-export const Capacity = (props: CapacityProps) => {
-  const { value, limit = 100 } = props
+export const Capacity = (props: Partial<CapacityProps>) => {
+  const { width = 100, value = 0, color = 'primary', ...otherProps } = props
+
+  const colorVariant = color === 'low' ? 'success' : color === 'medium' ? 'warning' : 'error'
+  const validWidth = (width as 50 | 100 | 150 | 200 | 250 | 300) || 100
 
   return (
-    <Container>
-      <Progress percent={(value / limit) * 100} />
-    </Container>
+    <div className={capacity({ width: validWidth })} {...otherProps}>
+      <div className={`${capacityProgress} ${capacityProgressColor[colorVariant]}`} style={{ width: `${value}%` }} />
+    </div>
   )
 }
-
-const Container = styled.div`
-  width: 50px;
-  height: 10px;
-  border-radius: 4px;
-  ${({ theme }) => css`
-    background: ${theme.colors.PRIMARY.ACCENT_2};
-    overflow: hidden;
-  `}
-`
-
-const Progress = styled.div<{ percent: number }>`
-  height: 10px;
-  ${({ percent, theme }) => css`
-    width: ${percent < 15 ? 7 : (percent / 100) * 50}px;
-    ${percent <= 100 &&
-    css`
-      background-color: ${theme.colors.ERROR.DEFAULT};
-    `}
-    ${percent < 66 &&
-    css`
-      background-color: ${theme.colors.WARNING.DEFAULT};
-    `}
-    ${percent < 33 &&
-    css`
-      background-color: ${theme.colors.CYAN.LIGHT};
-    `}
-  `}
-`

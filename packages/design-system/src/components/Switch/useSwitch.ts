@@ -1,12 +1,13 @@
 import { NeedSwitchProp, ReturningUseSwitch, SwitchProps } from './type'
 
 const initProps: Pick<SwitchProps, 'size'> = {
-  size: 'middle'
+  size: 'medium'
 }
 
 export const useSwitch = <T extends NeedSwitchProp>(props: T): ReturningUseSwitch => {
   return {
     ...initProps,
-    ...props
+    ...props,
+    size: props.size || 'medium'
   }
 }

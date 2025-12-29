@@ -1,12 +1,12 @@
-import { Colors, AvailablePickedColor } from '../ThemeProvider/type'
 import { ProgressProps, ReturningUseProgress } from './type'
 
 export function useProgress<T extends Partial<ProgressProps>>(props: T): T & ReturningUseProgress {
   const {
     value = 0,
     max = 100,
-    colors = { 0: Colors.PRIMARY.FOREGROUND, 100: Colors.PRIMARY.FOREGROUND },
-    type = 'primary'
+    colors = { 0: 'var(--primary-foreground)', 100: 'var(--primary-foreground)' },
+    type = 'primary',
+    width
   } = props
 
   const selectKey = Number(
@@ -15,14 +15,15 @@ export function useProgress<T extends Partial<ProgressProps>>(props: T): T & Ret
     })
   )
 
-  const selectColor: AvailablePickedColor | undefined =
+  const selectColor: string | undefined =
     typeof selectKey === 'number' ? (Object.keys(colors).length > 2 ? colors[selectKey] : undefined) : undefined
 
   return {
     ...props,
-    type,
     value,
     max,
+    type,
+    width,
     nowColor: selectColor
   }
 }

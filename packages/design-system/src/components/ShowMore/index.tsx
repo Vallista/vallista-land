@@ -1,6 +1,5 @@
-import { css } from '@emotion/react'
-import styled from '@emotion/styled'
 import { MouseEvent } from 'react'
+import { showMoreButton, showMoreContainer, showMoreLine, showMoreSvg, showMoreSvgExpanded } from './ShowMore.css'
 
 interface ShowMoreProps {
   expanded: boolean
@@ -25,12 +24,12 @@ export const ShowMore = (props: ShowMoreProps) => {
   const { expanded, onClick } = props
 
   return (
-    <Container>
-      <Line />
-      <Button onClick={onClick}>
+    <div className={showMoreContainer}>
+      <div className={showMoreLine} />
+      <button className={showMoreButton} onClick={onClick}>
         {expanded ? 'SHOW LESS' : 'SHOW MORE'}
-        <Svg
-          expanded={expanded}
+        <svg
+          className={`${showMoreSvg} ${expanded ? showMoreSvgExpanded : ''}`}
           viewBox='0 0 24 24'
           width='18'
           height='18'
@@ -42,68 +41,9 @@ export const ShowMore = (props: ShowMoreProps) => {
           shapeRendering='geometricPrecision'
         >
           <path d='M6 9l6 6 6-6' />
-        </Svg>
-      </Button>
-      <Line />
-    </Container>
+        </svg>
+      </button>
+      <div className={showMoreLine} />
+    </div>
   )
 }
-
-const Container = styled.div`
-  display: flex;
-  width: calc(100% - 40px);
-  margin-top: 1.125rem;
-  margin-left: 1.125rem;
-  box-align: center;
-  align-items: center;
-  min-height: 30px;
-
-  &,
-  & * {
-    gap: 0 !important;
-  }
-`
-
-const Button = styled.button`
-  ${({ theme }) => css`
-    border: 0;
-    padding: 5px 15px;
-    border-radius: 100px;
-    box-shadow: ${theme.shadows.SMALL};
-    outline: 0;
-    cursor: pointer;
-    font-size: 12px;
-    text-transform: uppercase;
-    color ${theme.colors.PRIMARY.ACCENT_5};
-    height: 28px;
-    background-color: ${theme.colors.PRIMARY.BACKGROUND};
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    max-width: 100%;
-
-    &:hover {
-      color: ${theme.colors.PRIMARY.FOREGROUND};
-      box-shadow: ${theme.shadows.MEDIUM};
-    }
-  `}
-`
-
-const Line = styled.div`
-  ${({ theme }) => css`
-    -webkit-box-flex: 1;
-    flex-grow: 1;
-    height: 1px;
-    background-color: ${theme.colors.PRIMARY.ACCENT_2};
-  `}
-`
-
-const Svg = styled.svg<{ expanded: boolean }>`
-  margin-left: 6px;
-  transition: transform 0.2s ease-in-out;
-  ${({ expanded }) =>
-    expanded &&
-    css`
-      transform: rotate(180deg);
-    `}
-`
