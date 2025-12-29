@@ -21,18 +21,26 @@ async function deploy() {
 
     // Use GITHUB_TOKEN if available (for CI/CD), otherwise use default git config
     const token = process.env.GITHUB_TOKEN
-    // Deploy to vallista.github.io repository
-    const targetRepo = 'vallista/vallista.github.io'
+    // Deploy to vallista.github.io repository (note: case-sensitive)
+    const targetRepo = 'Vallista/vallista.github.io'
 
     if (token) {
       // In CI/CD environment, use --repo option with token
       // Deploy to vallista.github.io repository
       const repoUrl = `https://x-access-token:${token}@github.com/${targetRepo}.git`
+      console.log(chalk.gray(`Deploying to: ${targetRepo}`))
       // Quote the URL to handle special characters in token
-      execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
+      try {
+        execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
+      } catch (error) {
+        console.error(chalk.red('Deployment error details:'))
+        console.error(error)
+        throw error
+      }
     } else {
       // Local deployment - also deploy to vallista.github.io
       const repoUrl = `https://github.com/${targetRepo}.git`
+      console.log(chalk.gray(`Deploying to: ${targetRepo}`))
       execSync(`npx gh-pages -d dist --dotfiles --repo "${repoUrl}"`, { stdio: 'inherit' })
     }
 
