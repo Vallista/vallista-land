@@ -12,6 +12,7 @@ function isDarkMode(): boolean {
 // iOS 메타 태그 업데이트 함수
 // Safari는 메타 태그의 content 속성만 변경하는 것으로는 status bar를 업데이트하지 않으므로
 // 메타 태그를 완전히 제거하고 다시 추가하는 방식으로 변경
+// 또한 Safari가 변경을 감지하도록 강제로 이벤트를 트리거
 const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   if (typeof document === 'undefined') {
     console.warn('⚠️ updateIOSMetaTags: document is undefined')
@@ -44,6 +45,44 @@ const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   statusBarMeta.content = statusBarStyle
   document.head.appendChild(statusBarMeta)
   console.log('✅ apple-mobile-web-app-status-bar-style updated to:', statusBarStyle)
+
+  // Safari가 메타 태그 변경을 감지하도록 강제로 이벤트 트리거
+  // Safari는 스크롤, 터치, resize 등의 이벤트가 발생할 때 메타 태그를 다시 읽음
+  // 여러 방법을 시도하여 Safari가 변경을 감지하도록 함
+  const triggerSafariUpdate = () => {
+    // 방법 1: viewport를 강제로 업데이트 (가장 안전한 방법)
+    // body에 미세한 스타일 변경을 적용하여 리플로우 발생
+    const body = document.body
+    if (body) {
+      const originalOverflow = body.style.overflow
+      // 미세한 변경으로 리플로우 트리거
+      body.style.overflow = 'hidden'
+      requestAnimationFrame(() => {
+        body.style.overflow = originalOverflow
+      })
+    }
+
+    // 방법 2: window.resize 이벤트 트리거 (Safari가 메타 태그를 다시 읽도록)
+    // 실제 크기는 변경하지 않고 이벤트만 발생시킴
+    if (window.dispatchEvent) {
+      window.dispatchEvent(new Event('resize'))
+    }
+
+    // 방법 3: 스크롤이 맨 위에 있을 때만 미세한 스크롤 (사용자 경험에 영향 최소화)
+    const currentScrollY = window.scrollY
+    if (currentScrollY === 0) {
+      // 맨 위에 있을 때만 0.5px 미세 스크롤 (거의 감지 불가능)
+      window.scrollTo({ top: 0.5, behavior: 'auto' })
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      })
+    }
+  }
+
+  // 메타 태그 변경 후 다음 프레임에서 이벤트 트리거
+  requestAnimationFrame(() => {
+    triggerSafariUpdate()
+  })
 }
 
 export const useThemeSwitch = () => {
