@@ -52,26 +52,28 @@ const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   document.head.appendChild(statusBarMeta)
   console.log('✅ apple-mobile-web-app-status-bar-style updated to:', statusBarStyle)
 
-  // 방법 3: Stack Overflow 답변에서 제시한 트릭
-  // html 요소를 숨겼다가 다시 보여서 강제 리플로우 발생
-  const html = document.documentElement
-  const originalDisplay = html.style.display
+  // 방법 3: 강제 리플로우 발생 (화면이 사라지지 않도록 안전한 방법)
+  // offsetHeight를 읽어서 강제 리플로우 발생
+  const body = document.body
+  if (body) {
+    // 강제 리플로우 트리거 (화면이 사라지지 않음)
+    void body.offsetHeight
 
-  // 숨기기
-  html.style.display = 'none'
+    // 추가로 미세한 스타일 변경 후 복원
+    const originalTransform = body.style.transform
+    body.style.transform = 'translateZ(0)'
 
-  // 다음 프레임에서 다시 보이기 (강제 리플로우)
-  requestAnimationFrame(() => {
-    html.style.display = originalDisplay || ''
-
-    // 추가로 한 번 더 시도 (Safari가 변경을 감지하도록)
     requestAnimationFrame(() => {
+      body.style.transform = originalTransform
+
       // theme-color를 다시 한 번 업데이트 (확실하게 하기 위해)
-      if (themeColorMeta) {
-        themeColorMeta.setAttribute('content', themeColor)
-      }
+      requestAnimationFrame(() => {
+        if (themeColorMeta) {
+          themeColorMeta.setAttribute('content', themeColor)
+        }
+      })
     })
-  })
+  }
 }
 
 export const useThemeSwitch = () => {
