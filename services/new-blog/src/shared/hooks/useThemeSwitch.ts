@@ -10,9 +10,9 @@ function isDarkMode(): boolean {
 }
 
 // iOS 메타 태그 업데이트 함수
-// Safari는 메타 태그의 content 속성만 변경하는 것으로는 status bar를 업데이트하지 않으므로
-// 메타 태그를 완전히 제거하고 다시 추가하는 방식으로 변경
-// 또한 Safari가 변경을 감지하도록 강제로 이벤트를 트리거
+// Stack Overflow 참고: https://stackoverflow.com/questions/74197660/how-to-dynamically-change-background-color-of-ios-statusbar-within-webapp
+// theme-color는 iOS 15+에서 동적 업데이트가 가능하므로 setAttribute로 변경 시도
+// 만약 작동하지 않으면 메타 태그를 제거하고 재생성
 const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   if (typeof document === 'undefined') {
     console.warn('⚠️ updateIOSMetaTags: document is undefined')
@@ -24,18 +24,24 @@ const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   const themeColor = theme === 'DARK' ? '#000000' : '#ffffff'
   const statusBarStyle = theme === 'DARK' ? 'black-translucent' : 'default'
 
-  // theme-color 메타 태그: 기존 태그 제거 후 새로 생성
-  const existingThemeColorMeta = document.querySelector('meta[name="theme-color"]')
-  if (existingThemeColorMeta) {
-    existingThemeColorMeta.remove()
+  // 방법 1: theme-color 메타 태그 업데이트 (iOS 15+ 동적 업데이트 지원)
+  // Stack Overflow 답변에 따르면 setAttribute만으로도 작동할 수 있음
+  let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
+  if (themeColorMeta) {
+    // 기존 메타 태그가 있으면 content만 변경 시도
+    themeColorMeta.setAttribute('content', themeColor)
+    console.log('✅ theme-color updated via setAttribute to:', themeColor)
+  } else {
+    // 메타 태그가 없으면 새로 생성
+    themeColorMeta = document.createElement('meta')
+    themeColorMeta.name = 'theme-color'
+    themeColorMeta.content = themeColor
+    document.head.appendChild(themeColorMeta)
+    console.log('✅ theme-color created and added:', themeColor)
   }
-  const themeColorMeta = document.createElement('meta')
-  themeColorMeta.name = 'theme-color'
-  themeColorMeta.content = themeColor
-  document.head.appendChild(themeColorMeta)
-  console.log('✅ theme-color updated to:', themeColor)
 
-  // apple-mobile-web-app-status-bar-style: 기존 태그 제거 후 새로 생성
+  // 방법 2: apple-mobile-web-app-status-bar-style 업데이트
+  // 이 메타 태그는 동적 업데이트를 지원하지 않으므로 제거 후 재생성
   const existingStatusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')
   if (existingStatusBarMeta) {
     existingStatusBarMeta.remove()
@@ -46,83 +52,24 @@ const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   document.head.appendChild(statusBarMeta)
   console.log('✅ apple-mobile-web-app-status-bar-style updated to:', statusBarStyle)
 
-  // Safari가 메타 태그 변경을 감지하도록 강제로 이벤트 트리거
-  // 여러 강력한 방법을 조합하여 Safari가 변경을 감지하도록 함
-  const triggerSafariUpdate = () => {
-    const body = document.body
-    const html = document.documentElement
-    const head = document.head
+  // 방법 3: Stack Overflow 답변에서 제시한 트릭
+  // html 요소를 숨겼다가 다시 보여서 강제 리플로우 발생
+  const html = document.documentElement
+  const originalDisplay = html.style.display
 
-    // 방법 1: viewport 메타 태그를 임시로 조작 (가장 강력한 방법)
-    const viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement
-    if (viewportMeta) {
-      const originalContent = viewportMeta.content
-      // viewport를 임시로 변경하여 강제 리플로우
-      viewportMeta.content = originalContent + ', maximum-scale=1.01'
-      requestAnimationFrame(() => {
-        viewportMeta.content = originalContent
-      })
-    }
+  // 숨기기
+  html.style.display = 'none'
 
-    // 방법 2: body와 html에 강력한 리플로우 트리거
-    if (body && html) {
-      // 여러 스타일을 동시에 변경하여 강제 리플로우
-      const originalBodyDisplay = body.style.display
-      const originalHtmlTransform = html.style.transform
-
-      body.style.display = 'none'
-      html.style.transform = 'translateZ(0)'
-
-      requestAnimationFrame(() => {
-        body.style.display = originalBodyDisplay
-        html.style.transform = originalHtmlTransform
-      })
-    }
-
-    // 방법 3: head 요소 자체를 조작 (메타 태그가 head에 있으므로)
-    if (head) {
-      const originalHeadTransform = head.style.transform
-      head.style.transform = 'translateZ(0)'
-      requestAnimationFrame(() => {
-        head.style.transform = originalHeadTransform
-      })
-    }
-
-    // 방법 4: 여러 이벤트를 동시에 트리거
-    if (window.dispatchEvent) {
-      window.dispatchEvent(new Event('resize'))
-      window.dispatchEvent(new Event('orientationchange'))
-      // visibilitychange도 시뮬레이션
-      document.dispatchEvent(new Event('visibilitychange'))
-    }
-
-    // 방법 5: 스크롤 조작 (여러 프레임에 걸쳐)
-    const currentScrollY = window.scrollY
-    if (currentScrollY === 0) {
-      // 더 큰 스크롤 거리로 시도
-      window.scrollTo({ top: 1, behavior: 'auto' })
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: 0, behavior: 'auto' })
-        // 한 번 더 시도
-        requestAnimationFrame(() => {
-          window.scrollTo({ top: 0.5, behavior: 'auto' })
-          requestAnimationFrame(() => {
-            window.scrollTo({ top: 0, behavior: 'auto' })
-          })
-        })
-      })
-    }
-  }
-
-  // 메타 태그 변경 후 여러 프레임에 걸쳐 시도
-  // Safari가 변경을 감지할 때까지 여러 번 시도
+  // 다음 프레임에서 다시 보이기 (강제 리플로우)
   requestAnimationFrame(() => {
-    triggerSafariUpdate()
-    // 추가 시도 (지연 후)
+    html.style.display = originalDisplay || ''
+
+    // 추가로 한 번 더 시도 (Safari가 변경을 감지하도록)
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        triggerSafariUpdate()
-      })
+      // theme-color를 다시 한 번 업데이트 (확실하게 하기 위해)
+      if (themeColorMeta) {
+        themeColorMeta.setAttribute('content', themeColor)
+      }
     })
   })
 }
