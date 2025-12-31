@@ -47,41 +47,83 @@ const updateIOSMetaTags = (theme: 'LIGHT' | 'DARK') => {
   console.log('✅ apple-mobile-web-app-status-bar-style updated to:', statusBarStyle)
 
   // Safari가 메타 태그 변경을 감지하도록 강제로 이벤트 트리거
-  // Safari는 스크롤, 터치, resize 등의 이벤트가 발생할 때 메타 태그를 다시 읽음
-  // 여러 방법을 시도하여 Safari가 변경을 감지하도록 함
+  // 여러 강력한 방법을 조합하여 Safari가 변경을 감지하도록 함
   const triggerSafariUpdate = () => {
-    // 방법 1: viewport를 강제로 업데이트 (가장 안전한 방법)
-    // body에 미세한 스타일 변경을 적용하여 리플로우 발생
     const body = document.body
-    if (body) {
-      const originalOverflow = body.style.overflow
-      // 미세한 변경으로 리플로우 트리거
-      body.style.overflow = 'hidden'
+    const html = document.documentElement
+    const head = document.head
+
+    // 방법 1: viewport 메타 태그를 임시로 조작 (가장 강력한 방법)
+    const viewportMeta = document.querySelector('meta[name="viewport"]') as HTMLMetaElement
+    if (viewportMeta) {
+      const originalContent = viewportMeta.content
+      // viewport를 임시로 변경하여 강제 리플로우
+      viewportMeta.content = originalContent + ', maximum-scale=1.01'
       requestAnimationFrame(() => {
-        body.style.overflow = originalOverflow
+        viewportMeta.content = originalContent
       })
     }
 
-    // 방법 2: window.resize 이벤트 트리거 (Safari가 메타 태그를 다시 읽도록)
-    // 실제 크기는 변경하지 않고 이벤트만 발생시킴
-    if (window.dispatchEvent) {
-      window.dispatchEvent(new Event('resize'))
+    // 방법 2: body와 html에 강력한 리플로우 트리거
+    if (body && html) {
+      // 여러 스타일을 동시에 변경하여 강제 리플로우
+      const originalBodyDisplay = body.style.display
+      const originalHtmlTransform = html.style.transform
+
+      body.style.display = 'none'
+      html.style.transform = 'translateZ(0)'
+
+      requestAnimationFrame(() => {
+        body.style.display = originalBodyDisplay
+        html.style.transform = originalHtmlTransform
+      })
     }
 
-    // 방법 3: 스크롤이 맨 위에 있을 때만 미세한 스크롤 (사용자 경험에 영향 최소화)
+    // 방법 3: head 요소 자체를 조작 (메타 태그가 head에 있으므로)
+    if (head) {
+      const originalHeadTransform = head.style.transform
+      head.style.transform = 'translateZ(0)'
+      requestAnimationFrame(() => {
+        head.style.transform = originalHeadTransform
+      })
+    }
+
+    // 방법 4: 여러 이벤트를 동시에 트리거
+    if (window.dispatchEvent) {
+      window.dispatchEvent(new Event('resize'))
+      window.dispatchEvent(new Event('orientationchange'))
+      // visibilitychange도 시뮬레이션
+      document.dispatchEvent(new Event('visibilitychange'))
+    }
+
+    // 방법 5: 스크롤 조작 (여러 프레임에 걸쳐)
     const currentScrollY = window.scrollY
     if (currentScrollY === 0) {
-      // 맨 위에 있을 때만 0.5px 미세 스크롤 (거의 감지 불가능)
-      window.scrollTo({ top: 0.5, behavior: 'auto' })
+      // 더 큰 스크롤 거리로 시도
+      window.scrollTo({ top: 1, behavior: 'auto' })
       requestAnimationFrame(() => {
         window.scrollTo({ top: 0, behavior: 'auto' })
+        // 한 번 더 시도
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0.5, behavior: 'auto' })
+          requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, behavior: 'auto' })
+          })
+        })
       })
     }
   }
 
-  // 메타 태그 변경 후 다음 프레임에서 이벤트 트리거
+  // 메타 태그 변경 후 여러 프레임에 걸쳐 시도
+  // Safari가 변경을 감지할 때까지 여러 번 시도
   requestAnimationFrame(() => {
     triggerSafariUpdate()
+    // 추가 시도 (지연 후)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        triggerSafariUpdate()
+      })
+    })
   })
 }
 
