@@ -22,6 +22,10 @@ const desktopContainerStyles = {
 
 export const container = style({
   ...desktopContainerStyles,
+  // iOS Safari에서 fixed 요소가 스크롤 시 함께 움직이는 문제 해결
+  transform: 'translateZ(0)',
+  WebkitTransform: 'translateZ(0)',
+  willChange: 'transform',
   ...responsive({
     mobile: {
       position: 'fixed' as const,

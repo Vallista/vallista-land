@@ -8,7 +8,6 @@ import { SeriesWidget } from '@widgets/series'
 import * as styles from './ArticleHeader.css'
 import { useAutoFitText } from './useAutoFitText'
 
-
 interface ArticleHeaderProps {
   article: Article
   series?: {
@@ -36,20 +35,20 @@ export function ArticleHeader({ article, series }: ArticleHeaderProps) {
   const formattedDate = formatDate(date)
 
   return (
-    <div className={styles.wrap} id='article-header'>
+    <div className={styles.wrap} id="article-header">
       <div className={styles.titleIcon}>
-        <Icon.Book size={36} color='currentColor' />
+        <Icon.Book size={36} color="currentColor" />
       </div>
 
       {!isMobile ? (
         <div className={styles.titleWrap}>
-          <Text size={48} weight={700} color='primary' lineHeight={56}>
+          <Text size={48} weight={700} color="primary" lineHeight={56}>
             {title}
           </Text>
         </div>
       ) : (
         <div ref={titleWrapRef} className={styles.titleWrap}>
-          <Text size={48} weight={700} color='primary' lineHeight={56}>
+          <Text size={48} weight={700} color="primary" lineHeight={56}>
             {title}
           </Text>
         </div>
@@ -62,7 +61,7 @@ export function ArticleHeader({ article, series }: ArticleHeaderProps) {
       {tags && tags.length > 0 && (
         <div className={styles.tagWrap}>
           {tags.map((tag, index) => (
-            <Badge key={index} type='secondary' variant='outline' size='normal'>
+            <Badge key={index} type="secondary" variant="outline" size="normal">
               {tag}
             </Badge>
           ))}

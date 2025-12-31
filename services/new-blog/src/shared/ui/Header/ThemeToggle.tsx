@@ -11,15 +11,15 @@ export const ThemeToggle = () => {
 
   return (
     <div className={Styled.themeToggleContainer}>
-      <HeaderDarkmodeSun aria-hidden='true' />
+      <HeaderDarkmodeSun aria-hidden="true" />
       <Toggle
         toggle={mode === 'DARK'}
-        size='medium'
+        size="medium"
         onChange={handleThemeSwitch}
-        color='pink'
+        color="pink"
         aria-label={`Switch to ${mode === 'DARK' ? 'light' : 'dark'} mode`}
       />
-      <HeaderDarkmodeMoon aria-hidden='true' />
+      <HeaderDarkmodeMoon aria-hidden="true" />
     </div>
   )
 }

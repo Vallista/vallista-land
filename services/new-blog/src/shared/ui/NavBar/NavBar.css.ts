@@ -42,6 +42,10 @@ export const container = style({
   // 테마 전환 시 색상 변경을 빠르게 하기 위해 명시적 transition 설정
   transition: 'background-color 0.08s ease, border-color 0.08s ease, color 0.08s ease',
   zIndex: 11,
+  // iOS Safari에서 fixed 요소가 스크롤 시 함께 움직이는 문제 해결
+  transform: 'translateZ(0)',
+  WebkitTransform: 'translateZ(0)',
+  willChange: 'transform',
   ...commonContainerStyles,
   '@media': {
     ...responsiveStyles['@media'],
