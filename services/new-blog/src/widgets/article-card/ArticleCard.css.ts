@@ -1,5 +1,5 @@
-import { style } from '@vanilla-extract/css'
 import { vars } from '@vallista/design-system'
+import { style } from '@vanilla-extract/css'
 
 export const card = style({
   display: 'block',

@@ -1,6 +1,8 @@
-import { useNavigate } from 'react-router-dom'
-import { Series } from '@shared/types'
 import { Text, Container, Collapse, CollapseGroup } from '@vallista/design-system'
+import { useNavigate } from 'react-router-dom'
+
+import { Series } from '@shared/types'
+
 import * as styles from './Series.css'
 
 interface SeriesWidgetProps {

@@ -1,5 +1,6 @@
-import { ArticleMeta, SEOData, Article } from '@shared/types'
 import { SITE_CONFIG, SEO_CONFIG } from '@shared/config'
+import { CONTENT_CONSTANTS } from '@shared/constants/content'
+import { ArticleMeta, SEOData, Article } from '@shared/types'
 
 export function formatDate(date: string | Date): string {
   const d = new Date(date)
@@ -11,9 +12,8 @@ export function formatDate(date: string | Date): string {
 }
 
 export function formatReadingTime(content: string): number {
-  const wordsPerMinute = 200
   const words = content.trim().split(/\s+/).length
-  return Math.ceil(words / wordsPerMinute)
+  return Math.ceil(words / CONTENT_CONSTANTS.WORDS_PER_MINUTE)
 }
 
 export function generateSlug(title: string): string {
@@ -29,7 +29,10 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength).trim() + '...'
 }
 
-export function generateDescription(content: string, maxLength: number = 160): string {
+export function generateDescription(
+  content: string,
+  maxLength: number = CONTENT_CONSTANTS.DESCRIPTION_MAX_LENGTH
+): string {
   const plainText = content
     .replace(/^---[\s\S]*?---/, '') // Remove frontmatter
     .replace(/!\[[^\]]*\]\([^)]*\)/g, '') // Remove images

@@ -1,7 +1,7 @@
-import { PageWrapperProps } from '@shared/types'
 import { usePageScroll, useSEO } from '@shared/hooks'
-import { SEOHead } from '@shared/ui/SEOHead'
+import { PageWrapperProps } from '@shared/types'
 import { PageContent } from '@shared/ui/PageContent'
+import { SEOHead } from '@shared/ui/SEOHead'
 
 /**
  * 페이지 래퍼 컴포넌트

@@ -1,9 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+
 import { App } from '@app/App'
-// CSS import - workspace:* 호환성을 위해 여러 경로 시도
+// CSS import
 import '@vallista/design-system/global.css'
-import '@vallista/design-system/design-system.css'
 // 전역 스타일 (root font-size 등)
 import '@shared/styles/global.css'
 

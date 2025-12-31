@@ -1,10 +1,11 @@
-import ArticleIcon from '@/assets/icons/article.svg?react'
-import NoteIcon from '@/assets/icons/note.svg?react'
-import ProjectIcon from '@/assets/icons/folder.svg?react'
-import { NavButton } from './NavButton'
+import ArticleIcon from '@shared/assets/icons/article.svg?react'
+import ProjectIcon from '@shared/assets/icons/folder.svg?react'
+import NoteIcon from '@shared/assets/icons/note.svg?react'
 import { useNav } from '@shared/context/NavContext'
+import { useSidebar } from '@shared/context/SidebarContext'
+
 import * as Styled from './NavBar.css'
-import { useSidebar } from '@/shared/context/SidebarContext'
+import { NavButton } from './NavButton'
 
 const navItems = [
   {

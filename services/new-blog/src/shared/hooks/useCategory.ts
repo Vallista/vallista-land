@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+
 import { ArticleMeta } from '@shared/types'
 
 export type CategoryType = 'articles' | 'notes' | 'projects'

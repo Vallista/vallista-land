@@ -1,5 +1,6 @@
 import { Text } from '@vallista/design-system'
 import { Link } from 'react-router-dom'
+
 import { PageWrapper } from '@shared/ui/PageWrapper'
 
 interface ErrorPageProps {

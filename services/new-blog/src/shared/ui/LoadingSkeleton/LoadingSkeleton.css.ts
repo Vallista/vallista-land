@@ -1,5 +1,5 @@
-import { style, keyframes } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
+import { style, keyframes } from '@vanilla-extract/css'
 
 // 스켈레톤 애니메이션 스타일
 const skeletonStyle = {
@@ -34,7 +34,7 @@ export const articleHeaderSkeleton = {
       },
       'screen and (max-width: 1024px)': {
         width: '100%',
-        padding: '120px 24px 60px'
+        padding: '40px 24px 60px'
       }
     }
   }),

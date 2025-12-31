@@ -1,4 +1,5 @@
 import { Text } from '@vallista/design-system'
+
 import * as styles from './TagCloud.css'
 
 interface TagCloudProps {

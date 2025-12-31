@@ -1,9 +1,9 @@
-import ReactMarkdown from 'react-markdown'
-
-import remarkGfm from 'remark-gfm'
 import { Snippet } from '@vallista/design-system'
+import ReactMarkdown, {type  Components } from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 import * as styles from './MarkdownRenderer.css'
+
 
 interface MarkdownRendererProps {
   content: string
@@ -12,13 +12,9 @@ interface MarkdownRendererProps {
 }
 
 export function MarkdownRenderer({ content, className, articleSlug }: MarkdownRendererProps) {
-  return (
-    <div className={`${styles.container} ${className || ''}`}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          // 코드 블록
-          code({ node: _node, inline, className, children, ...props }: any) {
+  const components: Partial<Components> = {
+    // 코드 블록
+    code({ node: _node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '')
             const codeContent = String(children).replace(/\n$/, '')
 
@@ -95,10 +91,13 @@ export function MarkdownRenderer({ content, className, articleSlug }: MarkdownRe
           // 구분선
           hr: () => <hr className={styles.hr} />,
 
-          // 단락
-          p: ({ children }) => <p className={styles.p}>{children}</p>
-        }}
-      >
+    // 단락
+    p: ({ children }) => <p className={styles.p}>{children}</p>
+  }
+
+  return (
+    <div className={`${styles.container} ${className || ''}`}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {content}
       </ReactMarkdown>
     </div>

@@ -1,53 +1,79 @@
-import { style } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
-import { DEFINE_HEADER_HEIGHT, DEFINE_SAFE_SCROLL_WIDTH, DEFINE_SIDEBAR_WIDTH } from '../../constants/layout'
+import { style } from '@vanilla-extract/css'
 
-export const container = style({
-  position: 'fixed',
+import { DEFINE_HEADER_HEIGHT, DEFINE_SAFE_SCROLL_WIDTH, DEFINE_SIDEBAR_WIDTH } from '../../constants/layout'
+import { responsive } from '../../styles/breakpoints'
+
+// ============================================================================
+// Header Container
+// ============================================================================
+const desktopContainerStyles = {
+  position: 'fixed' as const,
   top: 0,
   left: 0,
   width: `calc(100vw - ${DEFINE_SAFE_SCROLL_WIDTH}px)`,
   height: `${DEFINE_HEADER_HEIGHT}px`,
-  boxSizing: 'border-box',
+  boxSizing: 'border-box' as const,
   zIndex: 10,
   background: 'hsla(47, 33%, 89%, 0)',
   backdropFilter: 'blur(10px)',
-  borderBottom: `1px solid ${COLOR_TOKENS.PRIMARY.GRAY_100}`,
-  '@media': {
-    'screen and (max-width: 1024px)': {
+  borderBottom: `1px solid ${COLOR_TOKENS.PRIMARY.GRAY_100}`
+}
+
+export const container = style({
+  ...desktopContainerStyles,
+  ...responsive({
+    mobile: {
+      position: 'fixed' as const,
       width: '100vw !important',
       height: '80px',
-      padding: '0 10px'
+      padding: '0 10px',
+      top: 0,
+      left: 0
     }
-  }
+  })
 })
 
-export const wrapper = style({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
+// ============================================================================
+// Header Wrapper
+// ============================================================================
+const desktopWrapperStyles = {
+  display: 'flex' as const,
+  justifyContent: 'space-between' as const,
+  alignItems: 'center' as const,
   height: '100%',
-  padding: '0 16px 0 40px',
-  '@media': {
-    'screen and (max-width: 1024px)': {
+  padding: '0 16px 0 40px'
+}
+
+export const wrapper = style({
+  ...desktopWrapperStyles,
+  ...responsive({
+    mobile: {
       alignItems: 'flex-start',
       padding: '10px 12px'
     }
-  }
+  })
 })
 
-export const wrap = style({
-  display: 'flex',
-  alignItems: 'center',
+// ============================================================================
+// Header Wrap (Logo Container)
+// ============================================================================
+const desktopWrapStyles = {
+  display: 'flex' as const,
+  alignItems: 'center' as const,
   padding: '0 16px',
-  cursor: 'pointer',
+  cursor: 'pointer' as const,
   border: 'none',
-  background: 'transparent',
-  '@media': {
-    'screen and (max-width: 1024px)': {
+  background: 'transparent'
+}
+
+export const wrap = style({
+  ...desktopWrapStyles,
+  ...responsive({
+    mobile: {
       padding: 0
     }
-  }
+  })
 })
 
 export const sidebarToggle = style({
@@ -99,19 +125,25 @@ export const left = style({
   alignItems: 'center'
 })
 
+// ============================================================================
+// Header Left Section - Last Child (Desktop Only)
+// ============================================================================
 export const leftLastChild = style({
-  '@media': {
-    'screen and (max-width: 1024px)': {
+  ...responsive({
+    mobile: {
       display: 'none'
     }
-  }
+  })
 })
 
+// ============================================================================
+// Header Left Section - First (Sidebar Width)
+// ============================================================================
 export const leftFirst = style({
   width: `${DEFINE_SIDEBAR_WIDTH}px`,
-  '@media': {
-    'screen and (max-width: 1024px)': {
-      // display: 'none'
+  ...responsive({
+    mobile: {
+      // 모바일에서는 사이드바가 오버레이로 표시되므로 width 유지
     }
-  }
+  })
 })

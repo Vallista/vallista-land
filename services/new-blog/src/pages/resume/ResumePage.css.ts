@@ -1,6 +1,7 @@
-import { style, globalStyle } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
-import { DEFINE_HEADER_HEIGHT } from '@/shared/constants/layout'
+import { style, globalStyle } from '@vanilla-extract/css'
+
+import { DEFINE_HEADER_HEIGHT } from '@shared/constants/layout'
 
 export const container = style({
   boxSizing: 'border-box',

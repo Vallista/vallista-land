@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import { useArticlePage } from '@shared/hooks'
-import { PageWrapper } from '@shared/ui/PageWrapper'
-import { MarkdownRenderer } from '@shared/ui/MarkdownRenderer'
+
 import { Comments } from '@features/comments'
-import { ArticleHeader } from '@widgets/article-header'
-import { ArticleHeaderSkeleton } from '@shared/ui/LoadingSkeleton'
+import { useArticlePage } from '@shared/hooks'
 import { ErrorPage } from '@shared/ui/ErrorPage'
+import { ArticleHeaderSkeleton } from '@shared/ui/LoadingSkeleton'
+import { MarkdownRenderer } from '@shared/ui/MarkdownRenderer'
+import { PageWrapper } from '@shared/ui/PageWrapper'
 import { RelatedArticles } from '@shared/ui/RelatedArticles'
+import { ArticleHeader } from '@widgets/article-header'
+
 import * as styles from './ArticlePage.css'
 
 export function ArticlePage() {

@@ -1,5 +1,5 @@
-import { style, styleVariants } from '@vanilla-extract/css'
 import { vars } from '@vallista/design-system'
+import { style, styleVariants } from '@vanilla-extract/css'
 
 export const heading = style({
   margin: 0,

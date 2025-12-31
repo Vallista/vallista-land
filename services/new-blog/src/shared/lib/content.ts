@@ -1,100 +1,68 @@
-import { Article, ArticleMeta, Series } from '@shared/types'
+import { CONTENT_CONSTANTS } from '@shared/constants/content'
+import { Article, ArticleMeta, Series, ContentIndex } from '@shared/types'
 
-// 컨텐츠 타입 정의
-export interface ContentFile {
-  path: string
-  content: string
-  frontmatter: Record<string, unknown>
+import { logger } from './logger'
+
+/**
+ * 이미지 경로를 정규화하는 공통 로직
+ * 다양한 형식의 이미지 경로를 표준 형식으로 변환합니다.
+ */
+function normalizeImagePath(imagePath: string, slug: string): string {
+  // 이미 절대 URL인 경우 그대로 반환
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath
+  }
+
+  // 이미 /contents/articles/로 시작하는 경우 그대로 반환
+  if (imagePath.startsWith('/contents/articles/')) {
+    return imagePath
+  }
+
+  // 상대 경로 처리
+  if (imagePath.startsWith('./')) {
+    // ./assets/image.png -> /contents/articles/slug/assets/image.png
+    return `/contents/articles/${slug}${imagePath.slice(1)}`
+  }
+
+  if (imagePath.startsWith('assets/')) {
+    // assets/image.png -> /contents/articles/slug/assets/image.png
+    return `/contents/articles/${slug}/${imagePath}`
+  }
+
+  if (imagePath.startsWith('contents/articles/')) {
+    // contents/articles/slug/assets/image.png -> /contents/articles/slug/assets/image.png
+    return `/${imagePath}`
+  }
+
+  if (imagePath.startsWith('articles/')) {
+    // articles/slug/assets/image.png -> /contents/articles/slug/assets/image.png
+    const pathWithoutArticles = imagePath.replace(/^articles\//, '')
+    return `/contents/articles/${pathWithoutArticles}`
+  }
+
+  // 기타 상대 경로는 slug와 결합
+  return `/contents/articles/${slug}/${imagePath}`
 }
 
-export interface ContentIndex {
-  articles: ArticleMeta[]
-  notes: ArticleMeta[]
-  projects: ArticleMeta[]
-  tags: string[]
-  categories: string[]
-}
-
-export type ContentType = 'articles' | 'notes' | 'projects'
-
-// 이미지 경로 처리 함수
+/**
+ * 이미지 경로 처리 함수
+ * 이미지 경로를 정규화하여 반환합니다.
+ */
 export function processImagePath(imagePath: string | undefined, slug: string): string | undefined {
   if (!imagePath) return undefined
-
-  // 이미 절대 URL인 경우 그대로 반환
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath
-  }
-
-  // 이미 /contents/articles/로 시작하는 경우 그대로 반환
-  if (imagePath.startsWith('/contents/articles/')) {
-    return imagePath
-  }
-
-  // 상대 경로 처리
-  if (imagePath.startsWith('./')) {
-    // ./assets/image.png -> /contents/articles/slug/assets/image.png
-    return `/contents/articles/${slug}${imagePath.slice(1)}`
-  }
-
-  if (imagePath.startsWith('assets/')) {
-    // assets/image.png -> /contents/articles/slug/assets/image.png
-    return `/contents/articles/${slug}/${imagePath}`
-  }
-
-  if (imagePath.startsWith('contents/articles/')) {
-    // contents/articles/slug/assets/image.png -> /contents/articles/slug/assets/image.png
-    return `/${imagePath}`
-  }
-
-  if (imagePath.startsWith('articles/')) {
-    // articles/slug/assets/image.png -> /contents/articles/slug/assets/image.png
-    const pathWithoutArticles = imagePath.replace(/^articles\//, '')
-    return `/contents/articles/${pathWithoutArticles}`
-  }
-
-  // 기타 상대 경로는 slug와 결합
-  return `/contents/articles/${slug}/${imagePath}`
+  return normalizeImagePath(imagePath, slug)
 }
 
-// 이미지 경로 최적화 함수 (1.png, splash.png 순서로 찾기)
+/**
+ * 이미지 경로 최적화 함수
+ * 현재는 processImagePath와 동일한 로직을 사용합니다.
+ * 향후 최적화 로직이 필요할 경우 이 함수에 추가할 수 있습니다.
+ */
 export function optimizeImagePath(imagePath: string | undefined, slug: string): string | undefined {
   if (!imagePath) return undefined
-
-  // 이미 절대 URL인 경우 그대로 반환
-  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath
-  }
-
-  // 이미 /contents/articles/로 시작하는 경우 그대로 반환
-  if (imagePath.startsWith('/contents/articles/')) {
-    return imagePath
-  }
-
-  // 상대 경로 처리
-  if (imagePath.startsWith('./')) {
-    // ./assets/image.png -> /contents/articles/slug/assets/image.png
-    return `/contents/articles/${slug}${imagePath.slice(1)}`
-  }
-
-  if (imagePath.startsWith('assets/')) {
-    // assets/image.png -> /contents/articles/slug/assets/image.png
-    return `/contents/articles/${slug}/${imagePath}`
-  }
-
-  if (imagePath.startsWith('contents/articles/')) {
-    // contents/articles/slug/assets/image.png -> /contents/articles/slug/assets/image.png
-    return `/${imagePath}`
-  }
-
-  if (imagePath.startsWith('articles/')) {
-    // articles/slug/assets/image.png -> /contents/articles/slug/assets/image.png
-    const pathWithoutArticles = imagePath.replace(/^articles\//, '')
-    return `/contents/articles/${pathWithoutArticles}`
-  }
-
-  // 기타 상대 경로는 slug와 결합
-  return `/contents/articles/${slug}/${imagePath}`
+  // 현재는 processImagePath와 동일한 로직
+  // 향후 이미지 최적화 로직(예: WebP 변환, 리사이징 등)이 필요할 경우 여기에 추가
+  return normalizeImagePath(imagePath, slug)
 }
 
 // 컨텐츠 인덱스 JSON 파일을 가져오기
@@ -157,7 +125,7 @@ export async function loadAllContent(): Promise<ContentIndex> {
     }
 
     const data = await response.json()
-    console.log('Content index loaded:', data) // 디버깅용
+    logger.debug('Content index loaded:', data)
 
     // 이미지 경로 처리
     const processedData = {
@@ -181,7 +149,7 @@ export async function loadAllContent(): Promise<ContentIndex> {
 
     return processedData
   } catch (error) {
-    console.error('Error loading content index:', error)
+    logger.error('Error loading content index:', error)
 
     // 에러 시 빈 데이터 반환
     return {
@@ -222,7 +190,7 @@ export async function loadArticle(slug: string): Promise<Article | null> {
       series: data.series
     }
   } catch (error) {
-    console.error('Error loading article:', error)
+    logger.error('Error loading article:', error)
     return null
   }
 }
@@ -234,7 +202,10 @@ export async function getArticlesByTag(tag: string): Promise<ArticleMeta[]> {
 }
 
 // 관련 글 찾기
-export async function getRelatedArticles(slug: string, limit: number = 3): Promise<ArticleMeta[]> {
+export async function getRelatedArticles(
+  slug: string,
+  limit: number = CONTENT_CONSTANTS.RELATED_ARTICLES_LIMIT
+): Promise<ArticleMeta[]> {
   const { articles } = await loadAllContent()
   const currentArticle = articles.find((article) => article.slug === slug)
 
@@ -258,13 +229,24 @@ export async function getSeriesInfo(seriesName: string): Promise<Series | null> 
   const { articles } = await loadAllContent()
 
   // 시리즈에 속한 글들 찾기
+  // ArticleMeta에 series 속성이 있을 수 있으므로 타입 가드 사용
+  interface ArticleWithSeries extends ArticleMeta {
+    series?: {
+      name: string
+      order: number
+    }
+  }
+
   const seriesPosts = articles
-    .filter((article) => (article as any).series?.name === seriesName)
+    .filter((article): article is ArticleWithSeries => {
+      const articleWithSeries = article as ArticleWithSeries
+      return articleWithSeries.series?.name === seriesName
+    })
     .map((article) => ({
       title: article.title,
       slug: article.slug,
       url: `/articles/${article.slug}`,
-      order: (article as any).series?.order || 0
+      order: article.series?.order || 0
     }))
     .sort((a, b) => a.order - b.order)
 

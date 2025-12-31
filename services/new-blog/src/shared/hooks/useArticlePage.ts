@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
-import { loadArticle, getRelatedArticles, getSeriesInfo } from '@shared/lib/content'
+
 import { usePageQuery, useSEO, usePageScroll } from '@shared/hooks'
+import { loadArticle, getRelatedArticles, getSeriesInfo } from '@shared/lib/content'
 import { Article, Series, ArticleMeta } from '@shared/types'
 
 interface UseArticlePageOptions {

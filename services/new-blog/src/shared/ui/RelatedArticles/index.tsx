@@ -1,7 +1,8 @@
 import { Spacer } from '@vallista/design-system'
+
+import { ArticleMeta } from '@shared/types'
 import { Heading } from '@shared/ui/Heading'
 import { ArticleCard } from '@widgets/article-card'
-import { ArticleMeta } from '@shared/types'
 
 interface RelatedArticlesProps {
   articles: ArticleMeta[]

@@ -128,3 +128,32 @@ export interface SEOHeadProps {
   seoData: SEOData
   additionalMeta?: React.ReactNode
 }
+
+// ============================================================================
+// Content 관련 타입
+// ============================================================================
+
+/**
+ * 컨텐츠 파일 타입
+ */
+export interface ContentFile {
+  path: string
+  content: string
+  frontmatter: Record<string, unknown>
+}
+
+/**
+ * 컨텐츠 인덱스 타입
+ */
+export interface ContentIndex {
+  articles: ArticleMeta[]
+  notes: ArticleMeta[]
+  projects: ArticleMeta[]
+  tags: string[]
+  categories: string[]
+}
+
+/**
+ * 컨텐츠 타입
+ */
+export type ContentType = 'articles' | 'notes' | 'projects'

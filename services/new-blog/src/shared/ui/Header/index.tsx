@@ -1,7 +1,7 @@
-import { ThemeToggle } from './ThemeToggle'
-import { SidebarToggle } from './SidebarToggle'
-import { Logo } from './Logo'
 import * as Styled from './Header.css'
+import { Logo } from './Logo'
+import { SidebarToggle } from './SidebarToggle'
+import { ThemeToggle } from './ThemeToggle'
 
 export const Header = () => {
   return (

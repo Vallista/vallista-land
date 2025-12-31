@@ -1,11 +1,14 @@
-import { ReactNode } from 'react'
-import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { HelmetProvider } from 'react-helmet-async'
 import { ThemeProvider } from '@vallista/design-system'
-import { SidebarProvider } from '@shared/context/SidebarContext'
+import { ReactNode } from 'react'
+import { HelmetProvider } from 'react-helmet-async'
+import { BrowserRouter } from 'react-router-dom'
+
 import { NavProvider } from '@shared/context/NavContext'
 import { SearchProvider } from '@shared/context/SearchContext'
+import { SidebarProvider } from '@shared/context/SidebarContext'
+
+import { ErrorBoundary } from '../ErrorBoundary'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,18 +27,20 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider enableSystemTheme={true}>
-          <BrowserRouter>
-            <SidebarProvider>
-              <NavProvider>
-                <SearchProvider>{children}</SearchProvider>
-              </NavProvider>
-            </SidebarProvider>
-          </BrowserRouter>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider enableSystemTheme={true}>
+            <BrowserRouter>
+              <SidebarProvider>
+                <NavProvider>
+                  <SearchProvider>{children}</SearchProvider>
+                </NavProvider>
+              </SidebarProvider>
+            </BrowserRouter>
+          </ThemeProvider>
+        </QueryClientProvider>
+      </HelmetProvider>
+    </ErrorBoundary>
   )
 }

@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const SVG_PATH = path.join(__dirname, '../src/assets/icons/logo.svg')
+const SVG_PATH = path.join(__dirname, '../src/shared/assets/icons/logo.svg')
 const PUBLIC_DIR = path.join(__dirname, '../public')
 const FAVICON_DIR = path.join(PUBLIC_DIR, 'favicon')
 

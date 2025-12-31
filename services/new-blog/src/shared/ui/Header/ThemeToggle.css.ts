@@ -1,5 +1,5 @@
-import { style, globalStyle } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
+import { style, globalStyle } from '@vanilla-extract/css'
 
 export const themeToggleContainer = style({
   display: 'flex',

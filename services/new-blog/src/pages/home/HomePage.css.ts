@@ -1,17 +1,25 @@
-import { DEFINE_HEADER_HEIGHT } from '@/shared/constants/layout'
 import { style } from '@vanilla-extract/css'
 
-export const root = style({
+import { DEFINE_HEADER_HEIGHT } from '@shared/constants/layout'
+import { responsive } from '@shared/styles/breakpoints'
+
+// ============================================================================
+// Home Page Root
+// ============================================================================
+const desktopRootStyles = {
   width: '800px',
   padding: `${DEFINE_HEADER_HEIGHT}px 0 0`,
-  margin: '0 auto',
-  '@media': {
-    'screen and (max-width: 1024px)': {
+  margin: '0 auto' as const
+}
+
+export const root = style({
+  ...desktopRootStyles,
+  ...responsive({
+    mobile: {
       width: 'auto',
-      // padding: '80px 0 60px 0'
-      padding: '20px 0 60px 0'
+      padding: '0 0 60px'
     }
-  }
+  })
 })
 
 export const loadingContainer = style({

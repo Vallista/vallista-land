@@ -1,7 +1,8 @@
+import FacebookIcon from '@shared/assets/icons/facebook.svg?react'
+import GithubIcon from '@shared/assets/icons/github.svg?react'
+import TwitterIcon from '@shared/assets/icons/twitter.svg?react'
+
 import * as Styled from './NavBar.css'
-import GithubIcon from '@/assets/icons/github.svg?react'
-import TwitterIcon from '@/assets/icons/twitter.svg?react'
-import FacebookIcon from '@/assets/icons/facebook.svg?react'
 import { NavButton } from './NavButton'
 
 const socialItems = [

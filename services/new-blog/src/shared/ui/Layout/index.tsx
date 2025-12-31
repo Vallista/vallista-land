@@ -1,11 +1,13 @@
 import { Container } from '@vallista/design-system'
-import { Outlet, useLocation } from 'react-router-dom'
 import { useLayoutEffect, useRef, useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+
+import { useNav } from '@shared/context/NavContext'
+import { useSidebar } from '@shared/context/SidebarContext'
+import { Header } from '@shared/ui/Header'
 import { NavBar } from '@shared/ui/NavBar'
 import { Sidebar } from '@shared/ui/Sidebar'
-import { Header } from '@shared/ui/Header'
-import { useSidebar } from '@shared/context/SidebarContext'
-import { useNav } from '@shared/context/NavContext'
+
 import * as Styled from './Layout.css'
 
 export const Layout = () => {

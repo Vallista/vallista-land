@@ -1,6 +1,6 @@
 import { ContentPageProps } from '@shared/types'
-import { PageWrapper } from '@shared/ui/PageWrapper'
 import { LoadingState, ErrorState, EmptyState } from '@shared/ui/PageStates'
+import { PageWrapper } from '@shared/ui/PageWrapper'
 
 /**
  * 콘텐츠 페이지 컴포넌트

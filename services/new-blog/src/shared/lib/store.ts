@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
 import { Article, SearchParams } from '@shared/types'
 
 interface BlogState {

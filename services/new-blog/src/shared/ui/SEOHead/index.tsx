@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async'
+
 import { SEOHeadProps } from '@shared/types'
 
 /**

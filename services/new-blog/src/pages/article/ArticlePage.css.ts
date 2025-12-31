@@ -1,7 +1,12 @@
-import { DEFINE_CONTENTS_PADDING } from '@/shared/constants/layout'
 import { COLOR_TOKENS } from '@vallista/design-system'
 import { keyframes, style } from '@vanilla-extract/css'
 
+import { DEFINE_CONTENTS_PADDING } from '@shared/constants/layout'
+import { responsive } from '@shared/styles/breakpoints'
+
+// ============================================================================
+// Animations
+// ============================================================================
 const fadeInForArticlePageThumbnail = keyframes({
   '0%': {
     opacity: 0
@@ -11,19 +16,29 @@ const fadeInForArticlePageThumbnail = keyframes({
   }
 })
 
+// ============================================================================
+// Article Page Wrapper
+// ============================================================================
 export const wrapper = style({
   alignItems: 'center !important'
 })
 
-export const article = style({
+// ============================================================================
+// Article Container
+// ============================================================================
+const desktopArticleStyles = {
   width: '800px',
   padding: `0 ${DEFINE_CONTENTS_PADDING}px`,
-  boxSizing: 'border-box',
-  '@media': {
-    'screen and (max-width: 1025px)': {
+  boxSizing: 'border-box' as const
+}
+
+export const article = style({
+  ...desktopArticleStyles,
+  ...responsive({
+    mobile: {
       width: '100%'
     }
-  }
+  })
 })
 
 export const errorContainer = style({

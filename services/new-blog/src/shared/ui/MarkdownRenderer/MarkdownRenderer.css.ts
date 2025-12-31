@@ -1,5 +1,5 @@
-import { style, globalStyle } from '@vanilla-extract/css'
 import { vars } from '@vallista/design-system'
+import { style, globalStyle } from '@vanilla-extract/css'
 
 export const container = style({
   width: '100%',

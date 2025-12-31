@@ -1,5 +1,6 @@
+import HeaderSplitBtn from '@shared/assets/icons/header-split-btn.svg?react'
 import { useSidebar } from '@shared/context/SidebarContext'
-import HeaderSplitBtn from '@/assets/icons/header-split-btn.svg?react'
+
 import * as Styled from './Header.css'
 
 export const SidebarToggle = () => {

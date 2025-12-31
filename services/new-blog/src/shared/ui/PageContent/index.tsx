@@ -1,4 +1,5 @@
 import { Container } from '@vallista/design-system'
+
 import { PageContentProps } from '@shared/types'
 
 /**

@@ -1,5 +1,7 @@
 import { SearchInput } from '@vallista/design-system'
+
 import { useSearch } from '@shared/context/SearchContext'
+
 import * as Styled from './Search.css'
 
 export const Search = () => {

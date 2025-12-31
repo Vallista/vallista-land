@@ -1,9 +1,10 @@
 import { Routes, Route } from 'react-router-dom'
+
 import { Providers } from '@app/providers'
-import { Layout } from '@shared/ui/Layout'
-import { HomePage } from '@pages/home'
 import { ArticlePage } from '@pages/article'
+import { HomePage } from '@pages/home'
 import { ResumePage } from '@pages/resume'
+import { Layout } from '@shared/ui/Layout'
 
 export function App() {
   return (

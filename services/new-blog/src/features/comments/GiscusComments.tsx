@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
 import { Text, Spinner } from '@vallista/design-system'
+import { useEffect, useRef, useState } from 'react'
+
 import { getGiscusConfig } from '@shared/config/giscus'
+import { logger } from '@shared/lib/logger'
+
 import * as styles from './GiscusComments.css'
 
 interface GiscusCommentsProps {
@@ -15,20 +18,20 @@ export function GiscusComments({ postId, title }: GiscusCommentsProps) {
 
   useEffect(() => {
     const config = getGiscusConfig()
-    console.log('Giscus config:', config) // 디버깅용
+    logger.debug('Giscus config:', config)
 
     // Giscus 스크립트 로드
     const loadGiscus = () => {
       if (typeof window !== 'undefined' && window.giscus) {
         try {
-          console.log('Loading Giscus with term:', title || postId) // 디버깅용
+          logger.debug('Loading Giscus with term:', title || postId)
           window.giscus.render(commentsRef.current!, {
             ...config,
             term: `/articles/${postId}` // pathname 기반으로 변경
           })
           setIsLoading(false)
         } catch (error) {
-          console.error('Giscus render error:', error)
+          logger.error('Giscus render error:', error)
           setHasError(true)
           setIsLoading(false)
         }
@@ -58,12 +61,12 @@ export function GiscusComments({ postId, title }: GiscusCommentsProps) {
       script.async = true
 
       script.onload = () => {
-        console.log('Giscus script loaded') // 디버깅용
+        logger.debug('Giscus script loaded')
         loadGiscus()
       }
 
       script.onerror = () => {
-        console.error('Failed to load Giscus script')
+        logger.error('Failed to load Giscus script')
         setHasError(true)
         setIsLoading(false)
       }

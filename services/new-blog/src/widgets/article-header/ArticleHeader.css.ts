@@ -1,18 +1,14 @@
-import { style, globalStyle } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
-import { DEFINE_CONTENTS_PADDING } from '@/shared/constants/layout'
+import { style, globalStyle } from '@vanilla-extract/css'
 
 const DEFINE_CONTENTS_HEADER_ICON = 32
-
-const DEFINE_HEADER_HEIGHT = 64
-const DEFINE_CONTENTS_HEADER_PADDING_TOP = 32
 
 export const wrap = style({
   margin: '0 auto',
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  padding: `calc(${DEFINE_HEADER_HEIGHT}px + ${DEFINE_CONTENTS_PADDING}px + ${DEFINE_CONTENTS_HEADER_PADDING_TOP}px) 0 0`,
+  padding: `40px 0 0`,
   fontSize: '16px'
 })
 

@@ -1,6 +1,7 @@
 import { Container, Text, Spacer } from '@vallista/design-system'
-import { Heading } from '@shared/ui/Heading'
+
 import { PageHeaderProps } from '@shared/types'
+import { Heading } from '@shared/ui/Heading'
 
 /**
  * 페이지 헤더 컴포넌트

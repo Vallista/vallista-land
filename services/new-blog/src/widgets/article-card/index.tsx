@@ -1,7 +1,9 @@
-import { Link } from 'react-router-dom'
 import { Text, Badge } from '@vallista/design-system'
-import { ArticleMeta } from '@shared/types'
+import { Link } from 'react-router-dom'
+
 import { formatDate } from '@shared/lib/utils'
+import { ArticleMeta } from '@shared/types'
+
 import * as styles from './ArticleCard.css'
 
 interface ArticleCardProps {

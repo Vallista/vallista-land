@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
+
 import { createSEOData } from '@shared/lib/utils'
 import { SEOData, ArticleMeta, Article } from '@shared/types'
 

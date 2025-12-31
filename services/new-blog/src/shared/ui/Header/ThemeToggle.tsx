@@ -1,7 +1,9 @@
 import { Toggle } from '@vallista/design-system'
-import HeaderDarkmodeSun from '@/assets/icons/header-darkmode-sun.svg?react'
-import HeaderDarkmodeMoon from '@/assets/icons/header-darkmode-moon.svg?react'
+
+import HeaderDarkmodeMoon from '@shared/assets/icons/header-darkmode-moon.svg?react'
+import HeaderDarkmodeSun from '@shared/assets/icons/header-darkmode-sun.svg?react'
 import { useThemeSwitch } from '@shared/hooks/useThemeSwitch'
+
 import * as Styled from './ThemeToggle.css'
 
 export const ThemeToggle = () => {

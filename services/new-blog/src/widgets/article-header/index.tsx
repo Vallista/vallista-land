@@ -1,10 +1,13 @@
 import { Text, Icon, Badge } from '@vallista/design-system'
-import { Article } from '@shared/types'
+
+import { useWindowSize } from '@shared/hooks'
 import { formatDate } from '@shared/lib/utils'
+import { Article } from '@shared/types'
 import { SeriesWidget } from '@widgets/series'
+
 import * as styles from './ArticleHeader.css'
 import { useAutoFitText } from './useAutoFitText'
-import { useWindowSize } from '@/shared/hooks'
+
 
 interface ArticleHeaderProps {
   article: Article

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+
 import { useWindowSize } from '../hooks'
 
 interface SidebarContextType {

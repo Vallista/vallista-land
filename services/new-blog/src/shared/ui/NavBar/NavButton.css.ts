@@ -1,14 +1,19 @@
-import { style } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
-import { DEFINE_NAVBAR_ITEM_HEIGHT, DEFINE_NAVBAR_ITEM_WIDTH } from '@shared/constants/layout'
+import { style } from '@vanilla-extract/css'
 
-export const navButton = style({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
+import { DEFINE_NAVBAR_ITEM_HEIGHT, DEFINE_NAVBAR_ITEM_WIDTH } from '@shared/constants/layout'
+import { responsive } from '@shared/styles/breakpoints'
+
+// ============================================================================
+// NavBar Button
+// ============================================================================
+const desktopNavButtonStyles = {
+  display: 'flex' as const,
+  justifyContent: 'center' as const,
+  alignItems: 'center' as const,
   width: `${DEFINE_NAVBAR_ITEM_WIDTH}px`,
   height: `${DEFINE_NAVBAR_ITEM_HEIGHT}px`,
-  cursor: 'pointer',
+  cursor: 'pointer' as const,
   border: 'none',
   background: 'transparent',
   padding: 0,
@@ -23,11 +28,15 @@ export const navButton = style({
       cursor: 'not-allowed',
       opacity: 0.5
     }
-  },
-  '@media': {
-    'screen and (max-width: 1024px)': {
+  }
+}
+
+export const navButton = style({
+  ...desktopNavButtonStyles,
+  ...responsive({
+    mobile: {
       width: `${DEFINE_NAVBAR_ITEM_WIDTH}px`,
       height: `${DEFINE_NAVBAR_ITEM_WIDTH}px`
     }
-  }
+  })
 })

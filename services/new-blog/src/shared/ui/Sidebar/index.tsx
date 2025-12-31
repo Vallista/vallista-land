@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
+
 import { useSidebar } from '@shared/context/SidebarContext'
-import { SidebarContent } from './SidebarContent'
+import { useWindowSize } from '@shared/hooks'
 import { loadAllContent } from '@shared/lib/content'
+
 import * as Styled from './Sidebar.css'
-import { useWindowSize } from '@/shared/hooks'
+import { SidebarContent } from './SidebarContent'
+
 
 export interface SidebarProps {
   selectedCategory: string

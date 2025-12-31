@@ -1,6 +1,8 @@
 import { Text, Spacer, Container, Button, COLOR_TOKENS } from '@vallista/design-system'
-import * as styles from './ResumePage.css'
+
 import { PageWrapper } from '@shared/ui/PageWrapper'
+
+import * as styles from './ResumePage.css'
 import { useConfig } from './useConfig'
 
 export function ResumePage() {

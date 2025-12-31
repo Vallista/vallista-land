@@ -1,5 +1,5 @@
-import { style } from '@vanilla-extract/css'
 import { COLOR_TOKENS } from '@vallista/design-system'
+import { style } from '@vanilla-extract/css'
 
 export const container = style({
   padding: '20px',

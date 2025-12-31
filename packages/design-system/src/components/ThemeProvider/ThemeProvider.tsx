@@ -96,7 +96,10 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
   // useLayoutEffect를 사용하여 브라우저 페인트 전에 동기적으로 실행
   // 이렇게 하면 테마 변경이 즉시 반영되어 nav와 sidebar가 빠르게 업데이트됨
   useLayoutEffect(() => {
-    console.log('🎨 useLayoutEffect triggered, themeState:', themeState)
+    // 개발 환경에서만 로그 출력
+    if (import.meta.env.DEV) {
+      console.log('🎨 useLayoutEffect triggered, themeState:', themeState)
+    }
 
     // CSS 변수 설정
     const root = document.documentElement
@@ -118,10 +121,13 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
       root.style.setProperty('--error-default', '#ff1a1a')
       root.style.setProperty('--warning-default', '#f7b955')
 
-      console.log('🌙 Dark theme applied:', {
-        '--primary-foreground': '#ffffff',
-        '--primary-background': '#000000'
-      })
+      // 개발 환경에서만 로그 출력
+      if (import.meta.env.DEV) {
+        console.log('🌙 Dark theme applied:', {
+          '--primary-foreground': '#ffffff',
+          '--primary-background': '#000000'
+        })
+      }
     } else {
       // Light theme CSS variables
       root.style.setProperty('--primary-foreground', '#000000')
@@ -135,10 +141,13 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
       root.style.setProperty('--error-default', '#e00')
       root.style.setProperty('--warning-default', '#f5a623')
 
-      console.log('☀️ Light theme applied:', {
-        '--primary-foreground': '#000000',
-        '--primary-background': '#ffffff'
-      })
+      // 개발 환경에서만 로그 출력
+      if (import.meta.env.DEV) {
+        console.log('☀️ Light theme applied:', {
+          '--primary-foreground': '#000000',
+          '--primary-background': '#ffffff'
+        })
+      }
     }
 
     // body 배경색 설정

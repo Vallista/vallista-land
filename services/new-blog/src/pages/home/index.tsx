@@ -1,6 +1,7 @@
-import { ContentPage } from '@shared/ui/ContentPage'
 import { useContentPageQuery, useCategory } from '@shared/hooks'
 import { loadAllContent, ContentIndex } from '@shared/lib/content'
+import { ContentPage } from '@shared/ui/ContentPage'
+
 import * as styles from './HomePage.css'
 import { AboutPage } from '../about'
 

@@ -1,5 +1,4 @@
-import { Text, Spinner } from '@vallista/design-system'
-import { Container } from '@vallista/design-system'
+import { Text, Spinner , Container } from '@vallista/design-system'
 
 interface LoadingStateProps {
   message?: string
