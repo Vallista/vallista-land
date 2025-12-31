@@ -9,14 +9,10 @@ import { responsive } from '../../styles/breakpoints'
 // ============================================================================
 export const wrapper = style({
   minHeight: '100vh',
-  // iOS Safari에서 fixed 요소가 제대로 작동하도록
-  position: 'relative',
   ...responsive({
     mobile: {
       width: '100%',
-      overflow: 'hidden',
-      // iOS Safari에서 주소창 때문에 viewport 높이 문제 해결
-      minHeight: '-webkit-fill-available'
+      overflow: 'hidden'
     }
   })
 })

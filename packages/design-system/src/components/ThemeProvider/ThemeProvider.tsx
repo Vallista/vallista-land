@@ -150,10 +150,6 @@ export const ThemeProvider = ({ children, theme: initialTheme, enableSystemTheme
       }
     }
 
-    // body 배경색 설정
-    document.body.style.backgroundColor = themeState === 'DARK' ? '#000000' : '#ffffff'
-    document.body.style.color = themeState === 'DARK' ? '#ffffff' : '#000000'
-
     // themeState 변경 시 iOS 메타 태그도 업데이트 (리렌더링 보장)
     // useThemeSwitch에서도 호출하지만, 리렌더링 시 확실히 업데이트되도록 여기서도 호출
     updateIOSMetaTags(themeState)

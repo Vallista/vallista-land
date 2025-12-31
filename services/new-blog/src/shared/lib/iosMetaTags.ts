@@ -57,30 +57,10 @@ function updateStatusBarMeta(theme: 'LIGHT' | 'DARK'): void {
  * 강제 리플로우 발생 (화면이 사라지지 않도록 안전한 방법)
  */
 function triggerReflow(): void {
-  const body = document.body
-  if (!body) return
-
-  // 강제 리플로우 트리거 (화면이 사라지지 않음)
-  void body.offsetHeight
-
-  // 추가로 미세한 스타일 변경 후 복원
-  const originalTransform = body.style.transform
-  body.style.transform = 'translateZ(0)'
-
-  requestAnimationFrame(() => {
-    body.style.transform = originalTransform
-
-    // theme-color를 다시 한 번 업데이트 (확실하게 하기 위해)
-    requestAnimationFrame(() => {
-      const themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement
-      if (themeColorMeta) {
-        const currentTheme = document.documentElement.getAttribute('data-theme')
-        const theme = currentTheme === 'dark' ? 'DARK' : 'LIGHT'
-        const themeColor = theme === 'DARK' ? THEME_COLORS.DARK_BACKGROUND : THEME_COLORS.LIGHT_BACKGROUND
-        themeColorMeta.setAttribute('content', themeColor)
-      }
-    })
-  })
+  // 간단한 리플로우만 트리거 (body 스타일 변경 제거)
+  if (typeof document !== 'undefined' && document.body) {
+    void document.body.offsetHeight
+  }
 }
 
 /**
