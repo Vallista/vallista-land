@@ -25,7 +25,11 @@ const responsiveStyles = responsive({
     width: '100vw',
     padding: '0 12px 0 16px',
     background: 'transparent',
-    borderRight: 'none'
+    borderRight: 'none',
+    // 모바일에서 스크롤 이벤트 방지
+    touchAction: 'none',
+    overscrollBehavior: 'none',
+    WebkitOverflowScrolling: 'auto'
   },
   desktop: {
     top: `${DEFINE_HEADER_HEIGHT}px`,

@@ -33,7 +33,11 @@ export const container = style({
       height: '80px',
       padding: '0 10px',
       top: 0,
-      left: 0
+      left: 0,
+      // 모바일에서 스크롤 이벤트 방지
+      touchAction: 'none',
+      overscrollBehavior: 'none',
+      WebkitOverflowScrolling: 'auto'
     }
   })
 })
