@@ -28,7 +28,7 @@ export const wrapper = style({
 // ============================================================================
 const desktopArticleStyles = {
   width: '800px',
-  padding: `0 ${DEFINE_CONTENTS_PADDING}px`,
+  padding: `80px ${DEFINE_CONTENTS_PADDING}px`,
   boxSizing: 'border-box' as const
 }
 
@@ -36,7 +36,8 @@ export const article = style({
   ...desktopArticleStyles,
   ...responsive({
     mobile: {
-      width: '100%'
+      width: '100%',
+      padding: `0 ${DEFINE_CONTENTS_PADDING}px`
     }
   })
 })

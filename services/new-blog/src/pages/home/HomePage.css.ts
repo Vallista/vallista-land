@@ -8,7 +8,7 @@ import { responsive } from '@shared/styles/breakpoints'
 // ============================================================================
 const desktopRootStyles = {
   width: '800px',
-  padding: `${DEFINE_HEADER_HEIGHT}px 0 0`,
+  padding: `${DEFINE_HEADER_HEIGHT + 80}px 0 0`,
   margin: '0 auto' as const
 }
 
