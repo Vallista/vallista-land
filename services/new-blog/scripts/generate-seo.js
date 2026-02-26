@@ -190,10 +190,10 @@ async function injectSEOIntoHTML() {
       /<meta name="description" content="Vallista의 기술 블로그입니다\. 프론트엔드 개발, React, TypeScript 등에 대한 글을 공유합니다\." \/>\n {4}<meta property="og:title" content="Vallista Blog" \/>\n {4}<meta property="og:description" content="Vallista의 기술 블로그입니다\. 프론트엔드 개발, React, TypeScript 등에 대한 글을 공유합니다\." \/>\n {4}<meta property="og:type" content="website" \/>\n {4}<meta property="og:url" content="https:\/\/vallista\.kr" \/>\n {4}<meta name="twitter:card" content="summary_large_image" \/>\n {4}<meta name="twitter:title" content="Vallista Blog" \/>\n {4}<meta name="twitter:description" content="Vallista의 기술 블로그입니다\. 프론트엔드 개발, React, TypeScript 등에 대한 글을 공유합니다\." \/>\n/g
     articleHTML = articleHTML.replace(duplicateMetaPattern, '')
 
-    // article:published_time 추가
+    // canonical + article:published_time 추가 (색인은 /articles/{slug} 로만 되도록)
     const headEndIndex = articleHTML.indexOf('</head>')
-    const publishedTimeMeta = `    <meta property="article:published_time" content="${article.date}" />\n`
-    articleHTML = articleHTML.slice(0, headEndIndex) + publishedTimeMeta + articleHTML.slice(headEndIndex)
+    const canonicalAndPublished = `    <link rel="canonical" href="${SITE_URL}/articles/${article.slug}" />\n    <meta property="article:published_time" content="${article.date}" />\n`
+    articleHTML = articleHTML.slice(0, headEndIndex) + canonicalAndPublished + articleHTML.slice(headEndIndex)
 
     // HTML과 같은 레벨에 meta.json 파일 생성
     const articleDirPath = path.join(DIST_DIR, 'contents', 'articles', article.slug)
@@ -240,16 +240,17 @@ async function injectSEOIntoHTML() {
       console.warn(chalk.yellow(`⚠️  Could not read JSON file for ${article.slug}:`, error.message))
     }
 
-    // meta.json 파일 생성
+    // meta.json 파일 생성 (contents/articles 하위 유지)
     await fs.writeFile(jsonFilePath, JSON.stringify(articleData, null, 2))
 
-    const articleDir = path.join(DIST_DIR, 'contents', 'articles', article.slug)
-    await fs.mkdir(articleDir, { recursive: true })
-    await fs.writeFile(path.join(articleDir, 'index.html'), articleHTML)
+    // SEO용 HTML은 /articles/{slug}/index.html 에만 출력 → 구글 색인 URL이 /articles/{slug} 가 되도록
+    const articleHtmlDir = path.join(DIST_DIR, 'articles', article.slug)
+    await fs.mkdir(articleHtmlDir, { recursive: true })
+    await fs.writeFile(path.join(articleHtmlDir, 'index.html'), articleHTML)
 
     // 이미지 파일 복사 (contents/articles에서 직접 복사)
     const sourceDir = path.join(CONTENTS_DIR, 'articles', article.slug)
-    await copyImages(sourceDir, articleDir)
+    await copyImages(sourceDir, articleDirPath)
   }
 
   console.log(chalk.green('✅ HTML SEO injection completed'))
@@ -399,6 +400,17 @@ function escapeXml(text) {
     .replace(/'/g, '&#039;')
 }
 
+async function generateRedirects() {
+  console.log(chalk.blue('↩️  Generating redirects (contents/articles → articles)...'))
+
+  // Netlify 등 _redirects 를 쓰는 호스트용. GitHub Pages 는 무시하므로 앱에서 클라이언트 리다이렉트 처리함.
+  const redirects = `# /contents/articles/xxx → /articles/xxx (색인 URL 통일)
+/contents/articles/*  /articles/:splat  301
+`
+  await fs.writeFile(path.join(DIST_DIR, '_redirects'), redirects.trim())
+  console.log(chalk.green('✅ Redirects written to dist/_redirects'))
+}
+
 async function main() {
   try {
     console.log(chalk.cyan('🚀 Starting SEO generation...'))
@@ -406,7 +418,13 @@ async function main() {
     // Ensure dist directory exists
     await fs.mkdir(DIST_DIR, { recursive: true })
 
-    await Promise.all([generateSitemap(), generateRobots(), generateRSS(), injectSEOIntoHTML()])
+    await Promise.all([
+      generateSitemap(),
+      generateRobots(),
+      generateRSS(),
+      injectSEOIntoHTML(),
+      generateRedirects()
+    ])
 
     console.log(chalk.green('🎉 SEO generation completed!'))
   } catch (err) {
