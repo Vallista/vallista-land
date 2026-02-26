@@ -415,6 +415,11 @@ function generateContent() {
         if (!fs.existsSync(articleDir)) {
           fs.mkdirSync(articleDir, { recursive: true })
         }
+        // 이전에 생성된 index.html 제거 (generate-seo가 dist/articles/ 에만 HTML 생성하도록 함)
+        const legacyHtmlPath = path.join(articleDir, 'index.html')
+        if (fs.existsSync(legacyHtmlPath)) {
+          fs.unlinkSync(legacyHtmlPath)
+        }
 
         // 1. index.json (전체 데이터)
         const articleJsonPath = path.join(articleDir, 'index.json')
@@ -442,32 +447,10 @@ function generateContent() {
         }
         fs.writeFileSync(metaJsonPath, JSON.stringify(metaData, null, 2))
 
-        // 3. index.html (정적 HTML)
-        const htmlContent = `<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${article.title}</title>
-    <meta name="description" content="${article.description}">
-    <meta property="og:title" content="${article.title}">
-    <meta property="og:description" content="${article.description}">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://vallista.kr${article.url}">
-    ${article.image ? `<meta property="og:image" content="https://vallista.kr${article.image}">` : ''}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${article.title}">
-    <meta name="twitter:description" content="${article.description}">
-    ${article.image ? `<meta name="twitter:image" content="https://vallista.kr${article.image}">` : ''}
-    <link rel="canonical" href="https://vallista.kr${article.url}">
-</head>
-<body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-</body>
-</html>`
-        const htmlPath = path.join(articleDir, 'index.html')
-        fs.writeFileSync(htmlPath, htmlContent)
+        // 3. index.html은 생성하지 않음. generate-seo.js가 dist/articles/{slug}/index.html 에
+        //    빌드된 스크립트 경로로 올바른 HTML을 생성함.
+        //    public/contents/articles/{slug}/ 에 HTML을 두면 dist로 복사될 때 /src/main.tsx 를
+        //    참조해 404가 발생함.
 
         // 이미지 파일 복사 (dist/contents/articles/{slug}/assets/ 형태로)
         const sourceDir = path.dirname(filePath)
