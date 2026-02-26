@@ -415,11 +415,6 @@ function generateContent() {
         if (!fs.existsSync(articleDir)) {
           fs.mkdirSync(articleDir, { recursive: true })
         }
-        // 이전에 생성된 index.html 제거 (generate-seo가 dist/articles/ 에만 HTML 생성하도록 함)
-        const legacyHtmlPath = path.join(articleDir, 'index.html')
-        if (fs.existsSync(legacyHtmlPath)) {
-          fs.unlinkSync(legacyHtmlPath)
-        }
 
         // 1. index.json (전체 데이터)
         const articleJsonPath = path.join(articleDir, 'index.json')
@@ -447,10 +442,22 @@ function generateContent() {
         }
         fs.writeFileSync(metaJsonPath, JSON.stringify(metaData, null, 2))
 
-        // 3. index.html은 생성하지 않음. generate-seo.js가 dist/articles/{slug}/index.html 에
-        //    빌드된 스크립트 경로로 올바른 HTML을 생성함.
-        //    public/contents/articles/{slug}/ 에 HTML을 두면 dist로 복사될 때 /src/main.tsx 를
-        //    참조해 404가 발생함.
+        // 3. /contents/articles/{slug}/ 전용 리다이렉트 HTML (GitHub Pages는 _redirects 미지원)
+        //    메타 리프레시만 사용 → 스크립트 없이 즉시 /articles/{slug} 로 이동, 깜빡임 없음
+        const redirectUrl = `https://vallista.kr/articles/${slug}`
+        const redirectHtml = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <link rel="canonical" href="${redirectUrl}">
+  <meta http-equiv="refresh" content="0;url=${redirectUrl}">
+  <title>Redirecting...</title>
+</head>
+<body>
+  <p>Redirecting to <a href="${redirectUrl}">article</a>...</p>
+</body>
+</html>`
+        fs.writeFileSync(path.join(articleDir, 'index.html'), redirectHtml)
 
         // 이미지 파일 복사 (dist/contents/articles/{slug}/assets/ 형태로)
         const sourceDir = path.dirname(filePath)
