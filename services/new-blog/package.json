@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run generate-content && vite",
+    "dev:drafts": "INCLUDE_DRAFTS=1 npm run generate-content && vite",
     "build": "npm run generate-content && npm run generate-favicon && vite build && npm run generate-seo && npm run copy-404",
     "generate-favicon": "node scripts/generate-favicon.js",
     "copy-404": "node scripts/copy-404.js",

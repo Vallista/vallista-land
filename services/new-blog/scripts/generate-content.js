@@ -314,9 +314,20 @@ function copyImages(sourceDir, targetDir) {
   }
 }
 
+// 로컬에서 draft 미리보기: INCLUDE_DRAFTS=1 (또는 true) 로 실행 시 public·content-index에 draft 포함
+function shouldIncludeDraftsInPublic() {
+  const v = process.env.INCLUDE_DRAFTS
+  return v === '1' || v === 'true'
+}
+
 // 메인 함수
 function generateContent() {
   console.log('Generating content index...')
+
+  const includeDraftsInPublic = shouldIncludeDraftsInPublic()
+  if (!includeDraftsInPublic) {
+    console.log('Draft posts: excluded from public output (set INCLUDE_DRAFTS=1 for local preview)')
+  }
 
   const contentsDir = path.join(__dirname, '../../../contents')
   const outputDir = path.join(__dirname, '../public')
@@ -397,55 +408,67 @@ function generateContent() {
           draft: frontmatter.draft === true || frontmatter.draft === 'true'
         }
 
-        // 컨텐츠 타입에 따라 분류
-        switch (contentType) {
-          case 'articles':
-            articles.push(article)
-            break
-          case 'notes':
-            notes.push(article)
-            break
-          case 'projects':
-            projects.push(article)
-            break
+        const isDraft = article.draft === true
+
+        // content-index: 공개 글만 기본값, draft는 INCLUDE_DRAFTS 일 때만
+        if (!isDraft || includeDraftsInPublic) {
+          switch (contentType) {
+            case 'articles':
+              articles.push(article)
+              break
+            case 'notes':
+              notes.push(article)
+              break
+            case 'projects':
+              projects.push(article)
+              break
+          }
         }
 
-        // 개별 아티클 파일 생성 (폴더 안에 생성)
         const articleDir = path.join(articlesDir, slug)
-        if (!fs.existsSync(articleDir)) {
-          fs.mkdirSync(articleDir, { recursive: true })
-        }
 
-        // 1. index.json (전체 데이터)
-        const articleJsonPath = path.join(articleDir, 'index.json')
-        const articleData = {
-          ...article,
-          content: updatedBody,
-          frontmatter
-        }
-        fs.writeFileSync(articleJsonPath, JSON.stringify(articleData, null, 2))
+        // draft: public에 JSON/이미지를 두지 않음 → 배포(dist)에도 포함되지 않음. 로컬 미리보기는 INCLUDE_DRAFTS=1
+        if (isDraft && !includeDraftsInPublic) {
+          if (fs.existsSync(articleDir)) {
+            fs.rmSync(articleDir, { recursive: true, force: true })
+          }
+        } else {
+          // 개별 아티클 파일 생성 (폴더 안에 생성)
+          if (!fs.existsSync(articleDir)) {
+            fs.mkdirSync(articleDir, { recursive: true })
+          }
 
-        // 2. meta.json (메타데이터만)
-        const metaJsonPath = path.join(articleDir, 'meta.json')
-        const metaData = {
-          title: article.title,
-          description: article.description,
-          date: article.date,
-          tags: article.tags,
-          image: article.image,
-          slug: article.slug,
-          url: article.url,
-          contentType: article.contentType,
-          author: article.author,
-          readingTime: article.readingTime,
-          draft: article.draft
-        }
-        fs.writeFileSync(metaJsonPath, JSON.stringify(metaData, null, 2))
+          // 1. index.json (전체 데이터)
+          const articleJsonPath = path.join(articleDir, 'index.json')
+          const articleData = {
+            ...article,
+            content: updatedBody,
+            frontmatter
+          }
+          fs.writeFileSync(articleJsonPath, JSON.stringify(articleData, null, 2))
 
-        // 3. /contents/articles/{slug}/ 전용 리다이렉트 HTML (GitHub Pages는 _redirects 미지원)
-        //    메타 리프레시만 사용 → 스크립트 없이 즉시 /articles/{slug} 로 이동, 깜빡임 없음
-        const redirectUrl = `https://vallista.kr/articles/${slug}`
-        const redirectHtml = `<!DOCTYPE html>
+          // 2. meta.json (메타데이터만)
+          const metaJsonPath = path.join(articleDir, 'meta.json')
+          const metaData = {
+            title: article.title,
+            description: article.description,
+            date: article.date,
+            tags: article.tags,
+            image: article.image,
+            slug: article.slug,
+            url: article.url,
+            contentType: article.contentType,
+            author: article.author,
+            readingTime: article.readingTime,
+            draft: article.draft
+          }
+          fs.writeFileSync(metaJsonPath, JSON.stringify(metaData, null, 2))
+
+          // 3. /contents/articles/{slug}/ 리다이렉트 HTML
+          const redirectPath = path.join(articleDir, 'index.html')
+          if (!isDraft && contentType === 'articles') {
+            const redirectUrl = `https://vallista.kr/articles/${slug}`
+            const redirectHtml = `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -457,20 +480,26 @@ function generateContent() {
   <p>Redirecting to <a href="${redirectUrl}">article</a>...</p>
 </body>
 </html>`
-        fs.writeFileSync(path.join(articleDir, 'index.html'), redirectHtml)
+            fs.writeFileSync(redirectPath, redirectHtml)
+          } else if (fs.existsSync(redirectPath)) {
+            fs.unlinkSync(redirectPath)
+          }
 
-        // 이미지 파일 복사 (dist/contents/articles/{slug}/assets/ 형태로)
-        const sourceDir = path.dirname(filePath)
-        const targetDir = path.join(articlesDir, slug)
-        copyImages(sourceDir, targetDir)
-
-        // 태그와 카테고리 수집
-        if (Array.isArray(frontmatter.tags)) {
-          frontmatter.tags.forEach((tag) => tags.add(tag))
+          // 이미지 파일 복사 (dist/contents/articles/{slug}/assets/ 형태로)
+          const sourceDir = path.dirname(filePath)
+          const targetDir = path.join(articlesDir, slug)
+          copyImages(sourceDir, targetDir)
         }
 
-        if (frontmatter.category) {
-          categories.add(frontmatter.category)
+        // 태그와 카테고리 수집 (draft는 INCLUDE_DRAFTS일 때만 집계)
+        if (!isDraft || includeDraftsInPublic) {
+          if (Array.isArray(frontmatter.tags)) {
+            frontmatter.tags.forEach((tag) => tags.add(tag))
+          }
+
+          if (frontmatter.category) {
+            categories.add(frontmatter.category)
+          }
         }
       } catch (error) {
         console.error(`Error processing file ${filePath}:`, error)

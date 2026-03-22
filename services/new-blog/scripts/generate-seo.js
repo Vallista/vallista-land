@@ -13,6 +13,14 @@ const SITE_URL = 'https://vallista.kr'
 const DIST_DIR = path.join(__dirname, '../dist')
 const CONTENTS_DIR = path.join(__dirname, '../../contents')
 
+function isDraftArticle(article) {
+  return article?.draft === true || article?.draft === 'true'
+}
+
+function filterPublishedArticles(articles) {
+  return (articles || []).filter((a) => !isDraftArticle(a))
+}
+
 async function generateSitemap() {
   console.log(chalk.blue('🔍 Generating sitemap...'))
 
@@ -330,7 +338,7 @@ async function getArticles() {
     const contentIndexPath = path.join(DIST_DIR, 'content-index.json')
     const contentIndex = JSON.parse(await fs.readFile(contentIndexPath, 'utf-8'))
 
-    return contentIndex.articles || []
+    return filterPublishedArticles(contentIndex.articles || [])
   } catch {
     console.warn(chalk.yellow('⚠️  Could not read content-index.json, falling back to direct parsing'))
 
@@ -352,7 +360,8 @@ async function getArticles() {
                 title: frontmatter.title,
                 description: frontmatter.description || '',
                 slug: frontmatter.slug || file.name,
-                date: frontmatter.date || new Date().toISOString()
+                date: frontmatter.date || new Date().toISOString(),
+                draft: frontmatter.draft === true || frontmatter.draft === 'true'
               })
             }
           } catch {
@@ -364,7 +373,7 @@ async function getArticles() {
       console.warn(chalk.yellow('⚠️  No articles directory found'))
     }
 
-    return articles
+    return filterPublishedArticles(articles)
   }
 }
 
