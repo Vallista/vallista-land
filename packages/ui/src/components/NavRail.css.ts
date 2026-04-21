@@ -44,10 +44,13 @@ export const brandMark = style({
 })
 
 export const brandMarkImg = style({
+  position: 'absolute',
+  inset: 0,
   width: '100%',
   height: '100%',
   objectFit: 'cover',
-  display: 'block'
+  display: 'block',
+  zIndex: 1
 })
 
 export const brandMarkInitial = style({
@@ -56,6 +59,7 @@ export const brandMarkInitial = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  zIndex: 0,
   fontFamily: vars.font.sans,
   fontSize: '14px',
   fontWeight: 700,

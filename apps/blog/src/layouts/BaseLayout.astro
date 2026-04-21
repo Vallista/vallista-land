@@ -5,6 +5,7 @@ import { lightTheme, darkTheme } from '@vallista/ui'
 import NavRail from '@vallista/ui/components/NavRail.astro'
 import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
 import Footer from '@vallista/ui/components/Footer.astro'
+import MobileMenu from '@vallista/ui/components/MobileMenu.astro'
 
 import SearchPalette from '@components/SearchPalette.astro'
 import { collectSeries } from '@lib/series'
@@ -132,6 +133,14 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
   </head>
   <body>
     <a href='#main' class='skip-link'>본문으로 바로 가기</a>
+    <MobileMenu
+      path={path}
+      counts={counts}
+      brandAvatar='https://avatars.githubusercontent.com/u/6455767?v=4'
+      series={seriesList}
+    >
+      <DarkModeToggle slot='theme-toggle' />
+    </MobileMenu>
     <div class='layout'>
       <NavRail
         path={path}

@@ -1,0 +1,217 @@
+---
+import {
+  bar,
+  barBrand,
+  barMark,
+  barMarkImg,
+  barMarkInitial,
+  barTitle,
+  barActions,
+  iconButton,
+  overlay,
+  overlayInner,
+  overlayHead,
+  search,
+  searchInput,
+  searchIcon,
+  menuNav,
+  menuLink,
+  menuCount,
+  seriesSection,
+  seriesHead,
+  seriesChips,
+  footerRow,
+  footerLink
+} from './MobileMenu.css'
+import Chip from './Chip.astro'
+
+interface Count {
+  articles?: number
+  notes?: number
+  projects?: number
+}
+
+export interface SeriesItem {
+  name: string
+  slug: string
+  count: number
+}
+
+interface Props {
+  path: string
+  counts?: Count
+  brandName?: string
+  brandAvatar?: string
+  series?: SeriesItem[]
+}
+
+const {
+  path,
+  counts = {},
+  brandName = 'Vallista',
+  brandAvatar,
+  series = []
+} = Astro.props
+
+const initial = brandName.charAt(0).toUpperCase()
+
+function current(prefix: string): 'page' | undefined {
+  if (prefix === '/') return path === '/' ? 'page' : undefined
+  return path === prefix || path.startsWith(prefix + '/') ? 'page' : undefined
+}
+---
+
+<header class={bar}>
+  <a href='/' class={barBrand}>
+    <span class={barMark}>
+      <span class={barMarkInitial} aria-hidden='true'>{initial}</span>
+      {
+        brandAvatar && (
+          <img
+            src={brandAvatar}
+            alt=''
+            class={barMarkImg}
+            onerror="this.style.display='none'"
+            loading='eager'
+            decoding='async'
+          />
+        )
+      }
+    </span>
+    <span class={barTitle}>{brandName}</span>
+  </a>
+
+  <div class={barActions}>
+    <slot name='theme-toggle' />
+    <button
+      type='button'
+      class={iconButton}
+      aria-label='메뉴 열기'
+      aria-expanded='false'
+      aria-controls='mobile-menu-overlay'
+      data-menu-open
+    >
+      <svg width='18' height='18' viewBox='0 0 18 18' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round'>
+        <path d='M3 5h12M3 9h12M3 13h12' />
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div id='mobile-menu-overlay' class={overlay} aria-hidden='true' data-menu-overlay>
+  <div class={overlayInner}>
+    <div class={overlayHead}>
+      <a href='/' class={barBrand}>
+        <span class={barMark}>
+          <span class={barMarkInitial} aria-hidden='true'>{initial}</span>
+          {
+            brandAvatar && (
+              <img src={brandAvatar} alt='' class={barMarkImg} onerror="this.style.display='none'" loading='eager' decoding='async' />
+            )
+          }
+        </span>
+        <span class={barTitle}>{brandName}</span>
+      </a>
+      <button type='button' class={iconButton} aria-label='메뉴 닫기' data-menu-close>
+        <svg width='18' height='18' viewBox='0 0 18 18' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round'>
+          <path d='m4 4 10 10M14 4 4 14' />
+        </svg>
+      </button>
+    </div>
+
+    <form class={search} action='/articles' role='search'>
+      <span class={searchIcon} aria-hidden='true'>
+        <svg width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='currentColor' stroke-width='1.4'>
+          <circle cx='6' cy='6' r='4.5' />
+          <path d='m10 10 3 3' stroke-linecap='round' />
+        </svg>
+      </span>
+      <input type='search' class={searchInput} placeholder='글 검색…' aria-label='글 검색' data-menu-search />
+    </form>
+
+    <nav class={menuNav} aria-label='모바일 주 메뉴'>
+      <a href='/' class={menuLink} aria-current={current('/')}>
+        <span>Home</span>
+      </a>
+      <a href='/articles' class={menuLink} aria-current={current('/articles')}>
+        <span>Articles</span>
+        {counts.articles !== undefined && <span class={menuCount}>{counts.articles}</span>}
+      </a>
+      <a href='/notes' class={menuLink} aria-current={current('/notes')}>
+        <span>Notes</span>
+        {counts.notes !== undefined && <span class={menuCount}>{counts.notes}</span>}
+      </a>
+      <a href='/projects' class={menuLink} aria-current={current('/projects')}>
+        <span>Projects</span>
+        {counts.projects !== undefined && <span class={menuCount}>{counts.projects}</span>}
+      </a>
+      <a href='/tags' class={menuLink} aria-current={current('/tags')}><span>Tags</span></a>
+      <a href='/about' class={menuLink} aria-current={current('/about')}><span>About</span></a>
+      <a href='/resume' class={menuLink} aria-current={current('/resume')}><span>Resume</span></a>
+    </nav>
+
+    {
+      series.length > 0 && (
+        <div class={seriesSection}>
+          <a href='/series' class={seriesHead} style='text-decoration: none;'>Series</a>
+          <div class={seriesChips}>
+            {series.map((s) => (
+              <Chip href={`/series/${s.slug}`} tone='blue'>{`${s.name} · ${s.count}`}</Chip>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    <div class={footerRow}>
+      <span>© {new Date().getFullYear()} Vallista</span>
+      <a href='/rss.xml' class={footerLink}>RSS</a>
+      <a href='https://github.com/vallista' class={footerLink} target='_blank' rel='noopener noreferrer'>GitHub</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setup(): void {
+    const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]')
+    const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]')
+    const overlay = document.querySelector<HTMLElement>('[data-menu-overlay]')
+    if (!openBtn || !closeBtn || !overlay) return
+    if (overlay.dataset.bound === '1') return
+    overlay.dataset.bound = '1'
+
+    const OPEN_CLASS = 'mobile-menu-open'
+
+    function open(): void {
+      overlay!.style.display = 'block'
+      overlay!.setAttribute('aria-hidden', 'false')
+      openBtn!.setAttribute('aria-expanded', 'true')
+      document.body.classList.add(OPEN_CLASS)
+      const input = overlay!.querySelector<HTMLInputElement>('[data-menu-search]')
+      setTimeout(() => input?.focus(), 40)
+    }
+    function close(): void {
+      overlay!.style.display = 'none'
+      overlay!.setAttribute('aria-hidden', 'true')
+      openBtn!.setAttribute('aria-expanded', 'false')
+      document.body.classList.remove(OPEN_CLASS)
+    }
+
+    openBtn.addEventListener('click', open)
+    closeBtn.addEventListener('click', close)
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay!.getAttribute('aria-hidden') === 'false') close()
+    })
+
+    // 내부 링크 클릭 시 닫음 (SPA 네비는 link intercept 가 처리)
+    overlay.addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement).closest('a[href]')
+      if (a) close()
+    })
+  }
+
+  setup()
+  document.addEventListener('vallista:page-load', setup)
+  document.addEventListener('astro:page-load', setup)
+</script>

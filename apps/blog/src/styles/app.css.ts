@@ -61,9 +61,13 @@ globalStyle('.page-body', {
   padding: '64px 48px 80px',
   '@media': {
     '(max-width: 959px)': {
-      padding: '48px 20px 64px'
+      padding: '24px 20px 64px'
     }
   }
+})
+
+globalStyle('body.mobile-menu-open', {
+  overflow: 'hidden'
 })
 
 globalStyle('.skip-link', {
