@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="20" height="20" fill="#eff4ff"/>
+      <circle cx="10" cy="10" r="1" fill="#2b6cff" opacity="0.25"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" fill="url(#p)"/>
+  <g fill="none" stroke="#2b6cff" stroke-width="1" opacity="0.35">
+    <line x1="0" y1="100" x2="800" y2="100"/>
+    <line x1="0" y1="350" x2="800" y2="350"/>
+  </g>
+  <text x="400" y="220" text-anchor="middle" font-family="'Pretendard Variable', -apple-system, sans-serif" font-size="18" fill="#6b7389" font-weight="600">외부 이미지 대체</text>
+  <text x="400" y="248" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" fill="#9aa1b4">https://images.unsplash.com/photo-142…</text>
+</svg>

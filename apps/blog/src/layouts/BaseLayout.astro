@@ -1,10 +1,16 @@
 ---
+import { getCollection } from 'astro:content'
+
 import { lightTheme, darkTheme } from '@vallista/ui'
 import NavRail from '@vallista/ui/components/NavRail.astro'
 import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
 import Footer from '@vallista/ui/components/Footer.astro'
 
 import SearchPalette from '@components/SearchPalette.astro'
+import { collectSeries } from '@lib/series'
+
+const allArticles = await getCollection('articles', (a) => !a.data.draft)
+const seriesList = collectSeries(allArticles)
 
 const footerGroups = [
   {
@@ -131,6 +137,7 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
         path={path}
         counts={counts}
         brandAvatar='https://avatars.githubusercontent.com/u/6455767?v=4'
+        series={seriesList}
       >
         <DarkModeToggle slot='theme-toggle' />
       </NavRail>

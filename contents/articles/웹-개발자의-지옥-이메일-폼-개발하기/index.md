@@ -9,7 +9,7 @@ info: false
 slug: "web-developer-hell-email-form-developing"
 ---
 
-![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)
+![이미지1](assets/_remote/7a00424c1fc4.svg)
 
 웹을 개발하다보면 사용자를 위해, 법률적인 요소로 인해, 효율성을 위해, 등 다양한 이유 때문에 이메일을 전송하게 됩니다. 하지만 이 이메일을 HTML/CSS로 구현할 때 굉장히 고통스럽다는 사실은 상대적으로 알려져 있지 않습니다.
 
@@ -462,7 +462,7 @@ blockquote {
 이미지 태그는 인라인 스타일로 width와 height를 주기보다, Property로 줄 수 있는 width, height로 주는게 좋습니다.
 
 ```html {numberLines}
-<img src="https://example.com/image1.png" width="400" height="400" alt="image1" />
+<img src="assets/_remote/b9e9dbf13add.svg" width="400" height="400" alt="image1" />
 ```
 
 #### 텍스트

@@ -8,7 +8,7 @@ info: false
 slug: "2017-year-retrospective"
 ---
 
-![이미지1](https://images.unsplash.com/photo-1421809313281-48f03fa45e9f?auto=format&fit=crop&w=2205&q=80)
+![이미지1](assets/_remote/31c5e8cff512.svg)
 
 돌이켜보면, 2017년은 나에게 많은 변화가 있는 해였던 것 같다. 모든 것이 끝나고, 새로 시작하였으며 지리적 위치 및 만나는 사람들도 달라졌기 때문이다.
 

@@ -60,11 +60,11 @@ const articleSchema = z
 
 const articles = defineCollection({
   loader: glob({
-    pattern: ['**/index.md', '**/*.md'],
+    // 폴더형(index.md) + 루트 단일 md. 서브디렉토리 단일 md 는 제외하여
+    // "foo/index.md" vs "foo/bar.md" id 충돌 회피.
+    pattern: ['**/index.md', '*.md'],
     base: '../../contents/articles',
     generateId: ({ entry }) => {
-      // 폴더형 글: "2017년-회고/index.md" → "2017년-회고"
-      // 단일 파일:  "BNF-Backus-Naur-Form.md" → "BNF-Backus-Naur-Form"
       if (entry.endsWith('/index.md')) return entry.slice(0, -'/index.md'.length)
       if (entry.endsWith('.md')) return entry.slice(0, -'.md'.length)
       return entry

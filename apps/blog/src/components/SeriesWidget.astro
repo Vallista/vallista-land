@@ -1,0 +1,83 @@
+---
+import type { SeriesPost } from '@lib/series'
+import {
+  widget,
+  summary,
+  summaryLeft,
+  eyebrow,
+  seriesName as seriesNameStyle,
+  summaryRight,
+  counter,
+  chevron,
+  chevronOpen,
+  list,
+  item,
+  itemCurrent,
+  itemIndex,
+  itemTitle,
+  itemDate
+} from './SeriesWidget.css'
+
+interface Props {
+  name: string
+  slug: string
+  posts: SeriesPost[]
+  currentId: string
+}
+
+const { name, slug, posts, currentId } = Astro.props
+const currentIdx = posts.findIndex((p) => p.id === currentId)
+const currentLabel = currentIdx >= 0 ? `${currentIdx + 1} / ${posts.length}` : `${posts.length}편`
+---
+
+<details class={widget} open>
+  <summary class={summary}>
+    <div class={summaryLeft}>
+      <span class={eyebrow}>Series</span>
+      <span class={seriesNameStyle}>{name}</span>
+    </div>
+    <div class={summaryRight}>
+      <span class={counter}>{currentLabel}</span>
+      <svg class={`${chevron} ${chevronOpen}`} viewBox='0 0 14 14' fill='none' stroke='currentColor' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'>
+        <path d='M3 5l4 4 4-4' />
+      </svg>
+    </div>
+  </summary>
+  <ol class={list}>
+    {
+      posts.map((p, idx) => {
+        const isCurrent = p.id === currentId
+        const cls = isCurrent ? `${item} ${itemCurrent}` : item
+        const dateLabel = p.date.toISOString().slice(0, 10).replace(/-/g, '.')
+        return (
+          <li>
+            <a href={`/articles/${p.id}`} class={cls} aria-current={isCurrent ? 'page' : undefined}>
+              <span class={itemIndex}>#{String(idx + 1).padStart(2, '0')}</span>
+              <span class={itemTitle}>{p.title}</span>
+              <time class={itemDate} datetime={p.date.toISOString()}>{dateLabel}</time>
+            </a>
+          </li>
+        )
+      })
+    }
+  </ol>
+</details>
+
+<script>
+  // details toggle 시 chevron 회전 반영
+  function syncChevron(d: HTMLDetailsElement): void {
+    const svg = d.querySelector('svg')
+    if (!svg) return
+    svg.classList.toggle('is-open', d.open)
+  }
+  function setup(): void {
+    document.querySelectorAll<HTMLDetailsElement>('details').forEach((d) => {
+      if (d.dataset.chevronBound) return
+      d.dataset.chevronBound = '1'
+      d.addEventListener('toggle', () => syncChevron(d))
+    })
+  }
+  setup()
+  document.addEventListener('vallista:page-load', setup)
+  document.addEventListener('astro:page-load', setup)
+</script>

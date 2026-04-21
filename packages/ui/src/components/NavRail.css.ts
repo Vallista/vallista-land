@@ -142,3 +142,51 @@ export const footerLink = style({
     '&:hover': { color: vars.color.ink2 }
   }
 })
+
+export const seriesSection = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '6px',
+  marginTop: '4px'
+})
+
+export const seriesTitle = style({
+  fontFamily: vars.font.mono,
+  fontSize: '11px',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '0.14em',
+  color: vars.color.ink4,
+  padding: '0 10px',
+  marginTop: '4px',
+  marginBottom: '4px'
+})
+
+export const seriesLink = style({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  padding: '5px 10px',
+  borderRadius: vars.radius['2'],
+  color: vars.color.ink3,
+  fontFamily: vars.font.sans,
+  fontSize: '12.5px',
+  lineHeight: 1.4,
+  fontWeight: 500,
+  textDecoration: 'none',
+  transitionProperty: 'background-color, color',
+  transitionDuration: vars.duration.fast,
+  transitionTimingFunction: vars.easing.out,
+  selectors: {
+    '&:hover': {
+      backgroundColor: vars.color.bgSoft,
+      color: vars.color.ink2
+    }
+  }
+})
+
+export const seriesCount = style({
+  fontFamily: vars.font.mono,
+  fontSize: '10.5px',
+  color: vars.color.ink4
+})

@@ -141,7 +141,7 @@ console.log(originator)
 
 해당 코드는 [React-Memento-Pattern-Use-TypeScript](https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript)에서 확인할 수 있습니다.
 
-![1](https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript/blob/master/screenshots/1.gif?raw=true)
+![1](assets/_remote/28b6c2ceb787.gif)
 (사진 3. 실행 결과)
 
 Todo List 예시를 사용하여 변화에 대해서 롤백할 수 있는 기능을 메멘토 패턴으로 추가를 해보겠습니다.
@@ -553,7 +553,7 @@ export default App
 
 ## 실행
 
-![2](https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript/blob/master/screenshots/1.gif?raw=true)
+![2](assets/_remote/28b6c2ceb787.gif)
 (사진 4: 결과)
 
 실행을 해보면 롤백이 제대로 동작하는 걸 볼 수 있습니다.

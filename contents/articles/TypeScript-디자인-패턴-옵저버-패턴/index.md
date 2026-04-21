@@ -36,7 +36,7 @@ slug: "design-pattern-observer-pattern"
 
 <br/>
 
-![2](https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true)
+![2](assets/_remote/e85ecf5fedf8.gif)
 (그림 2: 옵저버 패턴을 적용해 전체 추가와 전체 삭제 기능을 구현)
 
 그림에 나오는 것처럼 옵저버 패턴을 적용해서 구현을 해보겠습니다.
@@ -389,7 +389,7 @@ export default App
 
 ## 실행
 
-![2](https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true)
+![2](assets/_remote/e85ecf5fedf8.gif)
 
 실행을 해보면 전체 추가, 삭제가 제대로 동작하는 걸 볼 수 있습니다.
 

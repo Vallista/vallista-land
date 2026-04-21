@@ -252,7 +252,7 @@ export default Home
 
 먼저 모듈화를 어떻게 진행할 지 구조를 잡아봅시다.
 
-![2](https://github.com/Vallista/Beautiful-React-Redux-Typescript/raw/2.modularization/screenshots/1.png?raw=true)
+![2](assets/_remote/13f253774122.png)
 
 모듈화를 진행하는 이유는 프로젝트가 커지면서 도메인이 많아지고 로직이 커지면 대응을 쉽게 할 수가 없기 때문입니다. 이 구조 말고도 거시적으로 action-creators, reducers 등의 사용관점에서 폴더 구조를 나누는 경우도 많은데 그렇게 되면 다양한 도메인의 로직이 하나의 폴더에 다 담기게 되므로 장기적으로 **매우 안좋습니다**.
 

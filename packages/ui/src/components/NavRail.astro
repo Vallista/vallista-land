@@ -12,13 +12,23 @@ import {
   navLink,
   navCount,
   railFooter,
-  footerLink
+  footerLink,
+  seriesSection,
+  seriesTitle,
+  seriesLink,
+  seriesCount
 } from './NavRail.css'
 
 interface Count {
   articles?: number
   notes?: number
   projects?: number
+}
+
+export interface SeriesItem {
+  name: string
+  slug: string
+  count: number
 }
 
 interface Props {
@@ -28,6 +38,7 @@ interface Props {
   brandRole?: string
   brandHref?: string
   brandAvatar?: string
+  series?: SeriesItem[]
 }
 
 const {
@@ -36,7 +47,8 @@ const {
   brandName = 'Vallista',
   brandRole = 'software engineer',
   brandHref = '/',
-  brandAvatar
+  brandAvatar,
+  series = []
 } = Astro.props
 
 const initial = brandName.charAt(0).toUpperCase()
@@ -44,6 +56,11 @@ const initial = brandName.charAt(0).toUpperCase()
 function current(prefix: string): 'page' | undefined {
   if (prefix === '/') return path === '/' ? 'page' : undefined
   return path === prefix || path.startsWith(prefix + '/') ? 'page' : undefined
+}
+
+function seriesCurrent(slug: string): 'page' | undefined {
+  const href = `/series/${slug}`
+  return path === href ? 'page' : undefined
 }
 ---
 
@@ -90,6 +107,20 @@ function current(prefix: string): 'page' | undefined {
     <a href='/about' class={navLink} aria-current={current('/about')}>About</a>
     <a href='/resume' class={navLink} aria-current={current('/resume')}>Resume</a>
   </nav>
+
+  {
+    series.length > 0 && (
+      <div class={seriesSection}>
+        <div class={seriesTitle}>Series</div>
+        {series.map((s) => (
+          <a href={`/series/${s.slug}`} class={seriesLink} aria-current={seriesCurrent(s.slug)}>
+            <span>{s.name}</span>
+            <span class={seriesCount}>{s.count}</span>
+          </a>
+        ))}
+      </div>
+    )
+  }
 
   <footer class={railFooter}>
     <slot name='theme-toggle' />

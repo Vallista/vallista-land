@@ -11,7 +11,7 @@ seriesPriority: 2
 slug: "mobile-webview-exploring-developer-for-guide-in"
 ---
 
-![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)
+![이미지1](assets/_remote/7a00424c1fc4.svg)
 
 > 이전 포스트
 > [모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (상)](https://vallista.kr/2019/11/10/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%83%81/)

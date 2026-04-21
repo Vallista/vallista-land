@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+
+import BaseLayout from '@layouts/BaseLayout.astro'
+import Chip from '@vallista/ui/components/Chip.astro'
+import { collectSeries, postsInSeries, seriesNameToSlug } from '@lib/series'
+import { estimateReadingTime } from '@lib/reading-time'
+import { title as titleStyle } from '../../styles/home.css'
+import {
+  articleList,
+  articleItem,
+  articleDate,
+  articleTitle,
+  articleMinutes,
+  breadcrumb,
+  tagTitle
+} from '../../styles/tag.css'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('articles', (a) => !a.data.draft)
+  const series = collectSeries(entries)
+  return series.map((s) => ({
+    params: { slug: s.slug },
+    props: { seriesName: s.name, entries }
+  }))
+}
+
+interface Props {
+  seriesName: string
+  entries: CollectionEntry<'articles'>[]
+}
+
+const { seriesName, entries } = Astro.props
+const posts = postsInSeries(entries, seriesName)
+const counts = { articles: entries.length, notes: 0, projects: 0 }
+
+// 이 series 안의 entry 목록에서 body 참조할 수 있게 맵 만들기
+const entryById = new Map(entries.map((e) => [e.id, e]))
+---
+
+<BaseLayout title={`${seriesName} · Series · Vallista`} counts={counts}>
+  <div class={breadcrumb}>@vallista / series / {seriesName}</div>
+  <h1 class={tagTitle}>{seriesName}</h1>
+  <p style='font-family: monospace; font-size: 13px; color: var(--ink4); margin: 0 0 40px;'>
+    {posts.length} posts
+  </p>
+
+  <ul class={articleList}>
+    {
+      posts.map((p, idx) => {
+        const entry = entryById.get(p.id)
+        const { minutes } = entry ? estimateReadingTime(entry.body ?? '') : { minutes: 0 }
+        const dateLabel = p.date.toISOString().slice(0, 10)
+        return (
+          <li class={articleItem}>
+            <time class={articleDate} datetime={p.date.toISOString()}>
+              {`#${idx + 1} · ${dateLabel}`}
+            </time>
+            <a href={`/articles/${p.id}`} class={articleTitle}>
+              {p.title}
+            </a>
+            <span class={articleMinutes}>{minutes} min</span>
+          </li>
+        )
+      })
+    }
+  </ul>
+</BaseLayout>
