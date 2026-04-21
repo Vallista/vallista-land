@@ -1,0 +1,22 @@
+---
+import { chip, tone as toneStyle, dot as dotStyle } from './Chip.css'
+
+type Tone = 'neutral' | 'blue' | 'green' | 'amber' | 'red'
+
+interface Props {
+  tone?: Tone
+  dot?: boolean
+  as?: 'span' | 'a'
+  href?: string
+  class?: string
+}
+
+const { tone = 'neutral', dot = false, as = 'span', href, class: className } = Astro.props
+
+const classes = [chip, toneStyle[tone], dot ? dotStyle : null, className].filter(Boolean).join(' ')
+const Tag = href ? 'a' : as
+---
+
+<Tag class={classes} href={href}>
+  <slot />
+</Tag>

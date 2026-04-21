@@ -1,0 +1,14 @@
+---
+import { kbd } from './Kbd.css'
+
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+const classes = [kbd, className].filter(Boolean).join(' ')
+---
+
+<kbd class={classes}>
+  <slot />
+</kbd>

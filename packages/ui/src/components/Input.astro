@@ -1,0 +1,67 @@
+---
+import { wrap, input, withLeadingIcon, withTrailingHint, leadingIcon, trailingHint } from './Input.css'
+
+interface Props {
+  value?: string
+  placeholder?: string
+  type?: 'text' | 'email' | 'search'
+  icon?: 'search' | null
+  kbdHint?: string
+  disabled?: boolean
+  invalid?: boolean
+  name?: string
+  id?: string
+  'aria-label'?: string
+  'aria-describedby'?: string
+}
+
+const {
+  value,
+  placeholder,
+  type = 'text',
+  icon = null,
+  kbdHint,
+  disabled = false,
+  invalid = false,
+  name,
+  id,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedby
+} = Astro.props
+
+const classes = [input, icon ? withLeadingIcon : null, kbdHint ? withTrailingHint : null]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<div class={wrap}>
+  {
+    icon === 'search' && (
+      <span class={leadingIcon} aria-hidden='true'>
+        <svg width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='currentColor' stroke-width='1.4'>
+          <circle cx='6' cy='6' r='4.5' />
+          <path d='m10 10 3 3' stroke-linecap='round' />
+        </svg>
+      </span>
+    )
+  }
+  <input
+    class={classes}
+    type={type}
+    value={value}
+    placeholder={placeholder}
+    disabled={disabled}
+    aria-invalid={invalid || undefined}
+    aria-label={ariaLabel}
+    aria-describedby={ariaDescribedby}
+    name={name}
+    id={id}
+  />
+  {
+    kbdHint && (
+      <kbd class={trailingHint} aria-hidden='true'>
+        {kbdHint}
+      </kbd>
+    )
+  }
+</div>

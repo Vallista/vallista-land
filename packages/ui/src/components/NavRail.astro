@@ -1,0 +1,71 @@
+---
+import {
+  rail,
+  brand,
+  brandMark,
+  brandText,
+  brandName,
+  brandRole,
+  groupTitle,
+  nav,
+  navLink,
+  navCount,
+  railFooter,
+  footerLink
+} from './NavRail.css'
+
+interface Count {
+  articles?: number
+  notes?: number
+  projects?: number
+}
+
+interface Props {
+  path: string
+  counts?: Count
+}
+
+const { path, counts = {} } = Astro.props
+
+function current(prefix: string): 'page' | undefined {
+  if (prefix === '/') return path === '/' ? 'page' : undefined
+  return path === prefix || path.startsWith(prefix + '/') ? 'page' : undefined
+}
+---
+
+<aside class={rail}>
+  <a href='/' class={brand}>
+    <span class={brandMark} aria-hidden='true'></span>
+    <span class={brandText}>
+      <span class={brandName}>vallista-land</span>
+      <span class={brandRole}>prose &amp; systems</span>
+    </span>
+  </a>
+
+  <nav class={nav} aria-label='주 메뉴'>
+    <div class={groupTitle}>Navigation</div>
+    <a href='/' class={navLink} aria-current={current('/')}>
+      Home
+    </a>
+    <a href='/articles' class={navLink} aria-current={current('/articles')}>
+      Articles
+      {counts.articles !== undefined && <span class={navCount}>{counts.articles}</span>}
+    </a>
+    <a href='/notes' class={navLink} aria-current={current('/notes')}>
+      Notes
+      {counts.notes !== undefined && <span class={navCount}>{counts.notes}</span>}
+    </a>
+    <a href='/projects' class={navLink} aria-current={current('/projects')}>
+      Projects
+      {counts.projects !== undefined && <span class={navCount}>{counts.projects}</span>}
+    </a>
+    <a href='/tags' class={navLink} aria-current={current('/tags')}>Tags</a>
+    <a href='/about' class={navLink} aria-current={current('/about')}>About</a>
+  </nav>
+
+  <footer class={railFooter}>
+    <slot name='theme-toggle' />
+    <a href='/rss.xml' class={footerLink}>RSS</a>
+    <a href='/feed' class={footerLink}>Feed</a>
+  </footer>
+</aside>

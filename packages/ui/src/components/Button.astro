@@ -1,0 +1,54 @@
+---
+import { btn, variant as variantStyle, size as sizeStyle } from './Button.css'
+
+type Variant = 'primary' | 'secondary' | 'ghost'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props {
+  variant?: Variant
+  size?: Size
+  href?: string
+  disabled?: boolean
+  type?: 'button' | 'submit' | 'reset'
+  'aria-label'?: string
+  class?: string
+}
+
+const {
+  variant = 'secondary',
+  size = 'md',
+  href,
+  disabled = false,
+  type = 'button',
+  'aria-label': ariaLabel,
+  class: className,
+  ...rest
+} = Astro.props
+
+const classes = [btn, variantStyle[variant], sizeStyle[size], className].filter(Boolean).join(' ')
+---
+
+{
+  href ? (
+    <a
+      class={classes}
+      href={href}
+      aria-disabled={disabled || undefined}
+      aria-label={ariaLabel}
+      {...rest}
+    >
+      <slot />
+    </a>
+  ) : (
+    <button
+      class={classes}
+      type={type}
+      disabled={disabled}
+      aria-disabled={disabled || undefined}
+      aria-label={ariaLabel}
+      {...rest}
+    >
+      <slot />
+    </button>
+  )
+}

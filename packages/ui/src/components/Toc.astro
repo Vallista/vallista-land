@@ -1,0 +1,56 @@
+---
+import { toc, head, list, link } from './Toc.css'
+
+export interface TocHeading {
+  depth: 2 | 3
+  slug: string
+  text: string
+}
+
+interface Props {
+  headings: TocHeading[]
+}
+
+const { headings } = Astro.props
+const visible = headings.length >= 2
+---
+
+<nav class={toc} aria-label='이 글에서' hidden={!visible}>
+  <div class={head}>On this page</div>
+  <ol class={list}>
+    {
+      headings.map((h) => (
+        <li class={`depth-${h.depth}`}>
+          <a href={`#${h.slug}`} class={link} data-toc-link data-depth={h.depth}>
+            {h.text}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script>
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')
+  if (links.length > 0) {
+    const byId = new Map<string, HTMLAnchorElement>()
+    links.forEach((a) => {
+      const hash = a.hash.slice(1)
+      if (hash) byId.set(hash, a)
+    })
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        const top = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+        if (!top) return
+        links.forEach((l) => l.classList.remove('active'))
+        byId.get(top.target.id)?.classList.add('active')
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: [0, 0.5, 1] }
+    )
+
+    document.querySelectorAll<HTMLElement>('article h2[id], article h3[id]').forEach((h) => io.observe(h))
+  }
+</script>
