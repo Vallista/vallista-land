@@ -98,9 +98,10 @@ const socialLinks = [
       지금은 <span class={displayAccent}>웹이 만나는 문제</span>를 풀어가고 있어요.
     </h1>
     <p class={lede}>
-      서울 잠실, 우아한형제들 <strong class={ledeStrong}>{r.config.role}</strong>에서 일하고 있어요.
-      웹 프론트엔드에 관심이 많고, 조직과 시스템을 동시에 생각하면서 문제를 푸는 걸 좋아합니다.
-      한 분야에 갇히지 않고 여러 결의 문제를 마주하는 게 재미있어요.
+      서울 잠실, 우아한형제들 <strong class={ledeStrong}>{r.config.role}</strong>이에요.
+      약 100명의 웹프론트 구성원과 함께 전사 웹 시스템의 방향을 설계하고,
+      C레벨·리드들과 싱크를 맞추면서 조직 차원의 문제를 같이 들여다보고 있어요.
+      한 분야에 갇히지 않고 여러 결의 문제를 마주하는 게 좋아요.
     </p>
 
     <div class={tabs} role='tablist'>
@@ -139,7 +140,7 @@ const socialLinks = [
       />
     </div>
     <div class={who}>
-      <div class={whoName}>{r.config.name} · Gwangwhi Mah</div>
+      <div class={whoName}>{r.config.name}{r.config.englishName ? ` · ${r.config.englishName}` : ''}</div>
       <div class={whoRole}>{r.config.role} · Woowa Bros · Seoul, KR</div>
     </div>
     <SocialLinks links={socialLinks} />
@@ -176,6 +177,13 @@ const socialLinks = [
               <strong>2022년부터 팀을 맡았어요.</strong> 17명 규모의 조직을 이끌었고, 2024년엔 공통 플랫폼팀으로
               옮겨 서번트 리더십을 연습했습니다. 직접 코드를 써서 결과를 내던 자리에서
               <strong>팀이 더 잘 해내도록 돕는 자리</strong>로, 역할의 무게 중심이 옮겨간 시기였어요.
+            </p>
+            <p>
+              그리고 <strong>2025년 6월, 웹프론트개발그룹장으로 취임</strong>했어요. 지금은 약 100명의
+              웹프론트 구성원과 함께 일하고 있어요. 코드를 치는 시간보다 <strong>사람과 시스템을 설계하는
+              시간</strong>이 훨씬 많아졌고, 전사 웹 아키텍처의 방향을 잡고 C레벨·타 그룹장·리드들과 앉아
+              우선순위를 조율하는 일이 일상이 됐습니다. 웹이라는 레이어에서 회사가 마주하는 문제를 풀어가는 게
+              지금 제 역할이라 생각해요.
             </p>
 
             <h3 class={proseSub}>AI 시대일수록 엔지니어링은 더 중요해진다고 믿어요</h3>
@@ -227,13 +235,13 @@ const socialLinks = [
           </header>
           <div class={twoCol}>
             <div class={col}>
-              <h4 class={colHead}>Now · Lead</h4>
+              <h4 class={colHead}>Now · Group Lead</h4>
               <ul class={colList}>
-                <li class={colItem}><span>공통 서비스 웹 프론트 아키텍처 설계</span><span class={colKbd}>daily</span></li>
-                <li class={colItem}><span>푸드/커머스/공통 도메인 리드</span><span class={colKbd}>ongoing</span></li>
-                <li class={colItem}><span>팀원 일정 관리 · 기술 의사결정</span><span class={colKbd}>weekly</span></li>
-                <li class={colItem}><span>공통 플랫폼 · 디자인 시스템</span><span class={colKbd}>quarterly</span></li>
-                <li class={colItem}><span>사내 워크숍 · 글쓰기</span><span class={colKbd}>cont.</span></li>
+                <li class={colItem}><span>전사 웹 시스템 아키텍처 방향 설계</span><span class={colKbd}>H2</span></li>
+                <li class={colItem}><span>약 100명 웹프론트 인원 배치 · 도메인 매칭</span><span class={colKbd}>ongoing</span></li>
+                <li class={colItem}><span>C레벨 · 그룹장 · 리드 위클리 싱크</span><span class={colKbd}>weekly</span></li>
+                <li class={colItem}><span>공통 플랫폼 · 디자인 시스템 거버넌스</span><span class={colKbd}>quarterly</span></li>
+                <li class={colItem}><span>신규 그룹장 온보딩 · 사내 글쓰기</span><span class={colKbd}>cont.</span></li>
               </ul>
             </div>
             <div class={col}>

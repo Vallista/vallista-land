@@ -1,11 +1,12 @@
 {
   "config": {
     "name": "마광휘",
-    "role": "Senior Software Engineer",
+    "englishName": "Gwangwhi Mah",
+    "role": "Head of Web Frontend",
     "bio": [
-      "웹 프론트엔드에 관심이 많은 <string>소프트웨어 엔지니어</string>",
-      "우아한형제들 배민공통서비스웹프론트개발팀장",
-      "우아한형제들 <string>웹 프론트 전반 아키텍쳐 설계 및 공통 서비스 개발</string>"
+      "우아한형제들 <string>웹프론트개발그룹장 (Head of Web Frontend)</string>",
+      "약 100명의 웹프론트 구성원과 함께 <string>전사 웹 시스템의 방향을 설계</string>하고 있어요",
+      "C레벨·리드들과 싱크를 맞추며 조직 차원의 문제를 함께 풀어갑니다"
     ],
     "github": "https://github.com/vallista",
     "email": "mgh950714@gmail.com"
@@ -15,10 +16,38 @@
     "list": [
       {
         "name": "우아한형제들",
-        "position": "Senior Staff Software Engineer",
+        "position": "웹프론트개발그룹장 · Head of Web Frontend",
+        "department": "웹프론트개발그룹",
+        "startDate": "2025.06",
+        "endDate": null,
+        "descriptions": [
+          "약 100명의 웹프론트 구성원과 함께 전사 웹 시스템이 나아갈 방향을 설계하는 자리",
+          "도메인별 인원 배치와 매칭을 조정하고, 공통 플랫폼 · 디자인 시스템의 거버넌스를 담당"
+        ],
+        "projects": [
+          {
+            "name": "전사 웹 시스템 아키텍처 · 그룹 운영",
+            "descriptions": [
+              "푸드·커머스·공통 등 전사 웹 시스템의 장기 아키텍처 방향 설계",
+              "C레벨·다른 그룹장·리드들과 위클리 싱크를 통한 전사 우선순위 조율",
+              "웹 프론트엔드 구성원 약 100명의 인원 배치 · 도메인 매칭 · 성장 설계",
+              "신규 그룹장 · 리드 온보딩과 사내 글쓰기 · 워크숍 지원"
+            ],
+            "startDate": "2025.06",
+            "endDate": null,
+            "which": [
+              "조직 설계와 웹 아키텍처를 동시에 다루는 역할",
+              "웹이라는 레이어에서 회사가 마주하는 문제를 풀어가는 관점"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "우아한형제들",
+        "position": "Senior Staff Software Engineer · 배민공통서비스웹프론트개발팀장",
         "department": "웹 프론트엔드",
         "startDate": "2024.02",
-        "endDate": null,
+        "endDate": "2025.05",
         "descriptions": ["우아한형제들 배민공통서비스웹프론트개발팀"],
         "projects": [
           {
@@ -29,7 +58,7 @@
               "팀원 일정 관리 및 조율"
             ],
             "startDate": "2024.02",
-            "endDate": null,
+            "endDate": "2025.05",
             "which": ["여러 도메인의 서비스 운영 및 개발 경험, 시스템 설계"]
           }
         ]
