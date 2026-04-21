@@ -1,0 +1,20 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro'
+import Button from '@vallista/ui/components/Button.astro'
+---
+
+<BaseLayout title='404 · Vallista Blog'>
+  <div style='max-width: 520px; padding-top: 40px;'>
+    <div class='eyebrow'>404 · not found</div>
+    <h1 style='font-size: 44px; font-weight: 700; line-height: 1.15; margin: 0 0 20px; color: var(--ink);'>
+      여기엔 아무것도 없어요.
+    </h1>
+    <p style='color: var(--ink2); font-size: 17px; line-height: 1.7; margin: 0 0 32px;'>
+      링크가 움직였거나 글이 초안으로 돌아간 것 같습니다. 홈으로 돌아가거나 검색해 보세요.
+    </p>
+    <div style='display: flex; gap: 12px;'>
+      <Button href='/' variant='primary'>← Home</Button>
+      <Button href='/articles' variant='secondary'>🔎 검색해보기</Button>
+    </div>
+  </div>
+</BaseLayout>

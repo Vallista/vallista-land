@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content'
+
+import BaseLayout from '@layouts/BaseLayout.astro'
+import Card from '@vallista/ui/components/Card.astro'
+import Chip from '@vallista/ui/components/Chip.astro'
+import Cover from '@vallista/ui/components/Cover.astro'
+import {
+  meta,
+  title as cardTitle,
+  description as cardDesc,
+  footer as cardFooter,
+  stars as cardStars,
+  projectTag
+} from '@vallista/ui/components/Card.css'
+import { title, listGrid, section } from '../styles/home.css'
+
+const projects = await getCollection('projects')
+
+const articles = await getCollection('articles', (a) => !a.data.draft)
+const counts = { articles: articles.length, notes: 0, projects: projects.length }
+
+function tone(status: 'active' | 'maintenance' | 'archived') {
+  return status === 'active' ? 'green' : status === 'archived' ? 'amber' : 'neutral'
+}
+---
+
+<BaseLayout title='Projects · Vallista Blog' counts={counts}>
+  <div class='eyebrow'>@vallista · projects</div>
+  <h1 class={title} style='margin-bottom: 32px;'>프로젝트</h1>
+
+  {
+    projects.length === 0 ? (
+      <p style='color: var(--ink3);'>아직 등록된 프로젝트가 없습니다.</p>
+    ) : (
+      <section class={section}>
+        <div class={listGrid}>
+          {projects.map((p) => {
+            const primaryHref = p.data.links.github ?? p.data.links.demo ?? p.data.links.docs ?? `/projects/${p.data.slug}`
+            return (
+              <Card href={primaryHref}>
+                <Cover kind={p.data.cover} ratio='16 / 7' />
+                <span class={projectTag}>{p.data.tag}</span>
+                <h3 class={cardTitle}>{p.data.title}</h3>
+                <p class={cardDesc}>{p.data.description}</p>
+                <div class={cardFooter}>
+                  <Chip dot tone={tone(p.data.status)}>{p.data.status}</Chip>
+                  {p.data.stars > 0 && <span class={cardStars}>★ {p.data.stars}</span>}
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

@@ -1,6 +1,23 @@
 import { globalStyle } from '@vanilla-extract/css'
 import { vars, lightTheme, darkTheme } from '@vallista/ui'
 
+// 인라인 스타일에서 쓸 수 있도록 사람이 읽는 이름으로 CSS 변수 alias 노출.
+globalStyle(':root', {
+  vars: {
+    '--ink': vars.color.ink,
+    '--ink2': vars.color.ink2,
+    '--ink3': vars.color.ink3,
+    '--ink4': vars.color.ink4,
+    '--bg': vars.color.bg,
+    '--bg-soft': vars.color.bgSoft,
+    '--line': vars.color.line,
+    '--line2': vars.color.line2,
+    '--accent': vars.color.accent,
+    '--accent-hover': vars.color.accentHover,
+    '--accent-tint': vars.color.accentTint
+  }
+})
+
 globalStyle('html', {
   colorScheme: 'light'
 })

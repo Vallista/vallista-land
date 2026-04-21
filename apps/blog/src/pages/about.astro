@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content'
+
+import BaseLayout from '@layouts/BaseLayout.astro'
+
+const articles = await getCollection('articles', (a) => !a.data.draft)
+const counts = { articles: articles.length, notes: 0, projects: 0 }
+---
+
+<BaseLayout title='About · Vallista Blog' counts={counts}>
+  <div style='max-width: 680px;'>
+    <div class='eyebrow'>@vallista · about</div>
+    <h1 style='font-size: 48px; font-weight: 700; line-height: 1.1; letter-spacing: -1px; margin: 0 0 24px;'>
+      코드를 쓰고<br />
+      <span style='color: var(--accent);'>시스템을 정리합니다.</span>
+    </h1>
+    <p style='font-size: 18px; line-height: 1.7; color: var(--ink2); margin: 0 0 32px;'>
+      프론트엔드 개발자 <strong>@vallista</strong> 입니다. React, TypeScript, 디자인 시스템,
+      그리고 우리가 매일 쓰는 도구들에 대해 씁니다.
+    </p>
+
+    <section style='margin: 48px 0;'>
+      <h2 style='font-size: 19px; font-weight: 600; margin: 0 0 12px;'>지금 쓰는 것</h2>
+      <ul style='list-style: none; padding: 0; margin: 0; color: var(--ink2); line-height: 2;'>
+        <li>Astro · TypeScript · vanilla-extract</li>
+        <li>pnpm workspace · Biome</li>
+        <li>GitHub Pages (Cloudflare 예정)</li>
+      </ul>
+    </section>
+
+    <section style='margin: 48px 0;'>
+      <h2 style='font-size: 19px; font-weight: 600; margin: 0 0 12px;'>최근 이력</h2>
+      <ul style='list-style: none; padding: 0; margin: 0; color: var(--ink2); line-height: 2;'>
+        <li>프론트엔드 개발자 · 2017 —</li>
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,82 @@
+---
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+
+import BaseLayout from '@layouts/BaseLayout.astro'
+import Chip from '@vallista/ui/components/Chip.astro'
+import { countTags, relatedTags, slugifyTag } from '@lib/tags'
+import { estimateReadingTime } from '@lib/reading-time'
+import {
+  breadcrumb,
+  tagTitle,
+  tagCount,
+  relatedRow,
+  articleList,
+  articleItem,
+  articleDate,
+  articleTitle,
+  articleMinutes,
+  empty
+} from '../../styles/tag.css'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('articles', (a) => !a.data.draft)
+  const stats = countTags(entries)
+  return stats.map((s) => ({
+    params: { tag: slugifyTag(s.tag) },
+    props: { tag: s.tag, entries }
+  }))
+}
+
+interface Props {
+  tag: string
+  entries: CollectionEntry<'articles'>[]
+}
+
+const { tag, entries } = Astro.props
+const matching = entries
+  .filter((a) => a.data.tags.includes(tag))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+const related = relatedTags(entries, tag)
+const counts = { articles: entries.length, notes: 0, projects: 0 }
+---
+
+<BaseLayout title={`#${tag} · Vallista Blog`} counts={counts}>
+  <div class={breadcrumb}>@vallista / tags / {tag}</div>
+  <h1 class={tagTitle}>#{tag}</h1>
+  <div class={tagCount}>{matching.length} articles</div>
+
+  {
+    related.length > 0 && (
+      <div class={relatedRow}>
+        {related.map((t) => <Chip href={`/tags/${slugifyTag(t)}`}>{`#${t}`}</Chip>)}
+      </div>
+    )
+  }
+
+  {
+    matching.length === 0 ? (
+      <div class={empty}>
+        아직 이 태그로 쓴 글이 없습니다. <a href='/tags'>다른 태그를 둘러보세요</a>.
+      </div>
+    ) : (
+      <ul class={articleList}>
+        {matching.map((entry) => {
+          const { minutes } = estimateReadingTime(entry.body ?? '')
+          const dateLabel = entry.data.date.toISOString().slice(0, 10)
+          return (
+            <li class={articleItem}>
+              <time class={articleDate} datetime={entry.data.date.toISOString()}>
+                {dateLabel}
+              </time>
+              <a href={`/articles/${entry.id}`} class={articleTitle}>
+                {entry.data.title}
+              </a>
+              <span class={articleMinutes}>{minutes} min</span>
+            </li>
+          )
+        })}
+      </ul>
+    )
+  }
+</BaseLayout>
