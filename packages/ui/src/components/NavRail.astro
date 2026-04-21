@@ -8,6 +8,7 @@ import {
   brandText,
   brandName as brandNameStyle,
   brandRole as brandRoleStyle,
+  groupTitle,
   nav,
   navLink,
   navCount,
@@ -88,6 +89,7 @@ function seriesCurrent(slug: string): 'page' | undefined {
   </a>
 
   <nav class={nav} aria-label='주 메뉴'>
+    <div class={groupTitle}>Navigation</div>
     <a href='/' class={navLink} aria-current={current('/')}>
       Home
     </a>

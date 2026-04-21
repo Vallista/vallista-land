@@ -70,6 +70,23 @@ const visible = headings.length >= 2
       })
     }
 
+    // TOC 앵커 클릭 — 기본 hash jump 대신 smooth scroll + hash 업데이트
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    links.forEach((a) => {
+      if (a.dataset.tocBound === '1') return
+      a.dataset.tocBound = '1'
+      a.addEventListener('click', (e) => {
+        const rawId = decodeURIComponent(a.hash.slice(1))
+        if (!rawId) return
+        const target = document.getElementById(rawId)
+        if (!target) return
+        e.preventDefault()
+        const top = target.getBoundingClientRect().top + window.scrollY - 80
+        window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' })
+        history.replaceState(null, '', a.hash || `#${rawId}`)
+      })
+    })
+
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll, { passive: true })
     update()
