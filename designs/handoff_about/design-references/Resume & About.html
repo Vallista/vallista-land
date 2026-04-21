@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>About · Gwangwhi Mah — vallista-land</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ──────────────────────────────────────────────────────────
+     Tokens — copied verbatim from docs/tokens.json + 02-tokens.md
+     ────────────────────────────────────────────────────────── */
+  :root {
+    /* fonts */
+    --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    /* core */
+    --gray-50: #fafbfc; --gray-100: #f1f2f6; --gray-200: #e6e8ee;
+    --gray-300: #d2d6df; --gray-400: #9aa1b4; --gray-500: #6b7389;
+    --gray-600: #3a4255; --gray-700: #252c3d; --gray-800: #131a2b; --gray-900: #0b1220;
+    --blue-50: #eff4ff; --blue-500: #2b6cff; --blue-600: #1f56d6;
+    --green-50: #e8f6ee; --green-700: #2a7f3f;
+    --amber-50: #fff7ed; --amber-700: #8a6628;
+
+    /* semantic — light */
+    --bg: #ffffff;
+    --bg-soft: var(--gray-50);
+    --ink: var(--gray-900);
+    --ink-2: var(--gray-600);
+    --ink-3: var(--gray-500);
+    --ink-4: var(--gray-400);
+    --line: var(--gray-200);
+    --line-2: var(--gray-100);
+    --accent: var(--blue-500);
+    --accent-hover: var(--blue-600);
+    --accent-tint: var(--blue-50);
+    --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px rgba(43, 108, 255, 0.55);
+
+    /* space */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px;
+    --s8:32px; --s10:40px; --s12:48px; --s16:64px; --s20:80px;
+
+    /* radius */
+    --r1:4px; --r2:6px; --r3:8px; --r4:10px; --r5:12px; --r6:14px; --r-pill:999px;
+
+    /* elevation */
+    --elev-1: 0 1px 0 rgba(11,18,32,0.04);
+    --elev-2: 0 2px 6px rgba(11,18,32,0.06);
+    --elev-3: 0 12px 32px rgba(11,18,32,0.10);
+
+    /* motion */
+    --dur-fast:120ms; --dur-base:180ms; --dur-slow:320ms;
+    --ease-out: cubic-bezier(0.2,0.7,0.3,1);
+    --ease-inout: cubic-bezier(0.4,0,0.2,1);
+  }
+  html[data-theme="dark"] {
+    --bg: var(--gray-900);
+    --bg-soft: var(--gray-800);
+    --ink: #ffffff;
+    --ink-2: #dbe2ff;
+    --ink-3: var(--gray-400);
+    --ink-4: var(--gray-500);
+    --line: #1c2540;
+    --line-2: #131c33;
+    --accent-tint: rgba(43,108,255,0.18);
+    --focus-ring: 0 0 0 2px var(--gray-900), 0 0 0 4px rgba(43,108,255,0.65);
+    --elev-1: 0 1px 0 rgba(0,0,0,0.3);
+    --elev-2: 0 2px 6px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; word-break: keep-all; text-wrap: pretty; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink-2);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px; line-height: 1.6;
+    transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+  }
+  ::selection { background: var(--accent-tint); color: var(--accent-hover); }
+
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--r2); }
+
+  /* ──────────────────────────────────────────────────────────
+     Shell — NavRail + main
+     ────────────────────────────────────────────────────────── */
+  .shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  .rail {
+    position: sticky; top: 0; align-self: start;
+    height: 100vh; overflow-y: auto;
+    width: 220px; padding: 28px 20px;
+    border-right: 1px solid var(--line-2);
+    display: flex; flex-direction: column; gap: var(--s6);
+  }
+  .brand { display: flex; gap: 10px; align-items: flex-start; }
+  .brand .mark {
+    width: 22px; height: 22px; background: var(--ink);
+    position: relative; flex-shrink: 0; margin-top: 2px;
+  }
+  .brand .mark::after {
+    content: ""; position: absolute; top: 5px; left: 5px;
+    width: 12px; height: 12px; background: var(--accent);
+  }
+  .brand .name { display: block; font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.2px; }
+  .brand .role { display: block; font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; margin-top: 3px; }
+
+  .rail .group-title {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-4); padding: 0 10px var(--s2); margin-top: var(--s2);
+  }
+  .rail nav { display: flex; flex-direction: column; gap: 2px; }
+  .rail nav a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: var(--r2);
+    color: var(--ink-3);
+    font: 500 13.5px/1.4 var(--sans);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .rail nav a:hover { background: var(--bg-soft); color: var(--ink-2); }
+  .rail nav a[aria-current="page"] { background: var(--bg-soft); color: var(--ink); font-weight: 600; }
+  .rail nav a .count { font-family: var(--mono); font-size: 11px; color: var(--ink-4); font-weight: 400; }
+
+  .rail-footer {
+    margin-top: auto; padding-top: var(--s5);
+    border-top: 1px solid var(--line-2);
+    display: flex; gap: var(--s4); align-items: center;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  }
+  .rail-footer button, .rail-footer a {
+    background: none; border: none; color: inherit; font: inherit; cursor: pointer;
+    padding: 4px 6px; border-radius: var(--r1);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .rail-footer button:hover, .rail-footer a:hover { background: var(--bg-soft); color: var(--ink); }
+
+  main { min-width: 0; }
+
+  /* ──────────────────────────────────────────────────────────
+     Page header — eyebrow + h1 (Paper Light pattern)
+     ────────────────────────────────────────────────────────── */
+  .wrap { max-width: 980px; margin: 0 auto; padding: 72px 40px 120px; }
+  .wrap.narrow { max-width: 720px; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-4); margin-bottom: var(--s2);
+  }
+
+  h1.display {
+    font-size: 48px; font-weight: 700; line-height: 1.10; letter-spacing: -1px;
+    color: var(--ink); margin: 0 0 var(--s5);
+  }
+  h1.display .accent { color: var(--accent); }
+
+  .lede {
+    font-size: 18px; line-height: 1.55; color: var(--ink-2); margin: 0;
+    max-width: 640px;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     Avatar + identity row
+     ────────────────────────────────────────────────────────── */
+  .identity {
+    display: grid; grid-template-columns: 72px 1fr auto; gap: var(--s6);
+    align-items: center;
+    padding: var(--s8) 0;
+    margin-top: var(--s12);
+    border-top: 1px solid var(--line-2);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .avatar {
+    width: 72px; height: 72px; border-radius: var(--r-pill);
+    background: var(--accent-tint);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-hover); font-family: var(--mono); font-weight: 600; font-size: 22px;
+    letter-spacing: 0.02em;
+  }
+  .identity .who .name { font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .identity .who .role { font-size: 13.5px; color: var(--ink-3); margin-top: 2px; }
+  .identity .links { display: flex; gap: var(--s2); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px; border-radius: var(--r3);
+    font: 500 13px/1 var(--sans);
+    background: var(--bg); border: 1px solid var(--line); color: var(--ink-2);
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-out),
+                border-color var(--dur-fast) var(--ease-out),
+                color var(--dur-fast) var(--ease-out),
+                transform var(--dur-fast) var(--ease-out);
+  }
+  .btn:hover { border-color: var(--ink-4); color: var(--ink); }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+  .btn svg { width: 14px; height: 14px; }
+
+  /* ──────────────────────────────────────────────────────────
+     Section rhythm
+     ────────────────────────────────────────────────────────── */
+  .section { margin-top: var(--s16); }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: var(--s8); gap: var(--s8);
+  }
+  h2.section-title {
+    font-size: 26px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.25;
+    color: var(--ink); margin: 0;
+  }
+  .section-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; }
+
+  /* Prose block — reading column */
+  .prose { max-width: 720px; }
+  .prose p { font-size: 17px; line-height: 1.85; letter-spacing: -0.005em; margin: 0 0 var(--s5); color: var(--ink-2); }
+  .prose p strong { color: var(--ink); font-weight: 600; }
+  .prose a {
+    color: var(--accent); border-bottom: 1px solid var(--accent);
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .prose a:hover { background: var(--accent-tint); }
+
+  /* Pull-quote (accent rule, not a big callout) */
+  .pull {
+    margin: var(--s10) 0; padding: var(--s4) 0 var(--s4) var(--s6);
+    border-left: 2px solid var(--accent);
+    font-size: 19px; line-height: 1.55; color: var(--ink);
+    font-weight: 500; letter-spacing: -0.2px;
+  }
+
+  /* Flow line — game → web → lead → eng head */
+  .prose .flow-line {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin: 0 0 var(--s6); padding: 10px 14px;
+    background: var(--bg-soft); border: 1px solid var(--line-2); border-radius: var(--r-pill);
+    font-family: var(--mono); font-size: 11px;
+    color: var(--ink-3); letter-spacing: 0.04em; text-transform: uppercase;
+    width: fit-content; max-width: 100%;
+  }
+  .prose .flow-line .sep { color: var(--ink-4); }
+  .prose .flow-line .cur { color: var(--accent); font-weight: 600; }
+
+  /* Sub heading inside prose */
+  .prose .prose-sub {
+    font-size: 20px; font-weight: 600; letter-spacing: -0.3px;
+    color: var(--ink); margin: var(--s12) 0 var(--s4); line-height: 1.3;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     Chips
+     ────────────────────────────────────────────────────────── */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: var(--r-pill);
+    background: var(--line-2); color: var(--ink-3);
+    font: 500 11px/1 var(--sans);
+  }
+  .chip.dot::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .chip[data-tone="blue"] { background: var(--accent-tint); color: var(--accent-hover); }
+  .chip[data-tone="green"] { background: var(--green-50); color: var(--green-700); }
+  .chip[data-tone="amber"] { background: var(--amber-50); color: var(--amber-700); }
+
+  /* ──────────────────────────────────────────────────────────
+     Metric row (numbers) — hairline, not flashy
+     ────────────────────────────────────────────────────────── */
+  .metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line-2);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .metric { padding: var(--s6) var(--s4) var(--s6) 0; border-right: 1px solid var(--line-2); }
+  .metric:last-child { border-right: none; }
+  .metric .n {
+    font-size: 32px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;
+    color: var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .metric .n .u { font-size: 16px; font-weight: 500; color: var(--ink-3); margin-left: 2px; }
+  .metric .l {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-4); margin-top: 4px;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     Timeline (career)
+     ────────────────────────────────────────────────────────── */
+  .timeline {
+    position: relative;
+    display: flex; flex-direction: column;
+  }
+  .t-item {
+    display: grid; grid-template-columns: 52px 12px 1fr; gap: var(--s5);
+    padding: var(--s6) 0;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .t-item:last-child { border-bottom: none; }
+  .t-date {
+    font-family: var(--mono); font-size: 11px; color: var(--ink-4);
+    padding-top: 4px; line-height: 1.4;
+  }
+  .t-date .yr { display: block; color: var(--ink); font-size: 13px; font-weight: 500; letter-spacing: 0.02em; }
+  .t-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--bg); border: 1.5px solid var(--ink-4);
+    margin: 8px auto 0; position: relative;
+  }
+  .t-dot::before {
+    content: ""; position: absolute; left: 50%; top: 100%; margin-left: -0.5px;
+    width: 1px; height: 100vh; background: var(--line-2); z-index: -1;
+  }
+  .t-item:last-child .t-dot::before { display: none; }
+  .t-item.now .t-dot { background: var(--accent); border-color: var(--accent); }
+  .t-body h3 {
+    font-size: 19px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.3;
+    color: var(--ink); margin: 0 0 4px;
+  }
+  .t-org { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; }
+  .t-body p {
+    font-size: 14px; line-height: 1.65; color: var(--ink-2);
+    margin: var(--s3) 0 var(--s3); max-width: 640px;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     Works list (card pattern — like post cards, but list)
+     ────────────────────────────────────────────────────────── */
+  .works { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s6); }
+  .work-card {
+    display: flex; flex-direction: column; gap: var(--s3);
+    padding: var(--s5);
+    background: var(--bg);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r5);
+    box-shadow: var(--elev-1);
+    transition: border-color var(--dur-fast) var(--ease-out),
+                box-shadow var(--dur-base) var(--ease-out),
+                transform var(--dur-base) var(--ease-out);
+  }
+  .work-card:hover { border-color: var(--line); box-shadow: var(--elev-2); transform: translateY(-1px); }
+  .work-card .meta { display: flex; gap: 10px; font-family: var(--mono); font-size: 11px; color: var(--ink-4); }
+  .work-card h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.2px; color: var(--ink); margin: 0; }
+  .work-card p { font-size: 13.5px; line-height: 1.6; color: var(--ink-3); margin: 0; }
+  .work-card .foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: var(--s2); }
+
+  /* Mini cover — SVG pattern strip like the Cover component */
+  .cover {
+    width: 100%; aspect-ratio: 16/7; border-radius: var(--r2);
+    background: var(--accent-tint); overflow: hidden;
+  }
+  .cover svg { display: block; width: 100%; height: 100%; }
+
+  /* ──────────────────────────────────────────────────────────
+     Writing list (Notes-style timeline)
+     ────────────────────────────────────────────────────────── */
+  .writing .row {
+    display: grid; grid-template-columns: 70px 1fr auto; gap: var(--s5);
+    align-items: baseline;
+    padding: var(--s4) 0;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .writing .row:last-child { border-bottom: none; }
+  .writing .row:hover .row-title { color: var(--accent); }
+  .writing .date { font-family: var(--mono); font-size: 11px; color: var(--ink-4); }
+  .writing .row-title { font-size: 15.5px; font-weight: 500; color: var(--ink); letter-spacing: -0.1px; line-height: 1.4; transition: color var(--dur-fast) var(--ease-out); }
+  .writing .row-tag { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+  /* ──────────────────────────────────────────────────────────
+     Now / Stack — two column
+     ────────────────────────────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s10); }
+  .col h4 {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--ink-4); margin: 0 0 var(--s4); padding-bottom: var(--s3);
+    border-bottom: 1px solid var(--line-2);
+  }
+  .col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--s2); }
+  .col li { font-size: 14px; color: var(--ink-2); display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: baseline; line-height: 1.55; }
+  .col li::before { content: "·"; color: var(--ink-4); font-family: var(--mono); }
+  .col li .kbd { font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; }
+
+  /* ──────────────────────────────────────────────────────────
+     Colophon / subscribe
+     ────────────────────────────────────────────────────────── */
+  .colo {
+    margin-top: var(--s16); padding: var(--s10); border-radius: var(--r5);
+    background: var(--bg-soft); border: 1px solid var(--line-2);
+    display: grid; grid-template-columns: 1fr auto; gap: var(--s6); align-items: center;
+  }
+  .colo h3 { font-size: 19px; font-weight: 600; color: var(--ink); margin: 0 0 4px; letter-spacing: -0.2px; }
+  .colo p { font-size: 13.5px; color: var(--ink-3); margin: 0; max-width: 480px; }
+  .colo .form { display: flex; gap: var(--s2); }
+  .colo input {
+    font: 400 13px/1 var(--sans);
+    padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--r3);
+    background: var(--bg); color: var(--ink); min-width: 220px;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .colo input:focus { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+
+  footer.foot {
+    margin-top: var(--s16); padding-top: var(--s6); border-top: 1px solid var(--line-2);
+    font-family: var(--mono); font-size: 11px; color: var(--ink-4);
+    display: flex; justify-content: space-between;
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     Tabs (Resume / About toggle, stays on one page)
+     ────────────────────────────────────────────────────────── */
+  .tabs {
+    display: inline-flex; gap: 2px; padding: 3px;
+    background: var(--bg-soft); border: 1px solid var(--line-2); border-radius: var(--r-pill);
+    margin-top: var(--s6);
+  }
+  .tabs button {
+    background: none; border: none; cursor: pointer;
+    padding: 7px 16px; border-radius: var(--r-pill);
+    font: 500 13px/1 var(--sans); color: var(--ink-3);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  .tabs button:hover { color: var(--ink-2); }
+  .tabs button[aria-selected="true"] { background: var(--bg); color: var(--ink); box-shadow: var(--elev-1); }
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  /* ──────────────────────────────────────────────────────────
+     Tweaks panel
+     ────────────────────────────────────────────────────────── */
+  #tweaks {
+    position: fixed; right: 20px; bottom: 20px; z-index: 50;
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--r5);
+    padding: var(--s5); width: 240px; box-shadow: var(--elev-3);
+    display: none;
+  }
+  #tweaks.on { display: block; }
+  #tweaks h5 { margin: 0 0 var(--s4); font-family: var(--mono); font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-4); }
+  #tweaks label { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--ink-2); margin-bottom: var(--s3); gap: var(--s3); }
+  #tweaks select, #tweaks input[type="range"] { font-family: var(--mono); font-size: 11px; background: var(--bg-soft); color: var(--ink); border: 1px solid var(--line-2); padding: 4px 6px; border-radius: var(--r1); }
+
+  /* ──────────────────────────────────────────────────────────
+     Print — A4 resume
+     ────────────────────────────────────────────────────────── */
+  @media print {
+    .rail, #tweaks, .tabs, .colo, .rail-footer, .btn { display: none !important; }
+    .shell { grid-template-columns: 1fr; }
+    .panel { display: block !important; }
+    body { font-size: 10pt; color: #000; background: #fff; }
+    .wrap { max-width: none; padding: 0; }
+    .section { margin-top: 20px; page-break-inside: avoid; }
+    h1.display { font-size: 28pt; }
+    h2.section-title { font-size: 14pt; }
+    .metric .n { font-size: 20pt; }
+    .work-card, .t-item { page-break-inside: avoid; }
+    .work-card { box-shadow: none !important; transform: none !important; border-color: #ccc; }
+    @page { size: A4; margin: 16mm 14mm; }
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     Responsive — rail collapses below 960
+     ────────────────────────────────────────────────────────── */
+  @media (max-width: 960px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail {
+      position: static; height: auto; width: 100%;
+      flex-direction: row; align-items: center; gap: var(--s4);
+      border-right: none; border-bottom: 1px solid var(--line-2);
+      padding: var(--s4) var(--s5);
+    }
+    .rail .group-title { display: none; }
+    .rail nav { flex-direction: row; overflow-x: auto; gap: 0; margin-left: auto; }
+    .rail nav a .count { display: none; }
+    .brand .role { display: none; }
+    .rail-footer { margin-top: 0; padding-top: 0; border-top: none; }
+    .wrap { padding: 40px 20px 80px; }
+    h1.display { font-size: 38px; }
+    .identity { grid-template-columns: 56px 1fr; gap: var(--s4); }
+    .identity .links { grid-column: 1 / -1; }
+    .avatar { width: 56px; height: 56px; font-size: 17px; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .metric:nth-child(2) { border-right: none; }
+    .metric:nth-child(1), .metric:nth-child(2) { border-bottom: 1px solid var(--line-2); }
+    .works { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; gap: var(--s8); }
+    .colo { grid-template-columns: 1fr; }
+    .colo .form { flex-direction: column; }
+    .colo input { min-width: 0; width: 100%; }
+    .t-item { grid-template-columns: 48px 12px 1fr; gap: var(--s3); }
+  }
+
+  /* Reduced motion — collapse per 07-motion.md */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ─────────── NavRail ─────────── -->
+  <aside class="rail">
+    <a href="#" class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <span>
+        <span class="name">vallista-land</span>
+        <span class="role">prose &amp; systems</span>
+      </span>
+    </a>
+
+    <nav aria-label="주 메뉴">
+      <div class="group-title">Navigation</div>
+      <a href="#">Home</a>
+      <a href="#">Articles <span class="count">82</span></a>
+      <a href="#">Notes <span class="count">34</span></a>
+      <a href="#">Projects <span class="count">6</span></a>
+      <a href="#">Tags</a>
+      <a href="#" aria-current="page">About</a>
+    </nav>
+
+    <div>
+      <div class="group-title">Series</div>
+      <nav>
+        <a href="#">팀 리딩 회고</a>
+        <a href="#">DX 재정비</a>
+        <a href="#">블로그 만들기</a>
+      </nav>
+    </div>
+
+    <div class="rail-footer">
+      <button id="theme-toggle" aria-label="Toggle theme">
+        <span id="theme-label">☀ Light</span>
+      </button>
+      <a href="#" aria-label="RSS">RSS</a>
+      <button onclick="window.print()" title="Save as PDF">PDF</button>
+    </div>
+  </aside>
+
+  <!-- ─────────── Main ─────────── -->
+  <main>
+    <div class="wrap">
+
+      <!-- ─────────── Hero ─────────── -->
+      <header>
+        <div class="eyebrow">@vallista · about</div>
+        <h1 class="display">
+          게임에서 시작해,<br/>
+          지금은 <span class="accent">웹이 만나는 문제</span>를 풀어가고 있어요.
+        </h1>
+        <p class="lede">
+          서울 잠실, 우아한형제들 <strong style="color:var(--ink);font-weight:600">웹프론트개발그룹장 (Head of Web Frontend)</strong>이에요.
+          약 100명의 웹프론트 구성원과 함께 전사 웹 시스템의 방향을 잡고, C레벨·리드들과 싱크를 맞춰 가면서
+          조직 차원의 문제를 같이 들여다보고 있어요. 한 분야에 갇히지 않고 여러 결의 문제를 마주하는 게 좋아요.
+        </p>
+
+        <div class="tabs" role="tablist">
+          <button role="tab" aria-selected="true" data-tab="about">About</button>
+          <button role="tab" aria-selected="false" data-tab="resume">Resume</button>
+        </div>
+      </header>
+
+      <!-- ─────────── Identity ─────────── -->
+      <section class="identity" aria-label="이력 요약">
+        <div class="avatar" aria-hidden="true">GM</div>
+        <div class="who">
+          <div class="name">마광휘 · Gwangwhi Mah</div>
+          <div class="role">Head of Web Frontend · Woowa Bros · Seoul, KR</div>
+        </div>
+        <div class="links">
+          <a class="btn" href="https://github.com/Vallista" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.6.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5"/></svg>
+            GitHub
+          </a>
+          <a class="btn primary" href="mailto:hello@vallista.kr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg>
+            Contact
+          </a>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════════════
+           PANEL · ABOUT  (prose + "지금" + writing)
+           ═══════════════════════════════════════════════ -->
+      <div class="panel on" data-panel="about">
+
+        <!-- Prose -->
+        <section class="section">
+          <div class="prose">
+            <p class="flow-line" aria-hidden="true">
+              <span>게임</span><span class="sep">→</span><span>웹 서비스</span><span class="sep">→</span><span>웹 리드</span><span class="sep">→</span><span class="cur">엔지니어링 헤드</span>
+            </p>
+            <p>
+              <strong>2013년, Unity로 게임을 만들며</strong> 개발을 시작했어요. iOS 리듬 게임과 Cocos2d-x
+              프로젝트를 거치며, 티스토리에 남긴 “삽질의 기록”들이 지금의 뿌리가 됐어요. 화면을 만들고
+              사용자의 손끝에서 반응이 돌아오는 감각, 그 순간을 좋아하는 사람으로 출발했어요.
+            </p>
+            <p>
+              <strong>2017년에 웹으로 넘어왔어요.</strong> Vue와 React를 거치며 브라우저가 게임 런타임만큼
+              흥미로운 문제 공간이라는 걸 알게 됐고, 2019년 우아한형제들에 합류했어요. B마트·배민스토어·전국별미
+              같은 커머스 도메인에서 영수증 프린터, POS 연동, 이메일 폼처럼 경계에 있는 문제들을 부딪히며
+              <strong>웹 서비스를 만드는 엔지니어</strong>로 자랐죠.
+            </p>
+            <p>
+              <strong>2022년부터 팀을 맡았어요.</strong> 17명 규모의 조직을 이끌었고, 2024년엔 공통 플랫폼팀으로
+              옮겨 서번트 리더십을 연습했습니다. 직접 코드를 써서 결과를 내던 자리에서
+              <strong>팀이 더 잘 해내도록 돕는 자리</strong>로, 역할의 무게 중심이 옮겨간 시기였어요.
+            </p>
+            <p>
+              그리고 <strong>2025년 6월, 웹프론트개발그룹장으로 취임</strong>했어요. 지금은 약 100명의
+              웹프론트 구성원과 함께 일하고 있어요. 코드를 치는 시간보다 <strong>사람과 시스템을 설계하는 시간</strong>이
+              훨씬 많아졌고, 전사 웹 아키텍처의 방향을 잡고 C레벨·타 그룹장·리드들과 앉아 우선순위를 조율하는 일이
+              일상이 됐습니다. 웹이라는 레이어에서 회사가 마주하는 문제를 풀어가는 게 지금 제 역할이라 생각해요.
+            </p>
+
+            <h3 class="prose-sub">AI 시대일수록 엔지니어링은 더 중요해진다고 믿어요</h3>
+            <p>
+              요즘 가장 많이 고민하는 주제는 <strong>AI를 잘 쓰는 법</strong>이에요. 저부터 도구를 깊게 파고,
+              팀이 일하는 방식에 자연스럽게 녹여 보려 애쓰고 있어요. 그리고 그만큼 무게를 두는 게
+              <strong>전사 구성원의 역량을 끌어올리는 일</strong>이에요. 좋은 도구가 생겨도, 문제를 쪼개고 구조를
+              보고 결과를 책임지는 엔지니어가 없으면 결국 바닥이 얕아지더라고요.
+            </p>
+            <div class="pull">
+              “AI가 코드를 더 많이 써 줄수록, 무엇을 만들지 정하고 시스템을 책임지는
+              엔지니어링 역량은 오히려 더 중요해지는 것 같아요.”
+            </div>
+            <p>
+              그래서 지금도 <strong>엔지니어링은 여전히 중심</strong>이라고 봐요. 모델이 대신 써 주는 코드 위에서
+              아키텍처를 설계하고, 트레이드오프를 판단하고, 품질과 속도를 함께 짊어지는 사람은 결국 엔지니어입니다.
+              저는 그 관점에서 조직과 시스템을 함께 키우는 일을 하고 있어요.
+            </p>
+            <p>
+              제가 글을 쓰는 이유도 같은 맥락에 있어요. <strong>경험한 것을 정리해 두고 나누기 위해서</strong>요.
+              쉽게 얻은 문장은 거의 없고, 대부분 부딪히면서 고친 흔적들이에요. 누군가의 다음 한 걸음이 조금이라도
+              덜 아프기를 바라는 마음으로 계속 쓰고 있어요.
+            </p>
+          </div>
+        </section>
+
+        <!-- Metrics -->
+        <section class="section" aria-label="숫자로 보는 요약">
+          <div class="metrics">
+            <div class="metric"><div class="n">13<span class="u">yr</span></div><div class="l">Career</div></div>
+            <div class="metric"><div class="n">6<span class="u">yr</span></div><div class="l">At Woowa Bros</div></div>
+            <div class="metric"><div class="n">~100<span class="u">ppl</span></div><div class="l">Group Size</div></div>
+            <div class="metric"><div class="n">82<span class="u">+</span></div><div class="l">Articles</div></div>
+          </div>
+        </section>
+
+        <!-- Now / Stack two-col -->
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">지금 쓰는 것 / 하는 일</h2>
+            <span class="section-meta">/now · updated 2025.10</span>
+          </div>
+          <div class="two-col">
+            <div class="col">
+              <h4>Now · Group Lead</h4>
+              <ul>
+                <li><span>전사 웹 시스템 아키텍처 방향 설계</span><span class="kbd">H2</span></li>
+                <li><span>100명 웹프론트 인원 배치 · 도메인 매칭</span><span class="kbd">ongoing</span></li>
+                <li><span>C레벨 · 그룹장 · 리드 위클리 싱크</span><span class="kbd">weekly</span></li>
+                <li><span>공통 플랫폼 · 디자인 시스템 거버넌스</span><span class="kbd">quarterly</span></li>
+                <li><span>신규 그룹장 온보딩 · 사내 글쓰기</span><span class="kbd">cont.</span></li>
+              </ul>
+            </div>
+            <div class="col">
+              <h4>Tools &amp; Stack</h4>
+              <ul>
+                <li><span>TypeScript · React · Astro · Next</span><span class="kbd">core</span></li>
+                <li><span>vanilla-extract · emotion</span><span class="kbd">styling</span></li>
+                <li><span>Turborepo · pnpm · Jenkins</span><span class="kbd">platform</span></li>
+                <li><span>Figma · Linear · Notion · Slack</span><span class="kbd">lead</span></li>
+                <li><span>Miro · Google Docs · Loom</span><span class="kbd">align</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Writing -->
+        <section class="section writing">
+          <div class="section-head">
+            <h2 class="section-title">최근에 쓴 글</h2>
+            <a href="#" class="section-meta" style="color:var(--accent)">Articles →</a>
+          </div>
+          <div>
+            <a class="row" href="#"><span class="date">2025.01</span><span class="row-title">2024년 회고 — 변혁에서 서번트 리더십으로</span><span class="row-tag">회고</span></a>
+            <a class="row" href="#"><span class="date">2024.08</span><span class="row-title">17명 팀에서 일하는 법 — 셀 구조에 대하여</span><span class="row-tag">팀 · 매니징</span></a>
+            <a class="row" href="#"><span class="date">2022.08</span><span class="row-title">블로그 v3 개편 — vallista-land 모노레포의 탄생</span><span class="row-tag">개발기</span></a>
+            <a class="row" href="#"><span class="date">2021.07</span><span class="row-title">첩첩산중, POS 시스템을 대응하자</span><span class="row-tag">아키텍처</span></a>
+            <a class="row" href="#"><span class="date">2021.03</span><span class="row-title">영수증, React 그리고 emotion</span><span class="row-tag">프론트엔드</span></a>
+            <a class="row" href="#"><span class="date">2019.12</span><span class="row-title">웹 개발자의 지옥 — 이메일 폼 개발하기</span><span class="row-tag">트러블슈팅</span></a>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════════════
+           PANEL · RESUME  (timeline + works + skills)
+           ═══════════════════════════════════════════════ -->
+      <div class="panel" data-panel="resume">
+
+        <!-- Career timeline -->
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Career</h2>
+            <span class="section-meta">2013 — present</span>
+          </div>
+
+          <div class="timeline">
+            <article class="t-item now">
+              <div class="t-date"><span class="yr">2025.06</span>— now</div>
+              <div class="t-dot"></div>
+              <div class="t-body">
+                <div class="t-org">Woowa Bros · 웹프론트개발그룹</div>
+                <h3>웹프론트개발그룹장 · Head of Web Frontend</h3>
+                <p>
+                  약 100명의 웹프론트 구성원과 함께, 전사 웹 시스템이 어느 방향으로 움직일지 그림을 그리는 자리예요.
+                  도메인마다 어떤 사람이 어디에 필요한지 매칭을 다시 맞추고, C레벨·다른 그룹장·리드들과 앉아서
+                  무엇을 먼저 해야 할지를 맞춰 갑니다. 웹이라는 레이어에서 회사가 마주하는 문제를 같이 풀어내는 역할이라고 생각해요.
+                </p>
+                <div class="chips">
+                  <span class="chip" data-tone="blue">Org Leadership</span>
+                  <span class="chip">Architecture</span>
+                  <span class="chip">C-level Comm.</span>
+                  <span class="chip">People</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="t-item">
+              <div class="t-date"><span class="yr">2024</span>— 2025.05</div>
+              <div class="t-dot"></div>
+              <div class="t-body">
+                <div class="t-org">Woowa Bros · 공통 플랫폼</div>
+                <h3>배민공통서비스웹프론트개발팀 리드 · Web Frontend Platform Lead</h3>
+                <p>
+                  커머스 도메인을 벗어나 전사 공통 웹 플랫폼으로 자리를 옮겨어요. 회사가 전시에서 평시로 넘어가던 시기였고,
+                  리더십 스타일도 밀어붙이기보다 팀이 스스로 움직일 수 있도록 돕는 방식으로 바꿨어 갔어요.
+                  12명에서 17명으로 팀을 다시 짜고, 공통 프론트 시스템의 뼈대를 하나씩 세워 나간 시간이었어요.
+                </p>
+                <div class="chips">
+                  <span class="chip" data-tone="blue">Platform</span>
+                  <span class="chip">Design System</span>
+                  <span class="chip">Org Design</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="t-item">
+              <div class="t-date"><span class="yr">2020</span>— 2023</div>
+              <div class="t-dot"></div>
+              <div class="t-body">
+                <div class="t-org">Woowa Bros · 커머스</div>
+                <h3>커머스 프론트엔드 리드 · Commerce Frontend Lead</h3>
+                <p>
+                  B마트·배민스토어·전국별미가 한창 커지던 시기에 25명 규모 조직을 이끌었어요.
+                  비즈니스 속도에 맞추면서도 기술적으로 흐트러지지 않도록, POS 연동·영수증 엔진·이메일 폼처럼
+                  쉽지 않은 경계 영역의 문제들을 아키텍처 단위로 정리해 나간 시간이었어요.
+                </p>
+                <div class="chips">
+                  <span class="chip">React</span>
+                  <span class="chip">emotion</span>
+                  <span class="chip">POS</span>
+                  <span class="chip" data-tone="blue">Leadership</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="t-item">
+              <div class="t-date"><span class="yr">2019</span></div>
+              <div class="t-dot"></div>
+              <div class="t-body">
+                <div class="t-org">Woowa Bros · 입사</div>
+                <h3>프론트엔드 엔지니어 · Frontend Engineer</h3>
+                <p>
+                  "같이 한번 일해보고 싶다"는 마음으로 이력서를 다듬었고, 그해 세 곳에서 서류를 통과했어요.
+                  우아톤 해커톤에 참여하면서 제가 진짜로 부족한 부분이 보였고, 이 시기부터 소프트웨어 엔지니어링을
+                  제대로 공부하기 시작했어요.
+                </p>
+                <div class="chips">
+                  <span class="chip">React</span>
+                  <span class="chip">TypeScript</span>
+                  <span class="chip">우아톤 2019</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="t-item">
+              <div class="t-date"><span class="yr">2017</span>— 2018</div>
+              <div class="t-dot"></div>
+              <div class="t-body">
+                <div class="t-org">Transition</div>
+                <h3>웹 프론트엔드 전환 · Game Dev → Web Frontend</h3>
+                <p>
+                  Unity 3년차쯤 웹으로 방향을 틀었어요. ReviewRepublic에서 처음 웹 실무를 맡았고,
+                  이후 포트폴리오·블로그·사이드 프로젝트를 하나씩 쌓으며 React를 메인 스택으로 굳혀 나갔어요.
+                </p>
+                <div class="chips">
+                  <span class="chip">Vue</span>
+                  <span class="chip">React</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="t-item">
+              <div class="t-date"><span class="yr">2013</span>— 2016</div>
+              <div class="t-dot"></div>
+              <div class="t-body">
+                <div class="t-org">Game dev · Unity</div>
+                <h3>Unity 게임 개발 · Unity Game Developer</h3>
+                <p>
+                  iOS 리듬 게임부터 Cocos2d-x, Google Play 연동까지 직접 만들어 봤어요. 지금까지 이어지는
+                  기록하고 글쓰는 습관이 이 시기에 생겼고, vallista.tistory.com에 남긴 글들은 아직도 살아 있어요.
+                </p>
+                <div class="chips">
+                  <span class="chip">Unity</span>
+                  <span class="chip">C#</span>
+                  <span class="chip">iOS</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Signature works -->
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Signature Works</h2>
+            <span class="section-meta">§ selected</span>
+          </div>
+
+          <div class="works">
+            <a class="work-card" href="#">
+              <div class="cover">
+                <svg viewBox="0 0 400 175" preserveAspectRatio="none" aria-hidden="true">
+                  <defs><pattern id="g1" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 0H20M0 0V20" fill="none" stroke="#2b6cff" stroke-opacity="0.18" stroke-width="1"/></pattern></defs>
+                  <rect width="400" height="175" fill="url(#g1)"/>
+                  <circle cx="300" cy="58" r="26" fill="#2b6cff" fill-opacity="0.35"/>
+                  <rect x="40" y="100" width="80" height="52" fill="#2b6cff" fill-opacity="0.55"/>
+                </svg>
+              </div>
+              <div class="meta"><span>2025 — now</span><span>Org &amp; Architecture</span></div>
+              <h3>전사 웹 시스템 · 그룹 운영 설계</h3>
+              <p>~100명 웹프론트 구성원과 함께 전사 웹 아키텍처의 방향을 정하고, 도메인별 인원 배치와 C레벨·리드들과의 싱크로 조직 차원의 문제를 푸는 중.</p>
+              <div class="foot">
+                <div class="chips"><span class="chip" data-tone="blue">Org Leadership</span><span class="chip">Architecture</span></div>
+                <span class="chip dot" data-tone="green">active</span>
+              </div>
+            </a>
+
+            <a class="work-card" href="#">
+              <div class="cover">
+                <svg viewBox="0 0 400 175" preserveAspectRatio="none" aria-hidden="true">
+                  <g fill="#2b6cff" fill-opacity="0.4">
+                    <rect x="-80" y="-40" width="20" height="300" transform="rotate(45 60 60)"/>
+                    <rect x="-20" y="-40" width="20" height="300" transform="rotate(45 60 60)"/>
+                    <rect x="40" y="-40" width="20" height="300" transform="rotate(45 60 60)"/>
+                    <rect x="100" y="-40" width="20" height="300" transform="rotate(45 60 60)"/>
+                    <rect x="160" y="-40" width="20" height="300" transform="rotate(45 60 60)"/>
+                    <rect x="220" y="-40" width="20" height="300" transform="rotate(45 60 60)"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="meta"><span>2022</span><span>OSS</span></div>
+              <h3>vallista-land · 개인 모노레포</h3>
+              <p>컴포넌트·토큰·스토리북·블로그를 한 레포 안에서. 블로그 3번째 리뉴얼의 결과물.</p>
+              <div class="foot">
+                <div class="chips"><span class="chip">Monorepo</span><span class="chip">Astro</span></div>
+                <span class="chip dot" data-tone="green">active</span>
+              </div>
+            </a>
+
+            <a class="work-card" href="#">
+              <div class="cover">
+                <svg viewBox="0 0 400 175" preserveAspectRatio="none" aria-hidden="true">
+                  <g fill="#2b6cff">
+                    <rect x="40"  y="30" width="110" height="70" fill-opacity="0.55"/>
+                    <rect x="110" y="70" width="110" height="70" fill-opacity="0.35"/>
+                    <rect x="220" y="40" width="110" height="70" fill-opacity="0.45"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="meta"><span>2021</span><span>Product</span></div>
+              <h3>POS 연동 · 영수증 엔진</h3>
+              <p>React와 emotion으로 까다로운 프린터 포맷 문제를 다룬 기록. 3편의 아키텍처 글로 남겼다.</p>
+              <div class="foot">
+                <div class="chips"><span class="chip">B마트</span><span class="chip">architecture</span></div>
+                <span class="chip dot" data-tone="amber">archived</span>
+              </div>
+            </a>
+
+            <a class="work-card" href="#">
+              <div class="cover">
+                <svg viewBox="0 0 400 175" preserveAspectRatio="none" aria-hidden="true">
+                  <g fill="#2b6cff" fill-opacity="0.55">
+                    <circle cx="40"  cy="88" r="3"/><circle cx="80"  cy="88" r="3"/><circle cx="120" cy="88" r="3"/>
+                    <circle cx="160" cy="88" r="3"/><circle cx="200" cy="88" r="3"/><circle cx="240" cy="88" r="3"/>
+                    <circle cx="280" cy="88" r="3"/><circle cx="320" cy="88" r="3"/><circle cx="360" cy="88" r="3"/>
+                    <circle cx="40"  cy="48" r="3"/><circle cx="80"  cy="48" r="3"/><circle cx="120" cy="48" r="3"/>
+                    <circle cx="40"  cy="128" r="3"/><circle cx="80"  cy="128" r="3"/><circle cx="120" cy="128" r="3"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="meta"><span>2019 — 2024</span><span>Community</span></div>
+              <h3>글또 · 우아톤 · 사내 워크숍</h3>
+              <p>글또 4기/6기, 우아톤 2019 해커톤, 사내 "이펙티브 타입스크립트" 워크숍 — 같이 공부하는 밀도를 믿는다.</p>
+              <div class="foot">
+                <div class="chips"><span class="chip">글쓰기</span><span class="chip">커뮤니티</span></div>
+                <span class="chip dot" data-tone="green">active</span>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- Skills -->
+        <section class="section">
+          <div class="section-head">
+            <h2 class="section-title">Skills &amp; Craft</h2>
+            <span class="section-meta">§ by category</span>
+          </div>
+          <div class="two-col">
+            <div class="col">
+              <h4>Engineering</h4>
+              <ul>
+                <li><span>TypeScript · React · Astro · Next</span><span class="kbd">daily</span></li>
+                <li><span>Redux · Redux-Saga · React Query</span><span class="kbd">strong</span></li>
+                <li><span>vanilla-extract · emotion · Tailwind</span><span class="kbd">styling</span></li>
+                <li><span>Node · Express · Fastify</span><span class="kbd">backend</span></li>
+                <li><span>Storybook · Vitest · Testing Library</span><span class="kbd">qa</span></li>
+              </ul>
+            </div>
+            <div class="col">
+              <h4>Platform &amp; Leadership</h4>
+              <ul>
+                <li><span>Monorepo · Turborepo · pnpm</span><span class="kbd">platform</span></li>
+                <li><span>CI/CD · Jenkins · GH Actions · Docker</span><span class="kbd">ops</span></li>
+                <li><span>Design System 구축 · 토큰 설계</span><span class="kbd">system</span></li>
+                <li><span>17명 팀 리딩 · 조직 분할</span><span class="kbd">people</span></li>
+                <li><span>사내 워크숍 · 멘토링 · 채용</span><span class="kbd">culture</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ─────────── Colophon ─────────── -->
+      <section class="colo">
+        <div>
+          <h3>글이 올라오면 받아보고 싶다면</h3>
+          <p>격주로 발행하는 회고·기술 글을 이메일로 보내드립니다. 스팸 없음, 언제든 구독 해제.</p>
+        </div>
+        <form class="form" onsubmit="event.preventDefault()">
+          <input type="email" placeholder="you@example.com" aria-label="이메일" />
+          <button type="submit" class="btn primary">Subscribe</button>
+        </form>
+      </section>
+
+      <footer class="foot">
+        <div>© 2026 Gwangwhi Mah · vallista-land</div>
+        <div>set in Pretendard · JetBrains Mono</div>
+      </footer>
+
+    </div>
+  </main>
+</div>
+
+<!-- Tweaks panel -->
+<div id="tweaks" role="dialog" aria-label="Tweaks">
+  <h5>Tweaks</h5>
+  <label>Default panel
+    <select id="tw-panel">
+      <option value="about">About</option>
+      <option value="resume">Resume</option>
+    </select>
+  </label>
+  <label>Hero style
+    <select id="tw-hero">
+      <option value="mixed">Mixed (accent line 2)</option>
+      <option value="all-ink">All ink</option>
+      <option value="all-accent">All accent</option>
+    </select>
+  </label>
+  <label>Density
+    <select id="tw-density">
+      <option value="comfortable">Comfortable</option>
+      <option value="compact">Compact</option>
+    </select>
+  </label>
+</div>
+
+<script>
+  // ── Tweak defaults ──
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "defaultPanel": "about",
+    "heroStyle": "mixed",
+    "density": "comfortable",
+    "theme": "light"
+  }/*EDITMODE-END*/;
+
+  // ── Theme ──
+  const root = document.documentElement;
+  const saved = localStorage.getItem('vallista-theme') || TWEAK_DEFAULTS.theme;
+  root.setAttribute('data-theme', saved);
+  const setLabel = (t) => { const el = document.getElementById('theme-label'); if (el) el.textContent = t === 'light' ? '☀ Light' : '☾ Dark'; };
+  setLabel(saved);
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('vallista-theme', next);
+    setLabel(next);
+  });
+
+  // ── Tabs (About / Resume) ──
+  const tabs = document.querySelectorAll('.tabs button');
+  const panels = document.querySelectorAll('.panel');
+  const setTab = (name, persist = true) => {
+    tabs.forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === name ? 'true' : 'false'));
+    panels.forEach((p) => p.classList.toggle('on', p.dataset.panel === name));
+    if (persist) localStorage.setItem('vallista-about-tab', name);
+  };
+  tabs.forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  const restoredTab = localStorage.getItem('vallista-about-tab') || TWEAK_DEFAULTS.defaultPanel;
+  setTab(restoredTab, false);
+
+  // ── Tweaks panel (edit mode) ──
+  const tweakEl = document.getElementById('tweaks');
+  const applyHero = (style) => {
+    const l2 = document.querySelector('h1.display .accent');
+    if (!l2) return;
+    if (style === 'mixed') l2.style.color = 'var(--accent)';
+    else if (style === 'all-ink') l2.style.color = 'var(--ink)';
+    else if (style === 'all-accent') { l2.style.color = 'var(--accent)'; document.querySelector('h1.display').style.color = 'var(--accent)'; return; }
+    document.querySelector('h1.display').style.color = '';
+  };
+  const applyDensity = (d) => {
+    if (d === 'compact') {
+      root.style.setProperty('--s10', '28px');
+      root.style.setProperty('--s16', '48px');
+      root.style.setProperty('--s12', '36px');
+    } else {
+      root.style.removeProperty('--s10');
+      root.style.removeProperty('--s16');
+      root.style.removeProperty('--s12');
+    }
+  };
+  const applyTweaks = (t) => {
+    if (t.heroStyle) { applyHero(t.heroStyle); const s = document.getElementById('tw-hero'); if (s) s.value = t.heroStyle; }
+    if (t.density) { applyDensity(t.density); const s = document.getElementById('tw-density'); if (s) s.value = t.density; }
+    if (t.defaultPanel) { const s = document.getElementById('tw-panel'); if (s) s.value = t.defaultPanel; }
+  };
+  applyTweaks(TWEAK_DEFAULTS);
+
+  const send = (k, v) => { try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*'); } catch (e) {} };
+  document.getElementById('tw-hero').addEventListener('change', (e) => { applyTweaks({ heroStyle: e.target.value }); send('heroStyle', e.target.value); });
+  document.getElementById('tw-density').addEventListener('change', (e) => { applyTweaks({ density: e.target.value }); send('density', e.target.value); });
+  document.getElementById('tw-panel').addEventListener('change', (e) => { setTab(e.target.value); send('defaultPanel', e.target.value); });
+
+  window.addEventListener('message', (e) => {
+    if (!e.data) return;
+    if (e.data.type === '__activate_edit_mode') tweakEl.style.display = 'block';
+    if (e.data.type === '__deactivate_edit_mode') tweakEl.style.display = '';
+  });
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+
+  // ── ⌘K stub ──
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      alert('검색 팔레트는 spec에 정의되어 있습니다 (docs/04-components/Palette.md). 이 프로토타입은 About+Resume 화면에 집중.');
+    }
+  });
+</script>
+</body>
+</html>

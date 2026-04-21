@@ -28,10 +28,10 @@ function seriesOrder(entry: CollectionEntry<'articles'>): number {
   return entry.data.date.getTime()
 }
 
-// URL-safe slug. "TypeScript 디자인 패턴" → "typescript-design-pattern" 같은 자동 변환은
-// 어려우니 일단 name 을 그대로 encode 해서 라우트로 쓴다.
+// Astro getStaticPaths 는 raw 문자열을 받아야 폴더/URL 인코딩을 올바르게 처리.
+// 이전: encodeURIComponent 로 이중 인코딩 → 404 발생.
 export function seriesNameToSlug(name: string): string {
-  return encodeURIComponent(name.replace(/\s+/g, '-'))
+  return name.replace(/\s+/g, '-')
 }
 
 export function collectSeries(entries: CollectionEntry<'articles'>[]): SeriesEntry[] {

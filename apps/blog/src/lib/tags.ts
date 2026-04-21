@@ -36,6 +36,8 @@ export function relatedTags(
     .map(([t]) => t)
 }
 
+// Astro getStaticPaths 는 raw 문자열을 넘겨야 정상 라우팅됨 (자체적으로 URL 인코딩 처리).
+// 이전: encodeURIComponent 로 이중 인코딩 → 파일 시스템 폴더명에 `%` 가 박혀 404 발생.
 export function slugifyTag(tag: string): string {
-  return encodeURIComponent(tag.toLowerCase().replace(/\s+/g, '-'))
+  return tag.toLowerCase().replace(/\s+/g, '-')
 }

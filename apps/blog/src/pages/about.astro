@@ -2,49 +2,13 @@
 import { getCollection } from 'astro:content'
 
 import BaseLayout from '@layouts/BaseLayout.astro'
-import SocialLinks from '@components/SocialLinks.astro'
-import profile from '@configs/profile.json'
-import resume from '@configs/resume.json'
-import { wrap, hello, headline, highlight, body, bodyStrong } from '../styles/about.css'
+import AboutResume from '@components/AboutResume.astro'
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
+articles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 const counts = { articles: articles.length, notes: 0, projects: 0 }
-
-const socialLinks = [
-  { kind: 'github' as const, href: resume.config.github, label: 'GitHub' },
-  ...(profile.secondary
-    ? [{ kind: 'tistory' as const, href: profile.secondary, label: '이전 블로그' }]
-    : []),
-  { kind: 'email' as const, href: `mailto:${resume.config.email}`, label: resume.config.email },
-  { kind: 'rss' as const, href: '/rss.xml', label: 'RSS' }
-]
 ---
 
 <BaseLayout title='About · Vallista Blog' counts={counts}>
-  <div class={wrap}>
-    <div class='eyebrow'>@vallista · about</div>
-    <span class={hello}>안녕하세요.</span>
-    <h1 class={headline}>
-      저는 <span class={highlight}>{resume.config.name}</span>입니다.
-    </h1>
-
-    <p class={body}>
-      대한민국 서울, 잠실의 우아한형제들에서 <strong class={bodyStrong}>시니어 소프트웨어 엔지니어</strong>로
-      일하고 있어요. 한 분야에 국한되지 않는 여러 문제를 해결하는 것에 즐거움을 느낍니다.
-    </p>
-    <p class={body} style='margin-top: 20px;'>
-      최근에는 프론트엔드에 집중해서 소프트웨어 엔지니어링을 기반으로 의사결정을 하고 있고 매니징을 함께
-      진행하면서 여러명의 엔지니어와 함께 빠른 가치를 만들어 나아가고 있습니다.
-    </p>
-    <p class={body} style='margin-top: 20px;'>
-      블로그는 아티클, 노트, 프로젝트의 세 가지를 분리해서 글을 작성하고 있습니다.
-      아티클은 기술에 대한 리뷰 혹은 생각을 정제하여 포스팅합니다. 노트는 제 개인적인 생각을 다룹니다.
-      마지막으로 프로젝트는 지금까지 회사에서 진행했던 프로젝트를 이야기합니다.
-    </p>
-    <p class={body} style='margin-top: 20px;'>
-      자세한 경력은 <a href='/resume' style='color: var(--accent); border-bottom: 1px solid currentColor;'>이력서</a>에서 볼 수 있습니다.
-    </p>
-
-    <SocialLinks links={socialLinks} />
-  </div>
+  <AboutResume initialTab='about' recentArticles={articles} />
 </BaseLayout>

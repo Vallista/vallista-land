@@ -1,0 +1,392 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+import Chip from '@vallista/ui/components/Chip.astro'
+import SocialLinks from '@components/SocialLinks.astro'
+import resume from '@configs/resume.json'
+import {
+  wrap,
+  hero,
+  displayH1,
+  displayAccent,
+  lede,
+  ledeStrong,
+  tabs,
+  tab,
+  identity,
+  avatar,
+  avatarImg,
+  avatarInitial,
+  who,
+  whoName,
+  whoRole,
+  section,
+  sectionHead,
+  sectionTitle,
+  sectionMeta,
+  prose,
+  flowLine,
+  flowSep,
+  flowCur,
+  pull,
+  proseSub,
+  metrics,
+  metric,
+  metricN,
+  metricU,
+  metricL,
+  twoCol,
+  col,
+  colHead,
+  colList,
+  colItem,
+  colKbd,
+  writingRow,
+  writingDate,
+  writingTitle,
+  writingTag,
+  timeline,
+  tItem,
+  tDate,
+  tDateYear,
+  tDot,
+  tDotNow,
+  tBody,
+  tOrg,
+  tTitle,
+  tDesc,
+  chipRow
+} from '../styles/about-resume.css'
+
+interface Props {
+  initialTab?: 'about' | 'resume'
+  recentArticles: CollectionEntry<'articles'>[]
+}
+
+const { initialTab = 'about', recentArticles } = Astro.props
+
+const GH_AVATAR = 'https://avatars.githubusercontent.com/u/6455767?v=4'
+const r = resume
+
+const aboutActive = initialTab === 'about'
+const resumeActive = initialTab === 'resume'
+
+const careers = r.careers.list
+
+// 각 career 의 대표 chip (projects 가 있으면 첫 프로젝트의 which 를 chip 후보로)
+function careerChips(c: (typeof careers)[number]): string[] {
+  const out: string[] = []
+  if (c.projects && c.projects.length > 0) {
+    const first = c.projects[0]
+    out.push(...(first?.which ?? []).slice(0, 3))
+  }
+  return out
+}
+
+const socialLinks = [
+  { kind: 'github' as const, href: r.config.github, label: 'GitHub' },
+  { kind: 'email' as const, href: `mailto:${r.config.email}`, label: 'Contact' }
+]
+---
+
+<div class={wrap}>
+  {/* Hero */}
+  <header class={hero}>
+    <div class='eyebrow'>@vallista · {initialTab}</div>
+    <h1 class={displayH1}>
+      게임에서 시작해,<br />
+      지금은 <span class={displayAccent}>웹이 만나는 문제</span>를 풀어가고 있어요.
+    </h1>
+    <p class={lede}>
+      서울 잠실, 우아한형제들 <strong class={ledeStrong}>{r.config.role}</strong>에서 일하고 있어요.
+      웹 프론트엔드에 관심이 많고, 조직과 시스템을 동시에 생각하면서 문제를 푸는 걸 좋아합니다.
+      한 분야에 갇히지 않고 여러 결의 문제를 마주하는 게 재미있어요.
+    </p>
+
+    <div class={tabs} role='tablist'>
+      <a
+        href='/about'
+        class={tab}
+        role='tab'
+        aria-selected={aboutActive}
+        data-tab-nav='about'
+      >
+        About
+      </a>
+      <a
+        href='/resume'
+        class={tab}
+        role='tab'
+        aria-selected={resumeActive}
+        data-tab-nav='resume'
+      >
+        Resume
+      </a>
+    </div>
+  </header>
+
+  {/* Identity */}
+  <section class={identity} aria-label='이력 요약'>
+    <div class={avatar}>
+      <span class={avatarInitial} aria-hidden='true'>{r.config.name.charAt(0)}</span>
+      <img
+        src={GH_AVATAR}
+        alt=''
+        class={avatarImg}
+        onerror="this.style.display='none'"
+        loading='eager'
+        decoding='async'
+      />
+    </div>
+    <div class={who}>
+      <div class={whoName}>{r.config.name} · Gwangwhi Mah</div>
+      <div class={whoRole}>{r.config.role} · Woowa Bros · Seoul, KR</div>
+    </div>
+    <SocialLinks links={socialLinks} />
+  </section>
+
+  {/* ═══════════ PANEL · ABOUT ═══════════ */}
+  {
+    aboutActive && (
+      <div>
+        {/* Prose */}
+        <section class={section}>
+          <div class={prose}>
+            <p class={flowLine} aria-hidden='true'>
+              <span>게임</span>
+              <span class={flowSep}>→</span>
+              <span>웹 서비스</span>
+              <span class={flowSep}>→</span>
+              <span>웹 리드</span>
+              <span class={flowSep}>→</span>
+              <span class={flowCur}>플랫폼 엔지니어링</span>
+            </p>
+            <p>
+              <strong>2013년, Unity로 게임을 만들며</strong> 개발을 시작했어요. iOS 리듬 게임과 Cocos2d-x
+              프로젝트를 거치며, 티스토리에 남긴 "삽질의 기록"들이 지금의 뿌리가 됐어요. 화면을 만들고
+              사용자의 손끝에서 반응이 돌아오는 감각, 그 순간을 좋아하는 사람으로 출발했어요.
+            </p>
+            <p>
+              <strong>2017년에 웹으로 넘어왔어요.</strong> Vue와 React를 거치며 브라우저가 게임 런타임만큼
+              흥미로운 문제 공간이라는 걸 알게 됐고, 2019년 우아한형제들에 합류했어요. B마트·배민스토어·
+              전국별미 같은 커머스 도메인에서 영수증 프린터, POS 연동, 이메일 폼처럼 경계에 있는 문제들을
+              부딪히며 <strong>웹 서비스를 만드는 엔지니어</strong>로 자랐죠.
+            </p>
+            <p>
+              <strong>2022년부터 팀을 맡았어요.</strong> 17명 규모의 조직을 이끌었고, 2024년엔 공통 플랫폼팀으로
+              옮겨 서번트 리더십을 연습했습니다. 직접 코드를 써서 결과를 내던 자리에서
+              <strong>팀이 더 잘 해내도록 돕는 자리</strong>로, 역할의 무게 중심이 옮겨간 시기였어요.
+            </p>
+
+            <h3 class={proseSub}>AI 시대일수록 엔지니어링은 더 중요해진다고 믿어요</h3>
+            <p>
+              요즘 가장 많이 고민하는 주제는 <strong>AI를 잘 쓰는 법</strong>이에요. 저부터 도구를 깊게 파고,
+              팀이 일하는 방식에 자연스럽게 녹여 보려 애쓰고 있어요. 그리고 그만큼 무게를 두는 게
+              <strong>전사 구성원의 역량을 끌어올리는 일</strong>이에요. 좋은 도구가 생겨도, 문제를 쪼개고
+              구조를 보고 결과를 책임지는 엔지니어가 없으면 결국 바닥이 얕아지더라고요.
+            </p>
+            <div class={pull}>
+              "AI가 코드를 더 많이 써 줄수록, 무엇을 만들지 정하고 시스템을 책임지는 엔지니어링 역량은 오히려
+              더 중요해지는 것 같아요."
+            </div>
+            <p>
+              제가 글을 쓰는 이유도 같은 맥락에 있어요. <strong>경험한 것을 정리해 두고 나누기 위해서</strong>요.
+              쉽게 얻은 문장은 거의 없고, 대부분 부딪히면서 고친 흔적들이에요. 누군가의 다음 한 걸음이
+              조금이라도 덜 아프기를 바라는 마음으로 계속 쓰고 있어요.
+            </p>
+          </div>
+        </section>
+
+        {/* Metrics */}
+        <section class={section} aria-label='숫자로 보는 요약'>
+          <div class={metrics}>
+            <div class={metric}>
+              <div class={metricN}>13<span class={metricU}>yr</span></div>
+              <div class={metricL}>Career</div>
+            </div>
+            <div class={metric}>
+              <div class={metricN}>{new Date().getFullYear() - 2019}<span class={metricU}>yr</span></div>
+              <div class={metricL}>At Woowa Bros</div>
+            </div>
+            <div class={metric}>
+              <div class={metricN}>{r.careers.list.length}<span class={metricU}>role</span></div>
+              <div class={metricL}>Positions</div>
+            </div>
+            <div class={metric}>
+              <div class={metricN}>{recentArticles.length}<span class={metricU}>+</span></div>
+              <div class={metricL}>Articles</div>
+            </div>
+          </div>
+        </section>
+
+        {/* Now / Stack */}
+        <section class={section}>
+          <header class={sectionHead}>
+            <h2 class={sectionTitle}>지금 쓰는 것 / 하는 일</h2>
+            <span class={sectionMeta}>/now · updated {new Date().getFullYear()}</span>
+          </header>
+          <div class={twoCol}>
+            <div class={col}>
+              <h4 class={colHead}>Now · Lead</h4>
+              <ul class={colList}>
+                <li class={colItem}><span>공통 서비스 웹 프론트 아키텍처 설계</span><span class={colKbd}>daily</span></li>
+                <li class={colItem}><span>푸드/커머스/공통 도메인 리드</span><span class={colKbd}>ongoing</span></li>
+                <li class={colItem}><span>팀원 일정 관리 · 기술 의사결정</span><span class={colKbd}>weekly</span></li>
+                <li class={colItem}><span>공통 플랫폼 · 디자인 시스템</span><span class={colKbd}>quarterly</span></li>
+                <li class={colItem}><span>사내 워크숍 · 글쓰기</span><span class={colKbd}>cont.</span></li>
+              </ul>
+            </div>
+            <div class={col}>
+              <h4 class={colHead}>Tools &amp; Stack</h4>
+              <ul class={colList}>
+                <li class={colItem}><span>TypeScript · React · Astro · Next</span><span class={colKbd}>core</span></li>
+                <li class={colItem}><span>vanilla-extract · emotion</span><span class={colKbd}>styling</span></li>
+                <li class={colItem}><span>Turborepo · pnpm · Jenkins</span><span class={colKbd}>platform</span></li>
+                <li class={colItem}><span>Figma · Linear · Notion · Slack</span><span class={colKbd}>lead</span></li>
+                <li class={colItem}><span>Playwright · Vitest · Storybook</span><span class={colKbd}>qa</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Recent writings */}
+        <section class={section}>
+          <header class={sectionHead}>
+            <h2 class={sectionTitle}>최근에 쓴 글</h2>
+            <a href='/articles' class={sectionMeta} style='color: var(--accent);'>Articles →</a>
+          </header>
+          <div>
+            {
+              recentArticles.slice(0, 6).map((entry) => {
+                const dateLabel = entry.data.date.toISOString().slice(0, 7).replace('-', '.')
+                return (
+                  <a class={writingRow} href={`/articles/${entry.id}`}>
+                    <span class={writingDate}>{dateLabel}</span>
+                    <span class={writingTitle}>{entry.data.title}</span>
+                    <span class={writingTag}>{entry.data.tag}</span>
+                  </a>
+                )
+              })
+            }
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  {/* ═══════════ PANEL · RESUME ═══════════ */}
+  {
+    resumeActive && (
+      <div>
+        {/* Career timeline */}
+        <section class={section}>
+          <header class={sectionHead}>
+            <h2 class={sectionTitle}>{r.careers.title}</h2>
+            <span class={sectionMeta}>2013 — present</span>
+          </header>
+
+          <div class={timeline}>
+            {
+              careers.map((c, idx) => {
+                const isNow = c.endDate == null || /\s*\(?재직중\)?\s*/.test(String(c.endDate ?? ''))
+                const yearStart = c.startDate.split('.')[0]
+                const yearEnd = c.endDate ? c.endDate : 'now'
+                const chips = careerChips(c)
+                return (
+                  <article class={tItem}>
+                    <div class={tDate}>
+                      <span class={tDateYear}>{c.startDate}</span>
+                      — {yearEnd}
+                    </div>
+                    <div class={isNow ? `${tDot} ${tDotNow}` : tDot}></div>
+                    <div class={tBody}>
+                      <div class={tOrg}>{c.name} · {c.department}</div>
+                      <h3 class={tTitle}>{c.position}</h3>
+                      {c.descriptions && c.descriptions.map((d) => <p class={tDesc}>{d}</p>)}
+                      {c.projects && c.projects.map((p) => (
+                        <div style='margin-top: 16px; padding: 16px; background: var(--bg-soft); border: 1px solid var(--line2); border-radius: 10px;'>
+                          <div style='font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px;'>{p.name}</div>
+                          <div style='font-family: monospace; font-size: 11px; color: var(--ink4); margin-bottom: 8px;'>{p.startDate} — {p.endDate ?? 'now'}</div>
+                          {p.descriptions && p.descriptions.map((pd) => (
+                            <p style='font-size: 13.5px; line-height: 1.6; color: var(--ink2); margin: 0 0 4px; padding-left: 12px; position: relative;'>
+                              <span style='position: absolute; left: 0; color: var(--ink4);'>·</span>
+                              {pd}
+                            </p>
+                          ))}
+                        </div>
+                      ))}
+                      {chips.length > 0 && (
+                        <div class={chipRow} style='margin-top: 12px;'>
+                          {chips.map((ch, i) => <Chip tone={i === 0 ? 'blue' : 'neutral'}>{ch}</Chip>)}
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                )
+              })
+            }
+          </div>
+        </section>
+
+        {/* Hobby */}
+        {r.hobby && r.hobby.list.length > 0 && (
+          <section class={section}>
+            <header class={sectionHead}>
+              <h2 class={sectionTitle}>{r.hobby.description}</h2>
+            </header>
+            <div class={twoCol}>
+              <div class={col}>
+                <h4 class={colHead}>관심사 · 취미</h4>
+                <ul class={colList}>
+                  {r.hobby.list.map((h) => (
+                    <li class={colItem}>
+                      <span>
+                        <strong style='color: var(--ink);'>{h.title}</strong>
+                        {h.descriptions && h.descriptions.length > 0 && (
+                          <> — {h.descriptions.join(', ')}</>
+                        )}
+                      </span>
+                      <span class={colKbd}></span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Speaker / Activities / Lectures / Awards */}
+        {[
+          { section: r.speaker, label: '발표' },
+          { section: r.activities, label: '활동' },
+          { section: r.lectures, label: '강의' },
+          { section: r.awards, label: '수상' }
+        ].map(
+          ({ section: s, label }) =>
+            s && s.list && s.list.length > 0 && (
+              <section class={section}>
+                <header class={sectionHead}>
+                  <h2 class={sectionTitle}>{s.description ?? label}</h2>
+                  <span class={sectionMeta}>§ {s.list.length}</span>
+                </header>
+                <ul class={colList}>
+                  {s.list.map((it: { title: string; url?: string | null }) => (
+                    <li class={colItem}>
+                      {it.url ? (
+                        <a href={it.url} target='_blank' rel='noopener noreferrer' style='color: var(--ink); border-bottom: 1px solid var(--line);'>
+                          {it.title}
+                        </a>
+                      ) : (
+                        <span>{it.title}</span>
+                      )}
+                      <span class={colKbd}></span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )
+        )}
+      </div>
+    )
+  }
+</div>
