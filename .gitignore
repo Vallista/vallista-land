@@ -31,6 +31,9 @@ services/new-blog/public/content-index.json
 services/new-blog/public/contents
 services/new-blog/vite.config.d.ts
 
+apps/blog/dist
+apps/blog/.astro
+
 
 .npmrc
 

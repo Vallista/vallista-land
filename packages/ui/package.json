@@ -13,7 +13,7 @@
     "./theme.css": "./src/styles/theme.css.ts",
     "./global.css": "./src/styles/global.css.ts",
     "./tokens.json": "./src/styles/tokens.json",
-    "./components/*": "./src/components/*.astro"
+    "./components/*": "./src/components/*"
   },
   "files": [
     "src"

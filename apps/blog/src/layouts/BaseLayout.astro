@@ -1,0 +1,70 @@
+---
+import { lightTheme } from '@vallista/ui'
+import NavRail from '@vallista/ui/components/NavRail.astro'
+import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
+
+import '@vallista/ui/global.css'
+import '../styles/app.css'
+
+interface Props {
+  title: string
+  description?: string
+  counts?: {
+    articles?: number
+    notes?: number
+    projects?: number
+  }
+}
+
+const { title, description, counts } = Astro.props
+const path = new URL(Astro.request.url).pathname
+const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론트엔드·디자인 시스템·도구에 대한 글'
+---
+
+<!doctype html>
+<html lang='ko-KR' class={lightTheme}>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <title>{title}</title>
+    <meta name='description' content={siteDescription} />
+    <meta property='og:title' content={title} />
+    <meta property='og:description' content={siteDescription} />
+    <meta property='og:type' content='website' />
+    <meta property='og:url' content={Astro.url.href} />
+
+    <!-- Pretendard Variable -->
+    <link rel='stylesheet' as='style' crossorigin
+      href='https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css' />
+
+    <!-- JetBrains Mono -->
+    <link rel='preconnect' href='https://fonts.googleapis.com' />
+    <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+    <link rel='stylesheet'
+      href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap' />
+
+    <!-- 다크모드 FOUC 방지: 페이지 렌더 전에 theme 복원 -->
+    <script is:inline>
+      ;(function () {
+        const KEY = 'theme'
+        const v = localStorage.getItem(KEY)
+        const mode = v === 'light' || v === 'dark' || v === 'system' ? v : 'system'
+        const dark = mode === 'dark' || (mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
+        const root = document.documentElement
+        root.classList.toggle('theme-dark', dark)
+        root.classList.toggle('theme-light', !dark)
+      })()
+    </script>
+  </head>
+  <body>
+    <a href='#main' class='skip-link'>본문으로 바로 가기</a>
+    <div class='layout'>
+      <NavRail path={path} counts={counts}>
+        <DarkModeToggle slot='theme-toggle' />
+      </NavRail>
+      <main id='main' class='layout__main'>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
