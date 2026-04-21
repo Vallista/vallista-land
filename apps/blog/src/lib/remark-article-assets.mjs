@@ -50,9 +50,10 @@ export function remarkArticleAssets() {
       return `/contents/articles/${encodeSegment(slug)}/${encodeSegment(trimmed)}`
     }
 
-    // image 노드를 raw HTML로 치환.
+    // image 노드를 raw HTML figure 카드로 치환.
     // Astro의 content-assets resolver는 markdown image 노드만 자동 import하므로
     // html 노드로 바꾸면 build 타임 resolve를 완전히 우회할 수 있다.
+    // figure.img-card: 고정 높이 + 회색 배경 + onload fade-in (next/image 스타일)
     visit(tree, 'image', (node, index, parent) => {
       if (!parent || typeof index !== 'number') return
       const url = typeof node.url === 'string' ? rewrite(node.url) : ''
@@ -60,9 +61,10 @@ export function remarkArticleAssets() {
       const title = typeof node.title === 'string' ? node.title : ''
       const escape = (s) => s.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       const titleAttr = title ? ` title="${escape(title)}"` : ''
+      const captionHtml = alt ? `<figcaption class="img-card__caption">${escape(alt)}</figcaption>` : ''
       parent.children[index] = {
         type: 'html',
-        value: `<img src="${escape(url)}" alt="${escape(alt)}"${titleAttr} loading="lazy" decoding="async" />`
+        value: `<figure class="img-card"><img src="${escape(url)}" alt="${escape(alt)}"${titleAttr} loading="lazy" decoding="async" onload="this.closest('.img-card').classList.add('is-loaded')" onerror="this.closest('.img-card').classList.add('is-error')" />${captionHtml}</figure>`
       }
     })
 

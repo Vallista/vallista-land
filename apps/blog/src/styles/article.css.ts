@@ -135,13 +135,74 @@ globalStyle(`.${prose} pre code`, {
   fontSize: 'inherit'
 })
 
-globalStyle(`.${prose} img`, {
-  margin: '24px 0',
-  borderRadius: vars.radius['3'],
-  maxWidth: '100%'
-})
-
 globalStyle(`.${prose} hr`, {
   margin: '48px 0',
   borderTop: `1px solid ${vars.color.line2}`
+})
+
+// ─── Image cards (next/image 스타일) ─────────────────────────
+// 본문 이미지를 일관된 높이 + 회색 placeholder + fade-in 로 렌더.
+// remark-article-assets 가 <figure class="img-card"> 래퍼로 감싸준다.
+globalStyle(`.${prose} .img-card`, {
+  position: 'relative',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  margin: '32px 0',
+  padding: '12px',
+  minHeight: '280px',
+  maxHeight: '520px',
+  backgroundColor: vars.color.bgSoft,
+  border: `1px solid ${vars.color.line2}`,
+  borderRadius: vars.radius['4'],
+  overflow: 'hidden'
+})
+
+globalStyle(`.${prose} .img-card img`, {
+  display: 'block',
+  margin: 0,
+  width: 'auto',
+  maxWidth: '100%',
+  maxHeight: '460px',
+  height: 'auto',
+  objectFit: 'contain',
+  borderRadius: vars.radius['2'],
+  opacity: 0,
+  transitionProperty: 'opacity',
+  transitionDuration: vars.duration.slow,
+  transitionTimingFunction: vars.easing.out
+})
+
+globalStyle(`.${prose} .img-card.is-loaded img`, {
+  opacity: 1
+})
+
+globalStyle(`.${prose} .img-card.is-error`, {
+  minHeight: '120px'
+})
+
+globalStyle(`.${prose} .img-card.is-error::after`, {
+  content: '"이미지를 불러올 수 없습니다"',
+  fontFamily: vars.font.mono,
+  fontSize: '12px',
+  color: vars.color.ink4
+})
+
+globalStyle(`.${prose} .img-card__caption`, {
+  margin: '10px 8px 0',
+  fontFamily: vars.font.sans,
+  fontSize: '13px',
+  lineHeight: 1.5,
+  color: vars.color.ink4,
+  textAlign: 'center'
+})
+
+// 카드 밖 '직접 img' (혹시 wrapper 없이 남는 경우) 폴백.
+globalStyle(`.${prose} > img`, {
+  display: 'block',
+  margin: '24px auto',
+  borderRadius: vars.radius['3'],
+  maxWidth: '100%',
+  maxHeight: '480px'
 })
