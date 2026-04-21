@@ -1,15 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
-  <defs>
-    <pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse">
-      <rect width="20" height="20" fill="#eff4ff"/>
-      <circle cx="10" cy="10" r="1" fill="#2b6cff" opacity="0.25"/>
-    </pattern>
-  </defs>
-  <rect width="800" height="450" fill="url(#p)"/>
-  <g fill="none" stroke="#2b6cff" stroke-width="1" opacity="0.35">
-    <line x1="0" y1="100" x2="800" y2="100"/>
-    <line x1="0" y1="350" x2="800" y2="350"/>
-  </g>
-  <text x="400" y="220" text-anchor="middle" font-family="'Pretendard Variable', -apple-system, sans-serif" font-size="18" fill="#6b7389" font-weight="600">외부 이미지 대체</text>
-  <text x="400" y="248" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" fill="#9aa1b4">https://images.unsplash.com/photo-142…</text>
+  <rect width="800" height="450" fill="#eff4ff"/>
+  <g stroke="#2b6cff" fill="none" stroke-width="2">
+        <path d="M30 330 L200 240" opacity="0.35"/>
+        <path d="M200 240 L380 180" opacity="0.55"/>
+        <path d="M380 180 L560 90" opacity="0.75"/>
+        <path d="M30 380 L770 380" opacity="0.2"/>
+        <path d="M30 100 L770 100" opacity="0.15"/>
+      </g>
+  <g transform="translate(48 48)">
+        <rect width="60" height="26" rx="13" fill="#eff4ff"/>
+        <text x="30" y="17" text-anchor="middle" font-family="'Pretendard Variable', sans-serif" font-size="12" font-weight="500" fill="#2b6cff" letter-spacing="0.02em">회고</text>
+      </g>
+  <text x="48" y="320" font-family="'Pretendard Variable', 'Pretendard', -apple-system, sans-serif" font-size="36" font-weight="700" fill="#0b1220" letter-spacing="-0.5">2018년 회고</text>
+  <rect x="48" y="406" width="24" height="2" fill="#2b6cff"/>
+  <text x="80" y="412" font-family="'JetBrains Mono', monospace" font-size="10" fill="#9aa1b4" letter-spacing="0.12em">COVER · PLACEHOLDER</text>
 </svg>

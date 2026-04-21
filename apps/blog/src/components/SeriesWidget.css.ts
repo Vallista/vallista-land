@@ -4,10 +4,32 @@ import { vars } from '@vallista/ui'
 export const widget = style({
   maxWidth: '720px',
   margin: '24px auto 0',
-  border: `1px solid ${vars.color.line2}`,
+  border: `1px solid ${vars.color.accent}`,
   borderRadius: vars.radius['4'],
-  backgroundColor: vars.color.bgSoft,
+  backgroundColor: vars.color.accentTint,
   overflow: 'hidden'
+})
+
+export const banner = style({
+  maxWidth: '720px',
+  margin: '32px auto 0',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  padding: '0 4px',
+  fontFamily: vars.font.mono,
+  fontSize: '11px',
+  fontWeight: 500,
+  textTransform: 'uppercase',
+  letterSpacing: '0.14em',
+  color: vars.color.accent
+})
+
+export const bannerIcon = style({
+  display: 'inline-flex',
+  width: '14px',
+  height: '14px',
+  color: vars.color.accent
 })
 
 export const summary = style({

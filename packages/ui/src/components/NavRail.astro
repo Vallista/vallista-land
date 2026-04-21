@@ -111,7 +111,7 @@ function seriesCurrent(slug: string): 'page' | undefined {
   {
     series.length > 0 && (
       <div class={seriesSection}>
-        <div class={seriesTitle}>Series</div>
+        <a href='/series' class={seriesTitle} style='text-decoration: none;'>Series</a>
         {series.map((s) => (
           <a href={`/series/${s.slug}`} class={seriesLink} aria-current={seriesCurrent(s.slug)}>
             <span>{s.name}</span>

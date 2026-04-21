@@ -1,15 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid slice">
-  <defs>
-    <pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse">
-      <rect width="20" height="20" fill="#eff4ff"/>
-      <circle cx="10" cy="10" r="1" fill="#2b6cff" opacity="0.25"/>
-    </pattern>
-  </defs>
-  <rect width="800" height="450" fill="url(#p)"/>
-  <g fill="none" stroke="#2b6cff" stroke-width="1" opacity="0.35">
-    <line x1="0" y1="100" x2="800" y2="100"/>
-    <line x1="0" y1="350" x2="800" y2="350"/>
-  </g>
-  <text x="400" y="220" text-anchor="middle" font-family="'Pretendard Variable', -apple-system, sans-serif" font-size="18" fill="#6b7389" font-weight="600">외부 이미지 대체</text>
-  <text x="400" y="248" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="12" fill="#9aa1b4">https://pbs.twimg.com/media/Bt5ywJrIE…</text>
+  <rect width="800" height="450" fill="#eff4ff"/>
+  <g fill="#2b6cff" opacity="0.22">
+        <rect x="-20" y="-50" width="18" height="500" transform="rotate(25 0 225)"/><rect x="20" y="-50" width="18" height="500" transform="rotate(25 40 225)"/><rect x="60" y="-50" width="18" height="500" transform="rotate(25 80 225)"/><rect x="100" y="-50" width="18" height="500" transform="rotate(25 120 225)"/><rect x="140" y="-50" width="18" height="500" transform="rotate(25 160 225)"/><rect x="180" y="-50" width="18" height="500" transform="rotate(25 200 225)"/><rect x="220" y="-50" width="18" height="500" transform="rotate(25 240 225)"/><rect x="260" y="-50" width="18" height="500" transform="rotate(25 280 225)"/><rect x="300" y="-50" width="18" height="500" transform="rotate(25 320 225)"/><rect x="340" y="-50" width="18" height="500" transform="rotate(25 360 225)"/><rect x="380" y="-50" width="18" height="500" transform="rotate(25 400 225)"/><rect x="420" y="-50" width="18" height="500" transform="rotate(25 440 225)"/><rect x="460" y="-50" width="18" height="500" transform="rotate(25 480 225)"/><rect x="500" y="-50" width="18" height="500" transform="rotate(25 520 225)"/><rect x="540" y="-50" width="18" height="500" transform="rotate(25 560 225)"/><rect x="580" y="-50" width="18" height="500" transform="rotate(25 600 225)"/><rect x="620" y="-50" width="18" height="500" transform="rotate(25 640 225)"/><rect x="660" y="-50" width="18" height="500" transform="rotate(25 680 225)"/><rect x="700" y="-50" width="18" height="500" transform="rotate(25 720 225)"/><rect x="740" y="-50" width="18" height="500" transform="rotate(25 760 225)"/>
+      </g>
+  <g transform="translate(48 48)">
+        <rect width="94" height="26" rx="13" fill="#eff4ff"/>
+        <text x="47" y="17" text-anchor="middle" font-family="'Pretendard Variable', sans-serif" font-size="12" font-weight="500" fill="#2b6cff" letter-spacing="0.02em">프론트엔드</text>
+      </g>
+  <text x="48" y="320" font-family="'Pretendard Variable', 'Pretendard', -apple-system, sans-serif" font-size="36" font-weight="700" fill="#0b1220" letter-spacing="-0.5">이벤트 루프 (Event Loop)</text>
+  <rect x="48" y="406" width="24" height="2" fill="#2b6cff"/>
+  <text x="80" y="412" font-family="'JetBrains Mono', monospace" font-size="10" fill="#9aa1b4" letter-spacing="0.12em">COVER · PLACEHOLDER</text>
 </svg>

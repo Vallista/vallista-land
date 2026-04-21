@@ -2,6 +2,8 @@
 import type { SeriesPost } from '@lib/series'
 import {
   widget,
+  banner,
+  bannerIcon,
   summary,
   summaryLeft,
   eyebrow,
@@ -29,6 +31,16 @@ const { name, slug, posts, currentId } = Astro.props
 const currentIdx = posts.findIndex((p) => p.id === currentId)
 const currentLabel = currentIdx >= 0 ? `${currentIdx + 1} / ${posts.length}` : `${posts.length}편`
 ---
+
+<div class={banner}>
+  <span class={bannerIcon} aria-hidden='true'>
+    <svg width='14' height='14' viewBox='0 0 14 14' fill='none' stroke='currentColor' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'>
+      <path d='M2 4.5a2 2 0 0 1 2-2h2M8 2.5h2a2 2 0 0 1 2 2M2 9.5a2 2 0 0 0 2 2h2M8 11.5h2a2 2 0 0 0 2-2' />
+      <path d='M5 7h4' />
+    </svg>
+  </span>
+  <span>이 글은 시리즈의 일부입니다 · <a href={`/series/${slug}`} style='color: inherit; border-bottom: 1px solid currentColor;'>{name}</a></span>
+</div>
 
 <details class={widget} open>
   <summary class={summary}>
@@ -64,7 +76,6 @@ const currentLabel = currentIdx >= 0 ? `${currentIdx + 1} / ${posts.length}` : `
 </details>
 
 <script>
-  // details toggle 시 chevron 회전 반영
   function syncChevron(d: HTMLDetailsElement): void {
     const svg = d.querySelector('svg')
     if (!svg) return
