@@ -4,9 +4,8 @@ import {
   brand,
   brandMark,
   brandText,
-  brandName,
-  brandRole,
-  groupTitle,
+  brandName as brandNameStyle,
+  brandRole as brandRoleStyle,
   nav,
   navLink,
   navCount,
@@ -23,9 +22,18 @@ interface Count {
 interface Props {
   path: string
   counts?: Count
+  brandName?: string
+  brandRole?: string
+  brandHref?: string
 }
 
-const { path, counts = {} } = Astro.props
+const {
+  path,
+  counts = {},
+  brandName = 'Vallista',
+  brandRole = 'software engineer',
+  brandHref = '/'
+} = Astro.props
 
 function current(prefix: string): 'page' | undefined {
   if (prefix === '/') return path === '/' ? 'page' : undefined
@@ -34,16 +42,15 @@ function current(prefix: string): 'page' | undefined {
 ---
 
 <aside class={rail}>
-  <a href='/' class={brand}>
+  <a href={brandHref} class={brand}>
     <span class={brandMark} aria-hidden='true'></span>
     <span class={brandText}>
-      <span class={brandName}>vallista-land</span>
-      <span class={brandRole}>prose &amp; systems</span>
+      <span class={brandNameStyle}>{brandName}</span>
+      <span class={brandRoleStyle}>{brandRole}</span>
     </span>
   </a>
 
   <nav class={nav} aria-label='주 메뉴'>
-    <div class={groupTitle}>Navigation</div>
     <a href='/' class={navLink} aria-current={current('/')}>
       Home
     </a>

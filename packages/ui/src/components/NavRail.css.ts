@@ -66,17 +66,6 @@ export const brandRole = style({
   letterSpacing: '0.04em'
 })
 
-export const groupTitle = style({
-  fontFamily: vars.font.mono,
-  fontSize: '11px',
-  fontWeight: 500,
-  textTransform: 'uppercase',
-  letterSpacing: '0.14em',
-  color: vars.color.ink4,
-  padding: '0 10px',
-  marginBottom: '8px'
-})
-
 export const nav = style({
   display: 'flex',
   flexDirection: 'column',

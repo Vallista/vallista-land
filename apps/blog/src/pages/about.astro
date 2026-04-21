@@ -2,37 +2,36 @@
 import { getCollection } from 'astro:content'
 
 import BaseLayout from '@layouts/BaseLayout.astro'
+import { wrap, hello, headline, highlight, body, bodyStrong } from '../styles/about.css'
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
 const counts = { articles: articles.length, notes: 0, projects: 0 }
 ---
 
 <BaseLayout title='About · Vallista Blog' counts={counts}>
-  <div style='max-width: 680px;'>
+  <div class={wrap}>
     <div class='eyebrow'>@vallista · about</div>
-    <h1 style='font-size: 48px; font-weight: 700; line-height: 1.1; letter-spacing: -1px; margin: 0 0 24px;'>
-      코드를 쓰고<br />
-      <span style='color: var(--accent);'>시스템을 정리합니다.</span>
+    <span class={hello}>안녕하세요.</span>
+    <h1 class={headline}>
+      저는 <span class={highlight}>마광휘</span>입니다.
     </h1>
-    <p style='font-size: 18px; line-height: 1.7; color: var(--ink2); margin: 0 0 32px;'>
-      프론트엔드 개발자 <strong>@vallista</strong> 입니다. React, TypeScript, 디자인 시스템,
-      그리고 우리가 매일 쓰는 도구들에 대해 씁니다.
+
+    <p class={body}>
+      대한민국 서울, 잠실의 우아한형제들에서 <strong class={bodyStrong}>시니어 소프트웨어 엔지니어</strong>로
+      일하고 있어요. 한 분야에 국한되지 않는 여러 문제를 해결하는 것에 즐거움을 느낍니다.
     </p>
-
-    <section style='margin: 48px 0;'>
-      <h2 style='font-size: 19px; font-weight: 600; margin: 0 0 12px;'>지금 쓰는 것</h2>
-      <ul style='list-style: none; padding: 0; margin: 0; color: var(--ink2); line-height: 2;'>
-        <li>Astro · TypeScript · vanilla-extract</li>
-        <li>pnpm workspace · Biome</li>
-        <li>GitHub Pages (Cloudflare 예정)</li>
-      </ul>
-    </section>
-
-    <section style='margin: 48px 0;'>
-      <h2 style='font-size: 19px; font-weight: 600; margin: 0 0 12px;'>최근 이력</h2>
-      <ul style='list-style: none; padding: 0; margin: 0; color: var(--ink2); line-height: 2;'>
-        <li>프론트엔드 개발자 · 2017 —</li>
-      </ul>
-    </section>
+    <p class={body} style='margin-top: 20px;'>
+      최근에는 프론트엔드에 집중해서 소프트웨어 엔지니어링을 기반으로 의사결정을 하고 있고 매니징을 함께
+      진행하면서 여러명의 엔지니어와 함께 빠른 가치를 만들어 나아가고 있습니다.
+    </p>
+    <p class={body} style='margin-top: 20px;'>
+      블로그는 아티클, 노트, 프로젝트의 세 가지를 분리해서 글을 작성하고 있습니다.
+      아티클은 기술에 대한 리뷰 혹은 생각을 정제하여 포스팅합니다. 노트는 제 개인적인 생각을 다룹니다.
+      마지막으로 프로젝트는 지금까지 회사에서 진행했던 프로젝트를 이야기합니다.
+    </p>
+    <p class={body} style='margin-top: 20px;'>
+      아래의 링크를 통해 사이트맵을 돌아보실 수 있고, 관련 사이트를 확인하실 수 있고, 왼쪽의 메뉴를 통해
+      다른 카테고리를 탐색하거나 GitHub, 페이스북을 가실 수 있고 다른 글을 보실 수 있어요.
+    </p>
   </div>
 </BaseLayout>

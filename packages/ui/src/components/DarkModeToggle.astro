@@ -1,15 +1,13 @@
 ---
 import { toggle, iconLight, iconDark } from './DarkModeToggle.css'
-
-interface Props {
-  lightClass: string
-  darkClass: string
-}
-
-const { lightClass, darkClass } = Astro.props
 ---
 
-<button type='button' class={toggle} aria-label='테마 변경' data-theme-toggle>
+<button
+  type='button'
+  class={toggle}
+  aria-label='테마 변경'
+  onclick='window.__vallistaThemeCycle && window.__vallistaThemeCycle()'
+>
   <svg
     class={iconLight}
     width='16'
@@ -35,59 +33,3 @@ const { lightClass, darkClass } = Astro.props
     <path d='M13 9.5A5 5 0 1 1 6.5 3a4 4 0 0 0 6.5 6.5Z'></path>
   </svg>
 </button>
-
-<script define:vars={{ lightClass, darkClass }}>
-  const KEY = 'theme'
-
-  function currentMode() {
-    const v = localStorage.getItem(KEY)
-    return v === 'light' || v === 'dark' || v === 'system' ? v : 'system'
-  }
-
-  function resolve(mode) {
-    if (mode !== 'system') return mode
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  }
-
-  function apply(mode) {
-    const dark = resolve(mode) === 'dark'
-    const root = document.documentElement
-    root.classList.toggle(darkClass, dark)
-    root.classList.toggle(lightClass, !dark)
-    root.classList.toggle('theme-dark', dark)
-    root.classList.toggle('theme-light', !dark)
-  }
-
-  function cycle(mode) {
-    if (mode === 'system') return 'light'
-    if (mode === 'light') return 'dark'
-    return 'system'
-  }
-
-  function bind() {
-    document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
-      if (btn.dataset.bound) return
-      btn.dataset.bound = '1'
-      btn.addEventListener('click', () => {
-        const next = cycle(currentMode())
-        localStorage.setItem(KEY, next)
-        apply(next)
-      })
-    })
-  }
-
-  apply(currentMode())
-  bind()
-
-  document.addEventListener('astro:page-load', () => {
-    apply(currentMode())
-    bind()
-  })
-
-  if (!window.__vallistaDarkModeListener) {
-    window.__vallistaDarkModeListener = true
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (currentMode() === 'system') apply('system')
-    })
-  }
-</script>
