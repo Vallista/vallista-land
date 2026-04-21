@@ -78,5 +78,6 @@ const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
 
     setupProgress()
     document.addEventListener('astro:page-load', setupProgress)
+    document.addEventListener('vallista:page-load', setupProgress)
   </script>
 </BaseLayout>

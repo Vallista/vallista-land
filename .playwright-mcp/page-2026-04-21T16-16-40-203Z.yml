@@ -1,0 +1,113 @@
+- generic [ref=e1]:
+  - link "본문으로 바로 가기" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - link "Vallista software engineer" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e7]: V
+        - generic [ref=e8]:
+          - generic [ref=e9]: Vallista
+          - generic [ref=e10]: software engineer
+      - navigation "주 메뉴" [ref=e11]:
+        - link "Home" [ref=e12] [cursor=pointer]:
+          - /url: /
+        - link "Articles 44" [ref=e13] [cursor=pointer]:
+          - /url: /articles
+          - text: Articles
+          - generic [ref=e14]: "44"
+        - link "Notes 0" [ref=e15] [cursor=pointer]:
+          - /url: /notes
+          - text: Notes
+          - generic [ref=e16]: "0"
+        - link "Projects 0" [ref=e17] [cursor=pointer]:
+          - /url: /projects
+          - text: Projects
+          - generic [ref=e18]: "0"
+        - link "Tags" [ref=e19] [cursor=pointer]:
+          - /url: /tags
+        - link "About" [active] [ref=e20] [cursor=pointer]:
+          - /url: /about
+        - link "Resume" [ref=e21] [cursor=pointer]:
+          - /url: /resume
+      - generic [ref=e22]:
+        - button "테마 변경" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+        - link "RSS" [ref=e27] [cursor=pointer]:
+          - /url: /rss.xml
+        - link "Feed" [ref=e28] [cursor=pointer]:
+          - /url: /feed
+    - main [ref=e29]:
+      - generic [ref=e597]:
+        - generic [ref=e598]: "@vallista · about"
+        - generic [ref=e599]: 안녕하세요.
+        - heading "저는 마광휘입니다." [level=1] [ref=e600]
+        - paragraph [ref=e601]:
+          - text: 대한민국 서울, 잠실의 우아한형제들에서
+          - strong [ref=e602]: 시니어 소프트웨어 엔지니어
+          - text: 로 일하고 있어요. 한 분야에 국한되지 않는 여러 문제를 해결하는 것에 즐거움을 느낍니다.
+        - paragraph [ref=e603]: 최근에는 프론트엔드에 집중해서 소프트웨어 엔지니어링을 기반으로 의사결정을 하고 있고 매니징을 함께 진행하면서 여러명의 엔지니어와 함께 빠른 가치를 만들어 나아가고 있습니다.
+        - paragraph [ref=e604]: 블로그는 아티클, 노트, 프로젝트의 세 가지를 분리해서 글을 작성하고 있습니다. 아티클은 기술에 대한 리뷰 혹은 생각을 정제하여 포스팅합니다. 노트는 제 개인적인 생각을 다룹니다. 마지막으로 프로젝트는 지금까지 회사에서 진행했던 프로젝트를 이야기합니다.
+        - paragraph [ref=e605]:
+          - text: 자세한 경력은
+          - link "이력서" [ref=e606] [cursor=pointer]:
+            - /url: /resume
+          - text: 에서 볼 수 있습니다.
+        - generic [ref=e607]:
+          - link "GitHub" [ref=e608] [cursor=pointer]:
+            - /url: https://github.com/vallista
+            - img [ref=e609]
+            - generic [ref=e611]: GitHub
+          - link "이전 블로그" [ref=e612] [cursor=pointer]:
+            - /url: https://vallista.tistory.com
+            - img [ref=e613]
+            - generic [ref=e617]: 이전 블로그
+          - link "mgh950714@gmail.com" [ref=e618] [cursor=pointer]:
+            - /url: mailto:mgh950714@gmail.com
+            - img [ref=e619]
+            - generic [ref=e622]: mgh950714@gmail.com
+          - link "RSS" [ref=e623] [cursor=pointer]:
+            - /url: /rss.xml
+            - img [ref=e624]
+            - generic [ref=e627]: RSS
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - heading "사이트 맵" [level=3] [ref=e103]
+            - link "홈" [ref=e104] [cursor=pointer]:
+              - /url: /
+            - link "아티클" [ref=e105] [cursor=pointer]:
+              - /url: /articles
+            - link "노트" [ref=e106] [cursor=pointer]:
+              - /url: /notes
+            - link "프로젝트" [ref=e107] [cursor=pointer]:
+              - /url: /projects
+            - link "태그" [ref=e108] [cursor=pointer]:
+              - /url: /tags
+            - link "소개" [ref=e109] [cursor=pointer]:
+              - /url: /about
+            - link "이력서" [ref=e110] [cursor=pointer]:
+              - /url: /resume
+          - generic [ref=e111]:
+            - heading "관련 사이트" [level=3] [ref=e112]
+            - link "GitHub" [ref=e113] [cursor=pointer]:
+              - /url: https://github.com/vallista
+            - link "이전 블로그" [ref=e114] [cursor=pointer]:
+              - /url: https://vallista.tistory.com
+            - link "우아한형제들 채용" [ref=e115] [cursor=pointer]:
+              - /url: https://career.woowahan.com/
+            - link "우아한형제들 기술블로그" [ref=e116] [cursor=pointer]:
+              - /url: https://techblog.woowahan.com/
+        - generic [ref=e117]:
+          - paragraph [ref=e118]:
+            - text: Copyright © 2026
+            - link "Vallista" [ref=e119] [cursor=pointer]:
+              - /url: https://vallista.kr
+            - text: All rights reserved.
+          - paragraph [ref=e120]:
+            - text: Created by
+            - link "@Vallista" [ref=e121] [cursor=pointer]:
+              - /url: https://vallista.kr
+            - text: . Powered by
+            - link "@vallista-land" [ref=e122] [cursor=pointer]:
+              - /url: https://github.com/Vallista/vallista-land

@@ -38,10 +38,6 @@ globalStyle(`html.${darkTheme}`, {
   backgroundColor: vars.color.bg
 })
 
-globalStyle('main', {
-  minHeight: '100vh'
-})
-
 globalStyle('.layout', {
   display: 'grid',
   gridTemplateColumns: '220px minmax(0, 1fr)',
@@ -55,10 +51,17 @@ globalStyle('.layout', {
 
 globalStyle('.layout__main', {
   minWidth: 0,
-  padding: '64px 48px 120px',
+  minHeight: '100vh',
+  display: 'flex',
+  flexDirection: 'column'
+})
+
+globalStyle('.page-body', {
+  flex: '1 0 auto',
+  padding: '64px 48px 80px',
   '@media': {
     '(max-width: 959px)': {
-      padding: '48px 20px 80px'
+      padding: '48px 20px 64px'
     }
   }
 })
@@ -99,5 +102,11 @@ globalStyle('.page-fade', {
   animationDuration: vars.duration.base,
   animationTimingFunction: vars.easing.out,
   animationFillMode: 'both'
+})
+
+globalStyle('#main-content.is-leaving', {
+  opacity: 0,
+  transform: 'translateY(-4px)',
+  transition: `opacity 140ms ${vars.easing.out}, transform 140ms ${vars.easing.out}`
 })
 
