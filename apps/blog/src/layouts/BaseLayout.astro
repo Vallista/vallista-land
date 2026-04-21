@@ -2,8 +2,33 @@
 import { lightTheme, darkTheme } from '@vallista/ui'
 import NavRail from '@vallista/ui/components/NavRail.astro'
 import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
+import Footer from '@vallista/ui/components/Footer.astro'
 
 import SearchPalette from '@components/SearchPalette.astro'
+
+const footerGroups = [
+  {
+    title: '사이트 맵',
+    links: [
+      { label: '홈', href: '/' },
+      { label: '아티클', href: '/articles' },
+      { label: '노트', href: '/notes' },
+      { label: '프로젝트', href: '/projects' },
+      { label: '태그', href: '/tags' },
+      { label: '소개', href: '/about' },
+      { label: '이력서', href: '/resume' }
+    ]
+  },
+  {
+    title: '관련 사이트',
+    links: [
+      { label: 'GitHub', href: 'https://github.com/vallista', external: true },
+      { label: '이전 블로그', href: 'https://vallista.tistory.com', external: true },
+      { label: '우아한형제들 채용', href: 'https://career.woowahan.com/', external: true },
+      { label: '우아한형제들 기술블로그', href: 'https://techblog.woowahan.com/', external: true }
+    ]
+  }
+]
 
 import '@vallista/ui/global.css'
 import '../styles/app.css'
@@ -102,11 +127,12 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
   <body>
     <a href='#main' class='skip-link'>본문으로 바로 가기</a>
     <div class='layout'>
-      <NavRail path={path} counts={counts} brandAvatar='/profile.jpg'>
+      <NavRail path={path} counts={counts} brandAvatar='https://avatars.githubusercontent.com/u/6455767?v=4'>
         <DarkModeToggle slot='theme-toggle' />
       </NavRail>
       <main id='main' class='layout__main page-fade'>
         <slot />
+        <Footer groups={footerGroups} />
       </main>
     </div>
     <!-- main 바깥 body 직계. transform 컨텍스트에 묶이지 않아서 position:fixed 가 viewport 기준으로 동작 -->

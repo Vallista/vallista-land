@@ -1,0 +1,83 @@
+---
+import {
+  footer,
+  inner,
+  groups,
+  group,
+  groupTitle,
+  link,
+  bottom,
+  copy,
+  copyLink
+} from './Footer.css'
+
+export interface FooterLinkItem {
+  label: string
+  href: string
+  external?: boolean
+}
+
+export interface FooterGroupConfig {
+  title: string
+  links: FooterLinkItem[]
+}
+
+interface Props {
+  groups: FooterGroupConfig[]
+  author?: string
+  siteUrl?: string
+  sourceUrl?: string
+}
+
+const {
+  groups: groupConfigs,
+  author = 'Vallista',
+  siteUrl = 'https://vallista.kr',
+  sourceUrl = 'https://github.com/Vallista/vallista-land'
+} = Astro.props
+
+const year = new Date().getFullYear()
+---
+
+<footer class={footer}>
+  <div class={inner}>
+    <div class={groups}>
+      {
+        groupConfigs.map((g) => (
+          <div class={group}>
+            <h3 class={groupTitle}>{g.title}</h3>
+            {g.links.map((l) => (
+              <a
+                href={l.href}
+                class={link}
+                target={l.external ? '_blank' : undefined}
+                rel={l.external ? 'noopener noreferrer' : undefined}
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+    <div class={bottom}>
+      <p class={copy}>
+        Copyright © {year}{' '}
+        <a href={siteUrl} class={copyLink}>
+          {author}
+        </a>{' '}
+        All rights reserved.
+      </p>
+      <p class={copy}>
+        Created by{' '}
+        <a href={siteUrl} class={copyLink}>
+          @{author}
+        </a>
+        . Powered by{' '}
+        <a href={sourceUrl} class={copyLink} target='_blank' rel='noopener noreferrer'>
+          @vallista-land
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
