@@ -6,9 +6,8 @@
   "scripts": {
     "dev": "npm run generate-content && vite",
     "dev:drafts": "INCLUDE_DRAFTS=1 npm run generate-content && vite",
-    "build": "npm run generate-content && npm run generate-favicon && vite build && npm run generate-seo && npm run copy-404",
+    "build": "npm run generate-content && npm run generate-favicon && vite build",
     "generate-favicon": "node scripts/generate-favicon.js",
-    "copy-404": "node scripts/copy-404.js",
     "build:check": "tsc --noEmit",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
@@ -19,7 +18,6 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "generate-content": "node scripts/generate-content.js",
-    "generate-seo": "node scripts/generate-seo.js",
     "deploy": "pnpm build && node scripts/deploy.js"
   },
   "dependencies": {

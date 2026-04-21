@@ -23,14 +23,14 @@ yarn-debug.log*
 yarn-error.log*
 
 .package-lock.json
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 .credentials.json
 
 services/new-blog/dist
 services/new-blog/public/content-index.json
 services/new-blog/public/contents
+services/new-blog/vite.config.d.ts
 
 
 .npmrc
 
-packages/core/tsconfig.tsbuildinfo

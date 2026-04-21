@@ -4,8 +4,10 @@ import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import { resolve } from 'path'
 import svgr from 'vite-plugin-svgr'
 
+import { vallistaSeoPlugin } from './scripts/vite-plugins/seo'
+
 export default defineConfig({
-  plugins: [vanillaExtractPlugin(), react(), svgr()],
+  plugins: [vanillaExtractPlugin(), react(), svgr(), vallistaSeoPlugin()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

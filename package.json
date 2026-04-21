@@ -25,7 +25,6 @@
     "build:new-blog": "pnpm --filter @vallista/new-blog run build",
     "deploy:new-blog": "pnpm --filter @vallista/new-blog run deploy",
     "generate-content:new-blog": "pnpm --filter @vallista/new-blog run generate-content",
-    "generate-seo:new-blog": "pnpm --filter @vallista/new-blog run generate-seo",
     "preview:new-blog": "pnpm --filter @vallista/new-blog run preview",
     "lint:new-blog": "pnpm --filter @vallista/new-blog run lint",
     "lint:fix:new-blog": "pnpm --filter @vallista/new-blog run lint:fix",

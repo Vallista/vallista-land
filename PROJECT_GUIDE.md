@@ -172,8 +172,10 @@ pnpm dev:new-blog
 ### 빌드 (`services/new-blog/package.json`의 `build`)
 
 ```
-generate-content  →  generate-favicon  →  vite build  →  generate-seo  →  copy-404
+generate-content  →  generate-favicon  →  vite build
 ```
+
+`vite build`의 `closeBundle` 시점에 내장 `vallistaSeoPlugin`(`scripts/vite-plugins/seo.ts`)이 돌며 **sitemap.xml / robots.txt / rss.xml / \_redirects** 생성, 각 `/articles/{slug}/index.html` 의 메타 주입, `meta.json` 및 이미지 복사, `404.html` 생성까지 처리합니다.
 
 ### 배포 (`scripts/deploy.js`)
 
