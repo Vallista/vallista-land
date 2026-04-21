@@ -1,19 +1,17 @@
 ---
-title: "TypeScript 디자인 패턴 - 팩토리 패턴"
-date: "2020-05-05T20:44:56.000Z"
-image: "assets/3.jpg"
-tags: []
+title: TypeScript 디자인 패턴 - 팩토리 패턴
+date: 2020-05-05 20:44:56
+image: ./assets/0.jpg
+tags:
+  - 프론트엔드
 draft: false
 info: false
-series: "TypeScript 디자인 패턴"
+series: TypeScript 디자인 패턴
 seriesPriority: 1
 slug: "design-pattern-factory-pattern"
 ---
 
-팩토리-패턴
----
-
-
+![이미지0](./assets/0.jpg)
 
 ## 팩토리 패턴이란
 
@@ -78,7 +76,7 @@ inputArr.forEach((input) => { console.log(input.render()) })
 
 ### 언제 쓰이는가
 
-
+![이미지1](./assets/1.jpg)
 
 팩토리 매서드 패턴이 사용되는 곳은 다양한 자식 클래스가 생기며 파편화되는 상황에서 매니지먼트를 하기위해 사용됩니다. 위의 예처럼 다양한 Input이 있고, 해당 Input 생성을 타입별로 생성을 해주고 있습니다. Input.InputFactory 사용만으로 다양한 타입에 대해서 생성을 쉽게 해줄 수 있습니다.
 
@@ -86,7 +84,7 @@ inputArr.forEach((input) => { console.log(input.render()) })
 
 ### 심화
 
-
+![이미지2](./assets/2.jpg)
 
 그렇다면 팩토리 매서드 패턴을 이용해서 조금 심화된 위의 구조를 코드로 구현해보도록 합시다.
 
@@ -171,7 +169,7 @@ class ImageButton extends Button {
     render() {
         return `<button class="none">
             ${this.text}
-
+            <img src="${this.src} alt="button-img"/>
         </button>`
     }
 }
@@ -245,7 +243,7 @@ console.log(Form.FormFactory(FormType.THREE))
 
 위의 예제를 추상 팩토리 패턴으로 설계를 변경해보도록 합시다.
 
-
+![이미지3](./assets/3.jpg)
 
 간단하게 추상 팩토리 패턴을 적용해보았습니다. 여기서 중요한 점은, 팩토리 메서드로 직접 받던 부분을 클래스 단위로 묶어서 만들고, 그 클래스를 팩토리 메서드로 한번 더 묶었다는 점입니다.
 
@@ -332,7 +330,7 @@ class ImageButton extends Button {
     render() {
         return `<button class="none">
             ${this.text}
-
+            <img src="${this.src} alt="button-img"/>
         </button>`
     }
 }

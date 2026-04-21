@@ -1,7 +1,8 @@
 ---
-title: "XSS (Cross-Site-Scripting)"
-tags: []
-date: "2019-05-12T11:03:57.000Z"
+title: XSS (Cross-Site-Scripting)
+tags:
+  - 프론트엔드
+date: 2019-05-12 11:03:57
 draft: true
 info: false
 slug: "xss-cross-site-scripting"

@@ -1,7 +1,8 @@
 ---
-title: "SSR (Server Side Rendering)"
-tags: []
-date: "2019-05-05T19:07:15.000Z"
+title: SSR (Server Side Rendering)
+tags:
+  - 프론트엔드
+date: 2019-05-05 19:07:15
 draft: true
 info: false
 slug: "ssr-server-side-rendering"

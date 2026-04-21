@@ -1,7 +1,8 @@
 ---
-title: "리듀스 (Reduce)"
-tags: []
-date: "2019-05-12T11:01:13.000Z"
+title: 리듀스 (Reduce)
+tags:
+  - 프론트엔드
+date: 2019-05-12 11:01:13
 draft: true
 info: false
 slug: "reduce"

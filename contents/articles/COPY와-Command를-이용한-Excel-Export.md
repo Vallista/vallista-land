@@ -1,7 +1,8 @@
 ---
-title: "COPY와 Command를 이용한 Excel Export"
-tags: []
-date: "2019-01-29T18:00:08.000Z"
+title: COPY와 Command를 이용한 Excel Export
+tags:
+
+date: 2019-01-29 18:00:08
 draft: false
 info: false
 slug: "and-using"
@@ -106,7 +107,7 @@ postgresql> COPY order_item(created_at, id, name, payment) to '~/app/importFile.
 
 ### 복잡한 쿼리를 나타내기
 
-현재 구문으로는 한 가지의 테이블에 대한 데이터만 나타 낼 수 있는 것 같습니다.
+현재 구문으로는 한 가지의 테이블에 대한 데이터만 나타 낼 수 있는 것 같습니다.  
 그렇다면 JOIN이나 WHERE등의 커맨드가 붙어야 할 때는 어떻게 해야할까요?
 
 `()` 괄호를 열어주시면 됩니다.

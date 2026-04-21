@@ -1,10 +1,13 @@
 ---
-title: "2022년 8월 16일"
-tags: []
-date: "2022-08-16T16:51:47.000Z"
-image: "assets/6.png"
+title: 2022년 8월 16일
+tags:
+  - TIL
+date: 2022-08-16 16:51:47
+image: ./assets/splash.jpg
 slug: "2022-year-8-month-16-day"
 ---
+
+![로고](assets/splash.jpg)
 
 ## 오늘 한 일
 
@@ -26,7 +29,7 @@ slug: "2022-year-8-month-16-day"
 
 ### 1. 모노레포 패키지에 GitHub Action Workflow 추가하기
 
-
+![로고](assets/0.png)
 
 workflow를 선택하면 여러가지가 보이는데, 여기서 js script등이 있으므로 쉽게 Node.js 환경으로 실행했다. 그 후 yml 파일이 만들어지고, 해당 yml 파일에서 로직을 작성해 githuh action script를 작성할 수 있다.
 
@@ -126,18 +129,36 @@ global config을 설정하기는 매우 쉽다.
 
 1. Github > 개인 설정 > Settings > Developer settings에 접근한다.
 
+![로고](assets/1.png)
 
+<center>좌: Settings / 우: Developer Settings</center>
 
 2. Personal access tokens > Generate new token을 통해 토큰을 생성한다.
 
+![로고](assets/2.png)
+
+<center>토큰을 생성할 때 권한을 repository 접근을 할 수 있게 모든 권한을 주면 된다.</center>
+
 3. 대상 프로젝트의 Settings > Secrets > Actions로 들어간다
 
+![로고](assets/3.png)
 
+<center>Settings > Secrets > Actions</center>
 
 4. Actions secrets에서 TOKEN을 추가한다.
 
+![로고](assets/4.png)
+
+<center>추가하면 Repository secrets에 등록된다.</center>
+
 5. 스크립트에서 `${{ secrets.TOKEN }}` 형태로 호출한다.
 
-
-
 등록하면 대상 프로젝트에서 해당 유저의 모든 레포지토리에 접근할 수 있는 권한이 생긴다.
+
+![로고](assets/5.png)
+
+<center>실행하면 다음과 같이 잘 실행된다.</center>
+
+![로고](assets/6.png)
+
+<center>workflow가 가동된 모습</center>

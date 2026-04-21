@@ -1,7 +1,8 @@
 ---
-title: "RESTFUL API"
-tags: []
-date: "2019-05-02T18:46:16.000Z"
+title: RESTFUL API
+tags:
+
+date: 2019-05-02 18:46:16
 draft: true
 info: false
 slug: "restful-api"

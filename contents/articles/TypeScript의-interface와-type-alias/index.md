@@ -1,12 +1,15 @@
 ---
-title: "TypeScript의 interface와 type alias"
-tags: []
-date: "2021-10-10T16:07:18.000Z"
+title: TypeScript의 interface와 type alias
+tags:
+  - 프론트엔드
+date: 2021-10-10 16:07:18
 draft: false
 info: false
-image: "assets/1.jpeg"
+image: ./assets/1.jpeg
 slug: "of-and"
 ---
+
+![이미지1](./assets/1.jpeg)
 
 타입스크립트의 Type Alias는 장점이면서 동시에 단점도 갖고있는 양날의 검입니다. 다양한 타입을 만들어낼 수도 있는 장점을 갖고 있지만, 다양한 타입을 만들어내므로써 쓸데없이 타입이 꼬이게 만들어 코드를 복잡하게 만든다는 단점도 존재합니다.
 
@@ -336,6 +339,7 @@ console.log(Distance(a, b)) // 13
 // tslint:disable-next-line: no-empty-interface
 export interface Theme {}
 ...
+
 
 // emotion.d.ts
 import '@emotion/react'

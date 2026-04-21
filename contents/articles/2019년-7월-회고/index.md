@@ -1,7 +1,8 @@
 ---
-title: "2019년 7월 회고"
-tags: []
-date: "2019-08-01T17:20:29.000Z"
+title: 2019년 7월 회고
+tags:
+  - 회고
+date: 2019-08-01 17:20:29
 draft: false
 info: false
 slug: "2019-year-7-month-retrospective"

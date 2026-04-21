@@ -1,11 +1,11 @@
 ---
-title: "파싱 (Parsing)"
-tags: []
-date: "2019-05-03T19:02:32.000Z"
+title: 파싱 (Parsing)
+tags:
+
+date: 2019-05-03 19:02:32
 draft: true
 info: false
 slug: "parsing"
-image: "assets/https://d2.naver.com/content/images/2015/06/helloworld-59361-7.png"
 ---
 
 렌더링 과정에서 파싱은 매우 중요하다. HTML등의 문서 파싱 작업은 브라우저가 코드를 이해하고 사용할 수 있는 구조로 바꾸는 것을 의미한다. 파싱으로 나오는 결과는 문서 구조를 나타내는 노드 트리 형태로 나오게 된다.
@@ -14,13 +14,15 @@ image: "assets/https://d2.naver.com/content/images/2015/06/helloworld-59361-7.pn
 
 2+3+1을 예시로 들면, 아래와 같은 트리의 형태가 된다.
 
+![](https://d2.naver.com/content/images/2015/06/helloworld-59361-5.png)
 
 ### 파서 - 어휘 분석기 조합
 
 파싱은 두 개의 분석으로 나눌 수 있다.
 
-- **어휘 분석**
+![](https://d2.naver.com/content/images/2015/06/helloworld-59361-6.png)
 
+- **어휘 분석**
   자료를 토큰으로 변환, 토큰은 유효하게 구성된 단위의 집합체이다.
   인간의 언어로 표현하면 **사전**이라 볼 수 있다.
 - **구문 분석**
@@ -36,8 +38,9 @@ image: "assets/https://d2.naver.com/content/images/2015/06/helloworld-59361-7.pn
 
 ### 변환
 
-파서는 어휘, 구문 분석을 담당하는 **어휘 분석기, 구문 분석기**가 내장되어 있다.
+![](https://d2.naver.com/content/images/2015/06/helloworld-59361-7.png)
 
+파서는 어휘, 구문 분석을 담당하는 **어휘 분석기, 구문 분석기**가 내장되어 있다.
 
 - **어휘 분석기**
   유효한 토큰으로 분해 (공백이나 개행 같은 의미없는 문자 제거)
@@ -70,16 +73,16 @@ image: "assets/https://d2.naver.com/content/images/2015/06/helloworld-59361-7.pn
 
 - 어휘
 
-  INTEGER : 0|[1-9][0-9]\*
-   PLUS : +
+  INTEGER : 0|[1-9][0-9]\*  
+   PLUS : +  
    MINUS : -
 
 어휘는 보통 정규표현식으로 작성한다.
 
 - 구문
 
-  expression := term operation term
-   operation := PLUS | MINUS
+  expression := term operation term  
+   operation := PLUS | MINUS  
    term := INTEGER | expression
 
 구문은 [BNF (Backus-Naur Form)](https://www.notion.so/97878963-961a-4ae6-b6d4-40849fb33020)표현되는 형식에 따라 정의한다.

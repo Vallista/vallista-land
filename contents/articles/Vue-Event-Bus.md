@@ -1,11 +1,11 @@
 ---
-title: "Vue Event Bus"
-tags: []
-date: "2018-01-14T18:38:29.000Z"
+title: Vue Event Bus
+tags:
+  - 프론트엔드
+date: 2018-01-14 18:38:29
 draft: true
 info: false
 slug: "vue-event-bus"
-image: "image.png"
 ---
 
 vue에서 component간 통신을 하기 위해서는 상위의 컴포넌트에서 하위로 이벤트를 내려보내고, 하위에서 props로 받아서 전달할 수 밖에 없다.
@@ -46,7 +46,7 @@ Vue.component('alert-box', {
   },
   template:
     '<div :class="`alert-box-${this.index}`" class="alert-box alert-box-start flex-container flex-center-sort flex-column">' +
-    '<div class="title flex-container flex-center-sort flex-column"><div class="title-image-background"></div></div>' +
+    '<div class="title flex-container flex-center-sort flex-column"><div class="title-image-background"></div><img class="title-image" src="image.png"/></div>' +
     '<div class="description flex-container flex-center-sort flex-column">{{this.description}}</div>' +
     '</div>'
 })

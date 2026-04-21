@@ -1,10 +1,13 @@
 ---
-title: "2022년 8월 24일"
-image: "assets/splash.jpg"
-tags: []
-date: "2022-08-24T15:55:03.000Z"
+title: 2022년 8월 24일
+image: ./assets/splash.jpg
+tags:
+  - TIL
+date: 2022-08-24 15:55:03
 slug: "2022-year-8-month-24-day"
 ---
+
+![로고](assets/splash.jpg)
 
 ## 오늘 한 일
 

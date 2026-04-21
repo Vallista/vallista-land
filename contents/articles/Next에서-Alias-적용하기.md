@@ -1,7 +1,8 @@
 ---
-title: "Next에서 Alias 적용하기"
-tags: []
-date: "2019-05-15T11:17:29.000Z"
+title: Next에서 Alias 적용하기
+tags:
+  - 프론트엔드
+date: 2019-05-15 11:17:29
 draft: true
 info: false
 slug: "at-apply"

@@ -1,11 +1,11 @@
 ---
-title: "CSSOM (CSS Object Model)"
-tags: []
-date: "2019-05-07T19:12:24.000Z"
+title: CSSOM (CSS Object Model)
+tags:
+  - 프론트엔드
+date: 2019-05-07 19:12:24
 draft: true
 info: false
 slug: "cssom-css-object-model"
-image: "https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-tree.png?hl=ko"
 ---
 
 CSS는 앞서 말한 '**문맥 자유 문법**' 이므로 [BNF (Backus-Naur Form)](https://www.notion.so/97878963-961a-4ae6-b6d4-40849fb33020)로 표현할 수 있다.
@@ -26,6 +26,7 @@ CSS는 앞서 말한 '**문맥 자유 문법**' 이므로 [BNF (Backus-Naur Form
 
 위의 css를 처리하기 위해 아래의 과정을 진행한다. CSSOM을 만드는 작업은[DOM (Document Object Model)](https://www.notion.so/05b2fa44-e433-4bb2-9fc3-cd59110f6ddb) 과 Attachment를 쉽게 하기 위해서 비슷한 과정을 진행하게 된다.
 
+![](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-construction.png?hl=ko)
 
 1. **변환:** 렌더링 엔진에서 OS의 네트워크 레이어나 디스크를 통해 데이터를 읽어와서 지정한 인코딩으로 (UTF-8) 개별 문자로 변환한다.
 2. **토큰화:** 개별 문자로 변환된 문자열을 [W3C 표준](https://www.w3.org/TR/html5/)에 지정된 고유한 토큰으로 변환한다. 각 토큰은 특별한 의미와 고유한 규칙을 가진다. (ex: 'html', 'head' 등)
@@ -50,8 +51,9 @@ CSS 적용은 **일반적인 CSS 규칙 → 구체적인 CSS 규칙** 순으로 
 
 CSS를 적용할 때 상위 태그의 모든 하위 태그에는 상위 태그의 스타일이 적용된다. (하향식 적용)
 
-즉, body 영역에 공통으로 사용될 수 있는 property를 적용하면 하위 Element에 모두 적용된다.
+![](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/images/cssom-tree.png?hl=ko)
 
+즉, body 영역에 공통으로 사용될 수 있는 property를 적용하면 하위 Element에 모두 적용된다.
 
 - body 태그와 body 태그의 하위 태그에는 font-size: 15px이 하향식으로 적용된다.
 - p 태그와 p 태그의 하위 태그에는 font-weight: bold가 하향식으로 적용된다.

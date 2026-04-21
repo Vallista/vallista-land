@@ -1,11 +1,11 @@
 ---
-title: "Redux"
-tags: []
-date: "2019-05-15T11:16:29.000Z"
+title: Redux
+tags:
+  - React
+date: 2019-05-15 11:16:29
 draft: true
 info: false
 slug: "redux"
-image: "https://haruair.github.io/flux/img/flux-simple-f8-diagram-with-client-action-1300w.png"
 ---
 
 Redux는 React에만 속한 프레임워크가 아닌, 광범위로 사용할 수 있는 프레임워크이다.
@@ -26,11 +26,11 @@ Flux는 핵심적인 세 가지 부분으로 구성되어 있다. Dispatcher, St
 
 ### 구조와 데이터 흐름
 
-
+![](https://haruair.github.io/flux/img/flux-simple-f8-diagram-1300w.png)
 
 Flux에서 데이터 흐름은 위의 그림과 같이 이어진다. Action을 실행하면 DIspatcher가 동작하고, Store가 데이터를 변경하여, View에서 데이터를 주입받는다. 각각의 레이어는 독립적으로 움직이며, action은 새로운 데이터를 포함하고 있는 간단한 객체로 type 프로퍼티로 구분할 수 있다.
 
-
+![](https://haruair.github.io/flux/img/flux-simple-f8-diagram-with-client-action-1300w.png)
 
 View는 사용자의 상호작용에 응답하기 위해서 새로운 Action을 생성하여 시스템에 전파한다.
 

@@ -1,11 +1,11 @@
 ---
-title: "이벤트 루프 (Event Loop)"
-tags: []
-date: "2019-05-09T19:14:14.000Z"
+title: 이벤트 루프 (Event Loop)
+tags:
+  - 프론트엔드
+date: 2019-05-09 19:14:14
 draft: true
 info: false
 slug: "event-loop"
-image: "assets/https://image.toast.com/aaaadh/real/2018/techblog/eventloop.jpg"
 ---
 
 JavaScript는 단일 쓰레드 기반의 언어이다. 하지만 작동하는 걸 보면 단일 쓰레드에서 돌아가는 거라는 생각이 들지 않는다. CSS 애니메이션이 돌아가면서 클릭 이벤트도 받고 다양한 동작이 동시에 작동한다.
@@ -25,7 +25,7 @@ V8과 같은 JavaScript 엔진은 **단일 호출 스택(Call Stack)**을 사용
 - V8과 같은 자바스크립트 엔진은 단일 호출 스택을 사용하여 단순히 순차적으로 처리한다.
 - 비동기나 동시성 작업은 Node.js 환경이나 브라우저에서 담당한다.
 
-
+![](https://cloud.githubusercontent.com/assets/12269489/16215491/b1493856-379d-11e6-9c16-a9a4cf841567.png)
 
 실제로 비동기 호출을 위해 사용하는 setTimeout, XMLHttpRequest는 Web API 라는 JavaScript Engine 영역이 아닌, 브라우저 영역에 정의되어 있다. 또한 이벤트 루프나 Task Queue도 JavaScript Engine 외부에서 작동한다.
 
@@ -33,7 +33,7 @@ V8과 같은 JavaScript 엔진은 **단일 호출 스택(Call Stack)**을 사용
 - setTimeOut과 같은 함수들은 (Global Function) JavaScript 외부에 WebAPI 형태로 존재한다.
 - Task Queue와 이벤트 루프도 JavaScript Engine 외부에 존재한다.
 
-
+![](https://pbs.twimg.com/media/Bt5ywJrIEAAKJQt.jpg)
 
 - Node.JS는 비동기 IO를 지원하기 위해 LIBUV 라이브러리를 사용한다.
 - LIBUV 라이브러리는 이벤트 루프를 제공한다.
@@ -82,7 +82,7 @@ foo()
 - baz 함수는 console.log('baz!')를 실행한다.
 - setTimeout으로 baz를 0.01초 후에 출력한다.
 
-
+![](Slide1-0ab0eb99-8bfd-470f-99e0-afec00992e8c.png)
 
 1. Browser Web API, 10ms 후 baz를 실행하는 setTimeout을 실행한다.
 2. setTimeout은 Browser의 Task queue에 추가된다.
@@ -115,7 +115,7 @@ waitForMessage() 메소드는 현재 실행중인 태스크가 없을 때 다음
 - 모든 비동기 API 작업이 끝나면 콜백 함수를 테스크 큐에 추가한다.
 - 이벤트 루프는 '현재 실행중인 태스크가 없을 때' (주로 호출 스택이 비워졌을 때) 태스크 큐의 첫 번째 태스크를 꺼내와 실행한다.
 
-
+![](https://image.toast.com/aaaadh/real/2018/techblog/eventloop.jpg)
 
 ## 비동기 API와 try-catch
 

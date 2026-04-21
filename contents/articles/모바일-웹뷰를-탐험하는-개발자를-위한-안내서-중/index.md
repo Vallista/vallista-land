@@ -1,14 +1,17 @@
 ---
-title: "모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (중)"
-image: "assets/image3.jpeg"
-tags: []
-date: "2019-12-28T19:47:35.000Z"
+title: 모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (중)
+image: ./assets/image1.jpg
+tags:
+  - 프론트엔드
+date: 2019-12-28 19:47:35
 draft: false
 info: false
-series: "모바일 웹뷰를 탐험하는 개발자를 위한 안내서"
+series: 모바일 웹뷰를 탐험하는 개발자를 위한 안내서
 seriesPriority: 2
 slug: "mobile-webview-exploring-developer-for-guide-in"
 ---
+
+![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)
 
 > 이전 포스트
 > [모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (상)](https://vallista.kr/2019/11/10/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%83%81/)
@@ -41,7 +44,7 @@ slug: "mobile-webview-exploring-developer-for-guide-in"
 `background` Property를 사용한 방법은 과거부터 전통적으로 웹 프론트엔드를 개발하면서 사용되던 형태입니다. 하지만 이 방법은 `Semantic Web(시맨틱 웹)`이 대두되면서 html을 작성하는 명확한 방법이 아니게 되어 현재 와서는 권장이 되지 않고 있습니다. 그래서 아래와 같은 방법을 사용합니다.
 
 ```html {numberLines}
-
+<img src="example.png" class="title-image" />
 ```
 
 ```css {numberLines}
@@ -53,8 +56,7 @@ slug: "mobile-webview-exploring-developer-for-guide-in"
 
 이 형태의 작성 방법은 `Semantic Web(시멘틱 웹)`을 보장함과 동시에, CSS 코드도 간결해진다는 장점을 가지고 있습니다. 하지만, 이 방법에도 단점이 존재합니다.
 
-
-
+![image2](./assets/image2.png)
 모든 브라우저가 지원하지 않는다.
 
 그렇습니다. 이 방법은 모든 브라우저가 지원을 하지 않습니다. (IE 11 미지원) 그렇기 때문에 Cross Browsing 이슈가 존재합니다. 그렇기 때문에 Polyfill을 사용해야 하는데 이는 Webpack과 함께 자주 사용되는 PostCSS 모듈 **Autoprefixer**에 포함되어 있으므로 걱정을 하지 않으셔도 됩니다. 만약 포함이 안되어있다면 Autoprefixer를 포함해주세요.
@@ -67,24 +69,21 @@ slug: "mobile-webview-exploring-developer-for-guide-in"
 
 > background-size, object-fit의 두 가지 옵션
 > 이미지를 확대할 때, 가로를 기준으로 확대를 할 지 세로를 기준으로 확대 할 지 설정할 수 있습니다.
-> 
-
-
 >
->
-
-
+> ![image1](./assets/image1.jpg)
 
 ## 이미지의 위치를 침범하는 이슈
 
 아래와 같은 레이아웃을 구현한다고 가정해봅시다.
+
+![image3](./assets/image3.jpeg)
 
 이 레이아웃을 구현하는 여러가지 방법이 존재할텐데 그 중에서 한 가지 방법을 이야기 해보겠습니다.
 
 ```html {numberLines}
 <div class="container">
   <div class="left-area">
-
+    <img src="image" />
   </div>
   <div class="right-area">
     <div class="price-wrapper">

@@ -1,10 +1,13 @@
 ---
-title: "2022년 8월 17일"
-image: "assets/1.png"
-tags: []
-date: "2022-08-17T20:23:34.000Z"
+title: 2022년 8월 17일
+image: ./assets/splash.jpg
+tags:
+  - TIL
+date: 2022-08-17 20:23:34
 slug: "2022-year-8-month-17-day"
 ---
+
+![로고](assets/splash.jpg)
 
 ## 오늘 한 일
 
@@ -38,7 +41,9 @@ slug: "2022-year-8-month-17-day"
 
 [bestofjs.org](https://bestofjs.org/projects?tags=module)에서 bundler 순위를 확인해보았다.
 
+![번들러 별 순위](assets/0.png)
 
+<center>bestofjs.org 의 bundler 순위</center>
 
 대략 10위까지는 다음과 같다
 
@@ -63,9 +68,9 @@ Webpack, Rollup, Browserify, esm는 전통적으로 유명했으니 제외하고
 
 `npm trend 지표 확인하기`
 
+![npm trend 지표](assets/1.png)
+
 결국 `parcel`, `esbuild`, `microbundle` 세 가지 중에 선택을 해야했는데, npm 트랜드상으론 esbuild가 제일 안정적이었지만, 지금 프로젝트는 개인 블로그기도 하고 메이저를 사용할 이유는 딱히 없었다. 그래서 최근에 다운로드수가 높아지고 있는 microbundle이 궁금했고, 이번엔 `microbundle`로 해보려고 했다.
-
-
 
 #### Microbundle ..?
 

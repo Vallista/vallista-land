@@ -1,7 +1,8 @@
 ---
-title: "BNF (Backus-Naur Form)"
-tags: []
-date: "2019-05-02T19:00:34.000Z"
+title: BNF (Backus-Naur Form)
+tags:
+
+date: 2019-05-02 19:00:34
 draft: true
 info: false
 slug: "bnf-backus-naur-form"

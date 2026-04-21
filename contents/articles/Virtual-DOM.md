@@ -1,7 +1,8 @@
 ---
-title: "Virtual DOM"
-tags: []
-date: "2019-05-04T19:04:34.000Z"
+title: Virtual DOM
+tags:
+  - 프론트엔드
+date: 2019-05-04 19:04:34
 draft: true
 info: false
 slug: "virtual-dom"

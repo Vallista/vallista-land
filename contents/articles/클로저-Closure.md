@@ -1,7 +1,8 @@
 ---
-title: "클로저 (Closure)"
-tags: []
-date: "2019-05-11T10:55:07.000Z"
+title: 클로저 (Closure)
+tags:
+  - 프론트엔드
+date: 2019-05-11 10:55:07
 draft: true
 info: false
 slug: "closure"

@@ -1,10 +1,13 @@
 ---
-title: "2022년 8월 22일"
-image: "assets/1.png"
-tags: []
-date: "2022-08-22T22:20:35.000Z"
+title: 2022년 8월 22일
+image: ./assets/splash.jpg
+tags:
+  - TIL
+date: 2022-08-22 22:20:35
 slug: "2022-year-8-month-22-day"
 ---
+
+![로고](assets/splash.jpg)
 
 ## 오늘 한 일
 
@@ -95,3 +98,7 @@ typescript에서 타입 추론하기 위한 디렉토리 구조는 잘 만들어
 ## tsc로 npm publish 하기
 
 위에서 이야기 했듯, 파일별 위계상 js 파일이 만들어지지 않아서, microbundle로 삽질을 했지만, 문제가 있어서 결론적으로 tsc로 변경을 했다. 그래서 tsc로 변경하고 나서 bundle을 올리고, `npm install @vallista/core@0.5.4` 을 진행해서 실행했다. 이전엔 정상적으로 실행이 되지 않았지만 이번엔 제대로 실행이 되었다.
+
+![이미지1](assets/1.png)
+
+<center>정상적으로 구동되는 사진</center>

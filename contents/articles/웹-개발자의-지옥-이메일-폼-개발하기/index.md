@@ -1,12 +1,15 @@
 ---
-title: "웹 개발자의 지옥, 이메일 폼 개발하기"
-image: "assets/image4.png"
-tags: []
-date: "2019-12-27T20:01:32.000Z"
+title: 웹 개발자의 지옥, 이메일 폼 개발하기
+image: ./assets/image1.png
+tags:
+  - 프론트엔드
+date: 2019-12-27 20:01:32
 draft: false
 info: false
 slug: "web-developer-hell-email-form-developing"
 ---
+
+![이미지1](https://i0.wp.com/gaegul.kr/wordpress/wp-content/uploads/1/cfile29.uf.2529523E532F23481C8D5B.jpg)
 
 웹을 개발하다보면 사용자를 위해, 법률적인 요소로 인해, 효율성을 위해, 등 다양한 이유 때문에 이메일을 전송하게 됩니다. 하지만 이 이메일을 HTML/CSS로 구현할 때 굉장히 고통스럽다는 사실은 상대적으로 알려져 있지 않습니다.
 
@@ -26,8 +29,7 @@ slug: "web-developer-hell-email-form-developing"
 
 <br/>
 
-
-
+![image1](./assets/image1.png)
 [법률 :: 전자상거래 등에서의 소비자보호 지침](http://www.law.go.kr/%ED%96%89%EC%A0%95%EA%B7%9C%EC%B9%99/%EC%A0%84%EC%9E%90%EC%83%81%EA%B1%B0%EB%9E%98%20%EB%93%B1%EC%97%90%EC%84%9C%EC%9D%98%20%EC%86%8C%EB%B9%84%EC%9E%90%EB%B3%B4%ED%98%B8%20%EC%A7%80%EC%B9%A8)
 
 <br/>
@@ -40,14 +42,12 @@ slug: "web-developer-hell-email-form-developing"
 
 ### 이메일 고지의 여러 폼들
 
-
-
+![image2](./assets/image2.png)
 타다의 이메일 고지
-
-
 
 <br/>
 
+![image3](./assets/image3.png)
 KG이니시스 이메일 고지
 
 위와 같이 수많은 회사들이 고유한 이메일 고지 포맷을 가지고 있습니다. 공통점으로 얼마를 결제했는지, 주문 내역, 구매자명, 결제수단, 연락처 등을 포함하고 있습니다. 그래서 해당 부분을 포함하여 이메일 고지 포맷을 만들어야 하며, 만들어진 해당 포맷에는 여러가지 고지사항이 함께 포함되어 있어야 합니다.
@@ -200,12 +200,11 @@ KG이니시스 이메일 고지
 
 앞서 여러가지 제약사항에 대해서 찾아봤습니다. 그렇다면 정녕 이메일 작업을 쉽게 할 수 있는 방법은 없는걸까요? 앞으로 살펴보도록 합시다.
 
-
-
 ### 첫 번째 :: [Campaignmonitor](https://www.campaignmonitor.com/css/style-element/style-in-head/) 참고
 
 <br/>
 
+![image4](./assets/image4.png)
 이메일 클라이언트에서 해당 property를 어떤 메일이 지원하는지 볼 수 있는 사이트.
 
 <br/>
@@ -463,7 +462,7 @@ blockquote {
 이미지 태그는 인라인 스타일로 width와 height를 주기보다, Property로 줄 수 있는 width, height로 주는게 좋습니다.
 
 ```html {numberLines}
-
+<img src="https://example.com/image1.png" width="400" height="400" alt="image1" />
 ```
 
 #### 텍스트

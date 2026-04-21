@@ -1,7 +1,8 @@
 ---
-title: "Docker In Docker (DIND) 설정하기"
-tags: []
-date: "2019-05-30T16:33:52.000Z"
+title: Docker In Docker (DIND) 설정하기
+tags:
+
+date: 2019-05-30 16:33:52
 draft: true
 info: false
 slug: "configuration"
@@ -144,6 +145,7 @@ do
         esac
 done
 popd >/dev/null
+
 
 # If a pidfile is still around (for example after a container restart),
 # delete it so that docker can start.

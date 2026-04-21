@@ -1,19 +1,17 @@
 ---
-title: "TypeScript 디자인 패턴 - 메멘토 패턴"
-image: "assets/https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript/blob/master/screenshots/1.gif?raw=true"
-tags: []
-date: "2020-06-07T18:41:05.000Z"
+title: TypeScript 디자인 패턴 - 메멘토 패턴
+image: ./assets/0.jpg
+tags:
+  - 프론트엔드
+date: 2020-06-07 18:41:05
 draft: false
 info: false
-series: "TypeScript 디자인 패턴"
+series: TypeScript 디자인 패턴
 seriesPriority: 3
 slug: "design-pattern-memento-pattern"
 ---
 
-메멘토-패턴
----
-
-
+![이미지0](./assets/0.jpg)
 
 ## 메멘토 패턴
 
@@ -60,14 +58,12 @@ slug: "design-pattern-memento-pattern"
 
 ## 구조
 
-
-
+![이미지1](./assets/1.jpg)
 (사진 1. 메멘토의 구조)
 
 <br/>
 
-
-
+![이미지2](./assets/2.jpg)
 (사진 2. Saving, Restoring 프로세스)
 
 <br/>
@@ -120,6 +116,7 @@ class CareTaker {
   }
 }
 
+
 const originator: Originator = new Originator('first', 'one')
 
 const careTaker: CareTaker = new CareTaker()
@@ -142,10 +139,9 @@ console.log(originator)
 
 ## 구현
 
-
-
 해당 코드는 [React-Memento-Pattern-Use-TypeScript](https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript)에서 확인할 수 있습니다.
 
+![1](https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript/blob/master/screenshots/1.gif?raw=true)
 (사진 3. 실행 결과)
 
 Todo List 예시를 사용하여 변화에 대해서 롤백할 수 있는 기능을 메멘토 패턴으로 추가를 해보겠습니다.
@@ -553,13 +549,11 @@ const App = () => {
 }
 
 export default App
-
-
-
 ```
 
 ## 실행
 
+![2](https://github.com/Vallista/React-Memento-Pattern-Use-TypeScript/blob/master/screenshots/1.gif?raw=true)
 (사진 4: 결과)
 
 실행을 해보면 롤백이 제대로 동작하는 걸 볼 수 있습니다.

@@ -1,7 +1,8 @@
 ---
-title: "E2E (end to end) Test"
-tags: []
-date: "2017-07-01T18:41:35.000Z"
+title: E2E (end to end) Test
+tags:
+  - 프론트엔드
+date: 2017-07-01 18:41:35
 draft: true
 info: false
 slug: "E2E-(end-to-end)-Test"

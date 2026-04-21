@@ -1,10 +1,13 @@
 ---
-title: "2022년 8월 18일"
-image: "assets/2.png"
-tags: []
-date: "2022-08-18T13:14:54.000Z"
+title: 2022년 8월 18일
+image: ./assets/splash.jpg
+tags:
+  - TIL
+date: 2022-08-18 13:14:54
 slug: "2022-year-8-month-18-day"
 ---
+
+![로고](assets/splash.jpg)
 
 ## 오늘 한 일
 
@@ -81,7 +84,9 @@ yarn workspace는 모든 npm 모듈을 root로 올려서 교차에 있는 의존
 
 #### 실행
 
+![어 실행이 왜 되니?](assets/1.png)
 
+<center>응..? 너 왜 갑자기 실행되니?</center>
 
 역시 진리는 자고 일어나면 된다고, 자고 일어나서 다시 해보니까 된다. 어제는 의존성 재설치를 진행하지 않아서 기존 core 패키지의 babel 의존성이 묻어있었던 것 같다. 그래서 안되는 것으로 이해했고, microbundle로 다시 선택하게 된다..
 
@@ -97,9 +102,9 @@ yarn workspace는 모든 npm 모듈을 root로 올려서 교차에 있는 의존
 
 [8월 16일 TIL](https://vallista.kr/2022년-8월-16일/)에서 이야기했지만, github 은 personal access token으로 권한을 제어하고 있다. 먼저 권한을 받아서, npm registry에 등록하도록 하자.
 
+![키 발급받기](assets/2.png)
+
 1. 이미지상에서 하단에 write:packages와 상단의 repo 설정을 허용하고, 발급받으면 다음 페이지에서 키를 받을 수 있다. 해당 키를 저장한 후, 다음과 같이 로컬에서 입력해준다.
-
-
 
 ```bash {numberLines}
 $ npm login --scope=@Vallista --registry=https://npm.pkg.github.com

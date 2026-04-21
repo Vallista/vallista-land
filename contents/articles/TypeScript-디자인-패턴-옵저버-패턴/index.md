@@ -1,19 +1,17 @@
 ---
-title: "TypeScript 디자인 패턴 - 옵저버 패턴"
-image: "assets/https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true"
-tags: []
-date: "2020-05-22T20:30:33.000Z"
+title: TypeScript 디자인 패턴 - 옵저버 패턴
+image: ./assets/0.jpg
+tags:
+  - 프론트엔드
+date: 2020-05-22 20:30:33
 draft: false
 info: false
-series: "TypeScript 디자인 패턴"
+series: TypeScript 디자인 패턴
 seriesPriority: 2
 slug: "design-pattern-observer-pattern"
 ---
 
-옵저버-패턴
----
-
-
+![이미지0](./assets/0.jpg)
 
 ## 옵저버 패턴이란
 
@@ -27,8 +25,7 @@ slug: "design-pattern-observer-pattern"
 
 아래의 코드는 [React Observer Pattern Use TypeScript](https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript)에서 보실 수 있습니다.
 
-
-
+![1](./assets/1.png)
 (그림 1: 옵저버 패턴의 구상도)
 
 <br/>
@@ -39,8 +36,7 @@ slug: "design-pattern-observer-pattern"
 
 <br/>
 
-
-
+![2](https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true)
 (그림 2: 옵저버 패턴을 적용해 전체 추가와 전체 삭제 기능을 구현)
 
 그림에 나오는 것처럼 옵저버 패턴을 적용해서 구현을 해보겠습니다.
@@ -391,9 +387,9 @@ const App = () => {
 export default App
 ```
 
-
-
 ## 실행
+
+![2](https://github.com/Vallista/React-Observer-Pattern-Use-TypeScript/raw/master/screenshots/2.gif?raw=true)
 
 실행을 해보면 전체 추가, 삭제가 제대로 동작하는 걸 볼 수 있습니다.
 

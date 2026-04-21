@@ -1,12 +1,15 @@
 ---
-title: "팀 리딩과 개발 문화에 대한 단상"
-image: "assets/2.png"
-tags: []
-date: "2021-07-25T17:05:28.000Z"
+title: 팀 리딩과 개발 문화에 대한 단상
+image: ./assets/0.jpeg
+tags:
+  - 잡담
+date: 2021-07-25 17:05:28
 draft: false
 info: false
 slug: "team-reading-development-culture-about-thoughts"
 ---
+
+![이미지0](./assets/0.jpeg)
 
 약 1년 반 이라는 기간동안 프론트앤드 챕터의 리딩을 맡아오면서, 지금까지 개발에 대한 리딩만 신경을 써왔음을 자각하게 되었다.
 이러한 생각의 바탕에는 첫째로, 작년에 비해 약 2배 이상의 인원이 들어오게 되면서 팀 단위의 생산성을 신경쓰게 되었으며
@@ -108,7 +111,7 @@ slug: "team-reading-development-culture-about-thoughts"
 
 위의 사이클로 작성하면 아래와 같은 문서 형태가 조립된다.
 
-
+![2](./assets/2.png)
 
 1. 2021년 06월에 진행한 코드 리뷰어 기능 확장 이라는 피쳐이다.
 2. `First Phase`로 `코드 리뷰어 기능 확장 프로젝트 배경`을 작성했다. 해당 내용을 보면 프로젝트를 왜 진행해야하고, 어떤 부분에 대한 성과가 있을지 알 수 있다.

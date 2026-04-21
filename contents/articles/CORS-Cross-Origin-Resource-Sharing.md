@@ -1,11 +1,11 @@
 ---
-title: "CORS (Cross Origin Resource Sharing)"
-tags: []
-date: "2019-05-12T11:04:45.000Z"
+title: CORS (Cross Origin Resource Sharing)
+tags:
+  - 프론트엔드
+date: 2019-05-12 11:04:45
 draft: true
 info: false
 slug: "cors-cross-origin-resource-sharing"
-image: "http://dev.epiloum.net/wp-content/uploads/2015/03/comparison_between_ajax_and_jsonp.png"
 ---
 
 CORS는 Cross-Origin Resource Sharing의 약자이다.
@@ -26,6 +26,6 @@ CORS는 Cross-Origin Resource Sharing의 약자이다.
 해결 방법으로 JSONP 포맷을 이용해서 사용하는 방법도 존재한다.
 JSONP는 `<script>`의 다른 스크립트 파일 임베드 기능을 이용해서 사용하는 방법이다.
 
-
+![](http://dev.epiloum.net/wp-content/uploads/2015/03/comparison_between_ajax_and_jsonp.png)
 
 [자바스크립트 예제로 살펴보는 JSONP의 기본원리](http://dev.epiloum.net/1311)

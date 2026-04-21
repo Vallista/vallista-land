@@ -1,7 +1,8 @@
 ---
-title: "SPA (Single Page Application)"
-tags: []
-date: "2019-05-05T19:06:21.000Z"
+title: SPA (Single Page Application)
+tags:
+  - 프론트엔드
+date: 2019-05-05 19:06:21
 draft: true
 info: false
 slug: "spa-single-page-application"

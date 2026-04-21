@@ -1,11 +1,11 @@
 ---
-title: "Jenkins"
-tags: []
-date: "2019-05-28T11:11:30.000Z"
+title: Jenkins
+tags:
+
+date: 2019-05-28 11:11:30
 draft: true
 info: false
 slug: "jenkins"
-image: "assets/images/jenkins_3.png"
 ---
 
 ## #1 설치
@@ -38,13 +38,13 @@ image: "assets/images/jenkins_3.png"
 2. Freestyle Project, Pipeline 용도에 맞게 생성
 3. 아래의 사진 처럼 셋팅
 
-   
+   ![](/images/jenkins_1.png)
 
-   
+   ![](/images/jenkins_2.png)
 
 4. Pipeline script from SCM (pipeline일 때), SCM → Git, Repository에는 ssh주소를 적어준다. 그리고 만들어놓은 Credentials를 사용.
 
-   
+   ![](/images/jenkins_3.png)
 
 ## #3 Jenkins File로 Pipeline 설정
 

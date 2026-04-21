@@ -1,11 +1,14 @@
 ---
-title: "덕 타이핑과 구조적 타이핑"
-tags: []
-date: "2021-08-19T19:09:51.000Z"
+title: 덕 타이핑과 구조적 타이핑
+tags:
+
+date: 2021-08-19 19:09:51
 draft: false
-image: "assets/2.jpeg"
+image: ./assets/1.png
 slug: "thanks-and-typing-structural-typing"
 ---
+
+![1](./assets/1.png)
 
 덕 타이핑과 구조적 타이핑 두 가지는 비슷하면서, 근본적으로 다르다.
 
@@ -13,12 +16,9 @@ slug: "thanks-and-typing-structural-typing"
 
 그렇다면 덕 타이핑은 무엇이고, 구조적 타이핑은 무엇일까?
 
-## 덕 타이핑
+## 덕 타이핑 (Duck-Typing)
 
-
-
- (Duck-Typing)
-
+![2](./assets/2.jpeg)
 (위의 사진으로 설명 끝)
 
 덕 타이핑은 객체의 변수, 메소드의 집합이 객체의 타입을 결정하는 것을 말한다. 즉, 위의 사진처럼 콘센트나 돼지코냐 "이름"은 중요하지 않다. 꽃을 수 있는가 없는가 꽃을 수 있으면 그것은 콘센트라고 부를 수 있다.
