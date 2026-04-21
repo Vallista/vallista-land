@@ -82,7 +82,7 @@ foo()
 - baz 함수는 console.log('baz!')를 실행한다.
 - setTimeout으로 baz를 0.01초 후에 출력한다.
 
-![](Slide1-0ab0eb99-8bfd-470f-99e0-afec00992e8c.png)
+<!-- missing image removed: Slide1-0ab0eb99-8bfd-470f-99e0-afec00992e8c.png -->
 
 1. Browser Web API, 10ms 후 baz를 실행하는 setTimeout을 실행한다.
 2. setTimeout은 Browser의 Task queue에 추가된다.
