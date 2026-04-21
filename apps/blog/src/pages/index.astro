@@ -8,6 +8,7 @@ import Cover from '@vallista/ui/components/Cover.astro'
 import Input from '@vallista/ui/components/Input.astro'
 import { estimateReadingTime } from '@lib/reading-time'
 import { normalizeArticleImage } from '@lib/article-image'
+import { resolveDek } from '@lib/excerpt'
 import {
   header,
   title,
@@ -19,7 +20,7 @@ import {
   featuredMeta,
   featuredMetaRow,
   featuredTitle,
-  featuredDek,
+  featuredDek as featuredDekStyle,
   listGrid,
   bottomLink
 } from '../styles/home.css'
@@ -36,6 +37,7 @@ const featuredMinutes = featuredEntry ? estimateReadingTime(featuredEntry.body ?
 const featuredImage = featuredEntry
   ? normalizeArticleImage(featuredEntry.data.image, featuredEntry.id)
   : undefined
+const featuredDek = featuredEntry ? resolveDek(featuredEntry.data, featuredEntry.body, 180) : ''
 ---
 
 <BaseLayout title='Vallista Blog · 최근에 쓴 글' counts={counts}>
@@ -63,7 +65,7 @@ const featuredImage = featuredEntry
               <Chip>{`Article · ${featuredMinutes} min`}</Chip>
             </div>
             <h3 class={featuredTitle}>{featuredEntry.data.title}</h3>
-            {featuredEntry.data.dek && <p class={featuredDek}>{featuredEntry.data.dek}</p>}
+            {featuredDek && <p class={featuredDekStyle}>{featuredDek}</p>}
             <div class={featuredMetaRow}>
               {featuredEntry.data.tags.slice(0, 3).map((t) => (
                 <Chip>{t}</Chip>

@@ -29,6 +29,11 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <link rel='icon' type='image/svg+xml' href='/favicon/favicon.svg' />
+    <link rel='alternate icon' href='/favicon/favicon.ico' />
+    <link rel='apple-touch-icon' sizes='180x180' href='/favicon/apple-touch-icon.png' />
+    <link rel='manifest' href='/favicon/manifest.json' />
+    <meta name='theme-color' content='#ffffff' />
     <title>{title}</title>
     <meta name='description' content={siteDescription} />
     <meta property='og:title' content={title} />
@@ -58,8 +63,10 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
           root.classList.toggle('theme-light', !dark)
         }
         function cycle() {
-          var cur = currentMode()
-          var next = cur === 'system' ? 'light' : cur === 'light' ? 'dark' : 'system'
+          // 현재 화면에 실제로 적용된 테마(system의 경우 resolved 결과)를 기준으로
+          // 반대로 토글. "다크면 라이트, 라이트면 다크" — 한 번만 누르면 전환.
+          var resolved = resolve(currentMode())
+          var next = resolved === 'dark' ? 'light' : 'dark'
           localStorage.setItem(KEY, next)
           apply(next)
         }
@@ -102,6 +109,8 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
         <slot />
       </main>
     </div>
+    <!-- main 바깥 body 직계. transition 컨텍스트에 묶이지 않아서 position:fixed 가 viewport 기준으로 동작 -->
+    <slot name='overlay' />
     <SearchPalette />
   </body>
 </html>

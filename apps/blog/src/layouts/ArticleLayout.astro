@@ -51,7 +51,7 @@ const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
     <slot />
   </article>
 
-  <Toc headings={headings} />
+  <Toc slot='overlay' headings={headings} />
 
   <script>
     function setupProgress(): void {
