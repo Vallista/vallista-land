@@ -12,7 +12,7 @@ export const progress = style({
 })
 
 export const header = style({
-  maxWidth: '720px',
+  maxWidth: '760px',
   margin: '0 auto',
   padding: '48px 0 32px'
 })
@@ -51,7 +51,7 @@ export const byline = style({
 })
 
 export const prose = style({
-  maxWidth: '720px',
+  maxWidth: '760px',
   margin: '0 auto',
   padding: '24px 0 120px',
   fontSize: '17px',
