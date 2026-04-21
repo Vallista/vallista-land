@@ -101,7 +101,7 @@ function current(prefix: string): 'page' | undefined {
 <div id='mobile-menu-overlay' class={overlay} aria-hidden='true' data-menu-overlay>
   <div class={overlayInner}>
     <div class={overlayHead}>
-      <a href='/' class={barBrand}>
+      <a href='/about' class={barBrand}>
         <span class={barMark}>
           <span class={barMarkInitial} aria-hidden='true'>{initial}</span>
           {
@@ -146,8 +146,6 @@ function current(prefix: string): 'page' | undefined {
         {counts.projects !== undefined && <span class={menuCount}>{counts.projects}</span>}
       </a>
       <a href='/tags' class={menuLink} aria-current={current('/tags')}><span>Tags</span></a>
-      <a href='/about' class={menuLink} aria-current={current('/about')}><span>About</span></a>
-      <a href='/resume' class={menuLink} aria-current={current('/resume')}><span>Resume</span></a>
     </nav>
 
     {

@@ -46,7 +46,7 @@ const {
   counts = {},
   brandName = 'Vallista',
   brandRole = 'software engineer',
-  brandHref = '/',
+  brandHref = '/about',
   brandAvatar,
   series = []
 } = Astro.props
@@ -104,8 +104,6 @@ function seriesCurrent(slug: string): 'page' | undefined {
       {counts.projects !== undefined && <span class={navCount}>{counts.projects}</span>}
     </a>
     <a href='/tags' class={navLink} aria-current={current('/tags')}>Tags</a>
-    <a href='/about' class={navLink} aria-current={current('/about')}>About</a>
-    <a href='/resume' class={navLink} aria-current={current('/resume')}>Resume</a>
   </nav>
 
   {
