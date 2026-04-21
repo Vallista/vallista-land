@@ -1,7 +1,7 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# main 브랜치에 push 되면 apps/blog(Astro) 를 빌드해서
+# Vallista/vallista.github.io 레포의 main 브랜치에 배포한다.
 
-name: Node.js CI
+name: Deploy blog
 
 on:
   push:
@@ -18,33 +18,37 @@ jobs:
     strategy:
       matrix:
         node-version: [22]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
           version: 9
           run_install: false
-      - name: Install node.js ${{ matrix.node-version }}
+
+      - name: Install Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+
       - name: Install dependencies
-        run: pnpm i
-      - name: 코어 (디자인시스템) 빌드
-        run: pnpm build:ds
-      - name: 블로그 빌드
-        run: pnpm build:new-blog
-      - name: git config 이메일 변경
-        run: git config --global user.email "mgh950714@gmail.com"
-      - name: git config 이름 변경
-        run: git config --global user.name "vallista"
-      - name: new-blog 배포
+        run: pnpm install --frozen-lockfile
+
+      - name: Build blog (Astro + Pagefind)
+        run: pnpm build:blog
+
+      - name: Configure git identity
+        run: |
+          git config --global user.email "mgh950714@gmail.com"
+          git config --global user.name "vallista"
+
+      - name: Deploy to vallista.github.io
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           TOKEN: ${{ secrets.TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: pnpm deploy:new-blog
+        run: pnpm --filter @vallista/blog-astro run deploy:only

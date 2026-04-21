@@ -25,6 +25,7 @@
     "build:blog": "pnpm --filter @vallista/blog-astro run build",
     "preview:blog": "pnpm --filter @vallista/blog-astro run preview",
     "check:blog": "pnpm --filter @vallista/blog-astro run check",
+    "deploy:blog": "pnpm --filter @vallista/blog-astro run deploy",
     "dev:new-blog": "pnpm --filter @vallista/new-blog run dev",
     "build:new-blog": "pnpm --filter @vallista/new-blog run build",
     "deploy:new-blog": "pnpm --filter @vallista/new-blog run deploy",

@@ -9,7 +9,9 @@
     "build": "node scripts/copy-article-assets.mjs && astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
-    "type-check": "astro check"
+    "type-check": "astro check",
+    "deploy": "pnpm build && node scripts/deploy.mjs",
+    "deploy:only": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.3",
