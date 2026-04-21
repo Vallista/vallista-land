@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>vallista-land · Design System v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --blue: #2b6cff; --blue-600: #1f56d6; --blue-50: #eff4ff;
+    --ink: #0b1220; --ink-2: #3a4255; --ink-3: #6b7389; --ink-4: #9aa1b4;
+    --line: #e6e8ee; --line-2: #f1f2f6;
+    --bg: #ffffff; --bg-soft: #fafbfc;
+
+    --green-50: #e8f6ee; --green-700: #2a7f3f;
+    --amber-50: #fff7ed; --amber-700: #8a6628;
+    --red-50:   #fef2f2; --red-700:   #b91c1c;
+
+    --radius-1: 4px; --radius-2: 6px; --radius-3: 8px; --radius-4: 10px; --radius-5: 12px; --radius-6: 14px;
+    --elev-1: 0 1px 0 rgba(11,18,32,.04);
+    --elev-2: 0 2px 6px rgba(11,18,32,.06);
+    --elev-3: 0 12px 32px rgba(11,18,32,.10);
+    --elev-4: 0 24px 60px rgba(11,18,32,.20), 0 2px 6px rgba(11,18,32,.06);
+
+    --dur-fast: 120ms; --dur-base: 180ms; --dur-slow: 320ms;
+    --ease-out: cubic-bezier(.2,.7,.3,1);
+    --ease-spring: cubic-bezier(.34,1.56,.64,1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    background: #f0eee9;
+    word-break: keep-all;
+    text-wrap: pretty;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  code { font-family: var(--mono); font-size: 0.9em; color: var(--ink-3); }
+
+  /* Shell: sidebar + main */
+  .shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; background: var(--bg); }
+  aside.toc {
+    position: sticky; top: 0; align-self: start; height: 100vh;
+    padding: 36px 24px; border-right: 1px solid var(--line-2); background: var(--bg);
+    overflow-y: auto; box-sizing: border-box;
+  }
+  aside.toc .brand { display: flex; align-items: center; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line-2); margin-bottom: 20px; }
+  aside.toc .brand .mark { width: 22px; height: 22px; border-radius: 5px; background: var(--ink); position: relative; flex-shrink: 0; }
+  aside.toc .brand .mark::after { content:""; position:absolute; inset:5px; border-radius:2px; background: var(--blue); }
+  aside.toc .brand h1 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.2px; }
+  aside.toc .brand .sub { font-family: var(--mono); font-size: 10px; color: var(--ink-4); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; }
+  aside.toc .group { margin-bottom: 22px; }
+  aside.toc .group-title { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-4); font-weight: 600; padding: 6px 10px; margin-bottom: 4px; }
+  aside.toc a.nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 6px;
+    color: var(--ink-3); font-size: 13.5px; font-weight: 500;
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+  }
+  aside.toc a.nav:hover { background: var(--bg-soft); color: var(--ink-2); }
+  aside.toc a.nav.active { background: var(--bg-soft); color: var(--ink); font-weight: 600; }
+  aside.toc a.nav .num { font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); }
+  aside.toc .footer { margin-top: auto; font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); padding-top: 20px; }
+
+  main.doc { padding: 48px 56px 120px; min-width: 0; max-width: 1100px; }
+  .hero { padding-bottom: 48px; border-bottom: 1px solid var(--line-2); margin-bottom: 56px; }
+  .hero .eyebrow { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-4); margin-bottom: 16px; font-weight: 500; }
+  .hero h1 { margin: 0 0 16px; font-size: 52px; font-weight: 700; letter-spacing: -1.2px; line-height: 1.05; }
+  .hero h1 .accent { color: var(--blue); }
+  .hero .lede { margin: 0 0 24px; font-size: 18px; color: var(--ink-2); line-height: 1.55; max-width: 640px; }
+  .hero .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .section { margin-top: 72px; scroll-margin-top: 24px; }
+  .section-head { display: flex; align-items: baseline; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--ink); margin-bottom: 28px; }
+  .section-head h2 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.6px; }
+  .section-head .num { font-family: var(--mono); font-size: 13px; color: var(--blue-600); font-weight: 600; letter-spacing: 0.08em; }
+  .section-head .right { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.16em; }
+  .section > p.desc { margin: 0 0 28px; color: var(--ink-2); line-height: 1.7; font-size: 15px; max-width: 720px; }
+
+  .sub { margin-top: 36px; }
+  .sub h3 { margin: 0 0 14px; font-size: 18px; font-weight: 600; letter-spacing: -0.2px; display: flex; align-items: baseline; gap: 10px; }
+  .sub h3 .tag { font-family: var(--mono); font-size: 10.5px; color: var(--ink-4); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
+
+  /* Specimen blocks */
+  .specimen {
+    border: 1px solid var(--line-2); border-radius: var(--radius-5);
+    padding: 28px; background: var(--bg);
+  }
+  .specimen + .specimen { margin-top: 14px; }
+  .specimen.rail { padding: 0; overflow: hidden; }
+  .specimen.rail > .stage { padding: 28px; background: var(--bg-soft); }
+  .specimen.rail > .caption {
+    padding: 12px 20px; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+    border-top: 1px solid var(--line-2); display: flex; justify-content: space-between;
+    letter-spacing: 0.06em;
+  }
+
+  /* Color swatches */
+  .swatches { display: grid; gap: 12px; }
+  .ramp { display: grid; gap: 2px; grid-template-columns: 120px repeat(9, 1fr); align-items: stretch; }
+  .ramp .label { font-family: var(--mono); font-size: 12px; color: var(--ink-2); font-weight: 600; padding: 14px 10px 0 0; display: flex; flex-direction: column; gap: 4px; }
+  .ramp .label small { font-weight: 400; color: var(--ink-4); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .ramp .sw {
+    height: 78px; border-radius: 6px; padding: 10px 12px;
+    font-family: var(--mono); font-size: 10.5px; color: inherit;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative;
+  }
+  .ramp .sw .k { opacity: 0.7; }
+  .ramp .sw .v { font-weight: 500; }
+
+  .semantic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .semantic-grid .tile {
+    padding: 16px; border-radius: var(--radius-3); border: 1px solid transparent;
+    display: flex; flex-direction: column; gap: 10px; min-height: 110px;
+    font-family: var(--mono); font-size: 11px;
+  }
+  .semantic-grid .tile .name { font-weight: 700; letter-spacing: 0.04em; font-size: 12.5px; }
+  .semantic-grid .tile .role { opacity: 0.65; }
+  .semantic-grid .tile .val { margin-top: auto; opacity: 0.85; }
+
+  /* Typography specimen */
+  .type-row {
+    display: grid; grid-template-columns: 140px 1fr 180px; gap: 24px;
+    padding: 24px 0; border-bottom: 1px solid var(--line-2); align-items: baseline;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-row .token { font-family: var(--mono); font-size: 12px; color: var(--blue-600); font-weight: 600; }
+  .type-row .token small { display: block; color: var(--ink-4); font-weight: 400; font-size: 10.5px; margin-top: 2px; letter-spacing: 0.05em; }
+  .type-row .sample { color: var(--ink); }
+  .type-row .spec { font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; line-height: 1.7; text-align: right; }
+
+  /* Component stage */
+  .stage { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .stage.col { flex-direction: column; align-items: flex-start; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; border-radius: var(--radius-3);
+    font: 500 13px/1 var(--sans); cursor: pointer;
+    border: 1px solid transparent; background: transparent;
+    transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: var(--ink-2); }
+  .btn-secondary { background: var(--bg); color: var(--ink-2); border-color: var(--line); }
+  .btn-secondary:hover { border-color: var(--ink-3); }
+  .btn-ghost { color: var(--ink-3); }
+  .btn-ghost:hover { color: var(--ink); background: var(--bg-soft); }
+  .btn.sm { padding: 6px 12px; font-size: 12px; }
+  .btn.lg { padding: 14px 22px; font-size: 14px; }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 8px; border-radius: 999px;
+    background: var(--line-2); color: var(--ink-3);
+    font: 500 11px/1 var(--sans);
+  }
+  .chip.blue { background: var(--blue-50); color: var(--blue-600); }
+  .chip.green { background: var(--green-50); color: var(--green-700); }
+  .chip.amber { background: var(--amber-50); color: var(--amber-700); }
+  .chip.red { background: var(--red-50); color: var(--red-700); }
+  .chip.dot::before { content:""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  .input-wrap { position: relative; width: 280px; }
+  .input {
+    width: 100%; padding: 10px 14px;
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-3);
+    font: 400 13.5px/1.4 var(--sans); color: var(--ink);
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+    box-sizing: border-box;
+  }
+  .input::placeholder { color: var(--ink-4); }
+  .input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(43,108,255,0.18); }
+  .input.has-icon { padding-left: 38px; }
+  .input-wrap .icon { position: absolute; top: 12px; left: 14px; color: var(--ink-4); }
+  .input-wrap .kbd {
+    position: absolute; top: 10px; right: 10px;
+    font-family: var(--mono); font-size: 10.5px; padding: 2px 5px;
+    border: 1px solid var(--line); border-radius: 4px; color: var(--ink-4);
+  }
+
+  .card {
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 20px; background: var(--bg);
+    border: 1px solid var(--line-2); border-radius: var(--radius-5);
+    width: 300px;
+    transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+    box-shadow: var(--elev-1);
+  }
+  .card:hover { border-color: var(--line); box-shadow: var(--elev-2); transform: translateY(-1px); }
+
+  .cover { aspect-ratio: 16/9; width: 100%; border-radius: 6px; overflow: hidden; background: var(--blue-50); }
+  .callout {
+    padding: 18px 22px; background: var(--blue-50); border-left: 3px solid var(--blue);
+    border-radius: 2px 6px 6px 2px; color: var(--ink-2); font-size: 15.5px; line-height: 1.7;
+  }
+  .callout strong { color: var(--blue-600); font-weight: 600; }
+
+  .codeblock { border: 1px solid var(--line); border-radius: var(--radius-4); overflow: hidden; background: var(--bg); }
+  .codeblock .tabs { display: flex; background: var(--bg-soft); border-bottom: 1px solid var(--line-2); }
+  .codeblock .tab { padding: 10px 16px; font: 500 12px var(--mono); color: var(--ink-4); cursor: pointer; }
+  .codeblock .tab.active { color: var(--ink); background: var(--bg); border-right: 1px solid var(--line-2); border-bottom: 2px solid var(--blue); margin-bottom: -1px; }
+  .codeblock .tabs .copy { margin-left: auto; padding: 8px 12px; }
+  .codeblock pre { margin: 0; padding: 16px 18px; font: 400 12.5px/1.7 var(--mono); color: var(--ink); overflow-x: auto; }
+  .codeblock pre .c { color: #6b7389; }
+  .codeblock pre .k { color: #8a4bff; }
+  .codeblock pre .i { color: var(--blue-600); }
+  .codeblock pre .s { color: #2a7f3f; }
+  .codeblock pre .n { color: #b4541f; }
+
+  /* Spacing specimen */
+  .spacing-row { display: grid; grid-template-columns: 100px 1fr 120px; gap: 20px; align-items: center; padding: 10px 0; border-bottom: 1px dashed var(--line-2); }
+  .spacing-row:last-child { border: none; }
+  .spacing-row .tok { font-family: var(--mono); font-size: 12px; color: var(--blue-600); font-weight: 600; }
+  .spacing-row .bar { height: 20px; background: var(--blue-50); border-radius: 2px; }
+  .spacing-row .val { font-family: var(--mono); font-size: 11px; color: var(--ink-4); text-align: right; }
+
+  /* Radii specimen */
+  .radii-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .radii-grid .r {
+    aspect-ratio: 1; border: 1px solid var(--line); background: var(--bg-soft);
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end;
+    padding: 10px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-3);
+  }
+  .radii-grid .r .v { color: var(--ink-4); font-size: 10px; margin-top: 2px; }
+
+  /* Elevation specimen */
+  .elev-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 12px; background: var(--bg-soft); border-radius: 8px; }
+  .elev-grid .e {
+    aspect-ratio: 1.3; background: var(--bg); border-radius: 10px;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 14px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-3);
+  }
+  .elev-grid .e .n { color: var(--blue-600); font-weight: 600; font-size: 12px; }
+
+  /* Motion specimen */
+  .motion-row { display: grid; grid-template-columns: 100px 1fr 140px; gap: 20px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+  .motion-row:last-child { border: none; }
+  .motion-row .tok { font-family: var(--mono); font-size: 12px; color: var(--blue-600); font-weight: 600; }
+  .motion-row .track { position: relative; height: 8px; background: var(--line-2); border-radius: 999px; }
+  .motion-row .dot {
+    position: absolute; top: -6px; left: 0; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--blue); box-shadow: 0 0 0 4px var(--blue-50);
+  }
+  .motion-row.a1 .dot { animation: slide 1800ms var(--ease-out) infinite; }
+  .motion-row.a2 .dot { animation: slide 2400ms cubic-bezier(0.4,0,0.2,1) infinite; }
+  .motion-row.a3 .dot { animation: slide 3200ms var(--ease-spring) infinite; }
+  @keyframes slide { 0%, 10% { left: 0 } 50% { left: calc(100% - 20px) } 90%, 100% { left: 0 } }
+
+  /* Pattern: Status chips */
+  .status-row { display: flex; gap: 10px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+  .status-row:last-child { border: none; }
+  .status-row .label { font-family: var(--mono); font-size: 11px; color: var(--ink-4); width: 120px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* Do / Don't */
+  .dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  .do, .dont {
+    border: 1px solid var(--line-2); border-radius: var(--radius-5); overflow: hidden;
+  }
+  .do .head, .dont .head {
+    padding: 10px 16px; font: 600 11.5px var(--mono); letter-spacing: 0.1em; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .do .head { background: var(--green-50); color: var(--green-700); }
+  .dont .head { background: var(--red-50); color: var(--red-700); }
+  .do .body, .dont .body { padding: 24px; background: var(--bg-soft); min-height: 80px; }
+
+  /* Mini nav rail preview */
+  .navrail {
+    width: 200px; padding: 16px; background: var(--bg); border-radius: 8px; border: 1px solid var(--line-2);
+  }
+  .navrail a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 6px; color: var(--ink-3); font-size: 13.5px; font-weight: 500;
+  }
+  .navrail a.active { background: var(--bg-soft); color: var(--ink); font-weight: 600; }
+  .navrail a .c { font-family: var(--mono); font-size: 11px; color: var(--ink-4); }
+
+  .toc-preview {
+    width: 240px; padding: 0 0 0 14px; border-left: 1px solid var(--line-2);
+  }
+  .toc-preview .head { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-4); margin-bottom: 12px; font-weight: 600; }
+  .toc-preview a { display: block; padding: 6px 0 6px 14px; color: var(--ink-4); font-size: 12.5px; border-left: 2px solid transparent; margin-left: -14px; padding-left: 14px; }
+  .toc-preview a.active { color: var(--blue); font-weight: 600; border-left-color: var(--blue); }
+
+  /* Footer */
+  .end { margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--line-2); font-family: var(--mono); font-size: 11.5px; color: var(--ink-4); display: flex; justify-content: space-between; letter-spacing: 0.06em; }
+  .end a { color: var(--blue-600); }
+
+  /* Token table */
+  table.tokens { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.tokens th, table.tokens td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line-2); }
+  table.tokens th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-4); font-weight: 600; font-family: var(--mono); }
+  table.tokens td.tok { font-family: var(--mono); color: var(--blue-600); font-weight: 500; }
+  table.tokens td.val { font-family: var(--mono); color: var(--ink-4); font-size: 12px; }
+  table.tokens tr:hover td { background: var(--bg-soft); }
+
+  /* Icon row */
+  .icons { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .icons .i {
+    aspect-ratio: 1; border: 1px solid var(--line-2); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; color: var(--ink-2);
+    background: var(--bg); font-size: 10px;
+  }
+  .icons .i svg { width: 18px; height: 18px; }
+
+  /* Utility */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="toc">
+    <div class="brand">
+      <div class="mark"></div>
+      <div>
+        <h1>vallista-land</h1>
+        <div class="sub">Design System · v2.0</div>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Foundations</div>
+      <a href="#colors" class="nav"><span>Colors</span><span class="num">01</span></a>
+      <a href="#typography" class="nav"><span>Typography</span><span class="num">02</span></a>
+      <a href="#spacing" class="nav"><span>Spacing</span><span class="num">03</span></a>
+      <a href="#radii" class="nav"><span>Radii</span><span class="num">04</span></a>
+      <a href="#elevation" class="nav"><span>Elevation</span><span class="num">05</span></a>
+      <a href="#motion" class="nav"><span>Motion</span><span class="num">06</span></a>
+      <a href="#icons" class="nav"><span>Icons</span><span class="num">07</span></a>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Components</div>
+      <a href="#button" class="nav"><span>Button</span><span class="num">08</span></a>
+      <a href="#chip" class="nav"><span>Chip &amp; Status</span><span class="num">09</span></a>
+      <a href="#input" class="nav"><span>Input</span><span class="num">10</span></a>
+      <a href="#card" class="nav"><span>Card</span><span class="num">11</span></a>
+      <a href="#cover" class="nav"><span>Cover pattern</span><span class="num">12</span></a>
+      <a href="#callout" class="nav"><span>Callout</span><span class="num">13</span></a>
+      <a href="#code" class="nav"><span>Code block</span><span class="num">14</span></a>
+      <a href="#nav" class="nav"><span>Nav rail</span><span class="num">15</span></a>
+      <a href="#toc" class="nav"><span>TOC</span><span class="num">16</span></a>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Patterns</div>
+      <a href="#layouts" class="nav"><span>Layouts</span><span class="num">17</span></a>
+      <a href="#accessibility" class="nav"><span>Accessibility</span><span class="num">18</span></a>
+      <a href="#dodont" class="nav"><span>Do &amp; Don't</span><span class="num">19</span></a>
+    </div>
+
+    <div class="group">
+      <div class="group-title">Handoff</div>
+      <a href="../docs/index.html" class="nav" style="color: var(--blue-600); font-weight: 600;"><span>docs/ 전체 보기 →</span></a>
+      <a href="../blog/Blog A.html" class="nav"><span>Blog A · 시안</span></a>
+    </div>
+
+    <div class="footer">v2.0 · 2024.11<br/>vallista-land</div>
+  </aside>
+
+  <main class="doc">
+    <div class="hero">
+      <div class="eyebrow">Design System · v2.0 · 2024.11</div>
+      <h1>vallista-land<br/><span class="accent">Design System</span></h1>
+      <p class="lede">Paper Light 방향의 3-tier 토큰 시스템. 블로그 외 다른 프로덕트(개인 도구, 내부 대시보드)에도 그대로 적용 가능한 foundation + component 라이브러리.</p>
+      <div class="chips">
+        <span class="chip blue">v2.0 approved</span>
+        <span class="chip">Pretendard + JBM</span>
+        <span class="chip">vanilla-extract ready</span>
+        <span class="chip">WCAG 2.1 AA</span>
+      </div>
+    </div>
+
+    <!-- ─── 01 Colors ─────────────────────────── -->
+    <section class="section" id="colors">
+      <div class="section-head"><span class="num">01</span><h2>Colors</h2><span class="right">3 tiers · 1 accent</span></div>
+      <p class="desc">핵심은 하나 — <strong>한 가지 accent 이외에 색은 없다</strong>. neutral ramp 9단계 + blue 3단계 + status 3색. 세만틱 토큰을 통해서만 컴포넌트에서 참조.</p>
+
+      <div class="sub">
+        <h3>Neutral ramp <span class="tag">core · gray-50 → gray-900</span></h3>
+        <div class="specimen">
+          <div class="ramp">
+            <div class="label">Gray<small>neutral</small></div>
+            <div class="sw" style="background:#fafbfc; color:#0b1220"><div class="k">50</div><div class="v">#fafbfc</div></div>
+            <div class="sw" style="background:#f1f2f6; color:#0b1220"><div class="k">100</div><div class="v">#f1f2f6</div></div>
+            <div class="sw" style="background:#e6e8ee; color:#0b1220"><div class="k">200</div><div class="v">#e6e8ee</div></div>
+            <div class="sw" style="background:#d2d6df; color:#0b1220"><div class="k">300</div><div class="v">#d2d6df</div></div>
+            <div class="sw" style="background:#9aa1b4; color:#fff"><div class="k">400</div><div class="v">#9aa1b4</div></div>
+            <div class="sw" style="background:#6b7389; color:#fff"><div class="k">500</div><div class="v">#6b7389</div></div>
+            <div class="sw" style="background:#3a4255; color:#fff"><div class="k">600</div><div class="v">#3a4255</div></div>
+            <div class="sw" style="background:#252c3d; color:#fff"><div class="k">700</div><div class="v">#252c3d</div></div>
+            <div class="sw" style="background:#0b1220; color:#fff"><div class="k">900</div><div class="v">#0b1220</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Accent <span class="tag">core · blue · 3 steps</span></h3>
+        <div class="specimen">
+          <div class="ramp" style="grid-template-columns: 120px repeat(3, 1fr)">
+            <div class="label">Blue<small>accent</small></div>
+            <div class="sw" style="background:#eff4ff; color:#1f56d6"><div class="k">50 · tint</div><div class="v">#eff4ff</div></div>
+            <div class="sw" style="background:#2b6cff; color:#fff"><div class="k">500 · primary</div><div class="v">#2b6cff</div></div>
+            <div class="sw" style="background:#1f56d6; color:#fff"><div class="k">600 · hover</div><div class="v">#1f56d6</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Status <span class="tag">core · 3 colors · 2 steps each</span></h3>
+        <div class="specimen">
+          <div class="ramp" style="grid-template-columns: 120px repeat(2, 1fr)">
+            <div class="label">Green<small>active</small></div>
+            <div class="sw" style="background:#e8f6ee; color:#2a7f3f"><div class="k">50</div><div class="v">#e8f6ee</div></div>
+            <div class="sw" style="background:#2a7f3f; color:#fff"><div class="k">700</div><div class="v">#2a7f3f</div></div>
+          </div>
+          <div class="ramp" style="grid-template-columns: 120px repeat(2, 1fr); margin-top: 8px">
+            <div class="label">Amber<small>archived</small></div>
+            <div class="sw" style="background:#fff7ed; color:#8a6628"><div class="k">50</div><div class="v">#fff7ed</div></div>
+            <div class="sw" style="background:#8a6628; color:#fff"><div class="k">700</div><div class="v">#8a6628</div></div>
+          </div>
+          <div class="ramp" style="grid-template-columns: 120px repeat(2, 1fr); margin-top: 8px">
+            <div class="label">Red<small>error</small></div>
+            <div class="sw" style="background:#fef2f2; color:#b91c1c"><div class="k">50</div><div class="v">#fef2f2</div></div>
+            <div class="sw" style="background:#b91c1c; color:#fff"><div class="k">700</div><div class="v">#b91c1c</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Semantic — <span class="tag">consumed by components</span></h3>
+        <div class="specimen">
+          <div class="semantic-grid">
+            <div class="tile" style="background:#fff; border-color:#e6e8ee; color:#0b1220">
+              <div class="name">--bg</div><div class="role">Page surface</div><div class="val">= gray-50 white</div>
+            </div>
+            <div class="tile" style="background:#fafbfc; border-color:#f1f2f6; color:#3a4255">
+              <div class="name">--bg-soft</div><div class="role">Cards, insets, rails</div><div class="val">= gray-50</div>
+            </div>
+            <div class="tile" style="background:rgba(11,18,32,0.35); color:#fff">
+              <div class="name">--bg-overlay</div><div class="role">Modal scrim</div><div class="val">rgba(11,18,32,.35)</div>
+            </div>
+            <div class="tile" style="background:#0b1220; color:#fff">
+              <div class="name">--ink</div><div class="role">Primary text</div><div class="val">= gray-900</div>
+            </div>
+            <div class="tile" style="background:#fff; border-color:#e6e8ee; color:#3a4255">
+              <div class="name">--ink-2</div><div class="role">Body text</div><div class="val">= gray-600</div>
+            </div>
+            <div class="tile" style="background:#fff; border-color:#e6e8ee; color:#6b7389">
+              <div class="name">--ink-3</div><div class="role">Meta</div><div class="val">= gray-500</div>
+            </div>
+            <div class="tile" style="background:#fff; border-color:#e6e8ee; color:#9aa1b4">
+              <div class="name">--ink-4</div><div class="role">Placeholder</div><div class="val">= gray-400</div>
+            </div>
+            <div class="tile" style="background:#2b6cff; color:#fff">
+              <div class="name">--accent</div><div class="role">Links, CTA, focus</div><div class="val">= blue-500</div>
+            </div>
+            <div class="tile" style="background:#eff4ff; color:#1f56d6; border-color:#dbe6ff">
+              <div class="name">--accent-tint</div><div class="role">Callout bg, hover fills</div><div class="val">= blue-50</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Rules</h3>
+        <div class="specimen">
+          <ul style="margin: 0; padding-left: 20px; line-height: 2; color: var(--ink-2);">
+            <li>Body copy는 <code>--ink-2</code>. <code>--ink</code>은 headings·buttons·active items 전용.</li>
+            <li>Divider 기본값은 <code>--line-2</code>. section break처럼 load-bearing 할 때만 <code>--line</code>.</li>
+            <li>Core gray를 컴포넌트에서 직접 참조 금지. role 먼저 정하고 semantic 토큰 추가.</li>
+            <li>Accent는 **링크 · 진행바 · focus ring · CTA · 강조** 5곳에만.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 02 Typography ─────────────────────── -->
+    <section class="section" id="typography">
+      <div class="section-head"><span class="num">02</span><h2>Typography</h2><span class="right">Pretendard Variable · JBM</span></div>
+      <p class="desc">Pretendard Variable (UI) + JetBrains Mono (meta · code). 한국어 전용 규칙 필수: <code>word-break: keep-all</code>, <code>text-wrap: pretty</code>. 절대 justify 금지.</p>
+
+      <div class="specimen">
+        <div class="type-row">
+          <div class="token">display<small>48 / 1.10 · 700</small></div>
+          <div class="sample" style="font-size: 48px; font-weight: 700; letter-spacing: -1px; line-height: 1.1;">프론트엔드 엔지니어.</div>
+          <div class="spec">about page hero</div>
+        </div>
+        <div class="type-row">
+          <div class="token">h1<small>44 / 1.15 · 700</small></div>
+          <div class="sample" style="font-size: 44px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.15;">왜 vanilla-extract으로 옮겼는가</div>
+          <div class="spec">article title</div>
+        </div>
+        <div class="type-row">
+          <div class="token">h1-archive<small>32 / 1.20 · 700</small></div>
+          <div class="sample" style="font-size: 32px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;">최근에 쓴 글</div>
+          <div class="spec">home · list pages</div>
+        </div>
+        <div class="type-row">
+          <div class="token">h2<small>26 / 1.25 · 700</small></div>
+          <div class="sample" style="font-size: 26px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.25;">문제는 번들이 아니라 타이밍이었다</div>
+          <div class="spec">article section</div>
+        </div>
+        <div class="type-row">
+          <div class="token">h3<small>19 / 1.30 · 600</small></div>
+          <div class="sample" style="font-size: 19px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.3;">Storybook 9 에서 docs가 다시 좋아졌다</div>
+          <div class="spec">card titles</div>
+        </div>
+        <div class="type-row">
+          <div class="token">lede<small>18 / 1.55 · 400</small></div>
+          <div class="sample" style="font-size: 18px; font-weight: 400; color: var(--ink-2); line-height: 1.55;">런타임 비용을 지불하지 않으면서, 타입 안전한 스타일을 유지하는 가장 간단한 방법.</div>
+          <div class="spec">article dek</div>
+        </div>
+        <div class="type-row">
+          <div class="token">body<small>17 / 1.85 · 400</small></div>
+          <div class="sample" style="font-size: 17px; line-height: 1.85;">처음에는 Emotion으로 시작했다. 컴포넌트 옆에 스타일을 바로 쓸 수 있고, prop 기반 분기도 자연스러웠다.</div>
+          <div class="spec">article paragraph</div>
+        </div>
+        <div class="type-row">
+          <div class="token">body-ui<small>14 / 1.60 · 400</small></div>
+          <div class="sample" style="font-size: 14px;">기본 UI 텍스트. 사이드바 · 카드 설명 · 폼 레이블에 쓰입니다.</div>
+          <div class="spec">default UI</div>
+        </div>
+        <div class="type-row">
+          <div class="token">small<small>13 / 1.60 · 400</small></div>
+          <div class="sample" style="font-size: 13px; color: var(--ink-3);">card descriptions — 한 문단 요약에.</div>
+          <div class="spec">card meta</div>
+        </div>
+        <div class="type-row">
+          <div class="token">caption<small>12 / 1.50 · 500</small></div>
+          <div class="sample" style="font-size: 12px; font-weight: 500;">Chips · inline labels</div>
+          <div class="spec">labels</div>
+        </div>
+        <div class="type-row">
+          <div class="token">overline-mono<small>11 / 0.14em · 500</small></div>
+          <div class="sample" style="font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-4); font-weight: 500;">@VALLISTA · 글</div>
+          <div class="spec">eyebrows · section labels</div>
+        </div>
+        <div class="type-row">
+          <div class="token">code<small>13 / 1.75 · 400</small></div>
+          <div class="sample" style="font-family: var(--mono); font-size: 13px; line-height: 1.75;">export const <span style="color:var(--blue-600)">colors</span> = <span style="color:#2a7f3f">createGlobalTheme</span>(...)</div>
+          <div class="spec">code blocks</div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Korean-specific rules</h3>
+        <div class="specimen">
+          <div class="two">
+            <div class="do">
+              <div class="head">✓ Do</div>
+              <div class="body" style="padding: 20px 24px;"><p style="margin:0; word-break: keep-all; line-height: 1.85; font-size: 15px;">한국어 줄바꿈은 단어 경계에서. <code>word-break: keep-all</code>을 전역으로 적용하고 <code>text-wrap: pretty</code>를 같이 쓴다.</p></div>
+            </div>
+            <div class="dont">
+              <div class="head">✗ Don't</div>
+              <div class="body" style="padding: 20px 24px;"><p style="margin:0; word-break: break-all; line-height: 1.85; font-size: 15px;">절대 break-all, justify 금지. 음절 단위로 잘리면 본문은 바로 망가진다. text-align: justify도 같은 이유로 하지 말 것.</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 03 Spacing ─────────────────────── -->
+    <section class="section" id="spacing">
+      <div class="section-head"><span class="num">03</span><h2>Spacing</h2><span class="right">4px grid</span></div>
+      <p class="desc">4px base. 컴포넌트 padding/gap은 아래 토큰에서만 선택. 자유 숫자 금지.</p>
+
+      <div class="specimen">
+        <div class="spacing-row"><div class="tok">--space-1</div><div class="bar" style="width: 4px"></div><div class="val">4px</div></div>
+        <div class="spacing-row"><div class="tok">--space-2</div><div class="bar" style="width: 8px"></div><div class="val">8px</div></div>
+        <div class="spacing-row"><div class="tok">--space-3</div><div class="bar" style="width: 12px"></div><div class="val">12px</div></div>
+        <div class="spacing-row"><div class="tok">--space-4</div><div class="bar" style="width: 16px"></div><div class="val">16px</div></div>
+        <div class="spacing-row"><div class="tok">--space-5</div><div class="bar" style="width: 20px"></div><div class="val">20px</div></div>
+        <div class="spacing-row"><div class="tok">--space-6</div><div class="bar" style="width: 24px"></div><div class="val">24px</div></div>
+        <div class="spacing-row"><div class="tok">--space-8</div><div class="bar" style="width: 32px"></div><div class="val">32px</div></div>
+        <div class="spacing-row"><div class="tok">--space-10</div><div class="bar" style="width: 40px"></div><div class="val">40px</div></div>
+        <div class="spacing-row"><div class="tok">--space-12</div><div class="bar" style="width: 48px"></div><div class="val">48px</div></div>
+        <div class="spacing-row"><div class="tok">--space-16</div><div class="bar" style="width: 64px"></div><div class="val">64px</div></div>
+        <div class="spacing-row"><div class="tok">--space-20</div><div class="bar" style="width: 80px"></div><div class="val">80px</div></div>
+      </div>
+
+      <div class="sub">
+        <h3>Layout constants</h3>
+        <div class="specimen">
+          <table class="tokens">
+            <tr><th>Role</th><th>Value</th><th>Usage</th></tr>
+            <tr><td class="tok">Reading column</td><td class="val">720px max</td><td>Article, About</td></tr>
+            <tr><td class="tok">Sidebar</td><td class="val">220px fixed</td><td>Desktop nav rail</td></tr>
+            <tr><td class="tok">Card gutter</td><td class="val">24–32 desktop · 16–20 mobile</td><td>Post grid, project grid</td></tr>
+            <tr><td class="tok">List row gap</td><td class="val">40px</td><td>Between list items</td></tr>
+            <tr><td class="tok">Section rhythm</td><td class="val">64px</td><td>Between major sections</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 04 Radii ─────────────────────── -->
+    <section class="section" id="radii">
+      <div class="section-head"><span class="num">04</span><h2>Radii</h2><span class="right">7 steps</span></div>
+      <p class="desc">컨테이너의 radius는 자식의 radius 이상. chip(999px)을 card(12px) 안에 넣는 건 OK, 반대는 금지.</p>
+      <div class="specimen">
+        <div class="radii-grid">
+          <div class="r" style="border-radius:4px">4px<span class="v">--radius-1</span></div>
+          <div class="r" style="border-radius:6px">6px<span class="v">--radius-2</span></div>
+          <div class="r" style="border-radius:8px">8px<span class="v">--radius-3</span></div>
+          <div class="r" style="border-radius:10px">10px<span class="v">--radius-4</span></div>
+          <div class="r" style="border-radius:12px">12px<span class="v">--radius-5</span></div>
+          <div class="r" style="border-radius:14px">14px<span class="v">--radius-6</span></div>
+          <div class="r" style="border-radius:999px">pill<span class="v">--radius-pill</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 05 Elevation ─────────────────────── -->
+    <section class="section" id="elevation">
+      <div class="section-head"><span class="num">05</span><h2>Elevation</h2><span class="right">4 levels</span></div>
+      <p class="desc">Paper Light은 큰 그림자 대신 hairline + tiny shadow를 쌓는다. border와 shadow를 같이 쓰지 말 것.</p>
+      <div class="specimen">
+        <div class="elev-grid">
+          <div class="e" style="box-shadow: var(--elev-1)"><span class="n">elev-1</span><span>Cards at rest</span></div>
+          <div class="e" style="box-shadow: var(--elev-2)"><span class="n">elev-2</span><span>Hover lift</span></div>
+          <div class="e" style="box-shadow: var(--elev-3)"><span class="n">elev-3</span><span>Dropdown · tooltip</span></div>
+          <div class="e" style="box-shadow: var(--elev-4)"><span class="n">elev-4</span><span>Search palette</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 06 Motion ─────────────────────── -->
+    <section class="section" id="motion">
+      <div class="section-head"><span class="num">06</span><h2>Motion</h2><span class="right">3 durations · 4 easings</span></div>
+      <p class="desc">모션의 목적은 causality 전달. 확인 가능한 반응을 빠르게, 공간 이동을 부드럽게.</p>
+
+      <div class="specimen">
+        <div class="motion-row a1">
+          <div class="tok">120ms<br/><small style="color:var(--ink-4); font-size:10px">--dur-fast</small></div>
+          <div class="track"><div class="dot"></div></div>
+          <div class="val" style="font-family:var(--mono); font-size:11px; color:var(--ink-4)">hover · press · focus</div>
+        </div>
+        <div class="motion-row a2">
+          <div class="tok">180ms<br/><small style="color:var(--ink-4); font-size:10px">--dur-base</small></div>
+          <div class="track"><div class="dot"></div></div>
+          <div class="val" style="font-family:var(--mono); font-size:11px; color:var(--ink-4)">menu · tab · chip</div>
+        </div>
+        <div class="motion-row a3">
+          <div class="tok">320ms<br/><small style="color:var(--ink-4); font-size:10px">--dur-slow</small></div>
+          <div class="track"><div class="dot"></div></div>
+          <div class="val" style="font-family:var(--mono); font-size:11px; color:var(--ink-4)">page fade · palette · spring</div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Easings</h3>
+        <div class="specimen">
+          <table class="tokens">
+            <tr><th>Token</th><th>Curve</th><th>Use</th></tr>
+            <tr><td class="tok">--ease-out</td><td class="val">(0.2, 0.7, 0.3, 1)</td><td>Appearing elements (default)</td></tr>
+            <tr><td class="tok">--ease-in</td><td class="val">(0.4, 0, 1, 1)</td><td>Disappearing elements</td></tr>
+            <tr><td class="tok">--ease-inout</td><td class="val">(0.4, 0, 0.2, 1)</td><td>Reordering · sliding</td></tr>
+            <tr><td class="tok">--ease-spring</td><td class="val">(0.34, 1.56, 0.64, 1)</td><td><strong>Palette open only.</strong> Nowhere else.</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Required: <code>prefers-reduced-motion</code></h3>
+        <div class="specimen">
+          <div class="codeblock" style="max-width: 560px">
+            <pre><span class="c">/* Always include this block */</span>
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: <span class="n">0.01ms</span> !important;
+    transition-duration: <span class="n">0.01ms</span> !important;
+    scroll-behavior: auto !important;
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 07 Icons ─────────────────────── -->
+    <section class="section" id="icons">
+      <div class="section-head"><span class="num">07</span><h2>Icons</h2><span class="right">line · 1.4 stroke · 16px</span></div>
+      <p class="desc">아이콘 라이브러리는 쓰지 않는다. 필요한 것만 인라인 SVG로 손수. 1.4 stroke, 16px base, 24px 박스 안에 그릴 것.</p>
+      <div class="specimen">
+        <div class="icons">
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 7l3 3 9-9"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4h10M2 7h10M2 10h10"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 2l6 5-6 5"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 1.5h5.5L11 4v8.5H3z"/><path d="M8.5 1.5V4H11"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h10v10H2z"/><path d="M2 5h10M5 5v7"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 1v12M1 7h12"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="currentColor"><path d="M7 1l1.8 3.6 4 .6-2.9 2.8.7 4L7 10l-3.6 2 .7-4-2.9-2.8 4-.6z"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="5" r="2.5"/><path d="M2 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 1v12l4-3 4 3V1z"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l10 10M12 2L2 12"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 1v10M3 7l4 4 4-4"/><path d="M1 13h12"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="3" width="11" height="9" rx="1"/><path d="M4 1v4M10 1v4M1.5 6h11"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 2"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1.5 3.5L7 8l5.5-4.5M1.5 3.5h11v7h-11z"/></svg></div>
+          <div class="i"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M7 1v12"/><path d="M1 4c3 0 3-2 6-2s3 2 6 2v6c-3 0-3 2-6 2s-3-2-6-2z"/></svg></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 08 Button ─────────────────────── -->
+    <section class="section" id="button">
+      <div class="section-head"><span class="num">08</span><h2>Button</h2><span class="right">3 variants · 3 sizes</span></div>
+      <p class="desc">Primary · Secondary · Ghost 세 가지만. 네 번째가 필요하다면 UI를 다시 보자.</p>
+
+      <div class="sub">
+        <h3>Variants</h3>
+        <div class="specimen rail">
+          <div class="stage"><button class="btn btn-primary">Subscribe</button><button class="btn btn-secondary">View source</button><button class="btn btn-ghost">Cancel</button></div>
+          <div class="caption"><span>primary · secondary · ghost</span><span>default size</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Sizes</h3>
+        <div class="specimen rail">
+          <div class="stage"><button class="btn btn-primary sm">Small</button><button class="btn btn-primary">Default</button><button class="btn btn-primary lg">Large</button></div>
+          <div class="caption"><span>padding 6/12 · 10/18 · 14/22</span><span>font 12 · 13 · 14</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>States</h3>
+        <div class="specimen rail">
+          <div class="stage">
+            <button class="btn btn-primary">Default</button>
+            <button class="btn btn-primary" style="background: var(--ink-2)">Hover</button>
+            <button class="btn btn-primary" style="transform: translateY(1px)">Pressed</button>
+            <button class="btn btn-primary" style="box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(43,108,255,0.55)">Focus</button>
+            <button class="btn btn-primary" disabled>Disabled</button>
+          </div>
+          <div class="caption"><span>focus ring = 2px bg + 2px accent @ 55%</span><span>hover → ink-2</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 09 Chip & Status ─────────────────────── -->
+    <section class="section" id="chip">
+      <div class="section-head"><span class="num">09</span><h2>Chip &amp; Status</h2><span class="right">pill · 3×8</span></div>
+      <p class="desc">태그·카테고리·상태에 쓰이는 작은 레이블. tone으로 의미를 주되 톤을 5개 이상 늘리지 말 것.</p>
+
+      <div class="sub">
+        <h3>Tones</h3>
+        <div class="specimen rail">
+          <div class="stage">
+            <span class="chip">Neutral</span>
+            <span class="chip blue">DX 재정비</span>
+            <span class="chip green dot">active</span>
+            <span class="chip amber dot">archived</span>
+            <span class="chip red dot">error</span>
+          </div>
+          <div class="caption"><span>neutral · blue · green · amber · red</span><span>dot modifier for status</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <h3>Status row (project card)</h3>
+        <div class="specimen">
+          <div class="status-row"><div class="label">active</div><span class="chip green dot">active</span><code style="margin-left: auto">--green-*</code></div>
+          <div class="status-row"><div class="label">maintenance</div><span class="chip dot" style="color: var(--ink-3)">maintenance</span><code style="margin-left: auto">--line-2 · --ink-3</code></div>
+          <div class="status-row"><div class="label">archived</div><span class="chip amber dot">archived</span><code style="margin-left: auto">--amber-*</code></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 10 Input ─────────────────────── -->
+    <section class="section" id="input">
+      <div class="section-head"><span class="num">10</span><h2>Input</h2><span class="right">text · search</span></div>
+      <div class="sub">
+        <h3>States</h3>
+        <div class="specimen rail">
+          <div class="stage col">
+            <div class="input-wrap"><input class="input" placeholder="you@domain" /></div>
+            <div class="input-wrap"><input class="input" value="vallista@example.com" /></div>
+            <div class="input-wrap" style="position: relative"><input class="input" value="focused" style="border-color: var(--blue); box-shadow: 0 0 0 3px rgba(43,108,255,0.18)" /></div>
+            <div class="input-wrap"><input class="input has-icon" placeholder="글 검색…" />
+              <span class="icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg></span>
+              <span class="kbd">⌘K</span>
+            </div>
+          </div>
+          <div class="caption"><span>empty · filled · focus · search w/ kbd</span><span>focus ring: 3px blue @ 18%</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 11 Card ─────────────────────── -->
+    <section class="section" id="card">
+      <div class="section-head"><span class="num">11</span><h2>Card</h2><span class="right">post · project</span></div>
+      <div class="sub">
+        <h3>Post card (compact)</h3>
+        <div class="specimen rail">
+          <div class="stage">
+            <a class="card">
+              <div class="cover" style="background: var(--blue-50)">
+                <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225"><defs><pattern id="g1" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M0 0h24v24H0z" fill="none" stroke="var(--blue)" stroke-opacity="0.22" stroke-width="0.6"/></pattern></defs><rect width="400" height="225" fill="url(#g1)"/><circle cx="320" cy="60" r="44" fill="var(--blue)" fill-opacity="0.14"/></svg>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-family:var(--mono); font-size:11px; color:var(--ink-4);"><span>2024.11.02</span><span>9 min</span></div>
+              <h3 style="margin:0; font-size:18px; font-weight:600; letter-spacing:-0.2px; line-height:1.3;">왜 vanilla-extract으로 옮겼는가</h3>
+              <div style="display:flex; gap:6px;"><span class="chip">CSS</span><span class="chip blue">DX 재정비</span></div>
+            </a>
+          </div>
+          <div class="caption"><span>padding 20 · border --line-2 · radius 12</span><span>hover: border --line + elev-2</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 12 Cover ─────────────────────── -->
+    <section class="section" id="cover">
+      <div class="section-head"><span class="num">12</span><h2>Cover pattern</h2><span class="right">5 SVG · inline</span></div>
+      <p class="desc">모든 글엔 cover가 있다. 실사 이미지 대신 blue-50 바탕 + 5가지 SVG 패턴. 네트워크 왕복 없음.</p>
+      <div class="specimen">
+        <div class="three">
+          <div><div class="cover" style="background:var(--blue-50)"><svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225"><defs><pattern id="cg" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M0 0h24v24H0z" fill="none" stroke="var(--blue)" stroke-opacity=".22" stroke-width="0.6"/></pattern></defs><rect width="400" height="225" fill="url(#cg)"/><circle cx="320" cy="60" r="44" fill="var(--blue)" fill-opacity=".14"/><rect x="40" y="130" width="110" height="40" rx="4" fill="var(--blue)" fill-opacity=".18"/></svg></div><div style="font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-top:6px; letter-spacing:.06em">grid</div></div>
+          <div><div class="cover" style="background:var(--blue-50)"><svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225"><defs><pattern id="cs" width="14" height="14" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="14" fill="var(--blue)" fill-opacity=".10"/></pattern></defs><rect width="400" height="225" fill="url(#cs)"/></svg></div><div style="font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-top:6px; letter-spacing:.06em">stripes</div></div>
+          <div><div class="cover" style="background:var(--blue-50)"><svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225"><defs><pattern id="cd" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="9" cy="9" r="1.6" fill="var(--blue)" fill-opacity=".26"/></pattern></defs><rect width="400" height="225" fill="url(#cd)"/></svg></div><div style="font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-top:6px; letter-spacing:.06em">dots</div></div>
+          <div><div class="cover" style="background:var(--blue-50)"><svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225"><rect x="30" y="30" width="120" height="70" fill="var(--blue)" fill-opacity=".22"/><rect x="160" y="30" width="70" height="70" fill="var(--blue)" fill-opacity=".12"/><rect x="240" y="30" width="130" height="165" fill="var(--blue)" fill-opacity=".08"/><rect x="30" y="110" width="200" height="85" fill="var(--blue)" fill-opacity=".16"/></svg></div><div style="font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-top:6px; letter-spacing:.06em">blocks</div></div>
+          <div><div class="cover" style="background:var(--blue-50)"><svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225"><line x1="0" y1="25" x2="400" y2="-15" stroke="var(--blue)" stroke-opacity=".15"/><line x1="0" y1="50" x2="400" y2="10" stroke="var(--blue)" stroke-opacity=".18"/><line x1="0" y1="75" x2="400" y2="35" stroke="var(--blue)" stroke-opacity=".21"/><line x1="0" y1="100" x2="400" y2="60" stroke="var(--blue)" stroke-opacity=".24"/><line x1="0" y1="125" x2="400" y2="85" stroke="var(--blue)" stroke-opacity=".27"/><line x1="0" y1="150" x2="400" y2="110" stroke="var(--blue)" stroke-opacity=".30"/><line x1="0" y1="175" x2="400" y2="135" stroke="var(--blue)" stroke-opacity=".33"/></svg></div><div style="font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-top:6px; letter-spacing:.06em">lines</div></div>
+          <div><div class="cover" style="background:var(--blue-50); display:flex; align-items:center; justify-content:center; color:var(--blue-600); font-family:var(--mono); font-size:11px; letter-spacing:.1em">↵ add your own</div><div style="font-family:var(--mono); font-size:11px; color:var(--ink-4); margin-top:6px; letter-spacing:.06em">custom</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 13 Callout ─────────────────────── -->
+    <section class="section" id="callout">
+      <div class="section-head"><span class="num">13</span><h2>Callout</h2><span class="right">prose inset</span></div>
+      <div class="specimen">
+        <div class="callout"><strong>NOTE </strong>TTI 300ms 개선이 목표였고, 실제로는 CLS 쪽에서 더 큰 이득을 봤다. 숫자보다 사용자가 "덜 흔들린다"고 느끼는 게 중요했다.</div>
+      </div>
+    </section>
+
+    <!-- ─── 14 Code block ─────────────────────── -->
+    <section class="section" id="code">
+      <div class="section-head"><span class="num">14</span><h2>Code block</h2><span class="right">Shiki @ build</span></div>
+      <p class="desc">런타임 하이라이팅 금지. Astro의 Shiki를 빌드 타임에만. 탭은 여러 파일을 한 블록에 묶을 때.</p>
+      <div class="specimen">
+        <div class="codeblock">
+          <div class="tabs">
+            <div class="tab active">theme.css.ts</div>
+            <div class="tab">Button.css.ts</div>
+            <div class="copy"><button class="btn btn-secondary sm">Copy</button></div>
+          </div>
+          <pre><span class="c">// 3-tier tokens, typed at the edge</span>
+<span class="k">export const</span> <span class="i">colors</span> = <span class="i">createGlobalTheme</span>(<span class="s">':root'</span>, {
+  <span class="i">surfaceCanvas</span>:   gray[<span class="n">50</span>],
+  <span class="i">textPrimary</span>:     gray[<span class="n">900</span>],
+  <span class="i">accentEmphasis</span>:  blue[<span class="n">500</span>],
+});</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 15 Nav rail ─────────────────────── -->
+    <section class="section" id="nav">
+      <div class="section-head"><span class="num">15</span><h2>Nav rail</h2><span class="right">sidebar · 220px</span></div>
+      <div class="specimen rail">
+        <div class="stage">
+          <div class="navrail">
+            <a class="active"><span>Home</span></a>
+            <a><span>Articles</span><span class="c">42</span></a>
+            <a><span>Notes</span><span class="c">28</span></a>
+            <a><span>Projects</span><span class="c">6</span></a>
+            <a><span>Tags</span></a>
+            <a><span>About</span></a>
+          </div>
+        </div>
+        <div class="caption"><span>active = bg-soft + ink + 600</span><span>aria-current="page" drives style</span></div>
+      </div>
+    </section>
+
+    <!-- ─── 16 TOC ─────────────────────── -->
+    <section class="section" id="toc">
+      <div class="section-head"><span class="num">16</span><h2>Table of Contents</h2><span class="right">floating · right</span></div>
+      <div class="specimen rail">
+        <div class="stage">
+          <div class="toc-preview">
+            <div class="head">On this page</div>
+            <a>1. 시작점</a>
+            <a class="active">2. 문제는 번들이 아니라 타이밍</a>
+            <a>3. 대안 비교</a>
+            <a>4. 결과</a>
+            <a>5. 앞으로</a>
+          </div>
+        </div>
+        <div class="caption"><span>IntersectionObserver로 active heading 추적</span><span>hidden below 1100px</span></div>
+      </div>
+    </section>
+
+    <!-- ─── 17 Layouts ─────────────────────── -->
+    <section class="section" id="layouts">
+      <div class="section-head"><span class="num">17</span><h2>Layouts</h2><span class="right">3 canonical</span></div>
+      <p class="desc">사이드바 + 메인 2-column이 기본. Article은 + 플로팅 TOC, Home은 단독 메인.</p>
+      <div class="specimen">
+        <div class="three">
+          <div>
+            <svg viewBox="0 0 200 130" style="width:100%; border: 1px solid var(--line-2); border-radius: 6px; background: var(--bg-soft);">
+              <rect x="0" y="0" width="50" height="130" fill="#fff" stroke="var(--line-2)"/>
+              <rect x="10" y="10" width="30" height="6" fill="var(--ink-3)"/>
+              <rect x="10" y="25" width="30" height="3" fill="var(--ink-4)"/>
+              <rect x="10" y="32" width="30" height="3" fill="var(--ink-4)"/>
+              <rect x="10" y="39" width="30" height="3" fill="var(--ink-4)"/>
+              <rect x="60" y="10" width="80" height="8" fill="var(--ink-2)"/>
+              <rect x="60" y="25" width="120" height="4" fill="var(--ink-3)"/>
+              <rect x="60" y="35" width="120" height="4" fill="var(--ink-3)"/>
+              <rect x="60" y="50" width="55" height="35" fill="var(--blue)" fill-opacity=".15" stroke="var(--blue)" stroke-opacity=".3"/>
+              <rect x="120" y="50" width="55" height="35" fill="var(--blue)" fill-opacity=".08" stroke="var(--blue)" stroke-opacity=".2"/>
+              <rect x="60" y="95" width="55" height="22" fill="var(--line-2)"/>
+              <rect x="120" y="95" width="55" height="22" fill="var(--line-2)"/>
+            </svg>
+            <div style="margin-top:10px; font-size: 13px; font-weight: 600;">Home · Archive</div>
+            <div style="font-size:12px; color: var(--ink-3); font-family: var(--mono)">sidebar + main · no TOC</div>
+          </div>
+          <div>
+            <svg viewBox="0 0 200 130" style="width:100%; border: 1px solid var(--line-2); border-radius: 6px; background: var(--bg-soft);">
+              <rect x="0" y="0" width="50" height="130" fill="#fff" stroke="var(--line-2)"/>
+              <rect x="10" y="10" width="30" height="6" fill="var(--ink-3)"/>
+              <rect x="10" y="25" width="30" height="3" fill="var(--ink-4)"/>
+              <rect x="0" y="0" width="200" height="1.5" fill="var(--blue)"/>
+              <rect x="70" y="15" width="70" height="8" fill="var(--ink-2)"/>
+              <rect x="70" y="30" width="70" height="4" fill="var(--ink-3)"/>
+              <rect x="70" y="45" width="70" height="3" fill="var(--ink-3)"/>
+              <rect x="70" y="55" width="60" height="3" fill="var(--ink-3)"/>
+              <rect x="70" y="65" width="65" height="3" fill="var(--ink-3)"/>
+              <rect x="70" y="80" width="70" height="15" fill="var(--blue)" fill-opacity=".1"/>
+              <rect x="70" y="105" width="50" height="3" fill="var(--ink-3)"/>
+              <rect x="155" y="15" width="35" height="3" fill="var(--ink-4)"/>
+              <rect x="155" y="25" width="35" height="3" fill="var(--blue)"/>
+              <rect x="155" y="33" width="30" height="3" fill="var(--ink-4)"/>
+              <rect x="155" y="41" width="28" height="3" fill="var(--ink-4)"/>
+            </svg>
+            <div style="margin-top:10px; font-size: 13px; font-weight: 600;">Article</div>
+            <div style="font-size:12px; color: var(--ink-3); font-family: var(--mono)">sidebar + prose + floating TOC</div>
+          </div>
+          <div>
+            <svg viewBox="0 0 200 130" style="width:100%; border: 1px solid var(--line-2); border-radius: 6px; background: var(--bg-soft);">
+              <rect x="0" y="0" width="50" height="130" fill="#fff" stroke="var(--line-2)"/>
+              <rect x="10" y="10" width="30" height="6" fill="var(--ink-3)"/>
+              <rect x="70" y="15" width="60" height="8" fill="var(--ink-2)"/>
+              <rect x="70" y="30" width="90" height="3" fill="var(--ink-3)"/>
+              <rect x="0" y="45" width="200" height="85" fill="rgba(11,18,32,0.3)"/>
+              <rect x="40" y="55" width="120" height="65" rx="3" fill="#fff" stroke="var(--line)"/>
+              <rect x="48" y="63" width="104" height="6" fill="var(--line-2)"/>
+              <rect x="48" y="78" width="70" height="4" fill="var(--blue)" fill-opacity=".3"/>
+              <rect x="48" y="87" width="90" height="3" fill="var(--ink-3)"/>
+              <rect x="48" y="95" width="80" height="3" fill="var(--ink-3)"/>
+              <rect x="48" y="103" width="85" height="3" fill="var(--ink-3)"/>
+            </svg>
+            <div style="margin-top:10px; font-size: 13px; font-weight: 600;">Search palette (⌘K)</div>
+            <div style="font-size:12px; color: var(--ink-3); font-family: var(--mono)">modal over any layout</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── 18 Accessibility ─────────────────────── -->
+    <section class="section" id="accessibility">
+      <div class="section-head"><span class="num">18</span><h2>Accessibility</h2><span class="right">WCAG 2.1 AA</span></div>
+      <div class="specimen">
+        <table class="tokens">
+          <tr><th>Requirement</th><th>How</th></tr>
+          <tr><td class="tok">Focus-visible</td><td>모든 interactive에 <code>:focus-visible</code>. 2px bg offset + 2px accent @ 55%.</td></tr>
+          <tr><td class="tok">Contrast</td><td>ink-2 on bg → 9.4:1 · ink-3 on bg → 5.3:1 · blue-500 on bg → 5.1:1. 모두 AA.</td></tr>
+          <tr><td class="tok">Headings</td><td>h1 → h2 → h3 순서 엄격. 스킵 금지. 시각적 크기 조정은 type scale로만.</td></tr>
+          <tr><td class="tok">Keyboard</td><td>Tab 순서 DOM 순서와 일치. Modal 열리면 focus trap + 첫 입력 포커스. Esc로 닫힘.</td></tr>
+          <tr><td class="tok">Reduced motion</td><td><code>prefers-reduced-motion: reduce</code> 시 모든 transition 0.01ms.</td></tr>
+          <tr><td class="tok">Skip link</td><td>"본문으로 바로 가기" — main 첫 요소로.</td></tr>
+          <tr><td class="tok">Color independence</td><td>상태를 색만으로 표현 금지. Status chip은 dot + 레이블 + 색 3중.</td></tr>
+          <tr><td class="tok">Dark mode</td><td>시스템 preference + localStorage 수동 토글 2중. 사용자가 덮어쓸 수 있어야 함.</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── 19 Do & Don't ─────────────────────── -->
+    <section class="section" id="dodont">
+      <div class="section-head"><span class="num">19</span><h2>Do &amp; Don't</h2><span class="right">principles</span></div>
+
+      <div class="sub"><h3>Color</h3>
+        <div class="dodont">
+          <div class="do"><div class="head">✓ Do</div><div class="body"><div style="display:flex; gap:8px; flex-wrap:wrap"><span class="chip blue">Featured</span><span class="chip">CSS</span><span class="chip green dot">active</span></div><p style="margin: 12px 0 0; font-size: 13px; color: var(--ink-3);">하나의 accent + 4단계 ink + 의미 있을 때만 status 색.</p></div></div>
+          <div class="dont"><div class="head">✗ Don't</div><div class="body"><div style="display:flex; gap:8px; flex-wrap:wrap"><span class="chip" style="background:#f0e0ff; color:#7c2fbc">Purple</span><span class="chip" style="background:#fff0d8; color:#d4791a">Orange</span><span class="chip" style="background:#e0f8f3; color:#0d7d6a">Teal</span></div><p style="margin: 12px 0 0; font-size: 13px; color: var(--ink-3);">무지개 태그 팔레트. 카테고리 구분은 타이포 계층으로.</p></div></div>
+        </div>
+      </div>
+
+      <div class="sub"><h3>Elevation</h3>
+        <div class="dodont">
+          <div class="do"><div class="head">✓ Do</div><div class="body"><div style="height:70px; background:#fff; border-radius:10px; box-shadow: var(--elev-2); display:flex; align-items:center; justify-content:center; font-size:13px; color: var(--ink-3)">hairline shadow only</div></div></div>
+          <div class="dont"><div class="head">✗ Don't</div><div class="body"><div style="height:70px; background:#fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display:flex; align-items:center; justify-content:center; font-size:13px; color: var(--ink-3);">border + heavy shadow</div></div></div>
+        </div>
+      </div>
+
+      <div class="sub"><h3>Motion</h3>
+        <div class="dodont">
+          <div class="do"><div class="head">✓ Do</div><div class="body"><div style="font-size:14px; color: var(--ink-2); line-height: 1.7;">120ms hover / 180ms tab / 320ms palette. Spring은 modal 오픈에만.</div></div></div>
+          <div class="dont"><div class="head">✗ Don't</div><div class="body"><div style="font-size:14px; color: var(--ink-2); line-height: 1.7;">Scroll-triggered 본문 entrance. 무한 애니메이션(shimmer, pulse). Bounce on hover. Parallax.</div></div></div>
+        </div>
+      </div>
+
+      <div class="sub"><h3>Iconography</h3>
+        <div class="dodont">
+          <div class="do"><div class="head">✓ Do</div><div class="body"><div style="display:flex; gap: 12px; align-items:center; color: var(--ink-2); font-size: 13px;"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg> 필요한 아이콘만 인라인 SVG로. 1.4 stroke, 16px.</div></div></div>
+          <div class="dont"><div class="head">✗ Don't</div><div class="body"><div style="font-size:14px; color: var(--ink-2); line-height: 1.7;">Lucide/Heroicons 전체 import. 이모지를 UI에 사용. 3색 이상의 글리프.</div></div></div>
+        </div>
+      </div>
+
+      <div class="sub"><h3>Data display</h3>
+        <div class="dodont">
+          <div class="do"><div class="head">✓ Do</div><div class="body"><div style="font-size:14px; color: var(--ink-2); line-height: 1.7;">의미 있는 숫자 하나. "42 articles", "9 min read". 타이포 계층이 강조를 함.</div></div></div>
+          <div class="dont"><div class="head">✗ Don't</div><div class="body"><div style="font-size:14px; color: var(--ink-2); line-height: 1.7;">data slop — 불필요한 뱃지, 무의미한 통계, 모든 카드에 view count, 채우기용 아이콘.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="end">
+      <span>vallista-land · Design System v2.0</span>
+      <span>구현 스펙 → <a href="../docs/index.html">docs/</a> · 시각 기준 → <a href="../blog/Blog A.html">Blog A</a></span>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Highlight active TOC entry on scroll
+  const links = [...document.querySelectorAll('aside.toc a.nav')].filter(a => a.getAttribute('href')?.startsWith('#'));
+  const ids = links.map(a => a.getAttribute('href').slice(1));
+  const setActive = (id) => {
+    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  };
+  const io = new IntersectionObserver((entries) => {
+    // pick the topmost intersecting entry
+    const top = entries
+      .filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    if (top) setActive(top.target.id);
+  }, { rootMargin: '-20% 0px -60% 0px', threshold: [0, 0.1, 0.5, 1] });
+  ids.forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+
+  // Smooth scroll
+  document.querySelectorAll('aside.toc a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const el = document.getElementById(a.getAttribute('href').slice(1));
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

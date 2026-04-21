@@ -1,0 +1,2251 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>vallista-land · Blog variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --blue: #2b6cff;
+    --blue-600: #1f56d6;
+    --blue-50: #eff4ff;
+    --ink: #0b1220;
+    --ink-2: #3a4255;
+    --ink-3: #6b7389;
+    --ink-4: #9aa1b4;
+    --line: #e6e8ee;
+    --line-2: #f1f2f6;
+    --bg: #ffffff;
+    --bg-soft: #fafbfc;
+  }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: var(--sans); color: var(--ink); background: #f0eee9; -webkit-font-smoothing: antialiased; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel">
+
+// DesignCanvas.jsx — Figma-ish design canvas wrapper
+// Warm gray grid bg + Sections + Artboards + PostIt notes.
+// Artboards are reorderable (grip-drag), labels/titles are inline-editable,
+// and any artboard can be opened in a fullscreen focus overlay (←/→/Esc).
+// State persists to a .design-canvas.state.json sidecar via the host
+// bridge. No assets, no deps.
+//
+// Usage:
+//   <DesignCanvas>
+//     <DCSection id="onboarding" title="Onboarding" subtitle="First-run variants">
+//       <DCArtboard id="a" label="A · Dusk" width={260} height={480}>…</DCArtboard>
+//       <DCArtboard id="b" label="B · Minimal" width={260} height={480}>…</DCArtboard>
+//     </DCSection>
+//   </DesignCanvas>
+
+const DC = {
+  bg: '#f0eee9',
+  grid: 'rgba(0,0,0,0.06)',
+  label: 'rgba(60,50,40,0.7)',
+  title: 'rgba(40,30,20,0.85)',
+  subtitle: 'rgba(60,50,40,0.6)',
+  postitBg: '#fef4a8',
+  postitText: '#5a4a2a',
+  font: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+};
+
+// One-time CSS injection (classes are dc-prefixed so they don't collide with
+// the hosted design's own styles).
+if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
+  const s = document.createElement('style');
+  s.id = 'dc-styles';
+  s.textContent = [
+    '.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}',
+    '.dc-editable:focus{background:#fff;box-shadow:0 0 0 1.5px #c96442}',
+    '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}',
+    '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}',
+    '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}',
+    '.dc-card{transition:box-shadow .15s,transform .15s}',
+    '.dc-card *{scrollbar-width:none}',
+    '.dc-card *::-webkit-scrollbar{display:none}',
+    '.dc-labelrow{display:flex;align-items:center;gap:4px;height:24px}',
+    '.dc-grip{cursor:grab;display:flex;align-items:center;padding:5px 4px;border-radius:4px;transition:background .12s}',
+    '.dc-grip:hover{background:rgba(0,0,0,.08)}',
+    '.dc-grip:active{cursor:grabbing}',
+    '.dc-labeltext{cursor:pointer;border-radius:4px;padding:3px 6px;display:flex;align-items:center;transition:background .12s}',
+    '.dc-labeltext:hover{background:rgba(0,0,0,.05)}',
+    '.dc-expand{position:absolute;bottom:100%;right:0;margin-bottom:5px;z-index:2;opacity:0;transition:opacity .12s,background .12s;',
+    '  width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;padding:0;',
+    '  background:transparent;color:rgba(60,50,40,.7);display:flex;align-items:center;justify-content:center}',
+    '.dc-expand:hover{background:rgba(0,0,0,.06);color:#2a251f}',
+    '[data-dc-slot]:hover .dc-expand{opacity:1}',
+  ].join('\n');
+  document.head.appendChild(s);
+}
+
+const DCCtx = React.createContext(null);
+
+// ─────────────────────────────────────────────────────────────
+// DesignCanvas — stateful wrapper around the pan/zoom viewport.
+// Owns runtime state (per-section order, renamed titles/labels, focused
+// artboard). Order/titles/labels persist to a .design-canvas.state.json
+// sidecar next to the HTML. Reads go via plain fetch() so the saved
+// arrangement is visible anywhere the HTML + sidecar are served together
+// (omelette preview, direct link, downloaded zip). Writes go through the
+// host's window.omelette bridge — editing requires the omelette runtime.
+// Focus is ephemeral.
+// ─────────────────────────────────────────────────────────────
+const DC_STATE_FILE = '.design-canvas.state.json';
+
+function DesignCanvas({ children, minScale, maxScale, style }) {
+  const [state, setState] = React.useState({ sections: {}, focus: null });
+  // Hold rendering until the sidecar read settles so the saved order/titles
+  // appear on first paint (no source-order flash). didRead gates writes until
+  // the read settles so the empty initial state can't clobber a slow read;
+  // skipNextWrite suppresses the one echo-write that would otherwise follow
+  // hydration.
+  const [ready, setReady] = React.useState(false);
+  const didRead = React.useRef(false);
+  const skipNextWrite = React.useRef(false);
+
+  React.useEffect(() => {
+    let off = false;
+    fetch('./' + DC_STATE_FILE)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((saved) => {
+        if (off || !saved || !saved.sections) return;
+        skipNextWrite.current = true;
+        setState((s) => ({ ...s, sections: saved.sections }));
+      })
+      .catch(() => {})
+      .finally(() => { didRead.current = true; if (!off) setReady(true); });
+    const t = setTimeout(() => { if (!off) setReady(true); }, 150);
+    return () => { off = true; clearTimeout(t); };
+  }, []);
+
+  React.useEffect(() => {
+    if (!didRead.current) return;
+    if (skipNextWrite.current) { skipNextWrite.current = false; return; }
+    const t = setTimeout(() => {
+      window.omelette?.writeFile(DC_STATE_FILE, JSON.stringify({ sections: state.sections })).catch(() => {});
+    }, 250);
+    return () => clearTimeout(t);
+  }, [state.sections]);
+
+  // Build registries synchronously from children so FocusOverlay can read
+  // them in the same render. Only direct DCSection > DCArtboard children are
+  // walked — wrapping them in other elements opts out of focus/reorder.
+  const registry = {};     // slotId -> { sectionId, artboard }
+  const sectionMeta = {};  // sectionId -> { title, subtitle, slotIds[] }
+  const sectionOrder = [];
+  React.Children.forEach(children, (sec) => {
+    if (!sec || sec.type !== DCSection) return;
+    const sid = sec.props.id ?? sec.props.title;
+    if (!sid) return;
+    sectionOrder.push(sid);
+    const persisted = state.sections[sid] || {};
+    const srcIds = [];
+    React.Children.forEach(sec.props.children, (ab) => {
+      if (!ab || ab.type !== DCArtboard) return;
+      const aid = ab.props.id ?? ab.props.label;
+      if (!aid) return;
+      registry[`${sid}/${aid}`] = { sectionId: sid, artboard: ab };
+      srcIds.push(aid);
+    });
+    const kept = (persisted.order || []).filter((k) => srcIds.includes(k));
+    sectionMeta[sid] = {
+      title: persisted.title ?? sec.props.title,
+      subtitle: sec.props.subtitle,
+      slotIds: [...kept, ...srcIds.filter((k) => !kept.includes(k))],
+    };
+  });
+
+  const api = React.useMemo(() => ({
+    state,
+    section: (id) => state.sections[id] || {},
+    patchSection: (id, p) => setState((s) => ({
+      ...s,
+      sections: { ...s.sections, [id]: { ...s.sections[id], ...(typeof p === 'function' ? p(s.sections[id] || {}) : p) } },
+    })),
+    setFocus: (slotId) => setState((s) => ({ ...s, focus: slotId })),
+  }), [state]);
+
+  // Esc exits focus; any outside pointerdown commits an in-progress rename.
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') api.setFocus(null); };
+    const onPd = (e) => {
+      const ae = document.activeElement;
+      if (ae && ae.isContentEditable && !ae.contains(e.target)) ae.blur();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPd, true);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPd, true);
+    };
+  }, [api]);
+
+  return (
+    <DCCtx.Provider value={api}>
+      <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
+      {state.focus && registry[state.focus] && (
+        <DCFocusOverlay entry={registry[state.focus]} sectionMeta={sectionMeta} sectionOrder={sectionOrder} />
+      )}
+    </DCCtx.Provider>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCViewport — transform-based pan/zoom (internal)
+//
+// Input mapping (Figma-style):
+//   • trackpad pinch  → zoom   (ctrlKey wheel; Safari gesture* events)
+//   • trackpad scroll → pan    (two-finger)
+//   • mouse wheel     → zoom   (notched; distinguished from trackpad scroll)
+//   • middle-drag / primary-drag-on-bg → pan
+//
+// Transform state lives in a ref and is written straight to the DOM
+// (translate3d + will-change) so wheel ticks don't go through React —
+// keeps pans at 60fps on dense canvases.
+// ─────────────────────────────────────────────────────────────
+function DCViewport({ children, minScale = 0.1, maxScale = 8, style = {} }) {
+  const vpRef = React.useRef(null);
+  const worldRef = React.useRef(null);
+  const tf = React.useRef({ x: 0, y: 0, scale: 1 });
+
+  const apply = React.useCallback(() => {
+    const { x, y, scale } = tf.current;
+    const el = worldRef.current;
+    if (el) el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+  }, []);
+
+  React.useEffect(() => {
+    const vp = vpRef.current;
+    if (!vp) return;
+
+    const zoomAt = (cx, cy, factor) => {
+      const r = vp.getBoundingClientRect();
+      const px = cx - r.left, py = cy - r.top;
+      const t = tf.current;
+      const next = Math.min(maxScale, Math.max(minScale, t.scale * factor));
+      const k = next / t.scale;
+      // keep the world point under the cursor fixed
+      t.x = px - (px - t.x) * k;
+      t.y = py - (py - t.y) * k;
+      t.scale = next;
+      apply();
+    };
+
+    // Mouse-wheel vs trackpad-scroll heuristic. A physical wheel sends
+    // line-mode deltas (Firefox) or large integer pixel deltas with no X
+    // component (Chrome/Safari, typically multiples of 100/120). Trackpad
+    // two-finger scroll sends small/fractional pixel deltas, often with
+    // non-zero deltaX. ctrlKey is set by the browser for trackpad pinch.
+    const isMouseWheel = (e) =>
+      e.deltaMode !== 0 ||
+      (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 40);
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (isGesturing) return; // Safari: gesture* owns the pinch — discard concurrent wheels
+      if (e.ctrlKey) {
+        // trackpad pinch (or explicit ctrl+wheel)
+        zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01));
+      } else if (isMouseWheel(e)) {
+        // notched mouse wheel — fixed-ratio step per click
+        zoomAt(e.clientX, e.clientY, Math.exp(-Math.sign(e.deltaY) * 0.18));
+      } else {
+        // trackpad two-finger scroll — pan
+        tf.current.x -= e.deltaX;
+        tf.current.y -= e.deltaY;
+        apply();
+      }
+    };
+
+    // Safari sends native gesture* events for trackpad pinch with a smooth
+    // e.scale; preferring these over the ctrl+wheel fallback gives a much
+    // better feel there. No-ops on other browsers. Safari also fires
+    // ctrlKey wheel events during the same pinch — isGesturing makes
+    // onWheel drop those entirely so they neither zoom nor pan.
+    let gsBase = 1;
+    let isGesturing = false;
+    const onGestureStart = (e) => { e.preventDefault(); isGesturing = true; gsBase = tf.current.scale; };
+    const onGestureChange = (e) => {
+      e.preventDefault();
+      zoomAt(e.clientX, e.clientY, (gsBase * e.scale) / tf.current.scale);
+    };
+    const onGestureEnd = (e) => { e.preventDefault(); isGesturing = false; };
+
+    // Drag-pan: middle button anywhere, or primary button on canvas
+    // background (anything that isn't an artboard or an inline editor).
+    let drag = null;
+    const onPointerDown = (e) => {
+      const onBg = !e.target.closest('[data-dc-slot], .dc-editable');
+      if (!(e.button === 1 || (e.button === 0 && onBg))) return;
+      e.preventDefault();
+      vp.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, lx: e.clientX, ly: e.clientY };
+      vp.style.cursor = 'grabbing';
+    };
+    const onPointerMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      tf.current.x += e.clientX - drag.lx;
+      tf.current.y += e.clientY - drag.ly;
+      drag.lx = e.clientX; drag.ly = e.clientY;
+      apply();
+    };
+    const onPointerUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      vp.releasePointerCapture(e.pointerId);
+      drag = null;
+      vp.style.cursor = '';
+    };
+
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    vp.addEventListener('gesturestart', onGestureStart, { passive: false });
+    vp.addEventListener('gesturechange', onGestureChange, { passive: false });
+    vp.addEventListener('gestureend', onGestureEnd, { passive: false });
+    vp.addEventListener('pointerdown', onPointerDown);
+    vp.addEventListener('pointermove', onPointerMove);
+    vp.addEventListener('pointerup', onPointerUp);
+    vp.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      vp.removeEventListener('wheel', onWheel);
+      vp.removeEventListener('gesturestart', onGestureStart);
+      vp.removeEventListener('gesturechange', onGestureChange);
+      vp.removeEventListener('gestureend', onGestureEnd);
+      vp.removeEventListener('pointerdown', onPointerDown);
+      vp.removeEventListener('pointermove', onPointerMove);
+      vp.removeEventListener('pointerup', onPointerUp);
+      vp.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [apply, minScale, maxScale]);
+
+  const gridSvg = `url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='${encodeURIComponent(DC.grid)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  return (
+    <div
+      ref={vpRef}
+      className="design-canvas"
+      style={{
+        height: '100vh', width: '100vw',
+        background: DC.bg,
+        overflow: 'hidden',
+        overscrollBehavior: 'none',
+        touchAction: 'none',
+        position: 'relative',
+        fontFamily: DC.font,
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      <div
+        ref={worldRef}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          transformOrigin: '0 0',
+          willChange: 'transform',
+          width: 'max-content', minWidth: '100%',
+          minHeight: '100%',
+          padding: '60px 0 80px',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: -6000, backgroundImage: gridSvg, backgroundSize: '120px 120px', pointerEvents: 'none', zIndex: -1 }} />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCSection — editable title + h-row of artboards in persisted order
+// ─────────────────────────────────────────────────────────────
+function DCSection({ id, title, subtitle, children, gap = 48 }) {
+  const ctx = React.useContext(DCCtx);
+  const sid = id ?? title;
+  const all = React.Children.toArray(children);
+  const artboards = all.filter((c) => c && c.type === DCArtboard);
+  const rest = all.filter((c) => !(c && c.type === DCArtboard));
+  const srcOrder = artboards.map((a) => a.props.id ?? a.props.label);
+  const sec = (ctx && sid && ctx.section(sid)) || {};
+
+  const order = React.useMemo(() => {
+    const kept = (sec.order || []).filter((k) => srcOrder.includes(k));
+    return [...kept, ...srcOrder.filter((k) => !kept.includes(k))];
+  }, [sec.order, srcOrder.join('|')]);
+
+  const byId = Object.fromEntries(artboards.map((a) => [a.props.id ?? a.props.label, a]));
+
+  return (
+    <div data-dc-section={sid} style={{ marginBottom: 80, position: 'relative' }}>
+      <div style={{ padding: '0 60px 56px' }}>
+        <DCEditable tag="div" value={sec.title ?? title}
+          onChange={(v) => ctx && sid && ctx.patchSection(sid, { title: v })}
+          style={{ fontSize: 28, fontWeight: 600, color: DC.title, letterSpacing: -0.4, marginBottom: 6, display: 'inline-block' }} />
+        {subtitle && <div style={{ fontSize: 16, color: DC.subtitle }}>{subtitle}</div>}
+      </div>
+      <div style={{ display: 'flex', gap, padding: '0 60px', alignItems: 'flex-start', width: 'max-content' }}>
+        {order.map((k) => (
+          <DCArtboardFrame key={k} sectionId={sid} artboard={byId[k]} order={order}
+            label={(sec.labels || {})[k] ?? byId[k].props.label}
+            onRename={(v) => ctx && ctx.patchSection(sid, (x) => ({ labels: { ...x.labels, [k]: v } }))}
+            onReorder={(next) => ctx && ctx.patchSection(sid, { order: next })}
+            onFocus={() => ctx && ctx.setFocus(`${sid}/${k}`)} />
+        ))}
+      </div>
+      {rest}
+    </div>
+  );
+}
+
+// DCArtboard — marker; rendered by DCArtboardFrame via DCSection.
+function DCArtboard() { return null; }
+
+function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorder, onFocus }) {
+  const { id: rawId, label: rawLabel, width = 260, height = 480, children, style = {} } = artboard.props;
+  const id = rawId ?? rawLabel;
+  const ref = React.useRef(null);
+
+  // Live drag-reorder: dragged card sticks to cursor; siblings slide into
+  // their would-be slots in real time via transforms. DOM order only
+  // changes on drop.
+  const onGripDown = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const me = ref.current;
+    // translateX is applied in local (pre-scale) space but pointer deltas and
+    // getBoundingClientRect().left are screen-space — divide by the viewport's
+    // current scale so the dragged card tracks the cursor at any zoom level.
+    const scale = me.getBoundingClientRect().width / me.offsetWidth || 1;
+    const peers = Array.from(document.querySelectorAll(`[data-dc-section="${sectionId}"] [data-dc-slot]`));
+    const homes = peers.map((el) => ({ el, id: el.dataset.dcSlot, x: el.getBoundingClientRect().left }));
+    const slotXs = homes.map((h) => h.x);
+    const startIdx = order.indexOf(id);
+    const startX = e.clientX;
+    let liveOrder = order.slice();
+    me.classList.add('dc-dragging');
+
+    const layout = () => {
+      for (const h of homes) {
+        if (h.id === id) continue;
+        const slot = liveOrder.indexOf(h.id);
+        h.el.style.transform = `translateX(${(slotXs[slot] - h.x) / scale}px)`;
+      }
+    };
+
+    const move = (ev) => {
+      const dx = ev.clientX - startX;
+      me.style.transform = `translateX(${dx / scale}px)`;
+      const cur = homes[startIdx].x + dx;
+      let nearest = 0, best = Infinity;
+      for (let i = 0; i < slotXs.length; i++) {
+        const d = Math.abs(slotXs[i] - cur);
+        if (d < best) { best = d; nearest = i; }
+      }
+      if (liveOrder.indexOf(id) !== nearest) {
+        liveOrder = order.filter((k) => k !== id);
+        liveOrder.splice(nearest, 0, id);
+        layout();
+      }
+    };
+
+    const up = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      const finalSlot = liveOrder.indexOf(id);
+      me.classList.remove('dc-dragging');
+      me.style.transform = `translateX(${(slotXs[finalSlot] - homes[startIdx].x) / scale}px)`;
+      // After the settle transition, kill transitions + clear transforms +
+      // commit the reorder in the same frame so there's no visual snap-back.
+      setTimeout(() => {
+        for (const h of homes) { h.el.style.transition = 'none'; h.el.style.transform = ''; }
+        if (liveOrder.join('|') !== order.join('|')) onReorder(liveOrder);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          for (const h of homes) h.el.style.transition = '';
+        }));
+      }, 180);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div ref={ref} data-dc-slot={id} style={{ position: 'relative', flexShrink: 0 }}>
+      <div className="dc-labelrow" style={{ position: 'absolute', bottom: '100%', left: -4, marginBottom: 4, color: DC.label }}>
+        <div className="dc-grip" onPointerDown={onGripDown} title="Drag to reorder">
+          <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2" cy="2" r="1.1"/><circle cx="7" cy="2" r="1.1"/><circle cx="2" cy="6.5" r="1.1"/><circle cx="7" cy="6.5" r="1.1"/><circle cx="2" cy="11" r="1.1"/><circle cx="7" cy="11" r="1.1"/></svg>
+        </div>
+        <div className="dc-labeltext" onClick={onFocus} title="Click to focus">
+          <DCEditable value={label} onChange={onRename} onClick={(e) => e.stopPropagation()}
+            style={{ fontSize: 15, fontWeight: 500, color: DC.label, lineHeight: 1 }} />
+        </div>
+      </div>
+      <button className="dc-expand" onClick={onFocus} onPointerDown={(e) => e.stopPropagation()} title="Focus">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M7 1h4v4M5 11H1V7M11 1L7.5 4.5M1 11l3.5-3.5"/></svg>
+      </button>
+      <div className="dc-card"
+        style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>
+        {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 13, fontFamily: DC.font }}>{id}</div>}
+      </div>
+    </div>
+  );
+}
+
+// Inline rename — commits on blur or Enter.
+function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
+  const T = tag;
+  return (
+    <T className="dc-editable" contentEditable suppressContentEditableWarning
+      onClick={onClick}
+      onPointerDown={(e) => e.stopPropagation()}
+      onBlur={(e) => onChange && onChange(e.currentTarget.textContent)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
+      style={style}>{value}</T>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Focus mode — overlay one artboard; ←/→ within section, ↑/↓ across
+// sections, Esc or backdrop click to exit.
+// ─────────────────────────────────────────────────────────────
+function DCFocusOverlay({ entry, sectionMeta, sectionOrder }) {
+  const ctx = React.useContext(DCCtx);
+  const { sectionId, artboard } = entry;
+  const sec = ctx.section(sectionId);
+  const meta = sectionMeta[sectionId];
+  const peers = meta.slotIds;
+  const aid = artboard.props.id ?? artboard.props.label;
+  const idx = peers.indexOf(aid);
+  const secIdx = sectionOrder.indexOf(sectionId);
+
+  const go = (d) => { const n = peers[(idx + d + peers.length) % peers.length]; if (n) ctx.setFocus(`${sectionId}/${n}`); };
+  const goSection = (d) => {
+    const ns = sectionOrder[(secIdx + d + sectionOrder.length) % sectionOrder.length];
+    const first = sectionMeta[ns] && sectionMeta[ns].slotIds[0];
+    if (first) ctx.setFocus(`${ns}/${first}`);
+  };
+
+  React.useEffect(() => {
+    const k = (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); goSection(-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); goSection(1); }
+    };
+    document.addEventListener('keydown', k);
+    return () => document.removeEventListener('keydown', k);
+  });
+
+  const { width = 260, height = 480, children } = artboard.props;
+  const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+  React.useEffect(() => { const r = () => setVp({ w: window.innerWidth, h: window.innerHeight }); window.addEventListener('resize', r); return () => window.removeEventListener('resize', r); }, []);
+  const scale = Math.max(0.1, Math.min((vp.w - 200) / width, (vp.h - 260) / height, 2));
+
+  const [ddOpen, setDd] = React.useState(false);
+  const Arrow = ({ dir, onClick }) => (
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }}
+      style={{ position: 'absolute', top: '50%', [dir]: 28, transform: 'translateY(-50%)',
+        border: 'none', background: 'rgba(255,255,255,.08)', color: 'rgba(255,255,255,.9)',
+        width: 44, height: 44, borderRadius: 22, fontSize: 18, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s' }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.18)')}
+      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.08)')}>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d={dir === 'left' ? 'M11 3L5 9l6 6' : 'M7 3l6 6-6 6'} /></svg>
+    </button>
+  );
+
+  // Portal to body so position:fixed is the real viewport regardless of any
+  // transform on DesignCanvas's ancestors (including the canvas zoom itself).
+  return ReactDOM.createPortal(
+    <div onClick={() => ctx.setFocus(null)}
+      onWheel={(e) => e.preventDefault()}
+      style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(24,20,16,.6)', backdropFilter: 'blur(14px)',
+        fontFamily: DC.font, color: '#fff' }}>
+
+      {/* top bar: section dropdown (left) · close (right) */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 72, display: 'flex', alignItems: 'flex-start', padding: '16px 20px 0', gap: 16 }}>
+        <div style={{ position: 'relative' }}>
+          <button onClick={() => setDd((o) => !o)}
+            style={{ border: 'none', background: 'transparent', color: '#fff', cursor: 'pointer', padding: '6px 8px',
+              borderRadius: 6, textAlign: 'left', fontFamily: 'inherit' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: -0.3 }}>{meta.title}</span>
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" style={{ opacity: .7 }}><path d="M2 4l3.5 3.5L9 4"/></svg>
+            </span>
+            {meta.subtitle && <span style={{ display: 'block', fontSize: 13, opacity: .6, fontWeight: 400, marginTop: 2 }}>{meta.subtitle}</span>}
+          </button>
+          {ddOpen && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#2a251f', borderRadius: 8,
+              boxShadow: '0 8px 32px rgba(0,0,0,.4)', padding: 4, minWidth: 200, zIndex: 10 }}>
+              {sectionOrder.map((sid) => (
+                <button key={sid} onClick={() => { setDd(false); const f = sectionMeta[sid].slotIds[0]; if (f) ctx.setFocus(`${sid}/${f}`); }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', cursor: 'pointer',
+                    background: sid === sectionId ? 'rgba(255,255,255,.1)' : 'transparent', color: '#fff',
+                    padding: '8px 12px', borderRadius: 5, fontSize: 14, fontWeight: sid === sectionId ? 600 : 400, fontFamily: 'inherit' }}>
+                  {sectionMeta[sid].title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => ctx.setFocus(null)}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.12)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          style={{ border: 'none', background: 'transparent', color: 'rgba(255,255,255,.7)', width: 32, height: 32,
+            borderRadius: 16, fontSize: 20, cursor: 'pointer', lineHeight: 1, transition: 'background .12s' }}>×</button>
+      </div>
+
+      {/* card centered, label + index below — only the card itself stops
+          propagation so any backdrop click (including the margins around
+          the card) exits focus */}
+      <div
+        style={{ position: 'absolute', top: 64, bottom: 56, left: 100, right: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ width: width * scale, height: height * scale, position: 'relative' }}>
+          <div style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left', background: '#fff', borderRadius: 2, overflow: 'hidden',
+            boxShadow: '0 20px 80px rgba(0,0,0,.4)' }}>
+            {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb' }}>{aid}</div>}
+          </div>
+        </div>
+        <div onClick={(e) => e.stopPropagation()} style={{ fontSize: 14, fontWeight: 500, opacity: .85, textAlign: 'center' }}>
+          {(sec.labels || {})[aid] ?? artboard.props.label}
+          <span style={{ opacity: .5, marginLeft: 10, fontVariantNumeric: 'tabular-nums' }}>{idx + 1} / {peers.length}</span>
+        </div>
+      </div>
+
+      <Arrow dir="left" onClick={() => go(-1)} />
+      <Arrow dir="right" onClick={() => go(1)} />
+
+      {/* dots */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+        {peers.map((p, i) => (
+          <button key={p} onClick={() => ctx.setFocus(`${sectionId}/${p}`)}
+            style={{ border: 'none', padding: 0, cursor: 'pointer', width: 6, height: 6, borderRadius: 3,
+              background: i === idx ? '#fff' : 'rgba(255,255,255,.3)' }} />
+        ))}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Post-it — absolute-positioned sticky note
+// ─────────────────────────────────────────────────────────────
+function DCPostIt({ children, top, left, right, bottom, rotate = -2, width = 180 }) {
+  return (
+    <div style={{
+      position: 'absolute', top, left, right, bottom, width,
+      background: DC.postitBg, padding: '14px 16px',
+      fontFamily: '"Comic Sans MS", "Marker Felt", "Segoe Print", cursive',
+      fontSize: 14, lineHeight: 1.4, color: DC.postitText,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)',
+      transform: `rotate(${rotate}deg)`,
+      zIndex: 5,
+    }}>{children}</div>
+  );
+}
+
+Object.assign(window, { DesignCanvas, DCSection, DCArtboard, DCPostIt });
+
+
+</script>
+<script type="text/babel">
+// Shared primitives & fake content for the three blog variants.
+// Each variant imports only the ones it needs via window globals.
+
+const SAMPLE_POSTS = [
+  { title: "왜 vanilla-extract으로 옮겼는가", date: "2024.11.02", min: 9, tag: "CSS", series: "DX 재정비", cover: "grid" },
+  { title: "모노레포를 다시 작게 쪼갰다", date: "2024.10.18", min: 12, tag: "Infra", series: null, cover: "stripes" },
+  { title: "toss slash 라이브러리를 뜯어본 주말", date: "2024.09.18", min: 7, tag: "Library", series: null, cover: "dots" },
+  { title: "React 19의 Server Components 적응기", date: "2024.08.20", min: 11, tag: "React", series: "React 19", cover: "blocks" },
+  { title: "Sprinkles로 반응형 스타일링을 정리하다", date: "2024.08.03", min: 6, tag: "CSS", series: "DX 재정비", cover: "lines" },
+  { title: "Storybook 9 에서 docs가 다시 좋아졌다", date: "2024.07.12", min: 5, tag: "Tooling", series: null, cover: "grid" },
+];
+
+const NOTES = [
+  { date: "10.22", text: "오늘 읽은 것 — React Compiler가 실제로 하는 일에 대한 짧은 메모." },
+  { date: "10.14", text: "Headless UI 패턴이 결국 스타일 문제로 돌아오는 이유." },
+  { date: "10.02", text: "Popover의 접근성은 디테일에서 무너진다. Radix가 맞다." },
+];
+
+const NAV = [
+  { k: "home", label: "Home", count: null },
+  { k: "articles", label: "Articles", count: 42 },
+  { k: "notes", label: "Notes", count: 28 },
+  { k: "projects", label: "Projects", count: 6 },
+  { k: "tags", label: "Tags", count: null },
+  { k: "about", label: "About", count: null },
+];
+
+const SERIES = [
+  { k: "dx", label: "DX 재정비", count: 4 },
+  { k: "react19", label: "React 19", count: 3 },
+  { k: "ds", label: "Design System", count: 6 },
+];
+
+const TAGS = ["react", "typescript", "css", "monorepo", "rsc", "storybook", "vanilla-extract", "tooling"];
+
+// Cover placeholder — patterned so "every post has a cover" looks feasible
+// without real imagery. Each pattern uses the blue accent softly.
+const Cover = ({ kind = "grid", ratio = "16/9", blue = "var(--blue)" }) => {
+  const common = { aspectRatio: ratio, width: "100%", background: "var(--blue-50)", position: "relative", overflow: "hidden" };
+  const patterns = {
+    grid: (
+      <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225">
+        <defs>
+          <pattern id="gr" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M0 0h24v24H0z" fill="none" stroke={blue} strokeOpacity="0.22" strokeWidth="0.6"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="225" fill="url(#gr)"/>
+        <circle cx="320" cy="60" r="44" fill={blue} fillOpacity="0.14"/>
+        <rect x="40" y="130" width="110" height="40" rx="4" fill={blue} fillOpacity="0.18"/>
+      </svg>
+    ),
+    stripes: (
+      <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225">
+        <defs>
+          <pattern id="st" width="14" height="14" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <rect width="7" height="14" fill={blue} fillOpacity="0.10"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="225" fill="url(#st)"/>
+      </svg>
+    ),
+    dots: (
+      <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225">
+        <defs>
+          <pattern id="dt" width="18" height="18" patternUnits="userSpaceOnUse">
+            <circle cx="9" cy="9" r="1.6" fill={blue} fillOpacity="0.26"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="225" fill="url(#dt)"/>
+      </svg>
+    ),
+    blocks: (
+      <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225">
+        <rect x="30" y="30" width="120" height="70" fill={blue} fillOpacity="0.22"/>
+        <rect x="160" y="30" width="70" height="70" fill={blue} fillOpacity="0.12"/>
+        <rect x="240" y="30" width="130" height="165" fill={blue} fillOpacity="0.08"/>
+        <rect x="30" y="110" width="200" height="85" fill={blue} fillOpacity="0.16"/>
+      </svg>
+    ),
+    lines: (
+      <svg width="100%" height="100%" preserveAspectRatio="none" viewBox="0 0 400 225">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <line key={i} x1="0" y1={25 * (i + 1)} x2="400" y2={25 * (i + 1) - 40} stroke={blue} strokeOpacity={0.15 + i * 0.02} strokeWidth="1"/>
+        ))}
+      </svg>
+    ),
+  };
+  return <div style={common}>{patterns[kind] || patterns.grid}</div>;
+};
+
+// Tiny square brand mark used in sidebars/headers.
+const Mark = ({ size = 20 }) => (
+  <div style={{ width: size, height: size, borderRadius: 5, background: "var(--ink)", position: "relative", flexShrink: 0 }}>
+    <div style={{ position: "absolute", inset: size * 0.22, borderRadius: 2, background: "var(--blue)" }} />
+  </div>
+);
+
+const Chip = ({ children, tone = "default" }) => (
+  <span style={{
+    display: "inline-flex", alignItems: "center", gap: 6,
+    padding: "3px 8px", borderRadius: 999,
+    background: tone === "blue" ? "var(--blue-50)" : "var(--line-2)",
+    color: tone === "blue" ? "var(--blue-600)" : "var(--ink-3)",
+    fontSize: 11, fontWeight: 500, letterSpacing: 0.02,
+  }}>{children}</span>
+);
+
+// Mobile device bezel — bezel-less minimal.
+const Phone = ({ children, bg = "#fff" }) => (
+  <div style={{ width: "100%", height: "100%", background: bg, position: "relative", overflow: "hidden", fontSize: 14 }}>
+    {/* status bar */}
+    <div style={{ height: 44, padding: "14px 22px 0", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>
+      <span>9:41</span>
+      <span style={{ display: "flex", gap: 5, alignItems: "center" }}>
+        <svg width="16" height="10" viewBox="0 0 16 10" fill="currentColor"><rect x="0" y="6" width="3" height="4" rx="0.5"/><rect x="4" y="4" width="3" height="6" rx="0.5"/><rect x="8" y="2" width="3" height="8" rx="0.5"/><rect x="12" y="0" width="3" height="10" rx="0.5"/></svg>
+        <svg width="24" height="10" viewBox="0 0 24 10" fill="none" stroke="currentColor" strokeWidth="1"><rect x="0.5" y="0.5" width="20" height="9" rx="2"/><rect x="2" y="2" width="16" height="6" rx="1" fill="currentColor"/><rect x="21" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </span>
+    </div>
+    {children}
+  </div>
+);
+
+Object.assign(window, { SAMPLE_POSTS, NOTES, NAV, SERIES, TAGS, Cover, Mark, Chip, Phone });
+
+</script>
+<script type="text/babel">
+// Variant A — Paper Light
+// v1 구조 유지 · 얇은 hairline · 넉넉한 여백 · 블루는 링크/진행바만
+
+const { SAMPLE_POSTS, NOTES, NAV, SERIES, TAGS, Cover, Mark, Chip, Phone } = window;
+
+const PaperSidebar = ({ active = "home" }) => (
+  <aside style={{ width: 220, padding: "40px 28px", borderRight: "1px solid var(--line-2)", background: "#fff", display: "flex", flexDirection: "column", gap: 36, height: "100%", boxSizing: "border-box" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <Mark size={22} />
+      <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: -0.1 }}>vallista-land</div>
+    </div>
+    <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {NAV.map(n => (
+        <a key={n.k} style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "8px 10px", borderRadius: 6, textDecoration: "none",
+          color: active === n.k ? "var(--ink)" : "var(--ink-3)",
+          background: active === n.k ? "var(--bg-soft)" : "transparent",
+          fontSize: 14, fontWeight: active === n.k ? 600 : 500,
+        }}>
+          <span>{n.label}</span>
+          {n.count != null && <span style={{ fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{n.count}</span>}
+        </a>
+      ))}
+    </nav>
+    <div>
+      <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.14, color: "var(--ink-4)", marginBottom: 10, padding: "0 10px" }}>Series</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {SERIES.map(s => (
+          <a key={s.k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", fontSize: 13, color: "var(--ink-2)", textDecoration: "none" }}>
+            <span>{s.label}</span>
+            <span style={{ fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{s.count}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+    <div style={{ marginTop: "auto", paddingTop: 20, borderTop: "1px solid var(--line-2)", fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>
+      RSS · GitHub · Email
+    </div>
+  </aside>
+);
+
+const PaperSearchBar = () => (
+  <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", border: "1px solid var(--line)", borderRadius: 8, background: "#fff", color: "var(--ink-4)", fontSize: 13, width: 280 }}>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+    <span>글 검색…</span>
+    <span style={{ marginLeft: "auto", fontFamily: "var(--mono)", fontSize: 11, padding: "1px 5px", border: "1px solid var(--line)", borderRadius: 3 }}>⌘K</span>
+  </div>
+);
+
+const PaperHome = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <PaperSidebar active="home" />
+    <main style={{ flex: 1, padding: "48px 64px 64px", overflow: "hidden" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 36 }}>
+        <div>
+          <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-4)", marginBottom: 8 }}>@vallista · 글</div>
+          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: -0.5 }}>최근에 쓴 글</h1>
+        </div>
+        <PaperSearchBar />
+      </div>
+
+      {/* featured */}
+      <a style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 32, marginBottom: 40, textDecoration: "none", color: "inherit" }}>
+        <Cover kind="grid" />
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 14 }}>
+          <div style={{ display: "flex", gap: 6 }}>
+            <Chip tone="blue">Featured</Chip>
+            <Chip>Article · 9 min</Chip>
+          </div>
+          <h2 style={{ margin: 0, fontSize: 30, fontWeight: 700, letterSpacing: -0.4, lineHeight: 1.2 }}>왜 vanilla-extract으로<br/>옮겼는가</h2>
+          <p style={{ margin: 0, color: "var(--ink-2)", lineHeight: 1.65, fontSize: 15 }}>런타임 CSS-in-JS는 편했지만, 모노레포의 빌드가 무거워질수록 초기 로드가 눈에 띄게 느려졌다. 제로런타임으로 옮기면서 정리한 것들.</p>
+          <div style={{ fontSize: 12, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>2024.11.02 · DX 재정비 시리즈</div>
+        </div>
+      </a>
+
+      <div style={{ height: 1, background: "var(--line-2)", margin: "8px 0 28px" }} />
+
+      {/* list */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "28px 40px" }}>
+        {SAMPLE_POSTS.slice(1, 5).map(p => (
+          <a key={p.title} style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 18, textDecoration: "none", color: "inherit" }}>
+            <div style={{ aspectRatio: "4/3" }}><Cover kind={p.cover} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{p.date} · {p.min} min</div>
+              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 600, letterSpacing: -0.2, lineHeight: 1.3 }}>{p.title}</h3>
+              <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+                <Chip>{p.tag}</Chip>
+                {p.series && <Chip tone="blue">{p.series}</Chip>}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </main>
+  </div>
+);
+
+// ─── Article ────────────────────────────────────────────────
+const PaperArticle = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <PaperSidebar active="articles" />
+    <main style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+      {/* reading progress */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "var(--line-2)" }}>
+        <div style={{ width: "34%", height: "100%", background: "var(--blue)" }} />
+      </div>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "72px 40px 120px" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          <Chip tone="blue">DX 재정비 · 1/4</Chip>
+          <Chip>CSS</Chip>
+        </div>
+        <h1 style={{ margin: "0 0 14px", fontSize: 44, fontWeight: 700, letterSpacing: -0.8, lineHeight: 1.15 }}>왜 vanilla-extract으로 옮겼는가</h1>
+        <p style={{ margin: "0 0 28px", fontSize: 18, color: "var(--ink-2)", lineHeight: 1.55 }}>
+          런타임 비용을 지불하지 않으면서, 타입 안전한 스타일을 유지하는 가장 간단한 방법에 대한 기록.
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 13, color: "var(--ink-3)", fontFamily: "var(--mono)", paddingBottom: 32, borderBottom: "1px solid var(--line-2)" }}>
+          <span>2024.11.02</span>
+          <span>·</span>
+          <span>9 min read</span>
+          <span>·</span>
+          <span>3,201 words</span>
+        </div>
+
+        <div style={{ fontSize: 17, lineHeight: 1.85, color: "var(--ink)", marginTop: 36 }}>
+          <p style={{ margin: "0 0 22px" }}>
+            처음에는 <a style={{ color: "var(--blue)", textDecoration: "none", borderBottom: "1px solid var(--blue)" }}>Emotion</a>으로 시작했다. 컴포넌트 옆에 스타일을 바로 쓸 수 있고, prop 기반 분기도 자연스러웠다. 그러다 앱이 커지고 모노레포에 패키지가 늘자, 번들의 스타일 런타임이 무거워지기 시작했다.
+          </p>
+          <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.3, margin: "44px 0 14px" }}>문제는 번들이 아니라 타이밍이었다</h2>
+          <p style={{ margin: "0 0 22px" }}>
+            실제 크기가 크진 않았다. 문제는 첫 paint 전에 JS가 파싱·실행돼야만 <em style={{ fontStyle: "normal", color: "var(--blue-600)", fontWeight: 600 }}>스타일이 붙는다</em>는 점이었다. 느린 네트워크에서는 레이아웃이 두 번 흔들렸다.
+          </p>
+
+          {/* callout */}
+          <div style={{ margin: "28px 0", padding: "18px 22px", background: "var(--blue-50)", borderLeft: "3px solid var(--blue)", borderRadius: "2px 6px 6px 2px", color: "var(--ink-2)", fontSize: 15.5, lineHeight: 1.7 }}>
+            <strong style={{ color: "var(--blue-600)" }}>NOTE </strong>
+            TTI 300ms 개선이 목표였고, 실제로는 CLS 쪽에서 더 큰 이득을 봤다. 숫자보다 사용자가 "덜 흔들린다"고 느끼는 게 중요했다.
+          </div>
+
+          <p style={{ margin: "0 0 22px" }}>
+            그래서 제로런타임을 다시 봤다. 옵션은 세 개였다 — Linaria, Panda CSS, vanilla-extract. 결론은 타입 세이프티가 가장 센 vanilla-extract였다.
+          </p>
+
+          {/* code block with filename tabs */}
+          <div style={{ margin: "28px 0", borderRadius: 10, overflow: "hidden", border: "1px solid var(--line)", background: "#0b1220" }}>
+            <div style={{ display: "flex", background: "#0f1626", borderBottom: "1px solid #1c2540" }}>
+              <div style={{ padding: "10px 18px", fontFamily: "var(--mono)", fontSize: 12, color: "#fff", background: "#0b1220", borderRight: "1px solid #1c2540", borderBottom: "2px solid var(--blue)" }}>theme.css.ts</div>
+              <div style={{ padding: "10px 18px", fontFamily: "var(--mono)", fontSize: 12, color: "#6b7389" }}>Button.css.ts</div>
+              <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, padding: "0 14px", color: "#6b7389" }}>
+                <button style={{ background: "transparent", border: "none", color: "#9aa1b4", fontSize: 11, fontFamily: "var(--mono)", cursor: "pointer", padding: "6px 10px", borderRadius: 4 }}>Copy</button>
+              </div>
+            </div>
+            <pre style={{ margin: 0, padding: "18px 22px", fontFamily: "var(--mono)", fontSize: 13, lineHeight: 1.7, color: "#dbe2ff", overflow: "hidden" }}>
+<span style={{ color: "#6b7389" }}>// 3-tier tokens, typed at the edge</span>{'\n'}
+<span style={{ color: "#a48dff" }}>export const</span> <span style={{ color: "#8ab4ff" }}>colors</span> = <span style={{ color: "#8ab4ff" }}>createGlobalTheme</span>(<span style={{ color: "#b5e3a7" }}>':root'</span>, {'{'}{'\n'}
+{'  '}<span style={{ color: "#8ab4ff" }}>surfaceCanvas</span>: gray[<span style={{ color: "#ffb072" }}>50</span>],{'\n'}
+{'  '}<span style={{ color: "#8ab4ff" }}>textPrimary</span>:   gray[<span style={{ color: "#ffb072" }}>900</span>],{'\n'}
+{'  '}<span style={{ color: "#8ab4ff" }}>accentEmphasis</span>: blue[<span style={{ color: "#ffb072" }}>500</span>],{'\n'}
+{'}'});
+            </pre>
+          </div>
+
+          <h2 style={{ fontSize: 26, fontWeight: 700, letterSpacing: -0.3, margin: "44px 0 14px" }}>결과<sup style={{ color: "var(--blue)", fontWeight: 600, fontSize: 13 }}>1</sup></h2>
+          <p style={{ margin: "0 0 22px" }}>
+            초기 로드에서 스타일 런타임을 완전히 뺐다. 번들 크기보다도, 렌더 타이밍이 안정적으로 좋아졌다는 게 체감으로 컸다.
+          </p>
+        </div>
+
+        {/* footnotes */}
+        <div style={{ marginTop: 56, paddingTop: 24, borderTop: "1px solid var(--line-2)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.7 }}>
+          <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.14, color: "var(--ink-4)", marginBottom: 10 }}>Footnotes</div>
+          <ol style={{ margin: 0, paddingLeft: 20 }}>
+            <li>측정 환경: Lighthouse 12, moto g power 4G slow profile. 로컬 3회 평균.</li>
+          </ol>
+        </div>
+
+        {/* next in series */}
+        <div style={{ marginTop: 48, padding: "22px 26px", border: "1px solid var(--line)", borderRadius: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.14, color: "var(--ink-4)", marginBottom: 6 }}>Next in DX 재정비</div>
+            <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: -0.2 }}>Sprinkles로 반응형 스타일링을 정리하다</div>
+            <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>6 min · 2/4</div>
+          </div>
+          <div style={{ color: "var(--blue)", fontSize: 20 }}>→</div>
+        </div>
+      </div>
+
+      {/* floating TOC */}
+      <aside style={{ position: "absolute", top: 100, right: 40, width: 220, fontSize: 12 }}>
+        <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.14, color: "var(--ink-4)", marginBottom: 12 }}>On this page</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, borderLeft: "1px solid var(--line)", paddingLeft: 14 }}>
+          <div style={{ color: "var(--ink-4)" }}>1. 시작점</div>
+          <div style={{ color: "var(--blue)", fontWeight: 600, marginLeft: -15, paddingLeft: 14, borderLeft: "2px solid var(--blue)" }}>2. 문제는 번들이 아니라 타이밍</div>
+          <div style={{ color: "var(--ink-4)" }}>3. 대안 비교</div>
+          <div style={{ color: "var(--ink-4)" }}>4. 결과</div>
+          <div style={{ color: "var(--ink-4)" }}>5. 앞으로</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+);
+
+// ─── Mobile — Menu open (hamburger → fullscreen) ───────────
+const PaperMobile = () => (
+  <Phone>
+    <div style={{ padding: "0 22px", display: "flex", flexDirection: "column", height: "calc(100% - 44px)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0 28px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Mark size={20} />
+          <div style={{ fontSize: 14, fontWeight: 600 }}>vallista-land</div>
+        </div>
+        <button style={{ border: "none", background: "transparent", fontSize: 22, color: "var(--ink)", cursor: "pointer", padding: 4 }}>×</button>
+      </div>
+      <div style={{ position: "relative", marginBottom: 24 }}>
+        <input placeholder="글 검색…" style={{ width: "100%", padding: "12px 14px 12px 40px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 15, boxSizing: "border-box", fontFamily: "inherit", color: "var(--ink)" }} />
+        <svg style={{ position: "absolute", top: 14, left: 14 }} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+      </div>
+      <nav style={{ display: "flex", flexDirection: "column", gap: 0, borderTop: "1px solid var(--line-2)" }}>
+        {NAV.map(n => (
+          <a key={n.k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 4px", borderBottom: "1px solid var(--line-2)", textDecoration: "none", color: "var(--ink)", fontSize: 20, fontWeight: 600, letterSpacing: -0.3 }}>
+            <span>{n.label}</span>
+            {n.count != null && <span style={{ fontSize: 12, color: "var(--ink-4)", fontFamily: "var(--mono)", fontWeight: 500 }}>{n.count}</span>}
+          </a>
+        ))}
+      </nav>
+      <div style={{ marginTop: 28 }}>
+        <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-4)", marginBottom: 12 }}>Series</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {SERIES.map(s => <Chip key={s.k} tone="blue">{s.label} · {s.count}</Chip>)}
+        </div>
+      </div>
+      <div style={{ marginTop: "auto", paddingTop: 20, fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>
+        © 2024 · RSS · GitHub
+      </div>
+    </div>
+  </Phone>
+);
+
+Object.assign(window, { PaperHome, PaperArticle, PaperMobile });
+
+</script>
+<script type="text/babel">
+// Variant B — Docs style (Vercel/Linear 풍)
+// 사이드바가 문서 네비 · 시리즈/태그 접이식 · 본문 중앙 한 컬럼
+
+const { SAMPLE_POSTS, NOTES, NAV, SERIES, TAGS, Cover, Mark, Chip, Phone } = window;
+
+const DocsSidebar = ({ active = "home" }) => (
+  <aside style={{ width: 240, padding: "28px 20px", borderRight: "1px solid var(--line-2)", background: "var(--bg-soft)", display: "flex", flexDirection: "column", gap: 22, height: "100%", boxSizing: "border-box", overflow: "hidden" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 6px" }}>
+      <Mark size={22} />
+      <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: -0.1 }}>vallista-land</div>
+      <span style={{ marginLeft: "auto", fontSize: 10, fontFamily: "var(--mono)", color: "var(--ink-4)", padding: "2px 5px", border: "1px solid var(--line)", borderRadius: 3 }}>v2</span>
+    </div>
+    <div style={{ position: "relative" }}>
+      <input readOnly placeholder="Search..." style={{ width: "100%", padding: "7px 10px 7px 30px", border: "1px solid var(--line)", borderRadius: 7, fontSize: 12.5, boxSizing: "border-box", fontFamily: "inherit", color: "var(--ink-3)", background: "#fff" }} />
+      <svg style={{ position: "absolute", top: 8, left: 10 }} width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+      <span style={{ position: "absolute", top: 7, right: 8, fontSize: 10, fontFamily: "var(--mono)", color: "var(--ink-4)", padding: "1px 5px", border: "1px solid var(--line)", borderRadius: 3, background: "#fff" }}>⌘K</span>
+    </div>
+
+    {/* group: Browse */}
+    <Group title="Browse">
+      {NAV.map(n => (
+        <SideItem key={n.k} active={active === n.k}>
+          {n.label}
+          {n.count != null && <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{n.count}</span>}
+        </SideItem>
+      ))}
+    </Group>
+
+    {/* group: Series - expandable */}
+    <Group title="Series" collapsible>
+      {SERIES.map((s, i) => (
+        <SideItem key={s.k} indent>
+          <span style={{ color: "var(--ink-4)", marginRight: 6, fontSize: 10 }}>▾</span>{s.label}
+          <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{s.count}</span>
+        </SideItem>
+      ))}
+    </Group>
+
+    {/* group: Tags */}
+    <Group title="Tags">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, padding: "0 6px" }}>
+        {TAGS.map(t => <span key={t} style={{ fontSize: 11, padding: "2px 7px", borderRadius: 4, background: "#fff", border: "1px solid var(--line-2)", color: "var(--ink-2)" }}>{t}</span>)}
+      </div>
+    </Group>
+
+    <div style={{ marginTop: "auto", padding: "10px 6px 0", fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)", display: "flex", gap: 10 }}>
+      <span>RSS</span><span>GH</span><span>@</span>
+      <span style={{ marginLeft: "auto" }}>◐</span>
+    </div>
+  </aside>
+);
+
+const Group = ({ title, children, collapsible }) => (
+  <div>
+    <div style={{ padding: "0 10px", marginBottom: 6, fontSize: 10.5, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-4)", display: "flex", alignItems: "center", gap: 6 }}>
+      {collapsible && <span style={{ fontSize: 9 }}>▾</span>}{title}
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>{children}</div>
+  </div>
+);
+
+const SideItem = ({ active, indent, children }) => (
+  <a style={{
+    display: "flex", alignItems: "center",
+    padding: `5px ${indent ? 18 : 10}px`, borderRadius: 5, textDecoration: "none",
+    color: active ? "var(--blue-600)" : "var(--ink-2)",
+    background: active ? "var(--blue-50)" : "transparent",
+    fontSize: 13, fontWeight: active ? 600 : 500,
+  }}>{children}</a>
+);
+
+const DocsHome = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <DocsSidebar active="home" />
+    <main style={{ flex: 1, padding: "40px 56px 56px", overflow: "hidden" }}>
+      <div style={{ maxWidth: 840, margin: "0 auto" }}>
+        <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-4)", marginBottom: 10 }}>Index</div>
+        <h1 style={{ margin: "0 0 10px", fontSize: 36, fontWeight: 700, letterSpacing: -0.6 }}>프론트엔드를 기록한다.</h1>
+        <p style={{ margin: "0 0 36px", color: "var(--ink-2)", fontSize: 16, lineHeight: 1.6, maxWidth: 560 }}>
+          <span style={{ color: "var(--blue)" }}>@vallista</span>의 프론트엔드 기술 블로그. 글 42 · 메모 28 · 프로젝트 6개.
+        </p>
+
+        {/* Latest row */}
+        <SectionHead title="Latest" meta="최근 6" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, marginBottom: 44 }}>
+          {SAMPLE_POSTS.slice(0, 3).map(p => (
+            <a key={p.title} style={{ display: "flex", flexDirection: "column", gap: 10, textDecoration: "none", color: "inherit", padding: 12, borderRadius: 10, border: "1px solid var(--line-2)" }}>
+              <div style={{ aspectRatio: "16/10", borderRadius: 5, overflow: "hidden" }}><Cover kind={p.cover} /></div>
+              <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{p.date} · {p.min} min</div>
+              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, letterSpacing: -0.15, lineHeight: 1.35 }}>{p.title}</h3>
+              <div style={{ display: "flex", gap: 5 }}>
+                <Chip>{p.tag}</Chip>
+                {p.series && <Chip tone="blue">{p.series}</Chip>}
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* Series focus */}
+        <SectionHead title="Series" meta="연재 중" />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 44 }}>
+          {SERIES.map(s => (
+            <a key={s.k} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", border: "1px solid var(--line-2)", borderRadius: 10, textDecoration: "none", color: "inherit" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 7, background: "var(--blue-50)", color: "var(--blue-600)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, fontFamily: "var(--mono)" }}>{s.count}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{s.label}</div>
+                <div style={{ fontSize: 12, color: "var(--ink-3)" }}>{s.count}개의 글 · 진행 중</div>
+              </div>
+              <span style={{ color: "var(--blue)", fontSize: 18 }}>→</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Notes */}
+        <SectionHead title="Notes" meta="최근 생각" />
+        <div style={{ display: "flex", flexDirection: "column", border: "1px solid var(--line-2)", borderRadius: 10, overflow: "hidden" }}>
+          {NOTES.map((n, i) => (
+            <a key={i} style={{ display: "grid", gridTemplateColumns: "60px 1fr", gap: 14, padding: "14px 18px", borderBottom: i < NOTES.length - 1 ? "1px solid var(--line-2)" : "none", textDecoration: "none", color: "inherit", alignItems: "start" }}>
+              <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)", paddingTop: 2 }}>{n.date}</div>
+              <div style={{ fontSize: 14, color: "var(--ink)", lineHeight: 1.6 }}>{n.text}</div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </main>
+  </div>
+);
+
+const SectionHead = ({ title, meta }) => (
+  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14 }}>
+    <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, letterSpacing: -0.25 }}>{title}</h2>
+    <span style={{ fontSize: 12, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{meta}</span>
+  </div>
+);
+
+// ─── Article ────────────────────────────────────────────────
+const DocsArticle = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <DocsSidebar active="articles" />
+    <main style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "var(--line-2)", zIndex: 2 }}>
+        <div style={{ width: "34%", height: "100%", background: "var(--blue)" }} />
+      </div>
+
+      {/* breadcrumbs */}
+      <div style={{ position: "sticky", top: 0, padding: "14px 40px", background: "rgba(255,255,255,.9)", backdropFilter: "blur(8px)", borderBottom: "1px solid var(--line-2)", fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--mono)", display: "flex", gap: 8 }}>
+        <span>Articles</span><span>›</span><span>DX 재정비</span><span>›</span><span style={{ color: "var(--ink)" }}>vanilla-extract</span>
+        <span style={{ marginLeft: "auto", color: "var(--blue-600)" }}>Edit on GitHub ↗</span>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 40, maxWidth: 960, margin: "0 auto", padding: "48px 40px 120px" }}>
+        <article>
+          <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+            <Chip tone="blue">DX 재정비 · 1/4</Chip>
+            <Chip>CSS</Chip>
+            <Chip>monorepo</Chip>
+          </div>
+          <h1 style={{ margin: "0 0 12px", fontSize: 40, fontWeight: 700, letterSpacing: -0.8, lineHeight: 1.2 }}>왜 vanilla-extract으로 옮겼는가</h1>
+          <p style={{ margin: "0 0 20px", fontSize: 16.5, color: "var(--ink-2)", lineHeight: 1.55 }}>런타임 비용을 지불하지 않으면서, 타입 안전한 스타일을 유지하는 가장 간단한 방법.</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12.5, color: "var(--ink-3)", fontFamily: "var(--mono)", paddingBottom: 24, borderBottom: "1px solid var(--line-2)" }}>
+            <span>2024.11.02</span>·<span>9 min</span>·<span>3,201 words</span>
+            <span style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
+              <span>🌙 Dark</span><span>🔗 Share</span>
+            </span>
+          </div>
+
+          <div style={{ fontSize: 16, lineHeight: 1.8, color: "var(--ink)", marginTop: 30 }}>
+            <p style={{ margin: "0 0 20px" }}>
+              처음에는 <a style={{ color: "var(--blue)", textDecoration: "none", fontWeight: 500 }}>Emotion</a>으로 시작했다. 컴포넌트 옆에 스타일을 바로 쓸 수 있고, prop 기반 분기도 자연스러웠다.
+            </p>
+            <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.3, margin: "36px 0 12px", scrollMarginTop: 80 }}>문제는 번들이 아니라 타이밍이었다</h2>
+            <p style={{ margin: "0 0 20px" }}>
+              실제 크기가 크진 않았다. 문제는 첫 paint 전에 JS가 파싱·실행돼야만 <strong style={{ color: "var(--blue-600)", fontWeight: 600 }}>스타일이 붙는다</strong>는 점이었다.
+            </p>
+
+            {/* callout docs style */}
+            <div style={{ margin: "24px 0", padding: "14px 16px", background: "var(--blue-50)", border: "1px solid #d6e3ff", borderRadius: 8, display: "flex", gap: 12 }}>
+              <div style={{ color: "var(--blue)", fontSize: 16, flexShrink: 0 }}>ⓘ</div>
+              <div style={{ fontSize: 14.5, color: "var(--ink-2)", lineHeight: 1.65 }}>
+                <strong style={{ color: "var(--blue-600)", display: "block", marginBottom: 2 }}>Note</strong>
+                TTI 300ms 개선이 목표였고, 실제로는 CLS 쪽에서 더 큰 이득을 봤다.
+              </div>
+            </div>
+
+            {/* code block with filename tabs + line numbers */}
+            <div style={{ margin: "24px 0", borderRadius: 8, overflow: "hidden", border: "1px solid var(--line)" }}>
+              <div style={{ display: "flex", background: "#f6f7fb", borderBottom: "1px solid var(--line-2)" }}>
+                <TabTop active>theme.css.ts</TabTop>
+                <TabTop>Button.css.ts</TabTop>
+                <div style={{ marginLeft: "auto", padding: "6px 10px", display: "flex", gap: 4 }}>
+                  <IconBtn>⧉</IconBtn>
+                </div>
+              </div>
+              <pre style={{ margin: 0, padding: "14px 0", fontFamily: "var(--mono)", fontSize: 12.5, lineHeight: 1.75, background: "#fbfbfd", display: "grid", gridTemplateColumns: "auto 1fr" }}>
+                <div style={{ color: "#c4c8d4", textAlign: "right", paddingRight: 14, paddingLeft: 14, userSelect: "none", borderRight: "1px solid var(--line-2)" }}>
+                  {[1,2,3,4,5,6].map(n => <div key={n}>{n}</div>)}
+                </div>
+                <div style={{ paddingLeft: 14, color: "var(--ink)", overflow: "hidden" }}>
+<div><span style={{ color: "#6b7389" }}>// 3-tier tokens</span></div>
+<div><span style={{ color: "#8a4bff" }}>export const</span> <span style={{ color: "var(--blue-600)" }}>colors</span> = <span style={{ color: "var(--blue-600)" }}>createGlobalTheme</span>(<span style={{ color: "#2a7f3f" }}>':root'</span>, {'{'}</div>
+<div>{'  '}<span style={{ color: "var(--blue-600)" }}>surfaceCanvas</span>: gray[<span style={{ color: "#b4541f" }}>50</span>],</div>
+<div>{'  '}<span style={{ color: "var(--blue-600)" }}>textPrimary</span>:   gray[<span style={{ color: "#b4541f" }}>900</span>],</div>
+<div>{'  '}<span style={{ color: "var(--blue-600)" }}>accentEmphasis</span>: blue[<span style={{ color: "#b4541f" }}>500</span>],</div>
+<div>{'}'});</div>
+                </div>
+              </pre>
+            </div>
+
+            <h2 style={{ fontSize: 24, fontWeight: 700, letterSpacing: -0.3, margin: "36px 0 12px" }}>결과<sup style={{ color: "var(--blue)", fontSize: 12, fontWeight: 600 }}>1</sup></h2>
+            <p style={{ margin: "0 0 20px" }}>스타일 런타임을 완전히 뺐다. 번들 크기보다도 렌더 타이밍이 안정적으로 좋아졌다.</p>
+
+            <blockquote style={{ margin: "28px 0", padding: "0 0 0 18px", borderLeft: "3px solid var(--ink)", color: "var(--ink-2)", fontSize: 17, fontStyle: "normal", fontWeight: 500, lineHeight: 1.55 }}>
+              "결국 타이밍이 가장 비싼 리소스다."
+            </blockquote>
+          </div>
+
+          {/* footnotes */}
+          <div style={{ marginTop: 44, padding: "18px 0", borderTop: "1px solid var(--line-2)", fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.7 }}>
+            <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.14, color: "var(--ink-4)", marginBottom: 8 }}>Footnotes</div>
+            <ol style={{ margin: 0, paddingLeft: 18 }}>
+              <li>Lighthouse 12, moto g power 4G slow. 로컬 3회 평균. <a style={{ color: "var(--blue)" }}>↩︎</a></li>
+            </ol>
+          </div>
+
+          {/* next */}
+          <div style={{ marginTop: 36, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <NextCard dir="prev" series="DX 재정비" title="모노레포 구조 결정기" />
+            <NextCard dir="next" series="DX 재정비" title="Sprinkles로 반응형 스타일링을 정리하다" />
+          </div>
+        </article>
+
+        {/* TOC docs style */}
+        <aside style={{ position: "sticky", top: 60, alignSelf: "start", fontSize: 12.5 }}>
+          <div style={{ fontSize: 11, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.14, color: "var(--ink-4)", marginBottom: 12 }}>On this page</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <TocItem>시작점</TocItem>
+            <TocItem active>문제는 번들이 아니라 타이밍</TocItem>
+            <TocItem indent>측정 결과</TocItem>
+            <TocItem indent>CLS 변화</TocItem>
+            <TocItem>대안 비교</TocItem>
+            <TocItem>결과</TocItem>
+          </div>
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--line-2)", display: "flex", flexDirection: "column", gap: 6, fontSize: 12 }}>
+            <a style={{ color: "var(--ink-3)", textDecoration: "none" }}>Edit on GitHub ↗</a>
+            <a style={{ color: "var(--ink-3)", textDecoration: "none" }}>Scroll to top ↑</a>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+);
+
+const TabTop = ({ children, active }) => (
+  <div style={{ padding: "9px 16px", fontFamily: "var(--mono)", fontSize: 12, color: active ? "var(--ink)" : "var(--ink-3)", background: active ? "#fbfbfd" : "transparent", borderRight: "1px solid var(--line-2)", borderBottom: active ? "1.5px solid var(--blue)" : "none", fontWeight: active ? 600 : 400 }}>{children}</div>
+);
+const IconBtn = ({ children }) => (
+  <button style={{ border: "1px solid var(--line)", background: "#fff", borderRadius: 5, padding: "3px 8px", fontSize: 12, color: "var(--ink-3)", cursor: "pointer", fontFamily: "var(--mono)" }}>{children}</button>
+);
+const TocItem = ({ active, indent, children }) => (
+  <a style={{ paddingLeft: indent ? 12 : 0, color: active ? "var(--blue)" : "var(--ink-3)", fontWeight: active ? 600 : 500, textDecoration: "none", fontSize: indent ? 11.5 : 12.5 }}>{children}</a>
+);
+const NextCard = ({ dir, series, title }) => (
+  <a style={{ display: "flex", flexDirection: "column", gap: 4, padding: "14px 16px", border: "1px solid var(--line-2)", borderRadius: 8, textDecoration: "none", color: "inherit", textAlign: dir === "prev" ? "left" : "right" }}>
+    <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{dir === "prev" ? "← Previous" : "Next →"} · {series}</div>
+    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--blue-600)" }}>{title}</div>
+  </a>
+);
+
+// ─── Mobile ─────────────────────────────────────────────────
+const DocsMobile = () => (
+  <Phone bg="var(--bg-soft)">
+    <div style={{ padding: "0 18px", display: "flex", flexDirection: "column", height: "calc(100% - 44px)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 0 20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Mark size={20} />
+          <div style={{ fontSize: 14, fontWeight: 700 }}>vallista-land</div>
+          <span style={{ fontSize: 9, fontFamily: "var(--mono)", color: "var(--ink-4)", padding: "2px 5px", border: "1px solid var(--line)", borderRadius: 3 }}>v2</span>
+        </div>
+        <button style={{ border: "none", background: "transparent", fontSize: 22, color: "var(--ink)", cursor: "pointer" }}>×</button>
+      </div>
+      <div style={{ position: "relative", marginBottom: 22 }}>
+        <input placeholder="Search docs..." style={{ width: "100%", padding: "12px 14px 12px 38px", border: "1px solid var(--line)", borderRadius: 8, fontSize: 14, boxSizing: "border-box", background: "#fff", fontFamily: "inherit", color: "var(--ink)" }} />
+        <svg style={{ position: "absolute", top: 14, left: 14 }} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+      </div>
+
+      <div style={{ fontSize: 10, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-4)", marginBottom: 8, padding: "0 4px" }}>Browse</div>
+      <nav style={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 18 }}>
+        {NAV.map(n => (
+          <a key={n.k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 12px", borderRadius: 7, textDecoration: "none", color: "var(--ink)", fontSize: 15, fontWeight: 500, background: n.k === "home" ? "#fff" : "transparent", border: n.k === "home" ? "1px solid var(--line-2)" : "1px solid transparent" }}>
+            <span>{n.label}</span>
+            {n.count != null && <span style={{ fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{n.count}</span>}
+          </a>
+        ))}
+      </nav>
+
+      <div style={{ fontSize: 10, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-4)", marginBottom: 8, padding: "0 4px" }}>Series</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 18 }}>
+        {SERIES.map(s => (
+          <a key={s.k} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 7, background: "#fff", border: "1px solid var(--line-2)" }}>
+            <div style={{ width: 26, height: 26, borderRadius: 5, background: "var(--blue-50)", color: "var(--blue-600)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "var(--mono)" }}>{s.count}</div>
+            <span style={{ fontSize: 14, fontWeight: 500 }}>{s.label}</span>
+          </a>
+        ))}
+      </div>
+
+      <div style={{ marginTop: "auto", padding: "12px 4px", fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)", display: "flex", gap: 14 }}>
+        <span>RSS</span><span>GitHub</span><span>Email</span>
+        <span style={{ marginLeft: "auto" }}>◐ Dark</span>
+      </div>
+    </div>
+  </Phone>
+);
+
+Object.assign(window, { DocsHome, DocsArticle, DocsMobile });
+
+</script>
+<script type="text/babel">
+// Variant C — Magazine Grid
+// Home: Featured 대형 + 12컬럼 그리드 · Article: 플로팅 TOC 레일 + 편집 디자인 톤
+
+const { SAMPLE_POSTS, NOTES, NAV, SERIES, TAGS, Cover, Mark, Chip, Phone } = window;
+
+const MagSidebar = ({ active = "home" }) => (
+  <aside style={{ width: 200, padding: "36px 22px", borderRight: "1px solid var(--ink)", background: "#fff", display: "flex", flexDirection: "column", gap: 28, height: "100%", boxSizing: "border-box" }}>
+    <div>
+      <div style={{ fontSize: 10, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 4 }}>est. 2022 · issue 42</div>
+      <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: -0.4, lineHeight: 1 }}>vallista</div>
+      <div style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-3)", letterSpacing: 0.1, marginTop: 2 }}>— land.</div>
+    </div>
+
+    <nav style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      {NAV.map((n, i) => (
+        <a key={n.k} style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "11px 0", borderTop: i === 0 ? "1px solid var(--ink)" : "none",
+          borderBottom: "1px solid var(--line-2)", textDecoration: "none",
+          color: "var(--ink)", fontSize: 14, fontWeight: active === n.k ? 700 : 500, letterSpacing: -0.1,
+        }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 10, fontFamily: "var(--mono)", color: "var(--ink-4)", width: 14 }}>{String(i + 1).padStart(2, "0")}</span>
+            {n.label}
+          </span>
+          {active === n.k && <span style={{ color: "var(--blue)" }}>●</span>}
+        </a>
+      ))}
+    </nav>
+
+    <div>
+      <div style={{ fontSize: 10, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 10 }}>Issues / Series</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {SERIES.map(s => (
+          <a key={s.k} style={{ fontSize: 13, color: "var(--ink-2)", textDecoration: "none", display: "flex", justifyContent: "space-between" }}>
+            <span>{s.label}</span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)" }}>{String(s.count).padStart(2, "0")}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div style={{ marginTop: "auto", fontSize: 10, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-4)", lineHeight: 1.6 }}>
+      Search ⌘K<br/>RSS · GH · @<br/>◐ Dark mode
+    </div>
+  </aside>
+);
+
+const MagHome = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <MagSidebar active="home" />
+    <main style={{ flex: 1, padding: "0", overflow: "hidden" }}>
+      {/* masthead */}
+      <div style={{ padding: "28px 44px 14px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "baseline", fontFamily: "var(--mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-3)" }}>
+        <span>2024.11 · Issue 42</span>
+        <span style={{ color: "var(--ink)", fontWeight: 600 }}>FRONTEND · CSS · MONOREPO · DX</span>
+        <span>Wed · Cloudy 12°</span>
+      </div>
+
+      {/* featured */}
+      <a style={{ display: "grid", gridTemplateColumns: "1.35fr 1fr", borderBottom: "1px solid var(--ink)", textDecoration: "none", color: "inherit" }}>
+        <div style={{ position: "relative", borderRight: "1px solid var(--ink)" }}>
+          <Cover kind="blocks" ratio="5/3" />
+          <div style={{ position: "absolute", top: 16, left: 16, fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, background: "var(--blue)", color: "#fff", padding: "3px 7px" }}>Cover Story</div>
+        </div>
+        <div style={{ padding: "32px 36px", display: "flex", flexDirection: "column", gap: 14, justifyContent: "center" }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--ink-3)" }}>Feature · DX 재정비 · 9 min</div>
+          <h2 style={{ margin: 0, fontSize: 40, fontWeight: 800, letterSpacing: -0.8, lineHeight: 1.05 }}>왜 vanilla-<br/>extract으로<br/><span style={{ color: "var(--blue)" }}>옮겼는가</span></h2>
+          <p style={{ margin: 0, color: "var(--ink-2)", lineHeight: 1.6, fontSize: 15 }}>런타임 CSS-in-JS는 편했지만, 모노레포의 빌드가 무거워질수록 초기 로드가 눈에 띄게 느려졌다.</p>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)" }}>↗ Read · 2024.11.02</div>
+        </div>
+      </a>
+
+      {/* 12-col grid */}
+      <div style={{ padding: "32px 44px 44px", display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: 20 }}>
+        {/* large card */}
+        <a style={{ gridColumn: "span 6", textDecoration: "none", color: "inherit" }}>
+          <div style={{ aspectRatio: "16/9", borderBottom: "1px solid var(--ink)" }}><Cover kind="grid" /></div>
+          <div style={{ padding: "14px 0" }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 6 }}>Article · 12 min</div>
+            <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: -0.3, lineHeight: 1.2 }}>모노레포를 다시 작게 쪼갰다</h3>
+            <p style={{ margin: "6px 0 0", color: "var(--ink-2)", fontSize: 13.5, lineHeight: 1.55 }}>서비스 2개에 패키지 2개로 줄이고, 워크스페이스 구조를 새로 짜면서 배운 것들.</p>
+          </div>
+        </a>
+
+        {/* 2 small stacked */}
+        <div style={{ gridColumn: "span 3", display: "flex", flexDirection: "column", gap: 16 }}>
+          {SAMPLE_POSTS.slice(2, 4).map(p => (
+            <a key={p.title} style={{ textDecoration: "none", color: "inherit", paddingBottom: 12, borderBottom: "1px solid var(--line-2)" }}>
+              <div style={{ aspectRatio: "4/3", marginBottom: 10 }}><Cover kind={p.cover} /></div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", color: "var(--ink-3)", marginBottom: 4, letterSpacing: 0.16 }}>{p.tag} · {p.min} min</div>
+              <h4 style={{ margin: 0, fontSize: 14.5, fontWeight: 700, letterSpacing: -0.1, lineHeight: 1.3 }}>{p.title}</h4>
+            </a>
+          ))}
+        </div>
+
+        {/* notes strip */}
+        <div style={{ gridColumn: "span 3", background: "var(--blue-50)", padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--blue-600)", fontWeight: 600 }}>From the notes</div>
+          {NOTES.slice(0, 3).map((n, i) => (
+            <div key={i} style={{ paddingBottom: 10, borderBottom: i < 2 ? "1px solid #d6e3ff" : "none" }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--blue-600)", marginBottom: 3 }}>{n.date}</div>
+              <div style={{ fontSize: 12, color: "var(--ink)", lineHeight: 1.5 }}>{n.text.slice(0, 52)}…</div>
+            </div>
+          ))}
+        </div>
+
+        {/* bottom row — list items */}
+        {SAMPLE_POSTS.slice(4, 6).map(p => (
+          <a key={p.title} style={{ gridColumn: "span 6", display: "grid", gridTemplateColumns: "140px 1fr", gap: 16, textDecoration: "none", color: "inherit", paddingTop: 20, borderTop: "1px solid var(--ink)" }}>
+            <div style={{ aspectRatio: "4/3" }}><Cover kind={p.cover} /></div>
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-3)", marginBottom: 6 }}>{p.tag} · {p.date} · {p.min} min</div>
+              <h4 style={{ margin: 0, fontSize: 18, fontWeight: 700, letterSpacing: -0.2, lineHeight: 1.25 }}>{p.title}</h4>
+              {p.series && <div style={{ marginTop: 8 }}><Chip tone="blue">{p.series}</Chip></div>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </main>
+  </div>
+);
+
+// ─── Article ────────────────────────────────────────────────
+const MagArticle = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14, position: "relative" }}>
+    <MagSidebar active="articles" />
+    <main style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "var(--line-2)", zIndex: 2 }}>
+        <div style={{ width: "34%", height: "100%", background: "var(--blue)" }} />
+      </div>
+
+      {/* floating TOC rail on left edge */}
+      <aside style={{ position: "absolute", top: 160, left: 16, width: 110, fontSize: 11, zIndex: 3 }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 9.5, textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 10, fontWeight: 600 }}>In this piece</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {["시작점","타이밍 문제","대안 비교","결과","앞으로"].map((t, i) => (
+            <div key={t} style={{ display: "flex", gap: 6, alignItems: "flex-start", color: i === 1 ? "var(--blue)" : "var(--ink-3)" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 9, fontWeight: 600, paddingTop: 1 }}>{String(i+1).padStart(2,"0")}</span>
+              <span style={{ fontWeight: i === 1 ? 700 : 500, lineHeight: 1.35 }}>{t}</span>
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      {/* header strip */}
+      <div style={{ padding: "18px 60px 18px 160px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)" }}>
+        <span>DX 재정비 · Chapter 1 of 4</span>
+        <span>2024.11.02 · 9 min · 3,201 words</span>
+        <span style={{ color: "var(--blue-600)" }}>◐ Dark · ⤴ Share</span>
+      </div>
+
+      <article style={{ maxWidth: 680, margin: "0 auto", padding: "56px 40px 120px" }}>
+        <div style={{ marginBottom: 18 }}><Chip tone="blue">Feature · CSS · Monorepo</Chip></div>
+        <h1 style={{ margin: "0 0 18px", fontSize: 52, fontWeight: 800, letterSpacing: -1, lineHeight: 1.02 }}>
+          왜 vanilla-<br/>extract으로 <span style={{ color: "var(--blue)" }}>옮겼는가</span>
+        </h1>
+        <p style={{ margin: "0 0 36px", fontSize: 18, color: "var(--ink-2)", lineHeight: 1.5, maxWidth: 560 }}>
+          런타임 비용을 지불하지 않으면서, 타입 안전한 스타일을 유지하는 가장 간단한 방법에 대한 기록.
+        </p>
+
+        <div style={{ fontSize: 17, lineHeight: 1.85, color: "var(--ink)" }}>
+          <p style={{ margin: "0 0 22px" }}>
+            <span style={{ float: "left", fontFamily: "var(--sans)", fontSize: 68, fontWeight: 800, lineHeight: 0.9, margin: "6px 10px 0 0", color: "var(--blue)", letterSpacing: -0.04 }}>처</span>
+            음에는 Emotion으로 시작했다. 컴포넌트 옆에 스타일을 바로 쓸 수 있고, prop 기반 분기도 자연스러웠다. 그러다 앱이 커지고 모노레포에 패키지가 늘자, 번들의 스타일 런타임이 무거워지기 시작했다.
+          </p>
+          <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, margin: "40px 0 14px" }}>문제는 번들이 아니라 타이밍이었다</h2>
+          <p style={{ margin: "0 0 22px" }}>
+            실제 크기가 크진 않았다. 문제는 첫 paint 전에 JS가 파싱·실행돼야만 스타일이 붙는다는 점이었다. 느린 네트워크에서는 레이아웃이 두 번 흔들렸다.
+          </p>
+
+          {/* pullquote */}
+          <div style={{ margin: "36px -40px", padding: "28px 40px", borderTop: "2px solid var(--ink)", borderBottom: "2px solid var(--ink)", textAlign: "center" }}>
+            <div style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.2, color: "var(--ink)" }}>
+              "결국 타이밍이<br/><span style={{ color: "var(--blue)" }}>가장 비싼 리소스</span>다."
+            </div>
+            <div style={{ marginTop: 12, fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--ink-3)" }}>— from the piece</div>
+          </div>
+
+          {/* callout */}
+          <div style={{ margin: "28px 0", padding: "18px 20px", background: "#fff", border: "1.5px solid var(--ink)", position: "relative" }}>
+            <div style={{ position: "absolute", top: -10, left: 16, background: "#fff", padding: "0 8px", fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.18 }}>Note · 01</div>
+            <div style={{ fontSize: 14.5, color: "var(--ink-2)", lineHeight: 1.7 }}>
+              TTI 300ms 개선이 목표였고, 실제로는 CLS 쪽에서 더 큰 이득을 봤다. 숫자보다 사용자가 "덜 흔들린다"고 느끼는 게 중요했다.
+            </div>
+          </div>
+
+          {/* code block — magazine style black header */}
+          <div style={{ margin: "28px 0", border: "1px solid var(--ink)", overflow: "hidden" }}>
+            <div style={{ display: "flex", background: "var(--ink)", color: "#fff" }}>
+              <div style={{ padding: "9px 14px", fontFamily: "var(--mono)", fontSize: 11, fontWeight: 600, letterSpacing: 0.08, borderRight: "1px solid #2a3250" }}>theme.css.ts</div>
+              <div style={{ padding: "9px 14px", fontFamily: "var(--mono)", fontSize: 11, opacity: 0.55 }}>Button.css.ts</div>
+              <div style={{ marginLeft: "auto", padding: "9px 14px", fontFamily: "var(--mono)", fontSize: 10, opacity: 0.55 }}>COPY</div>
+            </div>
+            <pre style={{ margin: 0, padding: "16px 18px", fontFamily: "var(--mono)", fontSize: 13, lineHeight: 1.7, background: "#fafbfc", color: "var(--ink)", overflow: "hidden" }}>
+<span style={{ color: "#6b7389" }}>// 3-tier tokens</span>{'\n'}
+<span style={{ color: "#8a4bff" }}>export const</span> <span style={{ color: "var(--blue-600)" }}>colors</span> = <span style={{ color: "var(--blue-600)" }}>createGlobalTheme</span>(<span style={{ color: "#2a7f3f" }}>':root'</span>, {'{'}{'\n'}
+{'  '}<span style={{ color: "var(--blue-600)" }}>surfaceCanvas</span>: gray[<span style={{ color: "#b4541f" }}>50</span>],{'\n'}
+{'  '}<span style={{ color: "var(--blue-600)" }}>accentEmphasis</span>: blue[<span style={{ color: "#b4541f" }}>500</span>],{'\n'}
+{'}'});
+            </pre>
+          </div>
+
+          <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: -0.5, margin: "40px 0 14px" }}>결과<sup style={{ color: "var(--blue)", fontSize: 14 }}>1</sup></h2>
+          <p style={{ margin: "0 0 22px" }}>스타일 런타임을 완전히 뺐다. 번들 크기보다도 렌더 타이밍이 안정적으로 좋아졌다는 게 체감으로 컸다.</p>
+        </div>
+
+        {/* author + footnote strip */}
+        <div style={{ marginTop: 48, paddingTop: 24, borderTop: "2px solid var(--ink)", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40 }}>
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 8 }}>By</div>
+            <div style={{ fontSize: 16, fontWeight: 700 }}>@vallista</div>
+            <div style={{ fontSize: 12.5, color: "var(--ink-3)", marginTop: 4, lineHeight: 1.55 }}>프론트엔드 엔지니어. 지금 vallista-land 디자인 시스템을 다시 쓰는 중.</div>
+          </div>
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 8 }}>Footnote</div>
+            <div style={{ fontSize: 12.5, color: "var(--ink-3)", lineHeight: 1.6 }}>1. Lighthouse 12, moto g power 4G slow. 로컬 3회 평균.</div>
+          </div>
+        </div>
+
+        {/* next in series — magazine style */}
+        <div style={{ marginTop: 40, borderTop: "1px solid var(--line-2)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--blue-600)", fontWeight: 700, marginBottom: 4 }}>Next · DX 재정비 02 / 04</div>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.3 }}>Sprinkles로 반응형 스타일링을 정리하다</div>
+          </div>
+          <div style={{ fontSize: 28, color: "var(--blue)" }}>→</div>
+        </div>
+      </article>
+    </main>
+  </div>
+);
+
+// ─── Mobile ─────────────────────────────────────────────────
+const MagMobile = () => (
+  <Phone>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100% - 44px)" }}>
+      <div style={{ padding: "14px 20px 10px", borderBottom: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: -0.3, lineHeight: 1 }}>vallista</div>
+          <div style={{ fontSize: 9, fontFamily: "var(--mono)", color: "var(--ink-3)", letterSpacing: 0.16 }}>EST. 2022 · ISSUE 42</div>
+        </div>
+        <button style={{ border: "none", background: "transparent", fontSize: 22, cursor: "pointer" }}>×</button>
+      </div>
+
+      <div style={{ padding: "18px 20px 6px" }}>
+        <div style={{ position: "relative" }}>
+          <input placeholder="Search the archive" style={{ width: "100%", padding: "11px 12px 11px 36px", border: "1px solid var(--ink)", borderRadius: 0, fontSize: 14, boxSizing: "border-box", fontFamily: "inherit", color: "var(--ink)" }} />
+          <svg style={{ position: "absolute", top: 13, left: 12 }} width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+        </div>
+      </div>
+
+      <nav style={{ padding: "6px 20px 0", display: "flex", flexDirection: "column" }}>
+        {NAV.map((n, i) => (
+          <a key={n.k} style={{
+            display: "flex", justifyContent: "space-between", alignItems: "baseline",
+            padding: "14px 0", borderBottom: "1px solid var(--line-2)",
+            textDecoration: "none", color: "var(--ink)",
+          }}>
+            <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-4)" }}>{String(i+1).padStart(2,"0")}</span>
+              <span style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.4 }}>{n.label}</span>
+            </span>
+            {n.count != null && <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{n.count}</span>}
+          </a>
+        ))}
+      </nav>
+
+      <div style={{ padding: "18px 20px 0" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-3)", marginBottom: 10 }}>Issues</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {SERIES.map(s => (
+            <span key={s.k} style={{ fontSize: 12, padding: "5px 10px", border: "1px solid var(--ink)", color: "var(--ink)", fontWeight: 500 }}>{s.label} · {String(s.count).padStart(2,"0")}</span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: "auto", padding: "16px 20px", borderTop: "1px solid var(--line-2)", display: "flex", justifyContent: "space-between", fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", color: "var(--ink-3)", letterSpacing: 0.16 }}>
+        <span>RSS · GH · @</span>
+        <span>◐ Dark</span>
+      </div>
+    </div>
+  </Phone>
+);
+
+Object.assign(window, { MagHome, MagArticle, MagMobile });
+
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+// Variant D — Paper × Magazine
+// Paper Light 여백감 · 얇은 hairline + Magazine Issue 넘버링 · Featured 대형 · pullquote
+
+const { SAMPLE_POSTS: PMPosts, NOTES: PMNotes, NAV: PMNav, SERIES: PMSeries, Cover: PMCover, Mark: PMMark, Chip: PMChip, Phone: PMPhone } = window;
+
+const PMSidebar = ({ active = "home" }) => (
+  <aside style={{ width: 220, padding: "40px 28px", borderRight: "1px solid var(--line-2)", background: "#fff", display: "flex", flexDirection: "column", gap: 32, height: "100%", boxSizing: "border-box" }}>
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <PMMark size={22} />
+        <div style={{ fontSize: 14, fontWeight: 600 }}>vallista-land</div>
+      </div>
+      <div style={{ fontSize: 10.5, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-4)", marginTop: 10 }}>est. 2022 · Issue 42</div>
+    </div>
+
+    <nav style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      {PMNav.map((n, i) => (
+        <a key={n.k} style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "10px 0", borderBottom: "1px solid var(--line-2)",
+          textDecoration: "none", fontSize: 14,
+          color: active === n.k ? "var(--ink)" : "var(--ink-2)",
+          fontWeight: active === n.k ? 700 : 500,
+        }}>
+          <span style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-4)", width: 16 }}>{String(i+1).padStart(2,"0")}</span>
+            {n.label}
+          </span>
+          {n.count != null && <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{n.count}</span>}
+        </a>
+      ))}
+    </nav>
+
+    <div>
+      <div style={{ fontSize: 10.5, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-4)", marginBottom: 12 }}>Series</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+        {PMSeries.map(s => (
+          <a key={s.k} style={{ fontSize: 13, color: "var(--ink-2)", textDecoration: "none", display: "flex", justifyContent: "space-between" }}>
+            <span>{s.label}</span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)" }}>{String(s.count).padStart(2,"0")}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div style={{ marginTop: "auto", fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)", display: "flex", flexDirection: "column", gap: 4 }}>
+      <span>Search ⌘K</span>
+      <span>RSS · GitHub · Email</span>
+      <span>◐ Dark</span>
+    </div>
+  </aside>
+);
+
+const PMHome = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <PMSidebar active="home" />
+    <main style={{ flex: 1, padding: "40px 56px 56px", overflow: "hidden" }}>
+      {/* slim masthead */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontFamily: "var(--mono)", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.16, color: "var(--ink-3)", paddingBottom: 14, borderBottom: "1px solid var(--line-2)", marginBottom: 40 }}>
+        <span>2024.11 · Issue 42</span>
+        <span style={{ color: "var(--ink)", fontWeight: 600, letterSpacing: 0.2 }}>FRONTEND · CSS · DX</span>
+        <span>Wed · 12°</span>
+      </div>
+
+      {/* cover story — airy, hairline-only */}
+      <a style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 44, marginBottom: 56, textDecoration: "none", color: "inherit" }}>
+        <div>
+          <PMCover kind="blocks" ratio="5/3" />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: 18 }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--blue-600)", fontWeight: 600 }}>Cover Story · 9 min</div>
+          <h2 style={{ margin: 0, fontSize: 42, fontWeight: 700, letterSpacing: -0.7, lineHeight: 1.1 }}>왜 vanilla-extract으로<br/><span style={{ color: "var(--blue)" }}>옮겼는가</span></h2>
+          <p style={{ margin: 0, color: "var(--ink-2)", lineHeight: 1.65, fontSize: 15 }}>런타임 CSS-in-JS는 편했지만, 모노레포의 빌드가 무거워질수록 초기 로드가 눈에 띄게 느려졌다.</p>
+          <div style={{ fontSize: 11.5, color: "var(--ink-4)", fontFamily: "var(--mono)", letterSpacing: 0.12 }}>2024.11.02 · DX 재정비 01/04</div>
+        </div>
+      </a>
+
+      {/* rest — light list with issue numbering */}
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {PMPosts.slice(1, 5).map((p, i) => (
+          <a key={p.title} style={{ display: "grid", gridTemplateColumns: "40px 140px 1fr 120px", gap: 24, alignItems: "center", padding: "22px 0", borderTop: "1px solid var(--line-2)", textDecoration: "none", color: "inherit" }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)", letterSpacing: 0.12 }}>№ {String(i+2).padStart(2,"0")}</div>
+            <div style={{ aspectRatio: "4/3" }}><PMCover kind={p.cover} /></div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: 19, fontWeight: 600, letterSpacing: -0.25, lineHeight: 1.25 }}>{p.title}</h3>
+              <div style={{ marginTop: 6, display: "flex", gap: 8, alignItems: "center" }}>
+                <PMChip>{p.tag}</PMChip>
+                {p.series && <PMChip tone="blue">{p.series}</PMChip>}
+              </div>
+            </div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)", textAlign: "right", letterSpacing: 0.08 }}>{p.date}<br/>{p.min} min</div>
+          </a>
+        ))}
+      </div>
+    </main>
+  </div>
+);
+
+// ─── Article ────────────────────────────────────────────────
+const PMArticle = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <PMSidebar active="articles" />
+    <main style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "var(--line-2)", zIndex: 2 }}>
+        <div style={{ width: "34%", height: "100%", background: "var(--blue)" }} />
+      </div>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "64px 40px 120px" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--blue-600)", fontWeight: 600, marginBottom: 18 }}>DX 재정비 · Chapter 1 of 4</div>
+        <h1 style={{ margin: "0 0 16px", fontSize: 52, fontWeight: 700, letterSpacing: -1, lineHeight: 1.08 }}>
+          왜 vanilla-extract으로 <span style={{ color: "var(--blue)" }}>옮겼는가</span>
+        </h1>
+        <p style={{ margin: "0 0 32px", fontSize: 19, color: "var(--ink-2)", lineHeight: 1.5, maxWidth: 620 }}>
+          런타임 비용을 지불하지 않으면서, 타입 안전한 스타일을 유지하는 가장 간단한 방법에 대한 기록.
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--mono)", paddingBottom: 28, borderBottom: "1px solid var(--line-2)", letterSpacing: 0.1 }}>
+          <span>2024.11.02</span>·<span>9 MIN</span>·<span>3,201 WORDS</span>
+          <span style={{ marginLeft: "auto", color: "var(--blue-600)" }}>◐ DARK · ⤴ SHARE</span>
+        </div>
+
+        <div style={{ fontSize: 17, lineHeight: 1.85, color: "var(--ink)", marginTop: 36 }}>
+          <p style={{ margin: "0 0 22px" }}>
+            <span style={{ float: "left", fontFamily: "var(--sans)", fontSize: 68, fontWeight: 700, lineHeight: 0.9, margin: "6px 10px 0 0", color: "var(--blue)", letterSpacing: -0.04 }}>처</span>
+            음에는 Emotion으로 시작했다. 컴포넌트 옆에 스타일을 바로 쓸 수 있고, prop 기반 분기도 자연스러웠다. 그러다 앱이 커지고 모노레포에 패키지가 늘자, 번들의 스타일 런타임이 무거워지기 시작했다.
+          </p>
+
+          <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.4, margin: "44px 0 14px" }}>문제는 번들이 아니라 타이밍이었다</h2>
+          <p style={{ margin: "0 0 22px" }}>
+            실제 크기가 크진 않았다. 문제는 첫 paint 전에 JS가 파싱·실행돼야만 스타일이 붙는다는 점이었다. 느린 네트워크에서는 레이아웃이 두 번 흔들렸다.
+          </p>
+
+          {/* pullquote — magazine style but hairline only */}
+          <div style={{ margin: "36px -8px", padding: "28px 0", borderTop: "1px solid var(--ink)", borderBottom: "1px solid var(--ink)", textAlign: "center" }}>
+            <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: -0.4, lineHeight: 1.25, color: "var(--ink)" }}>
+              "결국 타이밍이<br/><span style={{ color: "var(--blue)" }}>가장 비싼 리소스</span>다."
+            </div>
+            <div style={{ marginTop: 12, fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--ink-4)" }}>— from the piece</div>
+          </div>
+
+          {/* callout — light */}
+          <div style={{ margin: "28px 0", padding: "16px 20px", background: "var(--blue-50)", borderLeft: "2px solid var(--blue)", display: "flex", gap: 14 }}>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700, color: "var(--blue-600)", letterSpacing: 0.2, flexShrink: 0, paddingTop: 3 }}>NOTE · 01</div>
+            <div style={{ fontSize: 14.5, color: "var(--ink-2)", lineHeight: 1.7 }}>
+              TTI 300ms 개선이 목표였고, 실제로는 CLS 쪽에서 더 큰 이득을 봤다. 숫자보다 사용자가 "덜 흔들린다"고 느끼는 게 중요했다.
+            </div>
+          </div>
+
+          {/* code block — clean paper style with blue tab underline */}
+          <div style={{ margin: "28px 0", border: "1px solid var(--line)", borderRadius: 8, overflow: "hidden" }}>
+            <div style={{ display: "flex", background: "#fafbfc", borderBottom: "1px solid var(--line-2)" }}>
+              <div style={{ padding: "10px 16px", fontFamily: "var(--mono)", fontSize: 12, fontWeight: 600, color: "var(--ink)", background: "#fff", borderRight: "1px solid var(--line-2)", borderBottom: "2px solid var(--blue)", marginBottom: -1 }}>theme.css.ts</div>
+              <div style={{ padding: "10px 16px", fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink-4)" }}>Button.css.ts</div>
+              <div style={{ marginLeft: "auto", padding: "8px 12px" }}>
+                <button style={{ border: "1px solid var(--line)", background: "#fff", borderRadius: 5, padding: "4px 10px", fontSize: 11, color: "var(--ink-3)", cursor: "pointer", fontFamily: "var(--mono)", letterSpacing: 0.1 }}>COPY</button>
+              </div>
+            </div>
+            <pre style={{ margin: 0, padding: "16px 18px", fontFamily: "var(--mono)", fontSize: 13, lineHeight: 1.75, background: "#fff", color: "var(--ink)", overflow: "hidden" }}>
+<span style={{ color: "#6b7389" }}>// 3-tier tokens</span>{'\n'}
+<span style={{ color: "#8a4bff" }}>export const</span> <span style={{ color: "var(--blue-600)" }}>colors</span> = <span style={{ color: "var(--blue-600)" }}>createGlobalTheme</span>(<span style={{ color: "#2a7f3f" }}>':root'</span>, {'{'}{'\n'}
+{'  '}<span style={{ color: "var(--blue-600)" }}>surfaceCanvas</span>: gray[<span style={{ color: "#b4541f" }}>50</span>],{'\n'}
+{'  '}<span style={{ color: "var(--blue-600)" }}>accentEmphasis</span>: blue[<span style={{ color: "#b4541f" }}>500</span>],{'\n'}
+{'}'});
+            </pre>
+          </div>
+
+          <h2 style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.4, margin: "44px 0 14px" }}>결과<sup style={{ color: "var(--blue)", fontSize: 13, fontWeight: 600 }}>1</sup></h2>
+          <p style={{ margin: "0 0 22px" }}>스타일 런타임을 완전히 뺐다. 번들 크기보다도 렌더 타이밍이 안정적으로 좋아졌다는 게 체감으로 컸다.</p>
+        </div>
+
+        {/* footnotes */}
+        <div style={{ marginTop: 52, paddingTop: 24, borderTop: "1px solid var(--line-2)", fontSize: 13, color: "var(--ink-3)", lineHeight: 1.7 }}>
+          <div style={{ fontSize: 10.5, fontFamily: "var(--mono)", textTransform: "uppercase", letterSpacing: 0.18, color: "var(--ink-4)", marginBottom: 10, fontWeight: 600 }}>Footnotes</div>
+          <ol style={{ margin: 0, paddingLeft: 20 }}>
+            <li>Lighthouse 12, moto g power 4G slow profile. 로컬 3회 평균.</li>
+          </ol>
+        </div>
+
+        {/* next in series — airy */}
+        <a style={{ marginTop: 40, padding: "26px 0", borderTop: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", textDecoration: "none", color: "inherit" }}>
+          <div>
+            <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--blue-600)", fontWeight: 700, marginBottom: 6 }}>Next · DX 재정비 02 / 04</div>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.3 }}>Sprinkles로 반응형 스타일링을 정리하다</div>
+            <div style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4, fontFamily: "var(--mono)" }}>6 min · 2024.11.10</div>
+          </div>
+          <div style={{ fontSize: 28, color: "var(--blue)" }}>→</div>
+        </a>
+      </div>
+    </main>
+  </div>
+);
+
+// ─── Mobile ─────────────────────────────────────────────────
+const PMMobile = () => (
+  <PMPhone>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100% - 44px)" }}>
+      <div style={{ padding: "14px 22px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line-2)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <PMMark size={20} />
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>vallista-land</div>
+            <div style={{ fontSize: 9, fontFamily: "var(--mono)", color: "var(--ink-4)", letterSpacing: 0.18, textTransform: "uppercase" }}>Issue 42 · 2024.11</div>
+          </div>
+        </div>
+        <button style={{ border: "none", background: "transparent", fontSize: 22, cursor: "pointer" }}>×</button>
+      </div>
+
+      <div style={{ padding: "18px 22px 10px" }}>
+        <div style={{ position: "relative" }}>
+          <input placeholder="글 검색…" style={{ width: "100%", padding: "12px 14px 12px 40px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 15, boxSizing: "border-box", fontFamily: "inherit", color: "var(--ink)" }} />
+          <svg style={{ position: "absolute", top: 14, left: 14 }} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+        </div>
+      </div>
+
+      <nav style={{ padding: "6px 22px 0", display: "flex", flexDirection: "column" }}>
+        {PMNav.map((n, i) => (
+          <a key={n.k} style={{
+            display: "flex", justifyContent: "space-between", alignItems: "baseline",
+            padding: "14px 0", borderBottom: "1px solid var(--line-2)",
+            textDecoration: "none", color: "var(--ink)",
+          }}>
+            <span style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-4)" }}>{String(i+1).padStart(2,"0")}</span>
+              <span style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.3 }}>{n.label}</span>
+            </span>
+            {n.count != null && <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{n.count}</span>}
+          </a>
+        ))}
+      </nav>
+
+      <div style={{ padding: "20px 22px 0" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--ink-4)", marginBottom: 10, fontWeight: 600 }}>Series</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {PMSeries.map(s => (
+            <div key={s.k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
+              <span style={{ fontSize: 14, color: "var(--ink-2)" }}>{s.label}</span>
+              <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{String(s.count).padStart(2,"0")}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: "auto", padding: "16px 22px", borderTop: "1px solid var(--line-2)", display: "flex", justifyContent: "space-between", fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", color: "var(--ink-4)", letterSpacing: 0.18 }}>
+        <span>RSS · GH · @</span>
+        <span>◐ Dark</span>
+      </div>
+    </div>
+  </PMPhone>
+);
+
+Object.assign(window, { PMHome, PMArticle, PMMobile });
+
+</script>
+<script type="text/babel">
+// Variant E — Paper × Docs
+// Paper Light 공기감·큰 타이포 + Docs 사이드바 구조(Search/Series 접이식/Tags) · sticky TOC · Breadcrumb
+
+const { SAMPLE_POSTS: PDPosts, NOTES: PDNotes, SERIES: PDSeries, TAGS: PDTags, Cover: PDCover, Mark: PDMark, Chip: PDChip, Phone: PDPhone } = window;
+
+// Docs-like sidebar but AIRIER: thinner hairlines, more whitespace, paper serif-ish titles
+const PDSidebar = ({ active = "home" }) => (
+  <aside style={{ width: 252, padding: "36px 28px 28px", borderRight: "1px solid var(--line-2)", background: "#fff", display: "flex", flexDirection: "column", gap: 30, height: "100%", boxSizing: "border-box", overflow: "auto" }}>
+    {/* brand */}
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <PDMark size={22} />
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 600, letterSpacing: -0.2 }}>vallista-land</div>
+          <div style={{ fontSize: 10, fontFamily: "var(--mono)", color: "var(--ink-4)", letterSpacing: 0.14, textTransform: "uppercase" }}>Notes on building</div>
+        </div>
+      </div>
+    </div>
+
+    {/* command bar */}
+    <div style={{ position: "relative" }}>
+      <input placeholder="글 검색…" style={{ width: "100%", padding: "9px 12px 9px 32px", border: "1px solid var(--line-2)", borderRadius: 7, fontSize: 12.5, boxSizing: "border-box", fontFamily: "inherit", background: "#fafbfc" }} />
+      <svg style={{ position: "absolute", top: 11, left: 10 }} width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+      <span style={{ position: "absolute", top: 8, right: 8, fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-4)", border: "1px solid var(--line-2)", borderRadius: 4, padding: "2px 5px", background: "#fff" }}>⌘K</span>
+    </div>
+
+    {/* Primary nav — airy list, NO backgrounds, just type weight */}
+    <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {[
+        { k: "home", label: "Home" },
+        { k: "articles", label: "Articles", count: 42 },
+        { k: "notes", label: "Notes", count: 28 },
+        { k: "projects", label: "Projects", count: 6 },
+        { k: "about", label: "About" },
+      ].map(n => (
+        <a key={n.k} style={{
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          padding: "7px 0", textDecoration: "none",
+          color: active === n.k ? "var(--ink)" : "var(--ink-2)",
+          fontWeight: active === n.k ? 600 : 500,
+          fontSize: 14,
+          borderLeft: active === n.k ? "2px solid var(--blue)" : "2px solid transparent",
+          paddingLeft: 10,
+        }}>
+          <span>{n.label}</span>
+          {n.count != null && <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{n.count}</span>}
+        </a>
+      ))}
+    </nav>
+
+    {/* Series — collapsible */}
+    <div>
+      <button style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "6px 0", border: "none", background: "transparent", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10.5, letterSpacing: 0.2, textTransform: "uppercase", color: "var(--ink-4)", fontWeight: 600 }}>
+        <span>Series ({PDSeries.length})</span>
+        <span style={{ fontSize: 10 }}>▾</span>
+      </button>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 8, paddingLeft: 2 }}>
+        {PDSeries.map((s, i) => (
+          <a key={s.k} style={{ display: "flex", justifyContent: "space-between", padding: "6px 10px", borderLeft: i === 0 ? "2px solid var(--blue)" : "2px solid transparent", color: "var(--ink-2)", textDecoration: "none", fontSize: 13, fontWeight: i === 0 ? 600 : 500 }}>
+            <span style={{ color: i === 0 ? "var(--ink)" : "var(--ink-2)" }}>{s.label}</span>
+            <span style={{ fontFamily: "var(--mono)", fontSize: 10.5, color: "var(--ink-4)" }}>{String(s.count).padStart(2,"0")}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    {/* Tags — chips */}
+    <div>
+      <button style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", padding: "6px 0", border: "none", background: "transparent", cursor: "pointer", fontFamily: "var(--mono)", fontSize: 10.5, letterSpacing: 0.2, textTransform: "uppercase", color: "var(--ink-4)", fontWeight: 600 }}>
+        <span>Tags</span>
+        <span style={{ fontSize: 10 }}>▾</span>
+      </button>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+        {PDTags.map((t, i) => (
+          <span key={t} style={{ display: "inline-flex", gap: 5, padding: "3px 8px", border: "1px solid var(--line-2)", borderRadius: 999, fontSize: 11, color: "var(--ink-2)", background: "#fff" }}>
+            #{t}<span style={{ color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{(4 + i) * 3}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+
+    <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink-4)", letterSpacing: 0.12, textTransform: "uppercase" }}>
+      <span>RSS · GH · @</span>
+      <span>◐ Dark</span>
+    </div>
+  </aside>
+);
+
+// ─── Home ───────────────────────────────────────────────────
+const PDHome = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <PDSidebar active="home" />
+    <main style={{ flex: 1, overflow: "hidden", padding: "48px 72px 64px" }}>
+      {/* breadcrumb (docs pattern) — but very light */}
+      <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)", letterSpacing: 0.12, marginBottom: 28 }}>
+        @vallista <span style={{ margin: "0 8px", color: "var(--line)" }}>/</span> Home
+      </div>
+
+      {/* Big airy title — Paper Light style */}
+      <h1 style={{ margin: 0, fontSize: 60, fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.05 }}>
+        최근에<br/>쓴 글<span style={{ color: "var(--blue)" }}>.</span>
+      </h1>
+      <p style={{ margin: "20px 0 48px", color: "var(--ink-3)", fontSize: 16, maxWidth: 540, lineHeight: 1.6 }}>
+        주로 프론트엔드·디자인 시스템·개인 도구. 2024년부터 시리즈 단위로 묶고 있어요.
+      </p>
+
+      {/* Featured — airy, minimal */}
+      <a style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 40, padding: "32px 0", borderTop: "1px solid var(--ink)", borderBottom: "1px solid var(--line-2)", textDecoration: "none", color: "inherit", marginBottom: 36 }}>
+        <div>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--blue-600)", fontWeight: 700, marginBottom: 14 }}>Featured · DX 재정비 01/04</div>
+          <h2 style={{ margin: "0 0 16px", fontSize: 34, fontWeight: 700, letterSpacing: -0.6, lineHeight: 1.15 }}>왜 vanilla-extract으로 옮겼는가</h2>
+          <p style={{ margin: 0, color: "var(--ink-2)", lineHeight: 1.65, fontSize: 15 }}>런타임 CSS-in-JS는 편했지만, 모노레포의 빌드가 무거워질수록 초기 로드가 눈에 띄게 느려졌다. 1년 간의 정리 기록.</p>
+          <div style={{ marginTop: 18, display: "flex", gap: 10, alignItems: "center", fontSize: 12, fontFamily: "var(--mono)", color: "var(--ink-4)", letterSpacing: 0.1 }}>
+            <span>2024.11.02</span>·<span>9 MIN</span>·<span>3,201 WORDS</span>
+          </div>
+        </div>
+        <div><PDCover kind="blocks" ratio="5/3" /></div>
+      </a>
+
+      {/* Rest — airy two-column list, numbered, no chrome */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 48px" }}>
+        {PDPosts.slice(1).map((p, i) => (
+          <a key={p.title} style={{ padding: "24px 0", borderTop: "1px solid var(--line-2)", textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10.5, color: "var(--ink-4)", letterSpacing: 0.12 }}>№ {String(i+2).padStart(2,"0")} · {p.date}</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10.5, color: "var(--ink-4)" }}>{p.min} min</span>
+            </div>
+            <h3 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: -0.3, lineHeight: 1.22 }}>{p.title}</h3>
+            <p style={{ margin: 0, fontSize: 13.5, color: "var(--ink-3)", lineHeight: 1.6 }}>{p.excerpt}</p>
+            <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+              <PDChip>{p.tag}</PDChip>
+              {p.series && <PDChip tone="blue">{p.series}</PDChip>}
+            </div>
+          </a>
+        ))}
+      </div>
+    </main>
+  </div>
+);
+
+// ─── Article ────────────────────────────────────────────────
+const PDArticle = () => (
+  <div style={{ display: "flex", height: "100%", background: "#fff", fontSize: 14 }}>
+    <PDSidebar active="articles" />
+    <main style={{ flex: 1, position: "relative", overflow: "hidden", display: "grid", gridTemplateColumns: "1fr 220px" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "var(--line-2)", zIndex: 2 }}>
+        <div style={{ width: "42%", height: "100%", background: "var(--blue)" }} />
+      </div>
+
+      <div style={{ padding: "56px 48px 120px", minWidth: 0 }}>
+        {/* breadcrumb */}
+        <div style={{ fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)", letterSpacing: 0.12, marginBottom: 28, display: "flex", alignItems: "center", gap: 8 }}>
+          <span>@vallista</span><span style={{ color: "var(--line)" }}>/</span>
+          <span>articles</span><span style={{ color: "var(--line)" }}>/</span>
+          <span style={{ color: "var(--blue-600)" }}>dx-revisit</span><span style={{ color: "var(--line)" }}>/</span>
+          <span style={{ color: "var(--ink)" }}>01-vanilla-extract</span>
+        </div>
+
+        <div style={{ maxWidth: 680 }}>
+          <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--blue-600)", fontWeight: 700, marginBottom: 16 }}>DX 재정비 · Chapter 1 of 4</div>
+          <h1 style={{ margin: 0, fontSize: 52, fontWeight: 700, letterSpacing: -1, lineHeight: 1.08 }}>
+            왜 vanilla-extract으로 <span style={{ color: "var(--blue)" }}>옮겼는가</span>
+          </h1>
+          <p style={{ margin: "20px 0 28px", fontSize: 18, color: "var(--ink-2)", lineHeight: 1.55 }}>
+            런타임 비용을 지불하지 않으면서, 타입 안전한 스타일을 유지하는 가장 간단한 방법에 대한 기록.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 12, color: "var(--ink-3)", fontFamily: "var(--mono)", paddingBottom: 24, borderBottom: "1px solid var(--line-2)", letterSpacing: 0.1 }}>
+            <span>2024.11.02</span>·<span>9 MIN</span>·<span>3,201 WORDS</span>
+            <span style={{ marginLeft: "auto" }}><a style={{ color: "var(--blue-600)", textDecoration: "none" }}>✎ Edit on GitHub</a></span>
+          </div>
+
+          <div style={{ fontSize: 17, lineHeight: 1.85, color: "var(--ink)", marginTop: 36 }}>
+            <p style={{ margin: "0 0 22px" }}>처음에는 Emotion으로 시작했다. 컴포넌트 옆에 스타일을 바로 쓸 수 있고, prop 기반 분기도 자연스러웠다. 그러다 앱이 커지고 모노레포에 패키지가 늘자, 번들의 스타일 런타임이 무거워지기 시작했다.</p>
+
+            <h2 id="h-timing" style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.4, margin: "44px 0 14px", scrollMarginTop: 80 }}>문제는 번들이 아니라 <span style={{ color: "var(--blue)" }}>타이밍</span>이었다</h2>
+            <p style={{ margin: "0 0 22px" }}>실제 크기가 크진 않았다. 문제는 첫 paint 전에 JS가 파싱·실행돼야만 스타일이 붙는다는 점이었다. 느린 네트워크에서는 레이아웃이 두 번 흔들렸다.</p>
+
+            {/* code block */}
+            <div style={{ margin: "28px 0", border: "1px solid var(--line)", borderRadius: 8, overflow: "hidden" }}>
+              <div style={{ display: "flex", background: "#fafbfc", borderBottom: "1px solid var(--line-2)" }}>
+                <div style={{ padding: "9px 14px", fontFamily: "var(--mono)", fontSize: 11.5, fontWeight: 600, color: "var(--ink)", background: "#fff", borderRight: "1px solid var(--line-2)" }}>theme.css.ts</div>
+                <div style={{ padding: "9px 14px", fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--ink-4)" }}>Button.css.ts</div>
+                <div style={{ marginLeft: "auto", padding: "6px 10px" }}>
+                  <button style={{ border: "1px solid var(--line)", background: "#fff", borderRadius: 5, padding: "3px 9px", fontSize: 10.5, color: "var(--ink-3)", cursor: "pointer", fontFamily: "var(--mono)" }}>COPY</button>
+                </div>
+              </div>
+              <pre style={{ margin: 0, padding: "14px 16px", fontFamily: "var(--mono)", fontSize: 12.5, lineHeight: 1.75, background: "#fff", color: "var(--ink)", overflow: "hidden" }}>
+<span style={{ color: "#6b7389" }}>// 3-tier tokens</span>{'\n'}
+<span style={{ color: "#8a4bff" }}>export const</span> <span style={{ color: "var(--blue-600)" }}>colors</span> = <span style={{ color: "var(--blue-600)" }}>createGlobalTheme</span>(<span style={{ color: "#2a7f3f" }}>':root'</span>, {'{'}{'\n'}
+{'  '}<span style={{ color: "var(--blue-600)" }}>surfaceCanvas</span>: gray[<span style={{ color: "#b4541f" }}>50</span>],{'\n'}
+{'  '}<span style={{ color: "var(--blue-600)" }}>accentEmphasis</span>: blue[<span style={{ color: "#b4541f" }}>500</span>],{'\n'}
+{'}'});
+              </pre>
+            </div>
+
+            {/* callout */}
+            <div style={{ margin: "28px 0", padding: "14px 18px", background: "var(--blue-50)", borderLeft: "2px solid var(--blue)", display: "flex", gap: 12 }}>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10, fontWeight: 700, color: "var(--blue-600)", letterSpacing: 0.2, paddingTop: 2, flexShrink: 0 }}>NOTE · 01</div>
+              <div style={{ fontSize: 14, color: "var(--ink-2)", lineHeight: 1.65 }}>TTI 300ms 개선이 목표였고, 실제로는 CLS 쪽에서 더 큰 이득을 봤다. 숫자보다 사용자가 "덜 흔들린다"고 느끼는 게 중요했다.</div>
+            </div>
+
+            <h2 id="h-result" style={{ fontSize: 28, fontWeight: 700, letterSpacing: -0.4, margin: "44px 0 14px", scrollMarginTop: 80 }}>결과</h2>
+            <p style={{ margin: "0 0 22px" }}>스타일 런타임을 완전히 뺐다. 번들 크기보다도 렌더 타이밍이 안정적으로 좋아졌다는 게 체감으로 컸다.</p>
+          </div>
+
+          {/* next in series */}
+          <a style={{ marginTop: 44, padding: "24px 0", borderTop: "1px solid var(--ink)", display: "flex", justifyContent: "space-between", alignItems: "center", textDecoration: "none", color: "inherit" }}>
+            <div>
+              <div style={{ fontFamily: "var(--mono)", fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--blue-600)", fontWeight: 700, marginBottom: 6 }}>Next · DX 재정비 02 / 04</div>
+              <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.3 }}>Sprinkles로 반응형 스타일링을 정리하다</div>
+              <div style={{ fontSize: 11.5, color: "var(--ink-3)", marginTop: 4, fontFamily: "var(--mono)" }}>6 min · 2024.11.10</div>
+            </div>
+            <div style={{ fontSize: 24, color: "var(--blue)" }}>→</div>
+          </a>
+        </div>
+      </div>
+
+      {/* Sticky TOC — right rail, airy */}
+      <aside style={{ borderLeft: "1px solid var(--line-2)", padding: "64px 22px 40px", fontSize: 12.5, background: "#fff", position: "sticky", top: 0, alignSelf: "start", height: "100%", boxSizing: "border-box" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--ink-4)", marginBottom: 14, fontWeight: 700 }}>On this page</div>
+        <nav style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <a style={{ display: "block", padding: "6px 10px", borderLeft: "2px solid var(--blue)", color: "var(--ink)", textDecoration: "none", fontSize: 12.5, fontWeight: 600 }}>문제는 번들이 아니라 타이밍이었다</a>
+          <a style={{ display: "block", padding: "6px 10px", borderLeft: "2px solid transparent", color: "var(--ink-3)", textDecoration: "none", fontSize: 12.5 }}>결과</a>
+        </nav>
+
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.22, color: "var(--ink-4)", margin: "36px 0 14px", fontWeight: 700 }}>Series · 1 / 4</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {[
+            { n: 1, t: "왜 vanilla-extract으로 옮겼는가", active: true },
+            { n: 2, t: "Sprinkles로 반응형 정리" },
+            { n: 3, t: "RSC로 밀어낸 것들" },
+            { n: 4, t: "남은 번들 예산" },
+          ].map(s => (
+            <a key={s.n} style={{ display: "flex", gap: 8, padding: "6px 10px", borderLeft: s.active ? "2px solid var(--blue)" : "2px solid transparent", textDecoration: "none", color: s.active ? "var(--ink)" : "var(--ink-3)", fontSize: 12.5, fontWeight: s.active ? 600 : 500 }}>
+              <span style={{ fontFamily: "var(--mono)", color: "var(--ink-4)", fontSize: 10.5 }}>{String(s.n).padStart(2,"0")}</span>
+              <span>{s.t}</span>
+            </a>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 36, paddingTop: 18, borderTop: "1px solid var(--line-2)", display: "flex", flexDirection: "column", gap: 8, fontFamily: "var(--mono)", fontSize: 11, color: "var(--ink-4)", letterSpacing: 0.1 }}>
+          <a style={{ color: "var(--blue-600)", textDecoration: "none" }}>↑ Top</a>
+          <a style={{ color: "var(--ink-3)", textDecoration: "none" }}>✎ Edit on GitHub</a>
+        </div>
+      </aside>
+    </main>
+  </div>
+);
+
+// ─── Mobile ─────────────────────────────────────────────────
+const PDMobile = () => (
+  <PDPhone>
+    <div style={{ display: "flex", flexDirection: "column", height: "calc(100% - 44px)" }}>
+      <div style={{ padding: "14px 22px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line-2)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <PDMark size={20} />
+          <div style={{ fontSize: 14, fontWeight: 600 }}>vallista-land</div>
+        </div>
+        <button style={{ border: "none", background: "transparent", fontSize: 22, cursor: "pointer" }}>×</button>
+      </div>
+
+      <div style={{ padding: "16px 22px 6px" }}>
+        <div style={{ position: "relative" }}>
+          <input placeholder="글 검색…" style={{ width: "100%", padding: "11px 12px 11px 38px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 14.5, boxSizing: "border-box", fontFamily: "inherit", background: "#fafbfc" }} />
+          <svg style={{ position: "absolute", top: 13, left: 13 }} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--ink-4)" strokeWidth="1.4"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5L13 13"/></svg>
+        </div>
+      </div>
+
+      <nav style={{ padding: "8px 22px 0", display: "flex", flexDirection: "column" }}>
+        {[
+          { k: "home", label: "Home", active: true },
+          { k: "articles", label: "Articles", count: 42 },
+          { k: "notes", label: "Notes", count: 28 },
+          { k: "projects", label: "Projects", count: 6 },
+          { k: "about", label: "About" },
+        ].map(n => (
+          <a key={n.k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 10px", borderLeft: n.active ? "2px solid var(--blue)" : "2px solid transparent", textDecoration: "none", color: "var(--ink)" }}>
+            <span style={{ fontSize: 17, fontWeight: n.active ? 600 : 500, letterSpacing: -0.2 }}>{n.label}</span>
+            {n.count != null && <span style={{ fontSize: 11, fontFamily: "var(--mono)", color: "var(--ink-4)" }}>{n.count}</span>}
+          </a>
+        ))}
+      </nav>
+
+      <div style={{ padding: "18px 22px 0" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--ink-4)", marginBottom: 10, fontWeight: 700 }}>Series</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          {PDSeries.map((s, i) => (
+            <div key={s.k} style={{ display: "flex", justifyContent: "space-between", padding: "7px 10px", borderLeft: i === 0 ? "2px solid var(--blue)" : "2px solid transparent" }}>
+              <span style={{ fontSize: 13.5, color: i === 0 ? "var(--ink)" : "var(--ink-2)", fontWeight: i === 0 ? 600 : 500 }}>{s.label}</span>
+              <span style={{ fontFamily: "var(--mono)", fontSize: 10.5, color: "var(--ink-4)" }}>{String(s.count).padStart(2,"0")}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "16px 22px 0" }}>
+        <div style={{ fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: 0.2, color: "var(--ink-4)", marginBottom: 10, fontWeight: 700 }}>Tags</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {PDTags.map((t, i) => (
+            <span key={t} style={{ display: "inline-flex", gap: 5, padding: "4px 9px", border: "1px solid var(--line-2)", borderRadius: 999, fontSize: 11, color: "var(--ink-2)", background: "#fff" }}>
+              #{t}<span style={{ color: "var(--ink-4)", fontFamily: "var(--mono)" }}>{(4 + i) * 3}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: "auto", padding: "16px 22px", borderTop: "1px solid var(--line-2)", display: "flex", justifyContent: "space-between", fontFamily: "var(--mono)", fontSize: 10, textTransform: "uppercase", color: "var(--ink-4)", letterSpacing: 0.18 }}>
+        <span>RSS · GH · @</span>
+        <span>◐ Dark</span>
+      </div>
+    </div>
+  </PDPhone>
+);
+
+Object.assign(window, { PDHome, PDArticle, PDMobile });
+
+</script>
+<script type="text/babel">
+const { DesignCanvas, DCSection, DCArtboard,
+  PaperHome, PaperArticle, PaperMobile,
+  DocsHome, DocsArticle, DocsMobile,
+  MagHome, MagArticle, MagMobile,
+  PMHome, PMArticle, PMMobile,
+  PDHome, PDArticle, PDMobile } = window;
+
+const App = () => (
+  <DesignCanvas>
+    <DCSection id="paper" title="A · Paper Light" subtitle="지금 구조 유지 · 공기감 극대화 · 블루는 링크·강조·읽기 진행바에만">
+      <DCArtboard id="a-home" label="Home" width={1280} height={900}><PaperHome /></DCArtboard>
+      <DCArtboard id="a-article" label="Article" width={1280} height={1400}><PaperArticle /></DCArtboard>
+      <DCArtboard id="a-mobile" label="Mobile · Menu open" width={390} height={844}><PaperMobile /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="docs" title="B · Docs" subtitle="사이드바가 문서 네비 · 시리즈/태그 접이식 · 본문 중앙 한 컬럼 (Vercel/Linear 풍)">
+      <DCArtboard id="b-home" label="Home" width={1280} height={900}><DocsHome /></DCArtboard>
+      <DCArtboard id="b-article" label="Article" width={1280} height={1400}><DocsArticle /></DCArtboard>
+      <DCArtboard id="b-mobile" label="Mobile · Menu open" width={390} height={844}><DocsMobile /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="mag" title="C · Magazine Grid" subtitle="Home은 Featured 대형 + 12컬럼 · Article은 플로팅 TOC 레일 · 편집 디자인 톤">
+      <DCArtboard id="c-home" label="Home" width={1280} height={900}><MagHome /></DCArtboard>
+      <DCArtboard id="c-article" label="Article" width={1280} height={1400}><MagArticle /></DCArtboard>
+      <DCArtboard id="c-mobile" label="Mobile · Menu open" width={390} height={844}><MagMobile /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="paper-mag" title="D · Paper × Magazine" subtitle="Paper Light 여백감 · hairline + Magazine Issue 넘버링 · Featured 대형 · pullquote">
+      <DCArtboard id="d-home" label="Home" width={1280} height={900}><PMHome /></DCArtboard>
+      <DCArtboard id="d-article" label="Article" width={1280} height={1400}><PMArticle /></DCArtboard>
+      <DCArtboard id="d-mobile" label="Mobile · Menu open" width={390} height={844}><PMMobile /></DCArtboard>
+    </DCSection>
+
+    <DCSection id="paper-docs" title="E · Paper × Docs" subtitle="Paper Light 공기감 + Docs 사이드바(Search·Series·Tags) · sticky TOC · Breadcrumb">
+      <DCArtboard id="e-home" label="Home" width={1280} height={900}><PDHome /></DCArtboard>
+      <DCArtboard id="e-article" label="Article" width={1280} height={1400}><PDArticle /></DCArtboard>
+      <DCArtboard id="e-mobile" label="Mobile · Menu open" width={390} height={844}><PDMobile /></DCArtboard>
+    </DCSection>
+  </DesignCanvas>
+);
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

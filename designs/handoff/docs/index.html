@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>vallista-land · Claude Code Handoff</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --blue: #2b6cff; --blue-600: #1f56d6; --blue-50: #eff4ff;
+    --ink: #0b1220; --ink-2: #3a4255; --ink-3: #6b7389; --ink-4: #9aa1b4;
+    --line: #e6e8ee; --line-2: #f1f2f6; --bg: #fff; --bg-soft: #fafbfc;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: var(--sans); color: var(--ink); background: #f0eee9; -webkit-font-smoothing: antialiased; min-height: 100vh; word-break: keep-all; text-wrap: pretty; }
+  .sheet { max-width: 960px; margin: 0 auto; padding: 72px 48px 120px; background: var(--bg); min-height: 100vh; border-left: 1px solid var(--line-2); border-right: 1px solid var(--line-2); }
+  .eyebrow { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-4); margin-bottom: 12px; font-weight: 500; }
+  h1 { margin: 0 0 16px; font-size: 48px; font-weight: 700; letter-spacing: -1px; line-height: 1.08; }
+  h1 .accent { color: var(--blue); }
+  .lede { margin: 0 0 36px; font-size: 19px; color: var(--ink-2); line-height: 1.55; max-width: 680px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 48px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--blue-50); color: var(--blue-600); font-size: 11.5px; font-weight: 500; }
+  .chip.neutral { background: var(--line-2); color: var(--ink-3); }
+  h2 { margin: 56px 0 20px; font-size: 24px; font-weight: 700; letter-spacing: -0.3px; padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+  h2 .num { font-family: var(--mono); font-size: 13px; color: var(--blue-600); margin-right: 12px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .card {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 18px 22px;
+    background: var(--bg); border: 1px solid var(--line-2); border-radius: 12px;
+    text-decoration: none; color: inherit;
+    transition: border-color 120ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+  .card:hover { border-color: var(--line); box-shadow: 0 2px 6px rgba(11,18,32,.06); transform: translateY(-1px); }
+  .card .tag { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--blue-600); font-weight: 600; }
+  .card h3 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.2px; }
+  .card p { margin: 0; font-size: 13px; color: var(--ink-3); line-height: 1.6; }
+  .card .meta { font-family: var(--mono); font-size: 11px; color: var(--ink-4); letter-spacing: 0.04em; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line-2); display: flex; justify-content: space-between; }
+  .card .meta .arrow { color: var(--blue); }
+  .card.hero { grid-column: 1 / -1; background: linear-gradient(135deg, var(--bg) 55%, var(--blue-50)); border-color: var(--blue-50); padding: 26px 30px; gap: 12px; }
+  .card.hero h3 { font-size: 24px; letter-spacing: -0.3px; }
+  .card.hero p { font-size: 14.5px; }
+  .row { display: grid; grid-template-columns: 40px 170px 1fr auto; gap: 16px; align-items: baseline; color: var(--ink-3); font-size: 13.5px; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+  .row .idx { font-family: var(--mono); font-size: 11px; color: var(--ink-4); }
+  .row .label { font-weight: 600; color: var(--ink); }
+  .row .desc { color: var(--ink-2); line-height: 1.6; }
+  .row a { color: var(--blue); text-decoration: none; font-family: var(--mono); font-size: 12px; }
+  .row a:hover { text-decoration: underline; }
+  .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line-2); font-family: var(--mono); font-size: 11.5px; color: var(--ink-4); letter-spacing: 0.06em; display: flex; justify-content: space-between; }
+  .footer a { color: var(--blue-600); }
+  .callout { padding: 18px 22px; background: var(--blue-50); border-left: 3px solid var(--blue); border-radius: 2px 8px 8px 2px; color: var(--ink-2); font-size: 14px; line-height: 1.7; margin: 20px 0 32px; }
+  .callout strong { color: var(--blue-600); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="eyebrow">v2 · Claude Code Handoff · 2024.11</div>
+  <h1>vallista-land<br/><span class="accent">Handoff Package</span></h1>
+  <p class="lede">Claude Code에 그대로 넘길 수 있는 핸드오프 패키지. Paper Light 확정안 기반 — 토큰·타이포·모션·컴포넌트·블로그 스펙·접근성·DoD, 그리고 바로 붙여넣을 수 있는 <code>tokens.json</code>·<code>theme.css.ts</code>.</p>
+
+  <div class="chips">
+    <span class="chip">A · Paper Light 확정</span>
+    <span class="chip">3-tier tokens</span>
+    <span class="chip">Astro 4 + vanilla-extract</span>
+    <span class="chip">Dark: auto + manual</span>
+    <span class="chip">RSS + /feed</span>
+    <span class="chip">Newsletter: Buttondown</span>
+    <span class="chip neutral">WCAG 2.1 AA</span>
+  </div>
+
+  <h2><span class="num">00</span>Entry point</h2>
+  <p class="callout"><strong>Claude Code가 읽는 순서: </strong>루트의 <code>CLAUDE.md</code> → <code>docs/00-README.md</code> → 번호순으로. 레퍼런스 비주얼은 <code>design-system/Design System.html</code>과 <code>blog/Blog A.html</code>.</p>
+
+  <div class="grid">
+    <a class="card hero" href="../CLAUDE.md">
+      <span class="tag">Entry · Claude Code rules</span>
+      <h3>CLAUDE.md</h3>
+      <p>Claude Code가 자동으로 읽는 프로젝트 규칙 파일. 하드 룰 10개 · 폴더 컨벤션 · 빌드 커맨드 · 스코프 밖 목록.</p>
+      <div class="meta"><span>root /</span><span class="arrow">Open →</span></div>
+    </a>
+  </div>
+
+  <h2><span class="num">01</span>Docs (read in order)</h2>
+  <div class="grid">
+    <a class="card" href="00-README.md">
+      <span class="tag">00 · README</span>
+      <h3>Reading order &amp; decisions</h3>
+      <p>무엇을 어떤 순서로 만들지 · 해결된 결정 사항 · 스코프 밖 목록.</p>
+      <div class="meta"><span>~4KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="01-stack.md">
+      <span class="tag">01 · Stack</span>
+      <h3>Framework &amp; folder layout</h3>
+      <p>Astro + vanilla-extract + TypeScript · 폴더 구조 · 스크립트 · hard constraints.</p>
+      <div class="meta"><span>~5KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="02-tokens.md">
+      <span class="tag">02 · Tokens</span>
+      <h3>Colors · spacing · radii · motion</h3>
+      <p>3-tier token system — core scale, semantic layer, dark mode overrides.</p>
+      <div class="meta"><span>~5KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="03-typography.md">
+      <span class="tag">03 · Typography</span>
+      <h3>Pretendard scale + 한글 규칙</h3>
+      <p>12단 타입 토큰 · <code>word-break: keep-all</code> 전역 · 눈금자 링크 스타일.</p>
+      <div class="meta"><span>~4KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="04-components/README.md">
+      <span class="tag">04 · Components</span>
+      <h3>10 primitives · one doc each</h3>
+      <p>Button / Chip / Input / Card / Cover / Callout / CodeBlock / NavRail / Toc / Palette.</p>
+      <div class="meta"><span>~20KB (10 files)</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="05-blog-spec.md">
+      <span class="tag">05 · Blog spec</span>
+      <h3>Routes · content model · per-page</h3>
+      <p>11개 라우트 스펙 · Content Collection 스키마 · 검색 팔레트 · RSS · 다크모드.</p>
+      <div class="meta"><span>~7KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="06-a11y.md">
+      <span class="tag">06 · Accessibility</span>
+      <h3>WCAG 2.1 AA checklist</h3>
+      <p>대비 테스트 · 포커스 · 키보드 · 랜드마크 · axe-core 0 violations.</p>
+      <div class="meta"><span>~5KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="07-motion.md">
+      <span class="tag">07 · Motion</span>
+      <h3>Durations · easings · patterns</h3>
+      <p>3 durations · 4 easings · reading progress · palette spring · reduced-motion 필수.</p>
+      <div class="meta"><span>~4KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="08-definition-of-done.md">
+      <span class="tag">08 · Definition of Done</span>
+      <h3>"완료" 체크리스트</h3>
+      <p>토큰 · 타이포 · 컴포넌트 · 라우트별 · a11y · perf · 릴리스 기준. 모두 체크돼야 done.</p>
+      <div class="meta"><span>~5KB</span><span class="arrow">Open →</span></div>
+    </a>
+  </div>
+
+  <h2><span class="num">02</span>Machine-readable sources</h2>
+  <div class="grid">
+    <a class="card" href="tokens.json">
+      <span class="tag">tokens.json</span>
+      <h3>Source of truth for tokens</h3>
+      <p>Core scale · semantic light/dark · space · radius · elevation · motion · typography · layout.</p>
+      <div class="meta"><span>~5KB JSON</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="theme.css.ts">
+      <span class="tag">theme.css.ts</span>
+      <h3>vanilla-extract starter</h3>
+      <p>바로 <code>src/styles/</code>에 붙여넣는 <code>createThemeContract</code> + light/dark themes.</p>
+      <div class="meta"><span>~5KB TS</span><span class="arrow">Open →</span></div>
+    </a>
+  </div>
+
+  <h2><span class="num">03</span>Reference artifacts</h2>
+  <div class="grid three">
+    <a class="card" href="design-system/Design System.html">
+      <span class="tag">Visual · Design System</span>
+      <h3>Design System.html</h3>
+      <p>19개 섹션 — Foundations · Components · Patterns. 토큰과 컴포넌트의 <strong>비주얼 레퍼런스</strong>.</p>
+      <div class="meta"><span>~60KB</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="../blog/Blog A.html">
+      <span class="tag">Visual · Blog target</span>
+      <h3>Blog A · Paper Light</h3>
+      <p>9화면 풀 시안 — Home · Article(L/D) · Notes · Projects · Tag · About · Search · Mobile.</p>
+      <div class="meta"><span>blog/</span><span class="arrow">Open →</span></div>
+    </a>
+    <a class="card" href="../blog/Blog Variants.html" style="opacity: 0.72">
+      <span class="tag">Context only</span>
+      <h3>Blog Variants</h3>
+      <p>초기 3종 탐색안. <strong>빌드 기준 아님</strong> — 맥락 참고용.</p>
+      <div class="meta"><span>blog/</span><span class="arrow">Open →</span></div>
+    </a>
+  </div>
+
+  <h2><span class="num">04</span>Resolved decisions</h2>
+  <div class="row"><span class="idx">01</span><span class="label">Dark mode</span><span class="desc">Auto (<code>prefers-color-scheme</code>) + 명시적 토글 (localStorage). 사이드바 footer의 ☀/🌙.</span><a href="05-blog-spec.md#dark-mode">spec →</a></div>
+  <div class="row"><span class="idx">02</span><span class="label">RSS</span><span class="desc">전용 <code>/feed</code> 페이지 + <code>/rss.xml</code> 피드 파일. 사이드바 footer에서 두 곳 모두 링크.</span><a href="05-blog-spec.md">spec →</a></div>
+  <div class="row"><span class="idx">03</span><span class="label">Newsletter</span><span class="desc">실제 공급자 연결 — Buttondown 우선 (<code>/api/subscribe</code>). mailto fallback 없음.</span><a href="00-README.md">readme →</a></div>
+  <div class="row"><span class="idx">04</span><span class="label">Content</span><span class="desc">Astro Content Collections · MDX(articles) · MD(notes) · YAML(projects).</span><a href="01-stack.md">stack →</a></div>
+  <div class="row"><span class="idx">05</span><span class="label">Deploy</span><span class="desc">정적 호스트 (Cloudflare Pages / Vercel) — 서버 런타임 없음, 빌드만.</span><a href="01-stack.md">stack →</a></div>
+
+  <h2><span class="num">05</span>Claude Code 전달 방법</h2>
+  <div class="callout">
+    <strong>방법 1 — 로컬 clone. </strong>전체 프로젝트를 zip으로 내려받아 풀고, 해당 디렉토리에서 <code>claude code</code> 실행. 루트의 <code>CLAUDE.md</code>가 자동으로 로드됩니다.<br/><br/>
+    <strong>방법 2 — 첫 프롬프트에 이렇게. </strong>"<code>docs/00-README.md</code>를 먼저 읽고, 그 안에 쓰인 순서대로 읽은 뒤 구현해 줘. 시각 레퍼런스는 <code>design-system/Design System.html</code>과 <code>blog/Blog A.html</code>."
+  </div>
+
+  <div class="footer">
+    <span>v2 Handoff · vallista-land · 2024.11</span>
+    <span><a href="../">project root</a></span>
+  </div>
+</div>
+</body>
+</html>
