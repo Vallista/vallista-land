@@ -2,8 +2,9 @@
 import { getCollection } from 'astro:content'
 
 import BaseLayout from '@layouts/BaseLayout.astro'
+import PageHeader from '@components/PageHeader.astro'
 import PostCard from '@components/PostCard.astro'
-import { section, sectionHead, sectionTitle, listGrid, title } from '../../styles/home.css'
+import { section, sectionHead, sectionTitle, listGrid } from '../../styles/home.css'
 
 const published = await getCollection('articles', (a) => !a.data.draft)
 published.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
@@ -11,8 +12,7 @@ const counts = { articles: published.length, notes: 0, projects: 0 }
 ---
 
 <BaseLayout title='Articles · Vallista Blog' counts={counts}>
-  <div class='eyebrow'>@vallista · 글</div>
-  <h1 class={title} style='margin-bottom: 48px;'>Articles</h1>
+  <PageHeader eyebrow='@vallista · 글' title='Articles' />
 
   <section class={section}>
     <header class={sectionHead}>

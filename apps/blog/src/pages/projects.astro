@@ -2,18 +2,18 @@
 import { getCollection } from 'astro:content'
 
 import BaseLayout from '@layouts/BaseLayout.astro'
+import PageHeader from '@components/PageHeader.astro'
 import Card from '@vallista/ui/components/Card.astro'
 import Chip from '@vallista/ui/components/Chip.astro'
 import Cover from '@vallista/ui/components/Cover.astro'
 import {
-  meta,
   title as cardTitle,
   description as cardDesc,
   footer as cardFooter,
   stars as cardStars,
   projectTag
 } from '@vallista/ui/components/Card.css'
-import { title, listGrid, section } from '../styles/home.css'
+import { listGrid, section } from '../styles/home.css'
 
 const projects = await getCollection('projects')
 
@@ -26,8 +26,7 @@ function tone(status: 'active' | 'maintenance' | 'archived') {
 ---
 
 <BaseLayout title='Projects · Vallista Blog' counts={counts}>
-  <div class='eyebrow'>@vallista · projects</div>
-  <h1 class={title} style='margin-bottom: 32px;'>프로젝트</h1>
+  <PageHeader eyebrow='@vallista · projects' title='프로젝트' searchPlaceholder='프로젝트 검색…' />
 
   {
     projects.length === 0 ? (

@@ -2,9 +2,9 @@
 import { getCollection } from 'astro:content'
 
 import BaseLayout from '@layouts/BaseLayout.astro'
+import PageHeader from '@components/PageHeader.astro'
 import Chip from '@vallista/ui/components/Chip.astro'
 import { countTags, slugifyTag } from '@lib/tags'
-import { title } from '../../styles/home.css'
 import { tagsGrid } from '../../styles/tag.css'
 
 const published = await getCollection('articles', (a) => !a.data.draft)
@@ -13,9 +13,9 @@ const counts = { articles: published.length, notes: 0, projects: 0 }
 ---
 
 <BaseLayout title='Tags · Vallista Blog' counts={counts}>
-  <div class='eyebrow'>@vallista · tags</div>
-  <h1 class={title} style='margin-bottom: 16px;'>태그 모음</h1>
-  <p style='color: var(--ink2); margin-bottom: 32px;'>총 {stats.length}개 태그 · {published.length}개 글</p>
+  <PageHeader eyebrow='@vallista · tags' title='태그 모음' searchPlaceholder='태그 검색…' />
+
+  <p style='color: var(--ink2); margin: 0 0 32px;'>총 {stats.length}개 태그 · {published.length}개 글</p>
 
   <div class={tagsGrid}>
     {stats.map((s) => <Chip href={`/tags/${slugifyTag(s.tag)}`}>{`#${s.tag} · ${s.count}`}</Chip>)}

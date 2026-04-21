@@ -1,0 +1,62 @@
+---
+import Input from '@vallista/ui/components/Input.astro'
+import { header, title as titleStyle, searchSlot } from '../styles/home.css'
+
+interface Props {
+  eyebrow: string
+  title: string
+  showSearch?: boolean
+  searchPlaceholder?: string
+}
+
+const {
+  eyebrow,
+  title,
+  showSearch = true,
+  searchPlaceholder = '글 검색…'
+} = Astro.props
+---
+
+<header class={header}>
+  <div>
+    <div class='eyebrow'>{eyebrow}</div>
+    <h1 class={titleStyle}>{title}</h1>
+  </div>
+  {
+    showSearch && (
+      <div class={searchSlot}>
+        <Input
+          type='search'
+          placeholder={searchPlaceholder}
+          icon='search'
+          kbdHint='⌘K'
+          aria-label='글 검색'
+        />
+      </div>
+    )
+  }
+</header>
+
+<script>
+  // 리스트 페이지의 검색 Input 에 포커스 가면 ⌘K 팔레트를 연다.
+  // 팔레트는 SearchPalette.astro 가 body 하위에 이미 존재.
+  function setup(): void {
+    document.querySelectorAll<HTMLInputElement>('header input[type="search"]').forEach((input) => {
+      if (input.dataset.paletteBound === '1') return
+      input.dataset.paletteBound = '1'
+      const openPalette = (e: Event): void => {
+        e.preventDefault()
+        input.blur()
+        const overlay = document.querySelector<HTMLElement>('[data-palette-root]')
+        if (!overlay) return
+        // 가장 단순한 트리거: ⌘K 키이벤트 에뮬레이션
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))
+      }
+      input.addEventListener('focus', openPalette)
+      input.addEventListener('click', openPalette)
+    })
+  }
+  setup()
+  document.addEventListener('vallista:page-load', setup)
+  document.addEventListener('astro:page-load', setup)
+</script>
