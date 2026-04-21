@@ -33,6 +33,7 @@ services/new-blog/vite.config.d.ts
 
 apps/blog/dist
 apps/blog/.astro
+apps/blog/public/contents
 
 
 .npmrc

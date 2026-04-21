@@ -3,6 +3,7 @@ import Cover from '@vallista/ui/components/Cover.astro'
 import Chip from '@vallista/ui/components/Chip.astro'
 import { card, meta, title as titleStyle, chipRow } from '@vallista/ui/components/Card.css'
 import { estimateReadingTime } from '@lib/reading-time'
+import { normalizeArticleImage } from '@lib/article-image'
 
 interface Props {
   id: string
@@ -11,17 +12,19 @@ interface Props {
   tag: string
   tags: string[]
   cover: 'grid' | 'stripes' | 'dots' | 'blocks' | 'lines'
+  image?: string
   body?: string
   featured?: boolean
 }
 
-const { id, title, date, tag, tags, cover, body = '', featured = false } = Astro.props
+const { id, title, date, tag, tags, cover, image, body = '', featured = false } = Astro.props
 const { minutes } = estimateReadingTime(body)
 const dateLabel = date.toISOString().slice(0, 10).replace(/-/g, '.')
+const imageUrl = normalizeArticleImage(image, id)
 ---
 
 <a href={`/articles/${id}`} class={card}>
-  <Cover kind={cover} ratio='16 / 9' />
+  <Cover kind={cover} ratio='16 / 9' image={imageUrl} alt={title} />
   <div class={meta}>
     <time datetime={date.toISOString()}>{dateLabel}</time>
     <span>·</span>

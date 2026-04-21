@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "sync-assets": "node scripts/copy-article-assets.mjs",
+    "dev": "node scripts/copy-article-assets.mjs && astro dev",
+    "build": "node scripts/copy-article-assets.mjs && astro build && pagefind --site dist",
     "preview": "astro preview",
     "check": "astro check",
     "type-check": "astro check"

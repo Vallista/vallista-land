@@ -3,9 +3,11 @@ import type { CollectionEntry } from 'astro:content'
 
 import BaseLayout from './BaseLayout.astro'
 import Chip from '@vallista/ui/components/Chip.astro'
+import Cover from '@vallista/ui/components/Cover.astro'
 import Toc from '@vallista/ui/components/Toc.astro'
 import type { TocHeading } from '@vallista/ui/components/Toc.astro'
 import { estimateReadingTime } from '@lib/reading-time'
+import { normalizeArticleImage } from '@lib/article-image'
 import { progress, header, chipRow, h1 as h1Style, dek as dekStyle, byline, prose } from '../styles/article.css'
 
 interface Props {
@@ -18,6 +20,7 @@ const { entry, headings, counts } = Astro.props
 const { data, body } = entry
 const { minutes, words } = estimateReadingTime(body ?? '')
 const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
+const heroImage = normalizeArticleImage(data.image, entry.id)
 ---
 
 <BaseLayout title={`${data.title} · Vallista Blog`} description={data.dek || data.description} counts={counts}>
@@ -46,6 +49,14 @@ const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
       <span>{words.toLocaleString()} words</span>
     </div>
   </header>
+
+  {
+    heroImage && (
+      <div style='max-width: 720px; margin: 0 auto 32px;'>
+        <Cover ratio='16 / 9' image={heroImage} alt={data.title} />
+      </div>
+    )
+  }
 
   <article class={prose}>
     <slot />

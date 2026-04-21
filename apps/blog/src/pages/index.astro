@@ -7,6 +7,7 @@ import Chip from '@vallista/ui/components/Chip.astro'
 import Cover from '@vallista/ui/components/Cover.astro'
 import Input from '@vallista/ui/components/Input.astro'
 import { estimateReadingTime } from '@lib/reading-time'
+import { normalizeArticleImage } from '@lib/article-image'
 import {
   header,
   title,
@@ -32,6 +33,9 @@ const restEntries = featuredEntry ? published.filter((a) => a.id !== featuredEnt
 const counts = { articles: published.length, notes: 0, projects: 0 }
 
 const featuredMinutes = featuredEntry ? estimateReadingTime(featuredEntry.body ?? '').minutes : 0
+const featuredImage = featuredEntry
+  ? normalizeArticleImage(featuredEntry.data.image, featuredEntry.id)
+  : undefined
 ---
 
 <BaseLayout title='Vallista Blog · 최근에 쓴 글' counts={counts}>
@@ -52,7 +56,7 @@ const featuredMinutes = featuredEntry ? estimateReadingTime(featuredEntry.body ?
           <h2 class={sectionTitle}>Featured</h2>
         </header>
         <a href={`/articles/${featuredEntry.id}`} class={featuredGrid} style='color: inherit; text-decoration: none;'>
-          <Cover kind={featuredEntry.data.cover} ratio='16 / 9' />
+          <Cover kind={featuredEntry.data.cover} ratio='16 / 9' image={featuredImage} alt={featuredEntry.data.title} />
           <div class={featuredMeta}>
             <div class={featuredMetaRow}>
               <Chip tone='blue'>Featured</Chip>
@@ -86,6 +90,7 @@ const featuredMinutes = featuredEntry ? estimateReadingTime(featuredEntry.body ?
               tag={entry.data.tag}
               tags={entry.data.tags}
               cover={entry.data.cover}
+              image={entry.data.image}
               body={entry.body ?? ''}
             />
           ))}
