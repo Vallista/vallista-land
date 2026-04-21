@@ -1,0 +1,36 @@
+---
+import Cover from '@vallista/ui/components/Cover.astro'
+import Chip from '@vallista/ui/components/Chip.astro'
+import { card, meta, title as titleStyle, chipRow } from '@vallista/ui/components/Card.css'
+import { estimateReadingTime } from '@lib/reading-time'
+
+interface Props {
+  id: string
+  title: string
+  date: Date
+  tag: string
+  tags: string[]
+  cover: 'grid' | 'stripes' | 'dots' | 'blocks' | 'lines'
+  body?: string
+  featured?: boolean
+}
+
+const { id, title, date, tag, tags, cover, body = '', featured = false } = Astro.props
+const { minutes } = estimateReadingTime(body)
+const dateLabel = date.toISOString().slice(0, 10).replace(/-/g, '.')
+---
+
+<a href={`/articles/${id}`} class={card}>
+  <Cover kind={cover} ratio='16 / 9' />
+  <div class={meta}>
+    <time datetime={date.toISOString()}>{dateLabel}</time>
+    <span>·</span>
+    <span>{minutes} min</span>
+  </div>
+  <h3 class={titleStyle}>{title}</h3>
+  <div class={chipRow}>
+    {featured && <Chip tone='blue'>Featured</Chip>}
+    <Chip>{tag}</Chip>
+    {tags.slice(1, 3).map((t) => <Chip>{t}</Chip>)}
+  </div>
+</a>

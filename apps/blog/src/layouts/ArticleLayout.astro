@@ -1,0 +1,69 @@
+---
+import type { CollectionEntry } from 'astro:content'
+
+import BaseLayout from './BaseLayout.astro'
+import Chip from '@vallista/ui/components/Chip.astro'
+import Toc from '@vallista/ui/components/Toc.astro'
+import type { TocHeading } from '@vallista/ui/components/Toc.astro'
+import { estimateReadingTime } from '@lib/reading-time'
+import { progress, header, chipRow, h1 as h1Style, dek as dekStyle, byline, prose } from '../styles/article.css'
+
+interface Props {
+  entry: CollectionEntry<'articles'>
+  headings: TocHeading[]
+  counts: { articles?: number; notes?: number; projects?: number }
+}
+
+const { entry, headings, counts } = Astro.props
+const { data, body } = entry
+const { minutes, words } = estimateReadingTime(body ?? '')
+const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
+---
+
+<BaseLayout title={`${data.title} · Vallista Blog`} description={data.dek || data.description} counts={counts}>
+  <div class={progress} data-progress></div>
+
+  <header class={header}>
+    <div class={chipRow}>
+      <Chip>{data.tag}</Chip>
+      {
+        data.series && (
+          <Chip tone='blue'>
+            {typeof data.series === 'string'
+              ? data.series
+              : data.series.name ?? data.series.slug ?? '시리즈'}
+          </Chip>
+        )
+      }
+    </div>
+    <h1 class={h1Style}>{data.title}</h1>
+    {data.dek && <p class={dekStyle}>{data.dek}</p>}
+    <div class={byline}>
+      <time datetime={data.date.toISOString()}>{dateLabel}</time>
+      <span>·</span>
+      <span>{minutes} min read</span>
+      <span>·</span>
+      <span>{words.toLocaleString()} words</span>
+    </div>
+  </header>
+
+  <article class={prose}>
+    <slot />
+  </article>
+
+  <Toc headings={headings} />
+
+  <script>
+    const bar = document.querySelector<HTMLElement>('[data-progress]')
+    if (bar) {
+      const on = (): void => {
+        const h = document.documentElement
+        const max = h.scrollHeight - h.clientHeight
+        const pct = max > 0 ? Math.min(100, (h.scrollTop / max) * 100) : 0
+        bar.style.width = `${pct}%`
+      }
+      addEventListener('scroll', () => requestAnimationFrame(on), { passive: true })
+      on()
+    }
+  </script>
+</BaseLayout>

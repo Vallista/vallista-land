@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { style, globalStyle } from '@vanilla-extract/css'
 
 import { vars } from '../styles/theme.css'
 
@@ -53,11 +53,8 @@ export const link = style({
   }
 })
 
-export const depth3 = style({
-  selectors: {
-    [`&.depth-3 .${link}`]: {
-      paddingLeft: '28px',
-      fontSize: '12px'
-    }
-  }
+// depth-3 항목은 class="depth-3"을 부모 li에 달아 구분한다.
+globalStyle(`li.depth-3 > .${link}`, {
+  paddingLeft: '28px',
+  fontSize: '12px'
 })

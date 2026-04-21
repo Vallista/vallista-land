@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content'
+
+import BaseLayout from '@layouts/BaseLayout.astro'
+import PostCard from '@components/PostCard.astro'
+import { section, sectionHead, sectionTitle, listGrid, title } from '../../styles/home.css'
+
+const published = await getCollection('articles', (a) => !a.data.draft)
+published.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+const counts = { articles: published.length, notes: 0, projects: 0 }
+---
+
+<BaseLayout title='Articles · Vallista Blog' counts={counts}>
+  <div class='eyebrow'>@vallista · 글</div>
+  <h1 class={title} style='margin-bottom: 48px;'>Articles</h1>
+
+  <section class={section}>
+    <header class={sectionHead}>
+      <h2 class={sectionTitle}>{`전체 · ${published.length}개`}</h2>
+    </header>
+    <div class={listGrid}>
+      {
+        published.map((entry) => (
+          <PostCard
+            id={entry.id}
+            title={entry.data.title}
+            date={entry.data.date}
+            tag={entry.data.tag}
+            tags={entry.data.tags}
+            cover={entry.data.cover}
+            body={entry.body ?? ''}
+          />
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
