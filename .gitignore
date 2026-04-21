@@ -35,6 +35,9 @@ apps/blog/dist
 apps/blog/.astro
 apps/blog/public/contents
 
+# Playwright MCP 테스트 산출물
+.playwright-mcp
+
 
 .npmrc
 
