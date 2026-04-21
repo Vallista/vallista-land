@@ -1,5 +1,10 @@
-import { globalStyle } from '@vanilla-extract/css'
+import { globalStyle, keyframes } from '@vanilla-extract/css'
 import { vars, lightTheme, darkTheme } from '@vallista/ui'
+
+const pageFadeIn = keyframes({
+  from: { opacity: 0, transform: 'translateY(4px)' },
+  to: { opacity: 1, transform: 'translateY(0)' }
+})
 
 // 인라인 스타일에서 쓸 수 있도록 사람이 읽는 이름으로 CSS 변수 alias 노출.
 globalStyle(':root', {
@@ -85,4 +90,12 @@ globalStyle('.eyebrow', {
   letterSpacing: '0.14em',
   color: vars.color.ink4,
   marginBottom: '8px'
+})
+
+// 페이지 로드마다 main 영역만 가볍게 fade-in. 사이드바는 그대로.
+globalStyle('.page-fade', {
+  animationName: pageFadeIn,
+  animationDuration: vars.duration.base,
+  animationTimingFunction: vars.easing.out,
+  animationFillMode: 'both'
 })

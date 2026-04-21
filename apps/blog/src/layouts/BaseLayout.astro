@@ -1,5 +1,4 @@
 ---
-import { ClientRouter, fade } from 'astro:transitions'
 import { lightTheme, darkTheme } from '@vallista/ui'
 import NavRail from '@vallista/ui/components/NavRail.astro'
 import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
@@ -89,16 +88,14 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
     <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
     <link rel='stylesheet'
       href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap' />
-
-    <ClientRouter />
   </head>
   <body>
     <a href='#main' class='skip-link'>본문으로 바로 가기</a>
     <div class='layout'>
-      <NavRail path={path} counts={counts} transition:persist>
+      <NavRail path={path} counts={counts}>
         <DarkModeToggle slot='theme-toggle' />
       </NavRail>
-      <main id='main' class='layout__main' transition:animate={fade({ duration: '180ms' })}>
+      <main id='main' class='layout__main page-fade'>
         <slot />
       </main>
     </div>
