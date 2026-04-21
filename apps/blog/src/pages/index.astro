@@ -1,9 +1,29 @@
 ---
+import { getCollection } from 'astro:content'
+
 import BaseLayout from '@layouts/BaseLayout.astro'
+
+const articles = await getCollection('articles', (a) => !a.data.draft)
+articles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+const counts = { articles: articles.length, notes: 0, projects: 0 }
 ---
 
-<BaseLayout title='Vallista Blog'>
+<BaseLayout title='Vallista Blog' counts={counts}>
   <div class='eyebrow'>@vallista · 글</div>
-  <h1 style='font-size: 32px; margin-bottom: 16px;'>최근에 쓴 글</h1>
-  <p>Astro 앱 스캐폴드가 정상 동작합니다. 다음 PR에서 실제 콘텐츠가 연결됩니다.</p>
+  <h1 style='font-size: 32px; margin-bottom: 24px;'>최근에 쓴 글</h1>
+  <ul style='list-style: none; padding: 0; display: grid; gap: 12px;'>
+    {
+      articles.slice(0, 10).map((a) => (
+        <li>
+          <a href={`/articles/${a.id}`} style='color: inherit; text-decoration: none;'>
+            <span style='font-family: monospace; font-size: 11px; color: #9aa1b4; margin-right: 12px;'>
+              {a.data.date.toISOString().slice(0, 10)}
+            </span>
+            {a.data.title}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p style='margin-top: 24px; color: #9aa1b4;'>총 {articles.length}개 글</p>
 </BaseLayout>
