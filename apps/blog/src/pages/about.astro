@@ -2,10 +2,22 @@
 import { getCollection } from 'astro:content'
 
 import BaseLayout from '@layouts/BaseLayout.astro'
+import SocialLinks from '@components/SocialLinks.astro'
+import profile from '@configs/profile.json'
+import resume from '@configs/resume.json'
 import { wrap, hello, headline, highlight, body, bodyStrong } from '../styles/about.css'
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
 const counts = { articles: articles.length, notes: 0, projects: 0 }
+
+const socialLinks = [
+  { kind: 'github' as const, href: resume.config.github, label: 'GitHub' },
+  ...(profile.secondary
+    ? [{ kind: 'tistory' as const, href: profile.secondary, label: '이전 블로그' }]
+    : []),
+  { kind: 'email' as const, href: `mailto:${resume.config.email}`, label: resume.config.email },
+  { kind: 'rss' as const, href: '/rss.xml', label: 'RSS' }
+]
 ---
 
 <BaseLayout title='About · Vallista Blog' counts={counts}>
@@ -13,7 +25,7 @@ const counts = { articles: articles.length, notes: 0, projects: 0 }
     <div class='eyebrow'>@vallista · about</div>
     <span class={hello}>안녕하세요.</span>
     <h1 class={headline}>
-      저는 <span class={highlight}>마광휘</span>입니다.
+      저는 <span class={highlight}>{resume.config.name}</span>입니다.
     </h1>
 
     <p class={body}>
@@ -30,8 +42,9 @@ const counts = { articles: articles.length, notes: 0, projects: 0 }
       마지막으로 프로젝트는 지금까지 회사에서 진행했던 프로젝트를 이야기합니다.
     </p>
     <p class={body} style='margin-top: 20px;'>
-      아래의 링크를 통해 사이트맵을 돌아보실 수 있고, 관련 사이트를 확인하실 수 있고, 왼쪽의 메뉴를 통해
-      다른 카테고리를 탐색하거나 GitHub, 페이스북을 가실 수 있고 다른 글을 보실 수 있어요.
+      자세한 경력은 <a href='/resume' style='color: var(--accent); border-bottom: 1px solid currentColor;'>이력서</a>에서 볼 수 있습니다.
     </p>
+
+    <SocialLinks links={socialLinks} />
   </div>
 </BaseLayout>

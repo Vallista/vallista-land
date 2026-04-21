@@ -3,6 +3,8 @@ import {
   rail,
   brand,
   brandMark,
+  brandMarkImg,
+  brandMarkInitial,
   brandText,
   brandName as brandNameStyle,
   brandRole as brandRoleStyle,
@@ -25,6 +27,7 @@ interface Props {
   brandName?: string
   brandRole?: string
   brandHref?: string
+  brandAvatar?: string
 }
 
 const {
@@ -32,8 +35,11 @@ const {
   counts = {},
   brandName = 'Vallista',
   brandRole = 'software engineer',
-  brandHref = '/'
+  brandHref = '/',
+  brandAvatar
 } = Astro.props
+
+const initial = brandName.charAt(0).toUpperCase()
 
 function current(prefix: string): 'page' | undefined {
   if (prefix === '/') return path === '/' ? 'page' : undefined
@@ -43,7 +49,21 @@ function current(prefix: string): 'page' | undefined {
 
 <aside class={rail}>
   <a href={brandHref} class={brand}>
-    <span class={brandMark} aria-hidden='true'></span>
+    <span class={brandMark}>
+      <span class={brandMarkInitial} aria-hidden='true'>{initial}</span>
+      {
+        brandAvatar && (
+          <img
+            src={brandAvatar}
+            alt=''
+            class={brandMarkImg}
+            onerror="this.style.display='none'"
+            loading='eager'
+            decoding='async'
+          />
+        )
+      }
+    </span>
     <span class={brandText}>
       <span class={brandNameStyle}>{brandName}</span>
       <span class={brandRoleStyle}>{brandRole}</span>
@@ -68,6 +88,7 @@ function current(prefix: string): 'page' | undefined {
     </a>
     <a href='/tags' class={navLink} aria-current={current('/tags')}>Tags</a>
     <a href='/about' class={navLink} aria-current={current('/about')}>About</a>
+    <a href='/resume' class={navLink} aria-current={current('/resume')}>Resume</a>
   </nav>
 
   <footer class={railFooter}>

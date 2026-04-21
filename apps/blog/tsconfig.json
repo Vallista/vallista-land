@@ -7,7 +7,8 @@
       "@/*": ["src/*"],
       "@layouts/*": ["src/layouts/*"],
       "@components/*": ["src/components/*"],
-      "@lib/*": ["src/lib/*"]
+      "@lib/*": ["src/lib/*"],
+      "@configs/*": ["configs/*"]
     }
   },
   "include": ["src/**/*", "astro.config.mjs", ".astro/types.d.ts"],

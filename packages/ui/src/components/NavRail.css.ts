@@ -31,20 +31,36 @@ export const brand = style({
 
 export const brandMark = style({
   position: 'relative',
-  width: '22px',
-  height: '22px',
-  backgroundColor: vars.color.ink,
-  borderRadius: vars.radius['1'],
+  width: '36px',
+  height: '36px',
+  borderRadius: '50%',
+  overflow: 'hidden',
   flexShrink: 0,
-  '::after': {
-    content: '""',
-    position: 'absolute',
-    inset: '5px',
-    width: '12px',
-    height: '12px',
-    backgroundColor: vars.color.accent,
-    borderRadius: '1px'
-  }
+  backgroundColor: vars.color.bgSoft,
+  border: `1px solid ${vars.color.line2}`,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+})
+
+export const brandMarkImg = style({
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+  display: 'block'
+})
+
+export const brandMarkInitial = style({
+  position: 'absolute',
+  inset: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontFamily: vars.font.sans,
+  fontSize: '14px',
+  fontWeight: 700,
+  color: vars.color.ink2,
+  backgroundColor: vars.color.bgSoft
 })
 
 export const brandText = style({
