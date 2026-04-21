@@ -1,5 +1,12 @@
-import { globalStyle } from '@vanilla-extract/css'
+import { globalStyle, keyframes } from '@vanilla-extract/css'
 import { vars, lightTheme, darkTheme } from '@vallista/ui'
+
+// 페이지 로드 시 main이 부드럽게 fade-in. 미지원 브라우저에서도 자연스러운 진입.
+// MPA View Transitions(Chrome 126+, Safari 18+)는 추가로 native crossfade를 적용.
+const pageFadeIn = keyframes({
+  from: { opacity: 0, transform: 'translateY(4px)' },
+  to: { opacity: 1, transform: 'translateY(0)' }
+})
 
 // 인라인 스타일에서 쓸 수 있도록 사람이 읽는 이름으로 CSS 변수 alias 노출.
 globalStyle(':root', {
@@ -85,5 +92,12 @@ globalStyle('.eyebrow', {
   letterSpacing: '0.14em',
   color: vars.color.ink4,
   marginBottom: '8px'
+})
+
+globalStyle('.page-fade', {
+  animationName: pageFadeIn,
+  animationDuration: vars.duration.base,
+  animationTimingFunction: vars.easing.out,
+  animationFillMode: 'both'
 })
 

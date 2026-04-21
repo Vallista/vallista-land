@@ -1,5 +1,4 @@
 ---
-import { ClientRouter, fade } from 'astro:transitions'
 import { lightTheme, darkTheme } from '@vallista/ui'
 import NavRail from '@vallista/ui/components/NavRail.astro'
 import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
@@ -29,6 +28,9 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <!-- MPA View Transitions: 같은 origin 간 navigation에 브라우저가 자동 crossfade 적용
+         (Chrome 126+, Safari 18+). 미지원 브라우저는 아래 body fade-in 애니메이션으로 fallback -->
+    <meta name='view-transition' content='same-origin' />
     <link rel='icon' type='image/svg+xml' href='/favicon/favicon.svg' />
     <link rel='alternate icon' href='/favicon/favicon.ico' />
     <link rel='apple-touch-icon' sizes='180x180' href='/favicon/apple-touch-icon.png' />
@@ -96,20 +98,18 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
     <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
     <link rel='stylesheet'
       href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap' />
-
-    <ClientRouter />
   </head>
   <body>
     <a href='#main' class='skip-link'>본문으로 바로 가기</a>
     <div class='layout'>
-      <NavRail path={path} counts={counts} brandAvatar='/profile.jpg' transition:persist>
+      <NavRail path={path} counts={counts} brandAvatar='/profile.jpg'>
         <DarkModeToggle slot='theme-toggle' />
       </NavRail>
-      <main id='main' class='layout__main' transition:animate={fade({ duration: '160ms' })}>
+      <main id='main' class='layout__main page-fade'>
         <slot />
       </main>
     </div>
-    <!-- main 바깥 body 직계. transition 컨텍스트에 묶이지 않아서 position:fixed 가 viewport 기준으로 동작 -->
+    <!-- main 바깥 body 직계. transform 컨텍스트에 묶이지 않아서 position:fixed 가 viewport 기준으로 동작 -->
     <slot name='overlay' />
     <SearchPalette />
   </body>
