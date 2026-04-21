@@ -31,26 +31,50 @@ const visible = headings.length >= 2
 </nav>
 
 <script>
-  const links = document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')
-  if (links.length > 0) {
-    const byId = new Map<string, HTMLAnchorElement>()
-    links.forEach((a) => {
-      const hash = a.hash.slice(1)
-      if (hash) byId.set(hash, a)
-    })
+  const OFFSET = 120
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        const top = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
-        if (!top) return
-        links.forEach((l) => l.classList.remove('active'))
-        byId.get(top.target.id)?.classList.add('active')
-      },
-      { rootMargin: '-80px 0px -60% 0px', threshold: [0, 0.5, 1] }
+  function setup(): void {
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'))
+    const headings = Array.from(
+      document.querySelectorAll<HTMLElement>('article h2[id], article h3[id]')
     )
+    if (links.length === 0 || headings.length === 0) return
 
-    document.querySelectorAll<HTMLElement>('article h2[id], article h3[id]').forEach((h) => io.observe(h))
+    const byId = new Map<string, HTMLAnchorElement>()
+    for (const a of links) {
+      const id = decodeURIComponent(a.hash.slice(1))
+      if (id) byId.set(id, a)
+    }
+
+    function update(): void {
+      const scrolled = window.scrollY + OFFSET
+      let activeId: string | null = headings[0]?.id ?? null
+      for (const h of headings) {
+        if (h.offsetTop <= scrolled) {
+          activeId = h.id
+        } else {
+          break
+        }
+      }
+      links.forEach((l) => l.classList.remove('active'))
+      if (activeId) byId.get(activeId)?.classList.add('active')
+    }
+
+    let ticking = false
+    const onScroll = (): void => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        update()
+        ticking = false
+      })
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll, { passive: true })
+    update()
   }
+
+  setup()
+  document.addEventListener('astro:page-load', setup)
 </script>

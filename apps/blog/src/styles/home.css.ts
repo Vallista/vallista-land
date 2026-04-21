@@ -96,11 +96,16 @@ export const featuredDek = style({
 
 export const listGrid = style({
   display: 'grid',
-  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-  gap: '24px',
+  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+  gap: '20px',
   '@media': {
+    '(max-width: 1200px)': {
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+      gap: '24px'
+    },
     '(max-width: 720px)': {
-      gridTemplateColumns: '1fr'
+      gridTemplateColumns: '1fr',
+      gap: '20px'
     }
   }
 })

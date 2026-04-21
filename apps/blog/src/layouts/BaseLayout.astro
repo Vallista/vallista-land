@@ -1,5 +1,6 @@
 ---
-import { lightTheme } from '@vallista/ui'
+import { ClientRouter } from 'astro:transitions'
+import { lightTheme, darkTheme } from '@vallista/ui'
 import NavRail from '@vallista/ui/components/NavRail.astro'
 import DarkModeToggle from '@vallista/ui/components/DarkModeToggle.astro'
 
@@ -24,7 +25,7 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
 ---
 
 <!doctype html>
-<html lang='ko-KR' class={lightTheme}>
+<html lang='ko-KR'>
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1' />
@@ -34,6 +35,23 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
     <meta property='og:description' content={siteDescription} />
     <meta property='og:type' content='website' />
     <meta property='og:url' content={Astro.url.href} />
+
+    <!-- FOUC 방지: body 렌더 전 theme class 주입 (lightTheme/darkTheme
+         vanilla-extract 해시를 define:vars로 전달) -->
+    <script is:inline define:vars={{ lightClass: lightTheme, darkClass: darkTheme }}>
+      ;(function () {
+        var KEY = 'theme'
+        var v = localStorage.getItem(KEY)
+        var mode = v === 'light' || v === 'dark' || v === 'system' ? v : 'system'
+        var prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
+        var dark = mode === 'dark' || (mode === 'system' && prefersDark)
+        var root = document.documentElement
+        root.classList.add(dark ? darkClass : lightClass)
+        root.classList.remove(dark ? lightClass : darkClass)
+        root.classList.toggle('theme-dark', dark)
+        root.classList.toggle('theme-light', !dark)
+      })()
+    </script>
 
     <!-- Pretendard Variable -->
     <link rel='stylesheet' as='style' crossorigin
@@ -45,24 +63,13 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
     <link rel='stylesheet'
       href='https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap' />
 
-    <!-- 다크모드 FOUC 방지: 페이지 렌더 전에 theme 복원 -->
-    <script is:inline>
-      ;(function () {
-        const KEY = 'theme'
-        const v = localStorage.getItem(KEY)
-        const mode = v === 'light' || v === 'dark' || v === 'system' ? v : 'system'
-        const dark = mode === 'dark' || (mode === 'system' && matchMedia('(prefers-color-scheme: dark)').matches)
-        const root = document.documentElement
-        root.classList.toggle('theme-dark', dark)
-        root.classList.toggle('theme-light', !dark)
-      })()
-    </script>
+    <ClientRouter />
   </head>
   <body>
     <a href='#main' class='skip-link'>본문으로 바로 가기</a>
     <div class='layout'>
       <NavRail path={path} counts={counts}>
-        <DarkModeToggle slot='theme-toggle' />
+        <DarkModeToggle slot='theme-toggle' lightClass={lightTheme} darkClass={darkTheme} />
       </NavRail>
       <main id='main' class='layout__main'>
         <slot />
