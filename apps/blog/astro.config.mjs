@@ -15,6 +15,11 @@ export default defineConfig({
     rehypePlugins: [rehypeSlug, [rehypeAutolinkHeadings, { behavior: 'append' }]]
   },
   vite: {
-    plugins: [vanillaExtractPlugin()]
+    plugins: [vanillaExtractPlugin()],
+    build: {
+      rollupOptions: {
+        external: ['/pagefind/pagefind.js']
+      }
+    }
   }
 })

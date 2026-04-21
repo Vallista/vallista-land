@@ -1,0 +1,229 @@
+---
+import {
+  scrim,
+  palette,
+  searchRow,
+  searchIcon,
+  searchInput,
+  esc,
+  results,
+  groupLabel,
+  option,
+  empty
+} from './SearchPalette.css'
+---
+
+<div data-palette-root hidden>
+  <div class={scrim} data-palette-scrim></div>
+  <div
+    class={palette}
+    role='dialog'
+    aria-modal='true'
+    aria-labelledby='palette-label'
+    data-palette
+  >
+    <div class={searchRow}>
+      <span class={searchIcon} aria-hidden='true'>
+        <svg width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.4'>
+          <circle cx='7' cy='7' r='5' />
+          <path d='m11 11 3 3' stroke-linecap='round' />
+        </svg>
+      </span>
+      <label id='palette-label' class={searchInput} style='display:none;'>글 검색</label>
+      <input
+        type='search'
+        class={searchInput}
+        placeholder='글 검색…'
+        aria-controls='palette-results'
+        aria-autocomplete='list'
+        aria-labelledby='palette-label'
+        data-palette-input
+      />
+      <kbd class={esc}>Esc</kbd>
+    </div>
+    <div id='palette-results' class={results} role='listbox' aria-label='검색 결과' data-palette-list>
+      <div class={empty} data-palette-empty>Pagefind를 불러오는 중…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  type PfResult = {
+    id: string
+    data(): Promise<{
+      url: string
+      meta: { title?: string }
+      excerpt: string
+      filters?: { type?: string[] }
+    }>
+  }
+  type Pagefind = { search(q: string): Promise<{ results: PfResult[] }> }
+
+  const root = document.querySelector<HTMLElement>('[data-palette-root]')
+  const scrimEl = document.querySelector<HTMLElement>('[data-palette-scrim]')
+  const input = document.querySelector<HTMLInputElement>('[data-palette-input]')
+  const list = document.querySelector<HTMLElement>('[data-palette-list]')
+
+  if (!root || !scrimEl || !input || !list) {
+    /* no-op: palette가 렌더되지 않은 페이지 */
+  } else {
+    let pf: Pagefind | null = null
+    let pfLoading: Promise<void> | null = null
+    let lastTrigger: HTMLElement | null = null
+    let options: HTMLElement[] = []
+    let active = 0
+
+    const empty = '<div class="' + (list.firstElementChild?.className ?? '') + '" data-palette-empty></div>'
+
+    function setEmpty(msg: string): void {
+      list.innerHTML = empty
+      const el = list.querySelector<HTMLElement>('[data-palette-empty]')
+      if (el) el.textContent = msg
+      options = []
+      active = 0
+      input!.removeAttribute('aria-activedescendant')
+    }
+
+    async function loadPagefind(): Promise<void> {
+      if (pf || pfLoading) return pfLoading ?? Promise.resolve()
+      pfLoading = (async () => {
+        try {
+          const mod = (await import(/* @vite-ignore */ '/pagefind/pagefind.js')) as Pagefind
+          pf = mod
+        } catch {
+          setEmpty('검색 인덱스를 불러오지 못했습니다.')
+        }
+      })()
+      return pfLoading
+    }
+
+    function open(): void {
+      if (!root!.hidden) return
+      lastTrigger = document.activeElement as HTMLElement | null
+      root!.hidden = false
+      setEmpty('검색어를 입력해 주세요.')
+      loadPagefind().then(() => {
+        if (!input!.value.trim()) setEmpty('검색어를 입력해 주세요.')
+      })
+      requestAnimationFrame(() => input!.focus())
+    }
+
+    function close(): void {
+      if (root!.hidden) return
+      root!.hidden = true
+      input!.value = ''
+      setEmpty('')
+      lastTrigger?.focus()
+    }
+
+    function updateActive(i: number): void {
+      if (options.length === 0) return
+      active = ((i % options.length) + options.length) % options.length
+      options.forEach((el, idx) => {
+        el.setAttribute('aria-selected', idx === active ? 'true' : 'false')
+      })
+      const el = options[active]
+      if (el) {
+        input!.setAttribute('aria-activedescendant', el.id)
+        el.scrollIntoView({ block: 'nearest' })
+      }
+    }
+
+    async function runSearch(query: string): Promise<void> {
+      if (!pf) {
+        setEmpty('Pagefind 로드 대기 중…')
+        return
+      }
+      if (!query.trim()) {
+        setEmpty('검색어를 입력해 주세요.')
+        return
+      }
+      const out = await pf.search(query)
+      if (out.results.length === 0) {
+        setEmpty('결과가 없습니다.')
+        return
+      }
+
+      const hydrated = await Promise.all(out.results.slice(0, 15).map((r) => r.data()))
+      const byGroup = new Map<string, Array<(typeof hydrated)[number]>>()
+      for (const r of hydrated) {
+        const group = r.url.startsWith('/articles/')
+          ? 'Articles'
+          : r.url.startsWith('/notes')
+            ? 'Notes'
+            : r.url.startsWith('/tags')
+              ? 'Tags'
+              : 'Other'
+        const bucket = byGroup.get(group) ?? []
+        bucket.push(r)
+        byGroup.set(group, bucket)
+      }
+
+      list.innerHTML = ''
+      options = []
+      let idx = 0
+      const optionClass = (await import('./SearchPalette.css')).option
+      const groupLabelClass = (await import('./SearchPalette.css')).groupLabel
+
+      for (const [group, items] of byGroup) {
+        const label = document.createElement('div')
+        label.className = groupLabelClass
+        label.textContent = group
+        list.appendChild(label)
+
+        for (const item of items) {
+          const a = document.createElement('a')
+          a.className = optionClass
+          a.role = 'option'
+          a.id = `palette-opt-${idx}`
+          a.href = item.url
+          a.innerHTML = `<div>${item.meta.title ?? item.url}</div><div style="font-size:12px;color:var(--ink4);margin-top:2px;">${item.excerpt}</div>`
+          list.appendChild(a)
+          options.push(a)
+          idx += 1
+        }
+      }
+
+      if (options.length > 0) updateActive(0)
+    }
+
+    let searchTimer: number | null = null
+    input.addEventListener('input', () => {
+      if (searchTimer !== null) clearTimeout(searchTimer)
+      searchTimer = window.setTimeout(() => runSearch(input.value), 80)
+    })
+
+    input.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        updateActive(active + 1)
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        updateActive(active - 1)
+      } else if (e.key === 'Enter') {
+        const opt = options[active]
+        if (opt instanceof HTMLAnchorElement) {
+          e.preventDefault()
+          window.location.href = opt.href
+        }
+      }
+    })
+
+    scrimEl.addEventListener('click', close)
+
+    document.addEventListener('keydown', (e) => {
+      const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'
+      const isSlash = e.key === '/' && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
+      if (isCmdK) {
+        e.preventDefault()
+        root!.hidden ? open() : close()
+      } else if (isSlash && root!.hidden) {
+        e.preventDefault()
+        open()
+      } else if (e.key === 'Escape' && !root!.hidden) {
+        e.preventDefault()
+        close()
+      }
+    })
+  }
+</script>
