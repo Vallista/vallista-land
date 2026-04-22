@@ -252,7 +252,8 @@ export const metrics = style({
 })
 
 export const metric = style({
-  padding: '24px 16px 24px 0',
+  padding: '24px 16px',
+  textAlign: 'center',
   borderRight: `1px solid ${vars.color.line2}`,
   selectors: {
     '&:last-child': { borderRight: 'none' }
