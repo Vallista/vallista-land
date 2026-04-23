@@ -24,9 +24,8 @@ const tocHeadings = headings
   .map((h) => ({ depth: h.depth as 2 | 3, slug: h.slug, text: h.text }))
 
 const published = await getCollection('articles', (a) => !a.data.draft)
-const counts = { articles: published.length, notes: 0, projects: 0 }
 ---
 
-<ArticleLayout entry={entry} headings={tocHeadings} counts={counts}>
+<ArticleLayout entry={entry} headings={tocHeadings}>
   <Content />
 </ArticleLayout>

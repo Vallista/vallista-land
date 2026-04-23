@@ -38,10 +38,9 @@ const matching = entries
   .filter((a) => a.data.tags.includes(tag))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 const related = relatedTags(entries, tag)
-const counts = { articles: entries.length, notes: 0, projects: 0 }
 ---
 
-<BaseLayout title={`#${tag} · Vallista Blog`} counts={counts}>
+<BaseLayout title={`#${tag} · Vallista Blog`}>
   <div class={breadcrumb}>@vallista / tags / {tag}</div>
   <h1 class={tagTitle}>#{tag}</h1>
   <div class={tagCount}>{matching.length} articles</div>

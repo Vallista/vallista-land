@@ -11,8 +11,6 @@ const notes = await getCollection('notes', (n) => !n.data.draft)
 notes.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
-const counts = { articles: articles.length, notes: notes.length, projects: 0 }
-
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 
 type Item = {
@@ -90,7 +88,7 @@ function buildItem(entry: CollectionEntry<'notes'>): Item {
 const items: Item[] = notes.map(buildItem)
 ---
 
-<BaseLayout title='Notes · Vallista Blog' counts={counts}>
+<BaseLayout title='Notes · Vallista Blog'>
   <PageHeader eyebrow='@vallista · notes' title='짧은 글' searchPlaceholder='노트 검색…' />
 
   {

@@ -14,10 +14,9 @@ import { header, chipRow, h1 as h1Style, dek as dekStyle, byline } from '../styl
 interface Props {
   entry: CollectionEntry<'articles'>
   headings: TocHeading[]
-  counts: { articles?: number; notes?: number; projects?: number }
 }
 
-const { entry, headings, counts } = Astro.props
+const { entry, headings } = Astro.props
 const { data, body } = entry
 const { minutes, words } = estimateReadingTime(body ?? '')
 const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
@@ -34,7 +33,6 @@ const ogImage = normalizeArticleImage(data.image, entry.id)
   ogType='article'
   heroImage={ogImage}
   heroAlt={data.title}
-  counts={counts}
   showProgress
   headings={headings}
 >

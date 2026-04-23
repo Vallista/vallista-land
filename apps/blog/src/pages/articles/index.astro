@@ -8,10 +8,9 @@ import { section, sectionHead, sectionTitle, listGrid } from '../../styles/home.
 
 const published = await getCollection('articles', (a) => !a.data.draft)
 published.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-const counts = { articles: published.length, notes: 0, projects: 0 }
 ---
 
-<BaseLayout title='Articles · Vallista Blog' counts={counts}>
+<BaseLayout title='Articles · Vallista Blog'>
   <PageHeader eyebrow='@vallista · articles' title='긴 글' />
 
   <section class={section}>

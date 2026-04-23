@@ -33,13 +33,11 @@ interface Props {
 
 const { seriesName, entries } = Astro.props
 const posts = postsInSeries(entries, seriesName)
-const counts = { articles: entries.length, notes: 0, projects: 0 }
-
 // 이 series 안의 entry 목록에서 body 참조할 수 있게 맵 만들기
 const entryById = new Map(entries.map((e) => [e.id, e]))
 ---
 
-<BaseLayout title={`${seriesName} · Series · Vallista`} counts={counts}>
+<BaseLayout title={`${seriesName} · Series · Vallista`}>
   <div class={breadcrumb}>@vallista / series / {seriesName}</div>
   <h1 class={tagTitle}>{seriesName}</h1>
   <p style='font-family: monospace; font-size: 13px; color: var(--ink4); margin: 0 0 40px;'>

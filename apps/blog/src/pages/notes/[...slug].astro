@@ -24,8 +24,6 @@ const { Content } = await render(entry)
 const allNotes = await getCollection('notes', (n) => !n.data.draft)
 allNotes.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 const articles = await getCollection('articles', (a) => !a.data.draft)
-const counts = { articles: articles.length, notes: allNotes.length, projects: 0 }
-
 const idx = allNotes.findIndex((n) => n.id === entry.id)
 const prev = idx > 0 ? allNotes[idx - 1] : null
 const next = idx < allNotes.length - 1 ? allNotes[idx + 1] : null
@@ -40,7 +38,6 @@ const heroImage = normalizeArticleImage(data.image, entry.id, 'notes')
   pageTitle={`${title} · Vallista Notes`}
   heroImage={heroImage}
   heroAlt={title}
-  counts={counts}
 >
   <header slot='header' class='note-head'>
     <div class='note-head__eyebrow'>@vallista · notes</div>

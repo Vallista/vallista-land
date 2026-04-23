@@ -10,8 +10,17 @@ import MobileMenu from '@vallista/ui/components/MobileMenu.astro'
 import SearchPalette from '@components/SearchPalette.astro'
 import { collectSeries } from '@lib/series'
 
-const allArticles = await getCollection('articles', (a) => !a.data.draft)
+const [allArticles, allNotes, allProjects] = await Promise.all([
+  getCollection('articles', (a) => !a.data.draft),
+  getCollection('notes', (n) => !n.data.draft),
+  getCollection('projects').catch(() => [])
+])
 const seriesList = collectSeries(allArticles)
+const siteCounts = {
+  articles: allArticles.length,
+  notes: allNotes.length,
+  projects: allProjects.length
+}
 
 const footerGroups = [
   {
@@ -44,14 +53,10 @@ interface Props {
   description?: string
   image?: string | null
   ogType?: 'website' | 'article'
-  counts?: {
-    articles?: number
-    notes?: number
-    projects?: number
-  }
 }
 
-const { title, description, image, ogType = 'website', counts } = Astro.props
+const { title, description, image, ogType = 'website' } = Astro.props
+const counts = siteCounts
 const path = new URL(Astro.request.url).pathname
 const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론트엔드·디자인 시스템·도구에 대한 글'
 const ogImage = image ? new URL(image, Astro.url).toString() : new URL('/favicon/favicon-512x512.png', Astro.url).toString()

@@ -9,10 +9,9 @@ import { tagsGrid } from '../../styles/tag.css'
 
 const published = await getCollection('articles', (a) => !a.data.draft)
 const stats = countTags(published)
-const counts = { articles: published.length, notes: 0, projects: 0 }
 ---
 
-<BaseLayout title='Tags · Vallista Blog' counts={counts}>
+<BaseLayout title='Tags · Vallista Blog'>
   <PageHeader eyebrow='@vallista · tags' title='태그 모음' searchPlaceholder='태그 검색…' />
 
   <p style='color: var(--ink2); margin: 0 0 32px;'>총 {stats.length}개 태그 · {published.length}개 글</p>

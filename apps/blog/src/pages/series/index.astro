@@ -9,15 +9,13 @@ import { section, sectionHead, sectionTitle } from '../../styles/home.css'
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
 const seriesList = collectSeries(articles)
-const counts = { articles: articles.length, notes: 0, projects: 0 }
-
 const seriesWithPreview = seriesList.map((s) => ({
   ...s,
   preview: postsInSeries(articles, s.name).slice(0, 3)
 }))
 ---
 
-<BaseLayout title='Series · Vallista Blog' counts={counts}>
+<BaseLayout title='Series · Vallista Blog'>
   <div class='eyebrow'>@vallista · series</div>
   <h1 class={title} style='margin-bottom: 16px;'>시리즈</h1>
   <p style='color: var(--ink2); margin: 0 0 40px;'>

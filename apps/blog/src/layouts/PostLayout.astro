@@ -11,7 +11,6 @@ interface Props {
   ogType?: 'website' | 'article'
   heroImage?: string | null
   heroAlt?: string
-  counts: { articles?: number; notes?: number; projects?: number }
   showProgress?: boolean
   headings?: TocHeading[]
 }
@@ -23,7 +22,6 @@ const {
   ogType = 'article',
   heroImage,
   heroAlt = '',
-  counts,
   showProgress = false,
   headings
 } = Astro.props
@@ -34,7 +32,6 @@ const {
   description={description}
   image={image}
   ogType={ogType}
-  counts={counts}
 >
   {showProgress && <div class={progress} data-progress></div>}
 

@@ -6,9 +6,8 @@ import AboutResume from '@components/AboutResume.astro'
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
 articles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-const counts = { articles: articles.length, notes: 0, projects: 0 }
 ---
 
-<BaseLayout title='Resume · Vallista Blog' counts={counts}>
+<BaseLayout title='Resume · Vallista Blog'>
   <AboutResume initialTab='resume' recentArticles={articles} />
 </BaseLayout>

@@ -5,10 +5,9 @@ import BaseLayout from '@layouts/BaseLayout.astro'
 const articles = await getCollection('articles', (a) => !a.data.draft)
 articles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 const recent = articles.slice(0, 30)
-const counts = { articles: articles.length, notes: 0, projects: 0 }
 ---
 
-<BaseLayout title='Feed · Vallista Blog' counts={counts}>
+<BaseLayout title='Feed · Vallista Blog'>
   <div class='eyebrow'>@vallista · feed</div>
   <h1 style='font-size: 32px; margin: 0 0 8px;'>RSS 구독</h1>
   <p style='color: var(--ink2); margin: 0 0 32px;'>

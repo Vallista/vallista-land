@@ -18,14 +18,12 @@ import { listGrid, section } from '../styles/home.css'
 const projects = await getCollection('projects')
 
 const articles = await getCollection('articles', (a) => !a.data.draft)
-const counts = { articles: articles.length, notes: 0, projects: projects.length }
-
 function tone(status: 'active' | 'maintenance' | 'archived') {
   return status === 'active' ? 'green' : status === 'archived' ? 'amber' : 'neutral'
 }
 ---
 
-<BaseLayout title='Projects · Vallista Blog' counts={counts}>
+<BaseLayout title='Projects · Vallista Blog'>
   <PageHeader eyebrow='@vallista · projects' title='프로젝트' searchPlaceholder='프로젝트 검색…' />
 
   {

@@ -31,8 +31,6 @@ published.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 const featuredEntry = published.find((a) => a.data.featured) ?? published[0]
 const restEntries = featuredEntry ? published.filter((a) => a.id !== featuredEntry.id).slice(0, 4) : []
 
-const counts = { articles: published.length, notes: 0, projects: 0 }
-
 const featuredMinutes = featuredEntry ? estimateReadingTime(featuredEntry.body ?? '').minutes : 0
 const featuredImage = featuredEntry
   ? normalizeArticleImage(featuredEntry.data.image, featuredEntry.id)
@@ -40,7 +38,7 @@ const featuredImage = featuredEntry
 const featuredDek = featuredEntry ? resolveDek(featuredEntry.data, featuredEntry.body, 180) : ''
 ---
 
-<BaseLayout title='Vallista Blog · 최근에 쓴 글' counts={counts}>
+<BaseLayout title='Vallista Blog · 최근에 쓴 글'>
   <header class={header}>
     <div>
       <div class='eyebrow'>@vallista · 글</div>
