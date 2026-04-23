@@ -47,6 +47,8 @@ class ImageLineWidget extends WidgetType {
     wrap.setAttribute('role', 'button')
     wrap.setAttribute('tabindex', '-1')
     wrap.title = '클릭해서 이미지 마크다운 편집'
+    wrap.draggable = false
+    wrap.addEventListener('dragstart', (e) => e.preventDefault())
     const img = document.createElement('img')
     img.className = 'cm-img-widget__img'
     img.src = resolveSrc(this.src, this.ctx)
@@ -54,6 +56,7 @@ class ImageLineWidget extends WidgetType {
     if (this.title) img.title = this.title
     img.loading = 'lazy'
     img.decoding = 'async'
+    img.draggable = false
     img.onerror = () => {
       wrap.classList.add('cm-img-widget--error')
     }

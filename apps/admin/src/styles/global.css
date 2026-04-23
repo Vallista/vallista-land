@@ -2192,6 +2192,8 @@ code {
   background: var(--bg-soft);
   cursor: pointer;
   transition: border-color 120ms ease;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 .cm-img-widget:hover { border-color: var(--ink-soft); }
 .cm-img-widget__img {
@@ -2199,6 +2201,8 @@ code {
   max-width: 100%;
   height: auto;
   margin: 0 auto;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 .cm-img-widget__caption {
   padding: 6px 10px;
