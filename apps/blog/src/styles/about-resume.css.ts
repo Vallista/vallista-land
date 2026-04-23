@@ -216,7 +216,7 @@ export const flowLine = style({
   width: 'fit-content',
   maxWidth: '100%',
   '@media': {
-    '(max-width: 720px)': {
+    '(max-width: 900px)': {
       flexDirection: 'column',
       alignItems: 'flex-start',
       gap: '8px',
@@ -230,7 +230,7 @@ export const flowLine = style({
 export const flowSep = style({
   color: vars.color.ink4,
   '@media': {
-    '(max-width: 720px)': {
+    '(max-width: 900px)': {
       display: 'inline-block',
       transform: 'rotate(90deg)',
       lineHeight: 1
@@ -434,6 +434,11 @@ export const tItem = style({
     '(max-width: 720px)': {
       gridTemplateColumns: '60px 12px minmax(0, 1fr)',
       gap: '12px'
+    },
+    '(max-width: 480px)': {
+      gridTemplateColumns: 'minmax(0, 1fr)',
+      gap: '10px',
+      padding: '20px 0'
     }
   }
 })
@@ -443,7 +448,12 @@ export const tDate = style({
   fontSize: '11px',
   color: vars.color.ink4,
   paddingTop: '4px',
-  lineHeight: 1.4
+  lineHeight: 1.4,
+  '@media': {
+    '(max-width: 480px)': {
+      paddingTop: 0
+    }
+  }
 })
 
 export const tDateYear = style({
@@ -462,7 +472,12 @@ export const tDot = style({
   backgroundColor: vars.color.bg,
   border: `1.5px solid ${vars.color.ink4}`,
   margin: '8px auto 0',
-  position: 'relative'
+  position: 'relative',
+  '@media': {
+    '(max-width: 480px)': {
+      display: 'none'
+    }
+  }
 })
 
 export const tDotNow = style({
