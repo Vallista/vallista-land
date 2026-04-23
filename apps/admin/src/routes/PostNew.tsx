@@ -10,6 +10,7 @@ import {
 import MarkdownEditor, { type MarkdownEditorHandle } from '@/components/MarkdownEditor'
 import FormatToolbar from '@/components/FormatToolbar'
 import type { HeadingLevel } from '@/components/editor/wysiwyg'
+import FormSection from '@/components/FormSection'
 import FrontmatterForm, {
   draftToFrontmatter,
   type FrontmatterDraft
@@ -177,19 +178,27 @@ export default function PostNew() {
 
         <aside className="edit-pane edit-pane--side">
           <div className="pane-head">기본 정보</div>
-          <label className="fm-field">
-            <span>slug (파일명)</span>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="my-new-post"
-              autoFocus
-            />
-            {!slugValid && slug.length > 0 && (
-              <span className="fm-hint err-hint">영문/숫자/한글/-/_ 만 허용</span>
-            )}
-          </label>
+          <div className="fm-form">
+            <FormSection title="파일 경로" required defaultOpen>
+              <label className="fm-field">
+                <span className="fm-field__label">
+                  slug
+                  <span className="fm-field__req" aria-label="필수">●</span>
+                  <span className="fm-field__hint-inline">파일명으로 사용</span>
+                </span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="my-new-post"
+                  autoFocus
+                />
+                {!slugValid && slug.length > 0 && (
+                  <span className="fm-hint err-hint">영문/숫자/한글/-/_ 만 허용</span>
+                )}
+              </label>
+            </FormSection>
+          </div>
           <FrontmatterForm
             value={fm}
             onChange={setFm}

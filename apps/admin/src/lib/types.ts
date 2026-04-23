@@ -113,3 +113,37 @@ export type Taxonomy = {
   tags: TaxonomyCount[]
   series: TaxonomyCount[]
 }
+
+export type CIRunStatus = 'queued' | 'in_progress' | 'completed' | 'unknown'
+export type CIRunConclusion =
+  | 'success'
+  | 'failure'
+  | 'cancelled'
+  | 'skipped'
+  | 'timed_out'
+  | 'action_required'
+  | 'neutral'
+  | 'startup_failure'
+  | null
+
+export type CIStatusConfigured = {
+  configured: true
+  status: CIRunStatus
+  conclusion: CIRunConclusion
+  runId: number
+  runNumber: number
+  htmlUrl: string
+  headSha: string
+  headBranch: string | null
+  commitMessage: string | null
+  workflowName: string | null
+  startedAt: string | null
+  updatedAt: string | null
+}
+
+export type CIStatusUnconfigured = {
+  configured: false
+  hint: string
+}
+
+export type CIStatus = CIStatusConfigured | CIStatusUnconfigured

@@ -1,4 +1,5 @@
 import { app as electronApp, BrowserWindow, shell } from 'electron'
+import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -16,7 +17,37 @@ function resolveRepoRoot(): string {
   return '/Users/mgh/Desktop/projects/vallista-land'
 }
 
-process.env.VALLISTA_REPO_ROOT = resolveRepoRoot()
+function loadDotEnv(path: string): void {
+  let text: string
+  try {
+    text = readFileSync(path, 'utf8')
+  } catch {
+    return
+  }
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim()
+    if (!line || line.startsWith('#')) continue
+    const eq = line.indexOf('=')
+    if (eq <= 0) continue
+    const key = line.slice(0, eq).trim()
+    let val = line.slice(eq + 1).trim()
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1)
+    }
+    if (process.env[key] === undefined) process.env[key] = val
+  }
+}
+
+const REPO_ROOT = resolveRepoRoot()
+process.env.VALLISTA_REPO_ROOT = REPO_ROOT
+
+// packaged 앱은 vite 의 loadEnv 경로를 거치지 않으므로 .env.local 을 직접 주입한다.
+// GA_PROPERTY_ID · GOOGLE_APPLICATION_CREDENTIALS · GITHUB_TOKEN 등이 여기에 의존.
+loadDotEnv(resolve(REPO_ROOT, 'apps/admin/.env.local'))
+loadDotEnv(resolve(REPO_ROOT, 'apps/admin/.env'))
 
 let serverHandle: { port: number; close(): Promise<void> } | null = null
 
@@ -33,8 +64,10 @@ async function createWindow(): Promise<void> {
   const win = new BrowserWindow({
     width: 1440,
     height: 920,
-    title: 'vallista admin',
+    title: 'Vallista 블로그 운영 툴',
     backgroundColor: '#ffffff',
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 14, y: 14 },
     webPreferences: {
       preload: resolve(HERE, 'preload.mjs'),
       contextIsolation: true,

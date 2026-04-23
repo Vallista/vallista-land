@@ -94,12 +94,36 @@ export async function fetchOverview(days: number): Promise<AnalyticsResult> {
     })
   ])
 
-  const byDay: OverviewRow[] = (dailyRes[0].rows ?? []).map((r) => ({
-    date: r.dimensionValues?.[0]?.value ?? '',
-    pageViews: Number(r.metricValues?.[0]?.value ?? 0),
-    sessions: Number(r.metricValues?.[1]?.value ?? 0),
-    users: Number(r.metricValues?.[2]?.value ?? 0)
-  }))
+  // GA Data API 는 이벤트가 발생한 날짜만 반환. 그래프에 요청 범위 전체가 표시되도록
+  // 빈 날짜를 0 으로 채운다.
+  const rawByDate = new Map<string, OverviewRow>(
+    (dailyRes[0].rows ?? []).map((r) => {
+      const d = r.dimensionValues?.[0]?.value ?? ''
+      return [
+        d,
+        {
+          date: d,
+          pageViews: Number(r.metricValues?.[0]?.value ?? 0),
+          sessions: Number(r.metricValues?.[1]?.value ?? 0),
+          users: Number(r.metricValues?.[2]?.value ?? 0)
+        }
+      ]
+    })
+  )
+
+  const today = new Date()
+  const byDay: OverviewRow[] = []
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(today.getDate() - i)
+    const key =
+      String(d.getFullYear()) +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      String(d.getDate()).padStart(2, '0')
+    byDay.push(
+      rawByDate.get(key) ?? { date: key, pageViews: 0, sessions: 0, users: 0 }
+    )
+  }
 
   const totals = byDay.reduce(
     (acc, r) => ({

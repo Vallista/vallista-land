@@ -56,7 +56,7 @@
   },
   "build": {
     "appId": "com.vallista.admin",
-    "productName": "vallista admin",
+    "productName": "Vallista 블로그 운영 툴",
     "directories": {
       "output": "release",
       "buildResources": "build"

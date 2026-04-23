@@ -14,7 +14,7 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar__brand">vallista-admin</div>
+      <div className="sidebar__brand">Vallista 블로그 운영 툴</div>
       <nav className="sidebar__nav">
         <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : undefined)}>
           대시보드

@@ -1,5 +1,6 @@
 import type {
   AnalyticsResult,
+  CIStatus,
   Category,
   CreateDraftResult,
   CreatePostBody,
@@ -110,6 +111,10 @@ export async function publishCommit(body: {
 
 export async function getAnalyticsOverview(days: number): Promise<AnalyticsResult> {
   return asJson(await fetch(`/api/analytics/overview?days=${encodeURIComponent(String(days))}`))
+}
+
+export async function getCIStatus(): Promise<CIStatus> {
+  return asJson(await fetch('/api/ci/latest'))
 }
 
 export type UploadMediaResult = {

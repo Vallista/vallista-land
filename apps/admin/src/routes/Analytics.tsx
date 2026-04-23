@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getAnalyticsOverview } from '@/lib/api'
-import type { AnalyticsResult } from '@/lib/types'
+import type { AnalyticsOverview, AnalyticsResult } from '@/lib/types'
 
 const RANGES: Array<{ label: string; days: number }> = [
   { label: '7일', days: 7 },
@@ -13,11 +13,18 @@ function fmtDate(yyyymmdd: string): string {
   return `${yyyymmdd.slice(0, 4)}-${yyyymmdd.slice(4, 6)}-${yyyymmdd.slice(6, 8)}`
 }
 
+type BarHover = {
+  row: AnalyticsOverview['byDay'][number]
+  x: number
+  y: number
+}
+
 export default function Analytics() {
   const [days, setDays] = useState<number>(30)
   const [data, setData] = useState<AnalyticsResult | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [hover, setHover] = useState<BarHover | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -100,13 +107,20 @@ GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/key.json`}</pre>
 
           <section className="card" style={{ marginBottom: 20 }}>
             <h2>일자별 조회수</h2>
-            <div className="ga-bars">
+            <div
+              className="ga-bars"
+              onMouseLeave={() => setHover(null)}
+            >
               {data.byDay.map((r) => (
-                <div key={r.date} className="ga-bar">
+                <div
+                  key={r.date}
+                  className="ga-bar"
+                  onMouseEnter={(e) => setHover({ row: r, x: e.clientX, y: e.clientY })}
+                  onMouseMove={(e) => setHover({ row: r, x: e.clientX, y: e.clientY })}
+                >
                   <div
                     className="ga-bar__fill"
                     style={{ height: `${(r.pageViews / maxDaily) * 100}%` }}
-                    title={`${fmtDate(r.date)}: ${r.pageViews}`}
                   />
                 </div>
               ))}
@@ -176,6 +190,28 @@ GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/key.json`}</pre>
             </section>
           </div>
         </>
+      )}
+
+      {hover && (
+        <div
+          className="ga-tooltip"
+          style={{ left: hover.x + 12, top: hover.y + 12 }}
+          role="tooltip"
+        >
+          <div className="ga-tooltip__date">{fmtDate(hover.row.date)}</div>
+          <div className="ga-tooltip__row">
+            <span>조회수</span>
+            <strong>{hover.row.pageViews.toLocaleString()}</strong>
+          </div>
+          <div className="ga-tooltip__row">
+            <span>세션</span>
+            <strong>{hover.row.sessions.toLocaleString()}</strong>
+          </div>
+          <div className="ga-tooltip__row">
+            <span>방문자</span>
+            <strong>{hover.row.users.toLocaleString()}</strong>
+          </div>
+        </div>
       )}
     </div>
   )

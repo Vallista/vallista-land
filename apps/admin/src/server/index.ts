@@ -7,6 +7,7 @@ import publishRoute from './routes/publish'
 import analyticsRoute from './routes/analytics'
 import mediaRoute from './routes/media'
 import draftsRoute from './routes/drafts'
+import ciRoute from './routes/ci'
 import { sweepOldDrafts } from './lib/draft-repo'
 
 export function createApp(): Hono {
@@ -30,6 +31,7 @@ export function createApp(): Hono {
   app.route('/api/analytics', analyticsRoute)
   app.route('/api/media', mediaRoute)
   app.route('/api/drafts', draftsRoute)
+  app.route('/api/ci', ciRoute)
 
   return app
 }
