@@ -2,8 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
-import BaseLayout from '@layouts/BaseLayout.astro'
-import { prose } from '../../styles/article.css'
+import PostLayout from '@layouts/PostLayout.astro'
 import { normalizeArticleImage } from '@lib/article-image'
 
 export async function getStaticPaths() {
@@ -37,8 +36,13 @@ const title = data.title ?? dateLabel
 const heroImage = normalizeArticleImage(data.image, entry.id, 'notes')
 ---
 
-<BaseLayout title={`${title} · Vallista Notes`} counts={counts}>
-  <header class='note-head'>
+<PostLayout
+  pageTitle={`${title} · Vallista Notes`}
+  heroImage={heroImage}
+  heroAlt={title}
+  counts={counts}
+>
+  <header slot='header' class='note-head'>
     <div class='note-head__eyebrow'>@vallista · notes</div>
     <h1 class='note-head__title'>{title}</h1>
     <div class='note-head__byline'>
@@ -48,51 +52,37 @@ const heroImage = normalizeArticleImage(data.image, entry.id, 'notes')
     </div>
   </header>
 
-  <article class={prose}>
-    {
-      heroImage && (
-        <figure class='img-card'>
-          <img
-            src={heroImage}
-            alt={title}
-            loading='eager'
-            decoding='async'
-            onload="this.closest('.img-card').classList.add('is-loaded')"
-            onerror="this.closest('.img-card').classList.add('is-error')"
-          />
-        </figure>
-      )
-    }
-    <Content />
-  </article>
+  <Content />
 
-  <nav class='note-nav' aria-label='이전/다음 노트'>
-    {
-      prev ? (
-        <a class='note-nav__link note-nav__link--prev' href={`/notes/${prev.id.replace(/\/index$/, '')}`}>
-          <span class='note-nav__dir'>← 이전</span>
-          <span class='note-nav__title'>{prev.data.title ?? prev.data.date.toISOString().slice(0, 10)}</span>
-        </a>
-      ) : (
-        <span />
-      )
-    }
-    {
-      next ? (
-        <a class='note-nav__link note-nav__link--next' href={`/notes/${next.id.replace(/\/index$/, '')}`}>
-          <span class='note-nav__dir'>다음 →</span>
-          <span class='note-nav__title'>{next.data.title ?? next.data.date.toISOString().slice(0, 10)}</span>
-        </a>
-      ) : (
-        <span />
-      )
-    }
-  </nav>
+  <Fragment slot='afterProse'>
+    <nav class='note-nav' aria-label='이전/다음 노트'>
+      {
+        prev ? (
+          <a class='note-nav__link note-nav__link--prev' href={`/notes/${prev.id.replace(/\/index$/, '')}`}>
+            <span class='note-nav__dir'>← 이전</span>
+            <span class='note-nav__title'>{prev.data.title ?? prev.data.date.toISOString().slice(0, 10)}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next ? (
+          <a class='note-nav__link note-nav__link--next' href={`/notes/${next.id.replace(/\/index$/, '')}`}>
+            <span class='note-nav__dir'>다음 →</span>
+            <span class='note-nav__title'>{next.data.title ?? next.data.date.toISOString().slice(0, 10)}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+    </nav>
 
-  <p class='note-back'>
-    <a href='/notes'>← 노트 목록으로</a>
-  </p>
-</BaseLayout>
+    <p class='note-back'>
+      <a href='/notes'>← 노트 목록으로</a>
+    </p>
+  </Fragment>
+</PostLayout>
 
 <style>
   .note-head {

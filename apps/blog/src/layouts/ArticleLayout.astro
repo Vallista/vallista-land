@@ -2,15 +2,14 @@
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
-import BaseLayout from './BaseLayout.astro'
+import PostLayout from './PostLayout.astro'
 import Chip from '@vallista/ui/components/Chip.astro'
-import Toc from '@vallista/ui/components/Toc.astro'
 import type { TocHeading } from '@vallista/ui/components/Toc.astro'
 import SeriesWidget from '@components/SeriesWidget.astro'
 import { estimateReadingTime } from '@lib/reading-time'
 import { seriesForEntry } from '@lib/series'
 import { normalizeArticleImage } from '@lib/article-image'
-import { progress, header, chipRow, h1 as h1Style, dek as dekStyle, byline, prose } from '../styles/article.css'
+import { header, chipRow, h1 as h1Style, dek as dekStyle, byline } from '../styles/article.css'
 
 interface Props {
   entry: CollectionEntry<'articles'>
@@ -28,16 +27,18 @@ const series = seriesForEntry(allArticles, entry)
 const ogImage = normalizeArticleImage(data.image, entry.id)
 ---
 
-<BaseLayout
-  title={`${data.title} · Vallista Blog`}
+<PostLayout
+  pageTitle={`${data.title} · Vallista Blog`}
   description={data.dek || data.description}
   image={ogImage}
   ogType='article'
+  heroImage={ogImage}
+  heroAlt={data.title}
   counts={counts}
+  showProgress
+  headings={headings}
 >
-  <div class={progress} data-progress></div>
-
-  <header class={header}>
+  <header slot='header' class={header}>
     <div class={chipRow}>
       <Chip>{data.tag}</Chip>
       {
@@ -61,53 +62,9 @@ const ogImage = normalizeArticleImage(data.image, entry.id)
     </div>
   </header>
 
-  {series && <SeriesWidget name={series.name} slug={series.slug} posts={series.posts} currentId={entry.id} />}
+  {series && (
+    <SeriesWidget slot='beforeProse' name={series.name} slug={series.slug} posts={series.posts} currentId={entry.id} />
+  )}
 
-  <article class={prose}>
-    {
-      ogImage && (
-        <figure class='img-card'>
-          <img
-            src={ogImage}
-            alt={data.title}
-            loading='eager'
-            decoding='async'
-            onload="this.closest('.img-card').classList.add('is-loaded')"
-            onerror="this.closest('.img-card').classList.add('is-error')"
-          />
-        </figure>
-      )
-    }
-    <slot />
-  </article>
-
-  <Toc slot='overlay' headings={headings} />
-
-  <script>
-    function setupProgress(): void {
-      const bar = document.querySelector<HTMLElement>('[data-progress]')
-      if (!bar) return
-      const on = (): void => {
-        const h = document.documentElement
-        const max = h.scrollHeight - h.clientHeight
-        const pct = max > 0 ? Math.min(100, (h.scrollTop / max) * 100) : 0
-        bar.style.width = `${pct}%`
-      }
-      let ticking = false
-      const onScroll = (): void => {
-        if (ticking) return
-        ticking = true
-        requestAnimationFrame(() => {
-          on()
-          ticking = false
-        })
-      }
-      addEventListener('scroll', onScroll, { passive: true })
-      on()
-    }
-
-    setupProgress()
-    document.addEventListener('astro:page-load', setupProgress)
-    document.addEventListener('vallista:page-load', setupProgress)
-  </script>
-</BaseLayout>
+  <slot />
+</PostLayout>
