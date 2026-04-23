@@ -5,7 +5,7 @@ import type { CollectionEntry } from 'astro:content'
 import BaseLayout from '@layouts/BaseLayout.astro'
 import PageHeader from '@components/PageHeader.astro'
 
-const INITIAL_VISIBLE = 30
+const INITIAL_VISIBLE_CARDS = 30
 
 const notes = await getCollection('notes', (n) => !n.data.draft)
 notes.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
@@ -19,12 +19,17 @@ type Item = {
   href: string
   date: Date
   dateISO: string
-  dateLabel: string
-  monthKey: string
   title: string
   bullets: string[]
   fallback: string | null
   tags: string[]
+}
+
+type Group = {
+  dateKey: string
+  dateISO: string
+  dateLabel: string
+  items: Item[]
 }
 
 function stripMd(s: string): string {
@@ -69,15 +74,12 @@ function buildItem(entry: CollectionEntry<'notes'>): Item {
   const slug = entry.id.replace(/\/index$/, '')
   const body = entry.body ?? ''
   const bullets = extractBullets(body)
-  const dateLabel = `${y}.${String(m).padStart(2, '0')}.${String(d).padStart(2, '0')} ${WEEKDAY[date.getDay()] ?? ''}`
   return {
     id: entry.id,
     slug,
     href: `/notes/${slug}`,
     date,
     dateISO,
-    dateLabel,
-    monthKey: `${y}-${String(m).padStart(2, '0')}`,
     title: entry.data.title ?? `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
     bullets,
     fallback: bullets.length === 0 ? extractFallback(body) : null,
@@ -85,50 +87,88 @@ function buildItem(entry: CollectionEntry<'notes'>): Item {
   }
 }
 
+function groupByDate(items: Item[]): Group[] {
+  const groups: Group[] = []
+  const map = new Map<string, Group>()
+  for (const it of items) {
+    const d = it.date
+    const y = d.getFullYear()
+    const m = d.getMonth() + 1
+    const day = d.getDate()
+    const key = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    let g = map.get(key)
+    if (!g) {
+      g = {
+        dateKey: key,
+        dateISO: it.dateISO,
+        dateLabel: `${y}.${String(m).padStart(2, '0')}.${String(day).padStart(2, '0')} ${WEEKDAY[d.getDay()] ?? ''}`,
+        items: []
+      }
+      map.set(key, g)
+      groups.push(g)
+    }
+    g.items.push(it)
+  }
+  return groups
+}
+
 const items: Item[] = notes.map(buildItem)
+const groups: Group[] = groupByDate(items)
+
+let initialVisibleGroups = 0
+let cardCount = 0
+while (initialVisibleGroups < groups.length && cardCount < INITIAL_VISIBLE_CARDS) {
+  cardCount += groups[initialVisibleGroups].items.length
+  initialVisibleGroups += 1
+}
 ---
 
 <BaseLayout title='Notes · Vallista Blog'>
   <PageHeader eyebrow='@vallista · notes' title='짧은 글' searchPlaceholder='노트 검색…' />
 
   {
-    items.length === 0 ? (
+    groups.length === 0 ? (
       <p class='notes-empty'>아직 작성된 노트가 없습니다.</p>
     ) : (
-      <ol class='timeline' data-notes data-initial={INITIAL_VISIBLE}>
-        {items.map((it, i) => {
-          const hidden = i >= INITIAL_VISIBLE
+      <ol class='timeline' data-notes data-initial={initialVisibleGroups}>
+        {groups.map((g, i) => {
+          const hidden = i >= initialVisibleGroups
           return (
             <li
-              class='timeline__item'
-              data-note-card
+              class='timeline__group'
+              data-group
               data-i={i}
-              id={`n-${it.slug}`}
               style={hidden ? 'display:none;' : undefined}
             >
               <span class='timeline__dot' aria-hidden='true' />
-              <a class='note-card' href={it.href}>
-                <time class='note-card__date' datetime={it.dateISO}>
-                  {it.dateLabel}
-                </time>
-                <h3 class='note-card__title'>{it.title}</h3>
-                {it.bullets.length > 0 ? (
-                  <ul class='note-card__bullets'>
-                    {it.bullets.map((b) => (
-                      <li>{b}</li>
-                    ))}
-                  </ul>
-                ) : it.fallback ? (
-                  <p class='note-card__fallback'>{it.fallback}</p>
-                ) : null}
-                {it.tags.length > 0 && (
-                  <div class='note-card__tags'>
-                    {it.tags.slice(0, 4).map((t) => (
-                      <span class='note-card__tag'>#{t}</span>
-                    ))}
-                  </div>
-                )}
-              </a>
+              <time class='timeline__date' datetime={g.dateISO}>
+                {g.dateLabel}
+              </time>
+              <ul class='timeline__cards'>
+                {g.items.map((it) => (
+                  <li class='timeline__card' id={`n-${it.slug}`}>
+                    <a class='note-card' href={it.href}>
+                      <h3 class='note-card__title'>{it.title}</h3>
+                      {it.bullets.length > 0 ? (
+                        <ul class='note-card__bullets'>
+                          {it.bullets.map((b) => (
+                            <li>{b}</li>
+                          ))}
+                        </ul>
+                      ) : it.fallback ? (
+                        <p class='note-card__fallback'>{it.fallback}</p>
+                      ) : null}
+                      {it.tags.length > 0 && (
+                        <div class='note-card__tags'>
+                          {it.tags.slice(0, 4).map((t) => (
+                            <span class='note-card__tag'>#{t}</span>
+                          ))}
+                        </div>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </li>
           )
         })}
@@ -166,13 +206,14 @@ const items: Item[] = notes.map(buildItem)
     background: var(--line2);
   }
 
-  .timeline__item {
+  /* 날짜 그룹(노드) */
+  .timeline__group {
     position: relative;
     margin: 0;
-    padding: 0 0 18px;
+    padding: 0 0 28px;
     animation: note-fade-in 200ms ease-out;
   }
-  .timeline__item:last-of-type {
+  .timeline__group:last-of-type {
     padding-bottom: 0;
   }
 
@@ -180,7 +221,7 @@ const items: Item[] = notes.map(buildItem)
   .timeline__dot {
     position: absolute;
     left: -30px;
-    top: 16px;
+    top: 5px;
     width: 11px;
     height: 11px;
     border-radius: 50%;
@@ -190,9 +231,34 @@ const items: Item[] = notes.map(buildItem)
     z-index: 1;
     transition: border-color 120ms, transform 120ms;
   }
-  .timeline__item:hover .timeline__dot {
+  .timeline__group:hover .timeline__dot {
     border-color: var(--accent, var(--ink));
     transform: scale(1.15);
+  }
+
+  /* 날짜 헤더 */
+  .timeline__date {
+    display: block;
+    font-family: monospace;
+    font-size: 12.5px;
+    color: var(--ink3);
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .timeline__cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .timeline__card {
+    margin: 0;
+    padding: 0;
+    scroll-margin-top: 60px;
   }
 
   .note-card {
@@ -208,15 +274,6 @@ const items: Item[] = notes.map(buildItem)
     border-color: var(--ink3);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
     transform: translateY(-1px);
-  }
-
-  .note-card__date {
-    display: block;
-    font-family: monospace;
-    font-size: 12px;
-    color: var(--ink4);
-    margin-bottom: 6px;
-    letter-spacing: 0.02em;
   }
 
   .note-card__title {
@@ -313,7 +370,7 @@ const items: Item[] = notes.map(buildItem)
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .timeline__item { animation: none; }
+    .timeline__group { animation: none; }
   }
 </style>
 
@@ -324,19 +381,19 @@ const items: Item[] = notes.map(buildItem)
   const topBtn = document.querySelector<HTMLButtonElement>('[data-top]')
 
   if (root && sentinel) {
-    const BATCH = 30
-    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-note-card]'))
-    let visible = Number(root.dataset.initial ?? '30')
+    const BATCH = 10
+    const groupEls = Array.from(document.querySelectorAll<HTMLElement>('[data-group]'))
+    let visible = Number(root.dataset.initial ?? '0')
 
     function revealNext(): void {
-      if (visible >= cards.length) {
+      if (visible >= groupEls.length) {
         if (endEl) endEl.hidden = false
         observer.disconnect()
         return
       }
-      const next = Math.min(cards.length, visible + BATCH)
+      const next = Math.min(groupEls.length, visible + BATCH)
       for (let i = visible; i < next; i += 1) {
-        const el = cards[i]
+        const el = groupEls[i]
         if (el) el.style.display = ''
       }
       visible = next
@@ -354,17 +411,21 @@ const items: Item[] = notes.map(buildItem)
     )
     observer.observe(sentinel)
 
-    // 깊은 링크: #n-<slug> 로 진입한 경우, 해당 카드까지 모두 reveal
+    // 깊은 링크: #n-<slug> 로 진입한 경우, 해당 카드가 속한 그룹까지 reveal
     function maybeRevealForHash(): void {
       const hash = decodeURIComponent(location.hash.slice(1))
       if (!hash) return
-      const targetIdx = cards.findIndex((c) => c.id === hash)
+      const target = document.getElementById(hash)
+      if (!target) return
+      const group = target.closest<HTMLElement>('[data-group]')
+      if (!group) return
+      const targetIdx = groupEls.indexOf(group)
       if (targetIdx < 0) return
-      while (visible <= targetIdx && visible < cards.length) {
+      while (visible <= targetIdx && visible < groupEls.length) {
         revealNext()
       }
       requestAnimationFrame(() => {
-        document.getElementById(hash)?.scrollIntoView({ block: 'start' })
+        target.scrollIntoView({ block: 'start' })
       })
     }
     maybeRevealForHash()
