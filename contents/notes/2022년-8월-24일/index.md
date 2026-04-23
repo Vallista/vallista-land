@@ -4,9 +4,6 @@ image: ./assets/splash.jpg
 date: '2022-08-24 15:55:03'
 slug: "2022-year-8-month-24-day"
 ---
-
-![로고](assets/splash.jpg)
-
 ## 오늘 한 일
 
 - 프로그래머의 뇌 4장

@@ -8,9 +8,6 @@ draft: false
 info: false
 slug: "efficient-component-structure-making"
 ---
-
-![이미지0](./assets/0.jpg)
-
 최근 Storybook을 활용한 디자인 시스템 개발을 많은 회사에서 진행하고 있습니다. 디자인 시스템을 구축하면서 수많은 컴포넌트가 생성되고 사라지고를 반복하는데 이러한 컴포넌트 관리를 위해 `Atomic Design`을 많은 회사에서 채택하고 있는 듯 보입니다.
 
 여기서 `Atomic Design`을 채택한다는 것은 `컴포넌트를 재사용할 수 있는 단위로 나눈다` 라는 것 입니다. [이전 글](https://vallista.kr/2020/03/29/Component-%EB%B6%84%EB%A6%AC%EC%9D%98-%EB%AF%B8%ED%95%99/)에서도 언급했지만, 컴포넌트를 분리한다는 것은 그저 보기좋게 변경을 하는게 아닙니다.

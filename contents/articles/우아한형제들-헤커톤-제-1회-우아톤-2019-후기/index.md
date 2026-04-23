@@ -8,9 +8,6 @@ draft: false
 info: false
 slug: "baemin-hackathon-my-1-meeting-wooathon-2019-review"
 ---
-
-![main](./assets/icon.jpg)
-
 우아한형제들에서 제 1회, 처음으로! 사내 이벤트로써 헤커톤이 진행되었습니다. 그간 수많은 헤커톤을 해봤지만 사내에서 열리는 헤커톤을 참가해보기는 처음이었습니다. 이제 본격적으로 헤커톤 이야기를 풀어보도록 할께요!
 
 ## 시작과 발단

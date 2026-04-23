@@ -6,9 +6,6 @@ date: 2022-08-15 16:51:47
 image: ./assets/splash.jpg
 slug: "2022-year-8-month-15-day"
 ---
-
-![로고](assets/splash.jpg)
-
 ## 오늘 한 일
 
 - 블로그 개선

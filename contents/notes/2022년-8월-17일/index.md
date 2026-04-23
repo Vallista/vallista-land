@@ -6,9 +6,6 @@ tags:
 date: 2022-08-17 20:23:34
 slug: "2022-year-8-month-17-day"
 ---
-
-![로고](assets/splash.jpg)
-
 ## 오늘 한 일
 
 - @Vallista-land/core library 배포하는 삽질

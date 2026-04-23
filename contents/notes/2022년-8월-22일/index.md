@@ -4,9 +4,6 @@ image: ./assets/splash.jpg
 date: '2022-08-22 22:20:35'
 slug: "2022-year-8-month-22-day"
 ---
-
-![로고](assets/splash.jpg)
-
 ## 오늘 한 일
 
 - 예비군: 오전 9시부터 오후 6시

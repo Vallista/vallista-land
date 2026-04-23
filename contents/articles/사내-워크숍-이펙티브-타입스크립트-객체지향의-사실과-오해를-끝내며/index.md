@@ -7,9 +7,6 @@ image: ./assets/1.jpeg
 draft: false
 slug: "in-company-workshop-effective-typescript-object-oriented-facts-and-misunderstanding-finishing"
 ---
-
-![workshop](./assets/1.jpeg)
-
 약 2년이 되는 시간동안 사내 웹 프론트엔드 개발자들과 함께 매주 금요일 한 시간을 짬내어 워크숍을 진행해왔다. 그러면서 점진적으로 프론트 개발자 능력 향상을 도모하고 있는데, 나름 두 워크숍을 차례로 끝내며 능력을 끌어올리고 있다는걸 느꼈다.
 
 평균적으로 10~20명과 개발자들과 함께 진행했으며, 배민의 사내 총 웹 프론트 개발자는 약 90명인데 그 중에 1/9 ~ 1/4 정도의 개발자가 함께 했다. 가장 많은 인원이 참여했을땐 50명 정도도 참여했었다.

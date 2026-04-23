@@ -10,9 +10,6 @@ series: 모바일 웹뷰를 탐험하는 개발자를 위한 안내서
 seriesPriority: 1
 slug: "mobile-webview-exploring-developer-for-guide-part1"
 ---
-
-![이미지1](assets/_remote/7a00424c1fc4.svg)
-
 > 다음 포스트
 > [모바일 웹뷰를 탐험하는 개발자를 위한 안내서 (중)](https://vallista.kr/2019/12/28/%EB%AA%A8%EB%B0%94%EC%9D%BC-%EC%9B%B9%EB%B7%B0%EB%A5%BC-%ED%83%90%ED%97%98%ED%95%98%EB%8A%94-%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A5%BC-%EC%9C%84%ED%95%9C-%EC%95%88%EB%82%B4%EC%84%9C-%EC%A4%91/)
 

@@ -7,9 +7,6 @@ draft: false
 info: false
 slug: "2018-year-retrospective"
 ---
-
-![이미지1](assets/_remote/31c5e8cff512.svg)
-
 [2017년 회고](https://vallista.github.io/2017/12/25/2017년-회고/)를 한 것이 엊그제 같은데, 작년에 이어 올해도 어김없이 회고를 작성하려 합니다.
 
 # 1 :: 이직 준비를 하면서.

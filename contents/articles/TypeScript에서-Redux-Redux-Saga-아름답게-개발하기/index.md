@@ -8,9 +8,6 @@ draft: false
 info: false
 slug: "at-beautifully-developing"
 ---
-
-![0](./assets/0.png)
-
 <br/>
 
 Redux는 웹 생태계에서 상태 관리를 위해 쓰이는 프레임워크입니다. 물론 Redux 말고도 MobX와 같은 유명한 상태관리 모듈이 존재하지만 Redux가 비교적 나온지 오래되어서 사용하는 회사와 정보가 더 많습니다. 그렇기 때문에 일반적으로 상태관리 프레임워크라고 한다면 Redux를 사용하는 경우가 많습니다.

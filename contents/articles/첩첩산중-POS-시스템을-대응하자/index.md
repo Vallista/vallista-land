@@ -9,9 +9,6 @@ series: React로 영수증 개발하기
 seriesPriority: 2
 slug: "complicated-system-response"
 ---
-
-![이미지1](./assets/1.png)
-
 <center>(아..)</center>
 
 이 전 글에서, React와 Emotion을 사용해 영수증을 출력했다. 그리고 다음글로 코드 리펙토링을 하는 것을 진행한다고 고지까지 했는데, 갑자기 "첩첩한중, POS 시스템을 대응하자" 라는 주제로 글을 쓰는지 의문인 사람이 있을 것이다.

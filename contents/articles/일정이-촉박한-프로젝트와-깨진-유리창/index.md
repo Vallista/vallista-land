@@ -8,9 +8,6 @@ draft: false
 info: false
 slug: "schedule-tight-with-project-broken-glass-window"
 ---
-
-![이미지1](./assets/1.png)
-
 <center>깨진 유리창 이론</center>
 
 이번 회사에서 진행인원 약 30명, 연관된 인원이 60명이 넘어가는 거대한 프로젝트를 진행하고 있다. 거기서 프론트엔드 테크리드로 13명 규모의 프론트 개발자와 함께 프로젝트를 진행하는 중이다.

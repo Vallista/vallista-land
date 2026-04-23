@@ -6,9 +6,6 @@ date: 2022-08-16 16:51:47
 image: ./assets/splash.jpg
 slug: "2022-year-8-month-16-day"
 ---
-
-![로고](assets/splash.jpg)
-
 ## 오늘 한 일
 
 - 오전 운동 (10시 - 11시), 스쿼트 5세트 / 벤치 프레스 5세트 / 인클라인 벤치 프레스 6세트

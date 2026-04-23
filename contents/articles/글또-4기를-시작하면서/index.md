@@ -8,9 +8,6 @@ draft: false
 info: false
 slug: "geultto-4-path-while-starting"
 ---
-
-![이미지1](./assets/1.jpg)
-
 글또 3기에 이어서 글또 4기도 시작하게 되었습니다.
 
 ## 글또 4기

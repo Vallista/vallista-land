@@ -8,9 +8,6 @@ draft: false
 info: false
 slug: "2020-year-first-half-retrospective"
 ---
-
-![0](./assets/0.jpg)
-
 2020년, 올해 상반기는 많은 일이 있었습니다. 그래서 2020년 12월에 총합한 회고를 하기보다 중간 점검을 통해 한번 짚고 넘어가는게 좋을거라 생각되어 회고를 진행하려 합니다.
 
 ## 변화

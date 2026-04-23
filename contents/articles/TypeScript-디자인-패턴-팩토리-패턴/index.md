@@ -10,9 +10,6 @@ series: TypeScript 디자인 패턴
 seriesPriority: 1
 slug: "design-pattern-factory-pattern"
 ---
-
-![이미지0](./assets/0.jpg)
-
 ## 팩토리 패턴이란
 
 설계 문제에 대해서 해답을 문서화 해놓은 디자인 패턴에는 생성, 구조, 행동, 동시실행과 같은 분류가 있습니다. 그 중에서 팩토리 패턴은 생성과 관련된 디자인 패턴 입니다.

@@ -7,9 +7,6 @@ draft: false
 info: false
 slug: "concurrency-parallelism"
 ---
-
-![이미지1](assets/_remote/7a00424c1fc4.svg)
-
 비동기 작업을 할 때 `Concurrency`와 `Parallelism`에 대한 이야기가 자주오고 갑니다. 주로 비동기 작업을 처리하는데 있어 이 두 가지 방법 중 하나를 사용하기 때문이며 구현을 할 때 컴파일러, OS, 소프트웨어등 어느 관점에서든 이 구현 방법은 유효합니다.
 
 하지만 이 두 개의 단어는 비슷하지만서도 완전 다른 방법을 취하고 있으며, `Concurrency`와 `Parallelism`의 차이에 대해서 쉽게 이해를 하기위해 제가 내린 쉬운 정의는 아래와 같습니다.
