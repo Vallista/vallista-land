@@ -2,29 +2,32 @@ import path from 'node:path'
 import { visit } from 'unist-util-visit'
 
 // md 본문의 ./assets/xxx / assets/xxx 이미지 참조를 실제 정적 URL로 변환.
-// contents/articles/<slug>/index.md 또는 contents/articles/<slug>.md 에서 사용.
+// contents/(articles|notes)/<slug>/index.md 또는 contents/(articles|notes)/<slug>.md 에서 사용.
 // 변환 규칙:
-//   assets/foo.png       → /contents/articles/<slug>/assets/foo.png
+//   assets/foo.png       → /contents/<collection>/<slug>/assets/foo.png
 //   ./assets/foo.png     → 동일
 //   http(s):// 또는 /   → 그대로
 //
-// slug는 vfile.path 에서 contents/articles/ 다음 세그먼트로 추출한다.
+// collection + slug는 vfile.path 에서 contents/<collection>/ 다음 세그먼트로 추출한다.
 
-const ARTICLES_MARKER = `${path.sep}contents${path.sep}articles${path.sep}`
+const COLLECTIONS = ['articles', 'notes']
 
-function slugFromPath(filePath) {
+function parsePath(filePath) {
   if (!filePath) return null
   const normalized = filePath.replace(/\\/g, path.sep)
-  const idx = normalized.indexOf(ARTICLES_MARKER)
-  if (idx < 0) return null
-  const rest = normalized.slice(idx + ARTICLES_MARKER.length)
-  const parts = rest.split(path.sep)
-  if (parts.length === 0) return null
-  // 폴더형: "2021년-회고/index.md" → "2021년-회고"
-  // 단일: "BNF-Backus-Naur-Form.md" → "BNF-Backus-Naur-Form"
-  const head = parts[0]
-  if (!head) return null
-  return head.endsWith('.md') ? head.slice(0, -3) : head
+  for (const collection of COLLECTIONS) {
+    const marker = `${path.sep}contents${path.sep}${collection}${path.sep}`
+    const idx = normalized.indexOf(marker)
+    if (idx < 0) continue
+    const rest = normalized.slice(idx + marker.length)
+    const parts = rest.split(path.sep)
+    if (parts.length === 0) return null
+    const head = parts[0]
+    if (!head) return null
+    const slug = head.endsWith('.md') ? head.slice(0, -3) : head
+    return { collection, slug }
+  }
+  return null
 }
 
 function encodeSegment(s) {
@@ -33,8 +36,9 @@ function encodeSegment(s) {
 
 export function remarkArticleAssets() {
   return function transformer(tree, file) {
-    const slug = slugFromPath(file.path ?? file.history?.[0] ?? '')
-    if (!slug) return
+    const parsed = parsePath(file.path ?? file.history?.[0] ?? '')
+    if (!parsed) return
+    const { collection, slug } = parsed
 
     function rewrite(url) {
       if (typeof url !== 'string' || url.length === 0) return url
@@ -45,9 +49,43 @@ export function remarkArticleAssets() {
       const trimmed = url.replace(/^\.\//, '')
       if (trimmed.startsWith('assets/')) {
         const rest = trimmed.slice('assets/'.length)
-        return `/contents/articles/${encodeSegment(slug)}/assets/${encodeSegment(rest)}`
+        return `/contents/${collection}/${encodeSegment(slug)}/assets/${encodeSegment(rest)}`
       }
-      return `/contents/articles/${encodeSegment(slug)}/${encodeSegment(trimmed)}`
+      return `/contents/${collection}/${encodeSegment(slug)}/${encodeSegment(trimmed)}`
+    }
+
+    // frontmatter.image 가 있으면 본문 맨 앞 paragraph의 선두 image 노드를 제거한다.
+    // 레이아웃이 frontmatter.image 를 hero 카드로 렌더하므로 중복을 피하기 위함.
+    // 케이스:
+    //   (a) 이미지만 있는 paragraph → paragraph 통째로 제거
+    //   (b) 이미지 + softbreak/linebreak + 캡션 텍스트 → 이미지 + 뒤이은 break 만 제거, 텍스트 유지
+    const frontmatter =
+      (file.data && file.data.astro && file.data.astro.frontmatter) || {}
+    if (frontmatter.image && Array.isArray(tree.children) && tree.children.length > 0) {
+      const first = tree.children[0]
+      if (
+        first &&
+        first.type === 'paragraph' &&
+        Array.isArray(first.children) &&
+        first.children.length > 0 &&
+        first.children[0].type === 'image'
+      ) {
+        // 이미지 노드 + 바로 뒤 break 노드 제거
+        first.children.shift()
+        while (
+          first.children.length > 0 &&
+          (first.children[0].type === 'break' ||
+            first.children[0].type === 'softbreak' ||
+            (first.children[0].type === 'text' &&
+              first.children[0].value &&
+              first.children[0].value.trim().length === 0))
+        ) {
+          first.children.shift()
+        }
+        if (first.children.length === 0) {
+          tree.children.shift()
+        }
+      }
     }
 
     // image 노드를 raw HTML figure 카드로 치환.

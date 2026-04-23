@@ -2,7 +2,7 @@
 title: 2022년 8월 24일
 image: ./assets/splash.jpg
 date: '2022-08-24 15:55:03'
-slug: '"2022-year-8-month-24-day"'
+slug: "2022-year-8-month-24-day"
 ---
 
 ![로고](assets/splash.jpg)

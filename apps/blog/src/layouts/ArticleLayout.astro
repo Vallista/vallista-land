@@ -64,6 +64,20 @@ const ogImage = normalizeArticleImage(data.image, entry.id)
   {series && <SeriesWidget name={series.name} slug={series.slug} posts={series.posts} currentId={entry.id} />}
 
   <article class={prose}>
+    {
+      ogImage && (
+        <figure class='img-card'>
+          <img
+            src={ogImage}
+            alt={data.title}
+            loading='eager'
+            decoding='async'
+            onload="this.closest('.img-card').classList.add('is-loaded')"
+            onerror="this.closest('.img-card').classList.add('is-error')"
+          />
+        </figure>
+      )
+    }
     <slot />
   </article>
 

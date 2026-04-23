@@ -74,12 +74,21 @@ const articles = defineCollection({
 })
 
 const notes = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: '../../contents/notes' }),
+  loader: glob({
+    pattern: '**/*.md',
+    base: '../../contents/notes',
+    generateId: ({ entry }) => {
+      if (entry.endsWith('/index.md')) return entry.slice(0, -'/index.md'.length)
+      if (entry.endsWith('.md')) return entry.slice(0, -'.md'.length)
+      return entry
+    }
+  }),
   schema: z.object({
     title: z.string().optional(),
     date: z.coerce.date(),
     tags: z.preprocess(coerceTags, z.array(z.string())).default([]),
     slug: z.string().optional(),
+    image: z.string().optional(),
     draft: z.boolean().default(false)
   })
 })

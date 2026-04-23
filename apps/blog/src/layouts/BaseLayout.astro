@@ -237,7 +237,20 @@ const isGAEnabled = import.meta.env.PROD && !!GA_ID
 
             document.title = doc.title
 
-            // head의 새 스타일만 보완적으로 추가 (기존 스타일은 유지). 같은 href면 중복 추가 안 함.
+            // head <style> 태그 교체 — dev 모드에서 vanilla-extract는 <style>로 주입되므로
+            // 기존 <style>을 새 문서 것으로 바꿔야 이전 페이지 CSS가 새 페이지에 누수되지 않는다.
+            document.head.querySelectorAll('style').forEach(function (s) { s.remove() })
+            doc.head.querySelectorAll('style').forEach(function (s) {
+              var clone = document.createElement('style')
+              for (var i = 0; i < s.attributes.length; i++) {
+                var a = s.attributes[i]
+                clone.setAttribute(a.name, a.value)
+              }
+              clone.textContent = s.textContent
+              document.head.appendChild(clone)
+            })
+
+            // head <link rel=stylesheet> 보완 추가 (prod 빌드 경로). 같은 href면 중복 추가 안 함.
             var existingHrefs = new Set()
             document.querySelectorAll('link[rel="stylesheet"][href]').forEach(function (l) { existingHrefs.add(l.href) })
             doc.querySelectorAll('link[rel="stylesheet"][href]').forEach(function (l) {

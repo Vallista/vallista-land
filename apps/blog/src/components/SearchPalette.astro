@@ -88,7 +88,10 @@ import {
       if (pf || pfLoading) return pfLoading ?? Promise.resolve()
       pfLoading = (async () => {
         try {
-          const mod = (await import(/* @vite-ignore */ '/pagefind/pagefind.js')) as Pagefind
+          // Vite의 정적 분석을 우회하기 위해 변수로 분리
+          // (pagefind.js는 빌드 산출물이라 dev 서버에는 존재하지 않음)
+          const pfPath = '/pagefind/pagefind.js'
+          const mod = (await import(/* @vite-ignore */ pfPath)) as Pagefind
           pf = mod
         } catch {
           setEmpty('검색 인덱스를 불러오지 못했습니다.')

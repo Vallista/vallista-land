@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 각 article 폴더의 assets 디렉토리를 apps/blog/public/contents/articles/<slug>/assets/ 로
+// 각 article/note 폴더의 assets 디렉토리를 apps/blog/public/contents/<collection>/<slug>/assets/ 로
 // 증분 복사한다. frontmatter image가 "assets/splash.jpg" 같은 상대경로로 들어있고,
 // 런타임에 정적 서빙되어야 하므로 public으로 옮긴다.
 
@@ -10,8 +10,18 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const ARTICLES_DIR = path.resolve(__dirname, '../../../contents/articles')
-const OUT_BASE = path.resolve(__dirname, '../public/contents/articles')
+const COLLECTIONS = [
+  {
+    name: 'articles',
+    src: path.resolve(__dirname, '../../../contents/articles'),
+    dst: path.resolve(__dirname, '../public/contents/articles')
+  },
+  {
+    name: 'notes',
+    src: path.resolve(__dirname, '../../../contents/notes'),
+    dst: path.resolve(__dirname, '../public/contents/notes')
+  }
+]
 
 async function exists(p) {
   try {
@@ -52,28 +62,37 @@ async function copyDir(src, dst) {
   return copied
 }
 
-async function main() {
-  if (!(await exists(ARTICLES_DIR))) {
-    console.warn(`[copy-article-assets] articles dir not found: ${ARTICLES_DIR}`)
-    return
+async function syncCollection({ name, src, dst }) {
+  if (!(await exists(src))) {
+    console.warn(`[copy-article-assets] ${name} dir not found: ${src}`)
+    return { slugs: 0, files: 0 }
   }
-  const entries = await fs.readdir(ARTICLES_DIR, { withFileTypes: true })
-  let totalCopied = 0
-  let totalSlugs = 0
-
+  const entries = await fs.readdir(src, { withFileTypes: true })
+  let slugs = 0
+  let files = 0
   for (const entry of entries) {
     if (!entry.isDirectory()) continue
-    const src = path.join(ARTICLES_DIR, entry.name, 'assets')
-    if (!(await exists(src))) continue
-    const dst = path.join(OUT_BASE, entry.name, 'assets')
-    const copied = await copyDir(src, dst)
+    const entrySrc = path.join(src, entry.name, 'assets')
+    if (!(await exists(entrySrc))) continue
+    const entryDst = path.join(dst, entry.name, 'assets')
+    const copied = await copyDir(entrySrc, entryDst)
     if (copied > 0) {
-      console.log(`[copy-article-assets] ${entry.name}: ${copied} files`)
+      console.log(`[copy-article-assets] ${name}/${entry.name}: ${copied} files`)
     }
-    totalCopied += copied
-    totalSlugs += 1
+    files += copied
+    slugs += 1
   }
+  return { slugs, files }
+}
 
+async function main() {
+  let totalSlugs = 0
+  let totalCopied = 0
+  for (const collection of COLLECTIONS) {
+    const { slugs, files } = await syncCollection(collection)
+    totalSlugs += slugs
+    totalCopied += files
+  }
   console.log(`[copy-article-assets] done. ${totalSlugs} slugs, ${totalCopied} files copied`)
 }
 

@@ -11,7 +11,7 @@ export const toc = style({
   borderLeft: `1px solid ${vars.color.line2}`,
   zIndex: vars.zIndex.tocRail,
   '@media': {
-    '(max-width: 1099px)': {
+    '(max-width: 1559px)': {
       display: 'none'
     }
   }

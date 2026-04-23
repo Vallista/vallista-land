@@ -20,6 +20,7 @@ import {
   who,
   whoName,
   whoRole,
+  links as linksCol,
   section,
   sectionHead,
   sectionTitle,
@@ -143,7 +144,7 @@ const socialLinks = [
       <div class={whoName}>{r.config.name}{r.config.englishName ? ` · ${r.config.englishName}` : ''}</div>
       <div class={whoRole}>{r.config.role} · Woowa Bros · Seoul, KR</div>
     </div>
-    <SocialLinks links={socialLinks} />
+    <SocialLinks links={socialLinks} class={linksCol} />
   </section>
 
   {/* ═══════════ PANEL · ABOUT ═══════════ */}
