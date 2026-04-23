@@ -198,46 +198,113 @@ globalStyle(`.${prose} p strong`, {
   fontWeight: 600
 })
 
-export const flowLine = style({
-  display: 'inline-flex',
-  flexWrap: 'wrap',
-  gap: '10px',
-  alignItems: 'center',
-  margin: '0 0 24px',
-  padding: '10px 14px',
-  backgroundColor: vars.color.bgSoft,
-  border: `1px solid ${vars.color.line2}`,
-  borderRadius: vars.radius.pill,
-  fontFamily: vars.font.mono,
-  fontSize: '11px',
-  color: vars.color.ink3,
-  letterSpacing: '0.04em',
-  textTransform: 'uppercase',
-  width: 'fit-content',
-  maxWidth: '100%',
+export const flowSteps = style({
+  listStyle: 'none',
+  margin: '0 0 32px',
+  padding: '0 0 0 0',
+  display: 'grid',
+  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+  gap: '8px',
+  position: 'relative',
+  '::before': {
+    content: '""',
+    position: 'absolute',
+    left: '12.5%',
+    right: '12.5%',
+    top: '5px',
+    height: '1px',
+    background: vars.color.line2,
+    zIndex: 0
+  },
   '@media': {
-    '(max-width: 900px)': {
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-      gap: '8px',
-      padding: '14px 16px',
-      borderRadius: '14px',
-      width: '100%'
+    '(max-width: 640px)': {
+      gridTemplateColumns: 'minmax(0, 1fr)',
+      gap: '18px',
+      paddingLeft: '20px',
+      '::before': {
+        left: '4px',
+        right: 'auto',
+        top: '5px',
+        bottom: '5px',
+        width: '1px',
+        height: 'auto'
+      }
     }
   }
 })
 
-export const flowSep = style({
-  color: vars.color.ink4,
+export const flowStep = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  textAlign: 'center',
+  gap: '6px',
+  padding: '0 4px',
+  position: 'relative',
+  zIndex: 1,
   '@media': {
-    '(max-width: 900px)': {
-      display: 'inline-block',
-      transform: 'rotate(90deg)',
-      lineHeight: 1
+    '(max-width: 640px)': {
+      flexDirection: 'row',
+      alignItems: 'center',
+      textAlign: 'left',
+      gap: '10px',
+      padding: 0
     }
   }
 })
-export const flowCur = style({ color: vars.color.accent, fontWeight: 600 })
+
+export const flowDot = style({
+  width: '11px',
+  height: '11px',
+  borderRadius: '50%',
+  border: `1.5px solid ${vars.color.line}`,
+  background: vars.color.bg,
+  flexShrink: 0,
+  '@media': {
+    '(max-width: 640px)': {
+      position: 'absolute',
+      left: '-21px',
+      top: '50%',
+      transform: 'translateY(-50%)'
+    }
+  }
+})
+
+export const flowNum = style({
+  fontFamily: vars.font.mono,
+  fontSize: '10px',
+  color: vars.color.ink4,
+  letterSpacing: '0.1em',
+  marginTop: '6px'
+})
+
+export const flowIcon = style({
+  fontSize: '22px',
+  lineHeight: 1
+})
+
+export const flowLabel = style({
+  fontSize: '13px',
+  fontWeight: 500,
+  color: vars.color.ink2,
+  lineHeight: 1.3
+})
+
+export const flowStepCur = style({})
+
+globalStyle(`.${flowStepCur} .${flowDot}`, {
+  background: vars.color.accent,
+  borderColor: vars.color.accent
+})
+
+globalStyle(`.${flowStepCur} .${flowLabel}`, {
+  color: vars.color.accent,
+  fontWeight: 600
+})
+
+globalStyle(`.${flowStepCur} .${flowNum}`, {
+  color: vars.color.accent
+})
 
 export const pull = style({
   margin: '40px 0',

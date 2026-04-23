@@ -26,9 +26,13 @@ import {
   sectionTitle,
   sectionMeta,
   prose,
-  flowLine,
-  flowSep,
-  flowCur,
+  flowSteps,
+  flowStep,
+  flowStepCur,
+  flowDot,
+  flowNum,
+  flowIcon,
+  flowLabel,
   pull,
   proseSub,
   metrics,
@@ -154,15 +158,32 @@ const socialLinks = [
         {/* Prose */}
         <section class={section}>
           <div class={prose}>
-            <p class={flowLine} aria-hidden='true'>
-              <span>게임</span>
-              <span class={flowSep}>→</span>
-              <span>웹 서비스</span>
-              <span class={flowSep}>→</span>
-              <span>웹 리드</span>
-              <span class={flowSep}>→</span>
-              <span class={flowCur}>플랫폼 엔지니어링</span>
-            </p>
+            <ol class={flowSteps} aria-label='커리어 흐름'>
+              <li class={flowStep}>
+                <span class={flowDot}></span>
+                <span class={flowIcon} aria-hidden='true'>🎮</span>
+                <span class={flowLabel}>게임</span>
+                <span class={flowNum}>01</span>
+              </li>
+              <li class={flowStep}>
+                <span class={flowDot}></span>
+                <span class={flowIcon} aria-hidden='true'>🌐</span>
+                <span class={flowLabel}>웹 서비스</span>
+                <span class={flowNum}>02</span>
+              </li>
+              <li class={flowStep}>
+                <span class={flowDot}></span>
+                <span class={flowIcon} aria-hidden='true'>👥</span>
+                <span class={flowLabel}>웹 리드</span>
+                <span class={flowNum}>03</span>
+              </li>
+              <li class={`${flowStep} ${flowStepCur}`} aria-current='true'>
+                <span class={flowDot}></span>
+                <span class={flowIcon} aria-hidden='true'>⚡</span>
+                <span class={flowLabel}>플랫폼 엔지니어링</span>
+                <span class={flowNum}>04</span>
+              </li>
+            </ol>
             <p>
               <strong>2013년, Unity로 게임을 만들며</strong> 개발을 시작했어요. iOS 리듬 게임과 Cocos2d-x
               프로젝트를 거치며, 티스토리에 남긴 "삽질의 기록"들이 지금의 뿌리가 됐어요. 화면을 만들고
