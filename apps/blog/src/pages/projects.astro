@@ -32,21 +32,18 @@ function tone(status: 'active' | 'maintenance' | 'archived') {
     ) : (
       <section class={section}>
         <div class={listGrid}>
-          {projects.map((p) => {
-            const primaryHref = p.data.links.github ?? p.data.links.demo ?? p.data.links.docs ?? `/projects/${p.data.slug}`
-            return (
-              <Card href={primaryHref}>
-                <Cover kind={p.data.cover} ratio='16 / 7' />
-                <span class={projectTag}>{p.data.tag}</span>
-                <h3 class={cardTitle}>{p.data.title}</h3>
-                <p class={cardDesc}>{p.data.description}</p>
-                <div class={cardFooter}>
-                  <Chip dot tone={tone(p.data.status)}>{p.data.status}</Chip>
-                  {p.data.stars > 0 && <span class={cardStars}>★ {p.data.stars}</span>}
-                </div>
-              </Card>
-            )
-          })}
+          {projects.map((p) => (
+            <Card href={`/projects/${p.data.slug}`}>
+              <Cover kind={p.data.cover} ratio='16 / 7' />
+              <span class={projectTag}>{p.data.tag}</span>
+              <h3 class={cardTitle}>{p.data.title}</h3>
+              <p class={cardDesc}>{p.data.description}</p>
+              <div class={cardFooter}>
+                <Chip dot tone={tone(p.data.status)}>{p.data.status}</Chip>
+                {p.data.stars > 0 && <span class={cardStars}>★ {p.data.stars}</span>}
+              </div>
+            </Card>
+          ))}
         </div>
       </section>
     )

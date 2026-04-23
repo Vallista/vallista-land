@@ -1,0 +1,110 @@
+---
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+
+import PostLayout from '@layouts/PostLayout.astro'
+import PostHeader from '@components/PostHeader.astro'
+import PostNav from '@components/PostNav.astro'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('projects')
+  return entries.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry }
+  }))
+}
+
+interface Props {
+  entry: CollectionEntry<'projects'>
+}
+
+const { entry } = Astro.props
+const { data } = entry
+
+const allProjects = await getCollection('projects')
+allProjects.sort((a, b) => a.data.title.localeCompare(b.data.title))
+const idx = allProjects.findIndex((p) => p.id === entry.id)
+const prev = idx > 0 ? allProjects[idx - 1] : null
+const next = idx >= 0 && idx < allProjects.length - 1 ? allProjects[idx + 1] : null
+
+const toneByStatus: Record<'active' | 'maintenance' | 'archived', 'green' | 'amber' | 'neutral'> = {
+  active: 'green',
+  archived: 'amber',
+  maintenance: 'neutral'
+}
+
+const chips: Array<{ label: string; tone?: 'neutral' | 'blue' | 'green' | 'amber' | 'red' }> = [
+  { label: data.tag },
+  { label: data.status, tone: toneByStatus[data.status] }
+]
+
+const linkItems = [
+  data.links.github && { label: 'GitHub', url: data.links.github },
+  data.links.demo && { label: 'Demo', url: data.links.demo },
+  data.links.docs && { label: 'Docs', url: data.links.docs }
+].filter((x): x is { label: string; url: string } => Boolean(x))
+---
+
+<PostLayout pageTitle={`${data.title} · Vallista Projects`}>
+  <PostHeader
+    slot='header'
+    eyebrow='@vallista · projects'
+    chips={chips}
+    title={data.title}
+    dek={data.description}
+    meta={data.stars > 0 ? [{ text: `★ ${data.stars}` }] : []}
+  />
+
+  {linkItems.length > 0 && (
+    <div class='project-links'>
+      {linkItems.map((l) => (
+        <a class='project-link' href={l.url} target='_blank' rel='noopener noreferrer'>
+          <span class='project-link__label'>{l.label}</span>
+          <span class='project-link__url'>{l.url}</span>
+        </a>
+      ))}
+    </div>
+  )}
+
+  <PostNav
+    slot='afterProse'
+    ariaLabel='이전/다음 프로젝트'
+    prev={prev ? { href: `/projects/${prev.data.slug}`, label: prev.data.title } : null}
+    next={next ? { href: `/projects/${next.data.slug}`, label: next.data.title } : null}
+    backHref='/projects'
+    backLabel='프로젝트 목록으로'
+  />
+</PostLayout>
+
+<style>
+  .project-links {
+    max-width: 760px;
+    margin: 0 auto;
+    display: grid;
+    gap: 12px;
+  }
+  .project-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 18px;
+    border: 1px solid var(--line2);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms;
+  }
+  .project-link:hover {
+    border-color: var(--ink3);
+  }
+  .project-link__label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .project-link__url {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink4);
+    word-break: break-all;
+  }
+</style>

@@ -3,6 +3,8 @@ import { getCollection, render } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
 import PostLayout from '@layouts/PostLayout.astro'
+import PostHeader from '@components/PostHeader.astro'
+import PostNav from '@components/PostNav.astro'
 import { normalizeArticleImage } from '@lib/article-image'
 
 export async function getStaticPaths() {
@@ -23,15 +25,24 @@ const { Content } = await render(entry)
 
 const allNotes = await getCollection('notes', (n) => !n.data.draft)
 allNotes.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-const articles = await getCollection('articles', (a) => !a.data.draft)
 const idx = allNotes.findIndex((n) => n.id === entry.id)
 const prev = idx > 0 ? allNotes[idx - 1] : null
-const next = idx < allNotes.length - 1 ? allNotes[idx + 1] : null
+const next = idx >= 0 && idx < allNotes.length - 1 ? allNotes[idx + 1] : null
 
 const dateISO = data.date.toISOString()
 const dateLabel = dateISO.slice(0, 10).replace(/-/g, '.')
 const title = data.title ?? dateLabel
 const heroImage = normalizeArticleImage(data.image, entry.id, 'notes')
+
+const chips = data.tags.map((t) => ({ label: `#${t}` }))
+
+function slugOf(id: string): string {
+  return id.replace(/\/index$/, '')
+}
+
+function labelOf(n: CollectionEntry<'notes'>): string {
+  return n.data.title ?? n.data.date.toISOString().slice(0, 10)
+}
 ---
 
 <PostLayout
@@ -39,123 +50,22 @@ const heroImage = normalizeArticleImage(data.image, entry.id, 'notes')
   heroImage={heroImage}
   heroAlt={title}
 >
-  <header slot='header' class='note-head'>
-    <div class='note-head__eyebrow'>@vallista · notes</div>
-    <h1 class='note-head__title'>{title}</h1>
-    <div class='note-head__byline'>
-      <time datetime={dateISO}>{dateLabel}</time>
-      {data.tags.length > 0 && <span class='note-head__sep'>·</span>}
-      {data.tags.map((t) => <span class='note-head__tag'>#{t}</span>)}
-    </div>
-  </header>
+  <PostHeader
+    slot='header'
+    eyebrow='@vallista · notes'
+    chips={chips}
+    title={title}
+    meta={[{ text: dateLabel, datetime: dateISO }]}
+  />
 
   <Content />
 
-  <Fragment slot='afterProse'>
-    <nav class='note-nav' aria-label='이전/다음 노트'>
-      {
-        prev ? (
-          <a class='note-nav__link note-nav__link--prev' href={`/notes/${prev.id.replace(/\/index$/, '')}`}>
-            <span class='note-nav__dir'>← 이전</span>
-            <span class='note-nav__title'>{prev.data.title ?? prev.data.date.toISOString().slice(0, 10)}</span>
-          </a>
-        ) : (
-          <span />
-        )
-      }
-      {
-        next ? (
-          <a class='note-nav__link note-nav__link--next' href={`/notes/${next.id.replace(/\/index$/, '')}`}>
-            <span class='note-nav__dir'>다음 →</span>
-            <span class='note-nav__title'>{next.data.title ?? next.data.date.toISOString().slice(0, 10)}</span>
-          </a>
-        ) : (
-          <span />
-        )
-      }
-    </nav>
-
-    <p class='note-back'>
-      <a href='/notes'>← 노트 목록으로</a>
-    </p>
-  </Fragment>
+  <PostNav
+    slot='afterProse'
+    ariaLabel='이전/다음 노트'
+    prev={prev ? { href: `/notes/${slugOf(prev.id)}`, label: labelOf(prev) } : null}
+    next={next ? { href: `/notes/${slugOf(next.id)}`, label: labelOf(next) } : null}
+    backHref='/notes'
+    backLabel='노트 목록으로'
+  />
 </PostLayout>
-
-<style>
-  .note-head {
-    max-width: 760px;
-    margin: 0 auto 32px;
-    padding: 48px 0 20px;
-    border-bottom: 1px solid var(--line2);
-  }
-  .note-head__eyebrow {
-    font-family: monospace;
-    font-size: 12px;
-    color: var(--ink4);
-    margin-bottom: 8px;
-  }
-  .note-head__title {
-    margin: 0 0 10px;
-    font-size: 28px;
-    line-height: 1.25;
-  }
-  .note-head__byline {
-    font-size: 13px;
-    color: var(--ink4);
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .note-head__sep { opacity: 0.5; }
-  .note-head__tag {
-    color: var(--ink3);
-  }
-  .note-nav {
-    max-width: 760px;
-    margin: 48px auto 16px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding-top: 20px;
-    border-top: 1px solid var(--line2);
-  }
-  .note-nav__link {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px 16px;
-    border: 1px solid var(--line2);
-    border-radius: 8px;
-    text-decoration: none;
-    color: inherit;
-    transition: border-color 120ms;
-  }
-  .note-nav__link:hover {
-    border-color: var(--ink3);
-  }
-  .note-nav__link--next {
-    text-align: right;
-  }
-  .note-nav__dir {
-    font-size: 12px;
-    color: var(--ink4);
-  }
-  .note-nav__title {
-    font-size: 14px;
-    font-weight: 500;
-  }
-  .note-back {
-    max-width: 760px;
-    margin: 24px auto 80px;
-    font-size: 13px;
-  }
-  .note-back a {
-    color: var(--ink3);
-    text-decoration: none;
-  }
-  .note-back a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-</style>

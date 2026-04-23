@@ -1,0 +1,53 @@
+---
+import Chip from '@vallista/ui/components/Chip.astro'
+import { header, chipRow, h1 as h1Style, dek as dekStyle, byline } from '../styles/article.css'
+
+type ChipTone = 'neutral' | 'blue' | 'green' | 'amber' | 'red'
+
+interface ChipProp {
+  label: string
+  tone?: ChipTone
+}
+
+interface MetaItem {
+  text: string
+  datetime?: string
+}
+
+interface Props {
+  eyebrow: string
+  chips?: ChipProp[]
+  title: string
+  dek?: string
+  meta?: MetaItem[]
+}
+
+const { eyebrow, chips = [], title, dek, meta = [] } = Astro.props
+---
+
+<header class={header}>
+  <div class='eyebrow'>{eyebrow}</div>
+  {
+    chips.length > 0 && (
+      <div class={chipRow}>
+        {chips.map((c) => (
+          <Chip tone={c.tone ?? 'neutral'}>{c.label}</Chip>
+        ))}
+      </div>
+    )
+  }
+  <h1 class={h1Style}>{title}</h1>
+  {dek && <p class={dekStyle}>{dek}</p>}
+  {
+    meta.length > 0 && (
+      <div class={byline}>
+        {meta.map((m, i) => (
+          <Fragment>
+            {i > 0 && <span>·</span>}
+            {m.datetime ? <time datetime={m.datetime}>{m.text}</time> : <span>{m.text}</span>}
+          </Fragment>
+        ))}
+      </div>
+    )
+  }
+</header>

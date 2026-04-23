@@ -3,13 +3,13 @@ import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
 import PostLayout from './PostLayout.astro'
-import Chip from '@vallista/ui/components/Chip.astro'
 import type { TocHeading } from '@vallista/ui/components/Toc.astro'
+import PostHeader from '@components/PostHeader.astro'
+import PostNav from '@components/PostNav.astro'
 import SeriesWidget from '@components/SeriesWidget.astro'
 import { estimateReadingTime } from '@lib/reading-time'
 import { seriesForEntry } from '@lib/series'
 import { normalizeArticleImage } from '@lib/article-image'
-import { header, chipRow, h1 as h1Style, dek as dekStyle, byline } from '../styles/article.css'
 
 interface Props {
   entry: CollectionEntry<'articles'>
@@ -22,8 +22,22 @@ const { minutes, words } = estimateReadingTime(body ?? '')
 const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
 
 const allArticles = await getCollection('articles', (a) => !a.data.draft)
+allArticles.sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
 const series = seriesForEntry(allArticles, entry)
 const ogImage = normalizeArticleImage(data.image, entry.id)
+
+const idx = allArticles.findIndex((a) => a.id === entry.id)
+const prev = idx > 0 ? allArticles[idx - 1] : null
+const next = idx >= 0 && idx < allArticles.length - 1 ? allArticles[idx + 1] : null
+
+const chips: Array<{ label: string; tone?: 'neutral' | 'blue' }> = [{ label: data.tag }]
+if (data.series) {
+  const seriesLabel =
+    typeof data.series === 'string'
+      ? data.series
+      : data.series.name ?? data.series.slug ?? '시리즈'
+  chips.push({ label: seriesLabel, tone: 'blue' })
+}
 ---
 
 <PostLayout
@@ -36,33 +50,31 @@ const ogImage = normalizeArticleImage(data.image, entry.id)
   showProgress
   headings={headings}
 >
-  <header slot='header' class={header}>
-    <div class={chipRow}>
-      <Chip>{data.tag}</Chip>
-      {
-        data.series && (
-          <Chip tone='blue'>
-            {typeof data.series === 'string'
-              ? data.series
-              : data.series.name ?? data.series.slug ?? '시리즈'}
-          </Chip>
-        )
-      }
-    </div>
-    <h1 class={h1Style}>{data.title}</h1>
-    {data.dek && <p class={dekStyle}>{data.dek}</p>}
-    <div class={byline}>
-      <time datetime={data.date.toISOString()}>{dateLabel}</time>
-      <span>·</span>
-      <span>{minutes} min read</span>
-      <span>·</span>
-      <span>{words.toLocaleString()} words</span>
-    </div>
-  </header>
+  <PostHeader
+    slot='header'
+    eyebrow='@vallista · articles'
+    chips={chips}
+    title={data.title}
+    dek={data.dek}
+    meta={[
+      { text: dateLabel, datetime: data.date.toISOString() },
+      { text: `${minutes} min read` },
+      { text: `${words.toLocaleString()} words` }
+    ]}
+  />
 
   {series && (
     <SeriesWidget slot='beforeProse' name={series.name} slug={series.slug} posts={series.posts} currentId={entry.id} />
   )}
 
   <slot />
+
+  <PostNav
+    slot='afterProse'
+    ariaLabel='이전/다음 아티클'
+    prev={prev ? { href: `/articles/${prev.id}`, label: prev.data.title } : null}
+    next={next ? { href: `/articles/${next.id}`, label: next.data.title } : null}
+    backHref='/articles'
+    backLabel='아티클 목록으로'
+  />
 </PostLayout>

@@ -1,0 +1,103 @@
+---
+interface NavItem {
+  href: string
+  label: string
+}
+
+interface Props {
+  prev: NavItem | null
+  next: NavItem | null
+  ariaLabel?: string
+  backHref?: string
+  backLabel?: string
+}
+
+const {
+  prev,
+  next,
+  ariaLabel = '이전/다음 글',
+  backHref,
+  backLabel = '목록으로'
+} = Astro.props
+---
+
+<nav class='post-nav' aria-label={ariaLabel}>
+  {
+    prev ? (
+      <a class='post-nav__link post-nav__link--prev' href={prev.href}>
+        <span class='post-nav__dir'>← 이전</span>
+        <span class='post-nav__title'>{prev.label}</span>
+      </a>
+    ) : (
+      <span />
+    )
+  }
+  {
+    next ? (
+      <a class='post-nav__link post-nav__link--next' href={next.href}>
+        <span class='post-nav__dir'>다음 →</span>
+        <span class='post-nav__title'>{next.label}</span>
+      </a>
+    ) : (
+      <span />
+    )
+  }
+</nav>
+
+{
+  backHref && (
+    <p class='post-nav__back'>
+      <a href={backHref}>← {backLabel}</a>
+    </p>
+  )
+}
+
+<style>
+  .post-nav {
+    max-width: 760px;
+    margin: 48px auto 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line2);
+  }
+  .post-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border: 1px solid var(--line2);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms;
+  }
+  .post-nav__link:hover {
+    border-color: var(--ink3);
+  }
+  .post-nav__link--next {
+    text-align: right;
+  }
+  .post-nav__dir {
+    font-size: 12px;
+    color: var(--ink4);
+  }
+  .post-nav__title {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .post-nav__back {
+    max-width: 760px;
+    margin: 24px auto 80px;
+    font-size: 13px;
+  }
+  .post-nav__back a {
+    color: var(--ink3);
+    text-decoration: none;
+  }
+  .post-nav__back a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+</style>
