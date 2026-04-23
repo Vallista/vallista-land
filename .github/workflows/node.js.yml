@@ -38,6 +38,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build blog (Astro + Pagefind)
+        env:
+          PUBLIC_GA_ID: ${{ secrets.PUBLIC_GA_ID }}
         run: pnpm build:blog
 
       - name: Configure git identity

@@ -42,6 +42,8 @@ import '../styles/app.css'
 interface Props {
   title: string
   description?: string
+  image?: string | null
+  ogType?: 'website' | 'article'
   counts?: {
     articles?: number
     notes?: number
@@ -49,9 +51,13 @@ interface Props {
   }
 }
 
-const { title, description, counts } = Astro.props
+const { title, description, image, ogType = 'website', counts } = Astro.props
 const path = new URL(Astro.request.url).pathname
 const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론트엔드·디자인 시스템·도구에 대한 글'
+const ogImage = image ? new URL(image, Astro.url).toString() : new URL('/favicon/favicon-512x512.png', Astro.url).toString()
+
+const GA_ID = import.meta.env.PUBLIC_GA_ID
+const isGAEnabled = import.meta.env.PROD && !!GA_ID
 ---
 
 <!doctype html>
@@ -71,8 +77,13 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
     <meta name='description' content={siteDescription} />
     <meta property='og:title' content={title} />
     <meta property='og:description' content={siteDescription} />
-    <meta property='og:type' content='website' />
+    <meta property='og:type' content={ogType} />
     <meta property='og:url' content={Astro.url.href} />
+    <meta property='og:image' content={ogImage} />
+    <meta name='twitter:card' content='summary_large_image' />
+    <meta name='twitter:title' content={title} />
+    <meta name='twitter:description' content={siteDescription} />
+    <meta name='twitter:image' content={ogImage} />
 
     <!-- FOUC 방지 + 테마 토글 전역 함수 정의. 매 페이지 렌더마다 lightClass/darkClass
          최신값을 window에 주입하여 어떤 시점에 onclick 호출되어도 안전하게 동작. -->
@@ -119,6 +130,20 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
         }
       })()
     </script>
+
+    {isGAEnabled && (
+      <Fragment>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+        <script is:inline define:vars={{ GA_ID }}>
+          window.dataLayer = window.dataLayer || []
+          function gtag() { dataLayer.push(arguments) }
+          window.gtag = gtag
+          gtag('js', new Date())
+          // 초기 로드는 자동 PV. SPA 전환은 아래 navigate() 에서 수동으로 쏨.
+          gtag('config', GA_ID)
+        </script>
+      </Fragment>
+    )}
 
     <!-- Pretendard Variable -->
     <link rel='stylesheet' as='style' crossorigin
@@ -263,6 +288,15 @@ const siteDescription = description ?? 'Vallista의 기술 블로그 — 프론�
 
             history.pushState({}, '', url.href)
             window.scrollTo(0, 0)
+
+            // SPA 전환 추적: full reload 가 아니므로 수동으로 page_view 를 보낸다.
+            if (typeof window.gtag === 'function') {
+              window.gtag('event', 'page_view', {
+                page_path: url.pathname + url.search,
+                page_title: document.title,
+                page_location: url.href
+              })
+            }
 
             document.dispatchEvent(new CustomEvent('vallista:page-load'))
           } catch (err) {

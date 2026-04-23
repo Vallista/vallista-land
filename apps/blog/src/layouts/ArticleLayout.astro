@@ -9,6 +9,7 @@ import type { TocHeading } from '@vallista/ui/components/Toc.astro'
 import SeriesWidget from '@components/SeriesWidget.astro'
 import { estimateReadingTime } from '@lib/reading-time'
 import { seriesForEntry } from '@lib/series'
+import { normalizeArticleImage } from '@lib/article-image'
 import { progress, header, chipRow, h1 as h1Style, dek as dekStyle, byline, prose } from '../styles/article.css'
 
 interface Props {
@@ -24,9 +25,16 @@ const dateLabel = data.date.toISOString().slice(0, 10).replace(/-/g, '.')
 
 const allArticles = await getCollection('articles', (a) => !a.data.draft)
 const series = seriesForEntry(allArticles, entry)
+const ogImage = normalizeArticleImage(data.image, entry.id)
 ---
 
-<BaseLayout title={`${data.title} · Vallista Blog`} description={data.dek || data.description} counts={counts}>
+<BaseLayout
+  title={`${data.title} · Vallista Blog`}
+  description={data.dek || data.description}
+  image={ogImage}
+  ogType='article'
+  counts={counts}
+>
   <div class={progress} data-progress></div>
 
   <header class={header}>
