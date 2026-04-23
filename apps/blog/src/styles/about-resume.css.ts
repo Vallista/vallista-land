@@ -214,10 +214,29 @@ export const flowLine = style({
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
   width: 'fit-content',
-  maxWidth: '100%'
+  maxWidth: '100%',
+  '@media': {
+    '(max-width: 720px)': {
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: '8px',
+      padding: '14px 16px',
+      borderRadius: '14px',
+      width: '100%'
+    }
+  }
 })
 
-export const flowSep = style({ color: vars.color.ink4 })
+export const flowSep = style({
+  color: vars.color.ink4,
+  '@media': {
+    '(max-width: 720px)': {
+      display: 'inline-block',
+      transform: 'rotate(90deg)',
+      lineHeight: 1
+    }
+  }
+})
 export const flowCur = style({ color: vars.color.accent, fontWeight: 600 })
 
 export const pull = style({
