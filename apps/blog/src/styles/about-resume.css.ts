@@ -423,7 +423,7 @@ export const timeline = style({
 
 export const tItem = style({
   display: 'grid',
-  gridTemplateColumns: '80px 12px 1fr',
+  gridTemplateColumns: '80px 12px minmax(0, 1fr)',
   gap: '20px',
   padding: '24px 0',
   borderBottom: `1px solid ${vars.color.line2}`,
@@ -432,7 +432,7 @@ export const tItem = style({
   },
   '@media': {
     '(max-width: 720px)': {
-      gridTemplateColumns: '60px 12px 1fr',
+      gridTemplateColumns: '60px 12px minmax(0, 1fr)',
       gap: '12px'
     }
   }
@@ -470,7 +470,7 @@ export const tDotNow = style({
   borderColor: vars.color.accent
 })
 
-export const tBody = style({})
+export const tBody = style({ minWidth: 0 })
 
 export const tOrg = style({
   fontFamily: vars.font.mono,
@@ -503,6 +503,15 @@ export const chipRow = style({
   display: 'flex',
   gap: '6px',
   flexWrap: 'wrap'
+})
+
+// chipRow 안의 Chip은 긴 한글 문장을 담는 경우가 있어 nowrap을 해제한다.
+// Chip 공용 컴포넌트 기본 동작(nowrap)은 다른 곳에서 유지.
+globalStyle(`.${chipRow} > *`, {
+  maxWidth: '100%',
+  whiteSpace: 'normal',
+  wordBreak: 'keep-all',
+  lineHeight: 1.4
 })
 
 // ── Works cards ─────────────────────────────────────────────
