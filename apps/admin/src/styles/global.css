@@ -1560,6 +1560,8 @@ textarea.input { resize: vertical; line-height: 1.5; }
   background: var(--ink-hover-bg, rgba(0, 0, 0, 0.04));
 }
 
+.posts-table td .chip + .chip { margin-left: 4px; }
+
 .btn--ghost:hover {
   background: var(--bg-soft);
   border-color: var(--ink);
