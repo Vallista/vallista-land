@@ -1,5 +1,5 @@
 {
-  "name": "@vallista/admin",
+  "name": "@vallista/pensmith",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -55,8 +55,8 @@
     "wait-on": "^8.0.1"
   },
   "build": {
-    "appId": "com.vallista.admin",
-    "productName": "Vallista 블로그 운영 툴",
+    "appId": "com.vallista.pensmith",
+    "productName": "Pensmith",
     "directories": {
       "output": "release",
       "buildResources": "build"
