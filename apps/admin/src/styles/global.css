@@ -1441,6 +1441,44 @@ code {
   font-variant-numeric: tabular-nums;
 }
 
+.series-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.series-list__row {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.series-list__row:last-child { border-bottom: none; }
+
+.series-list__order {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+}
+
+.series-list__title {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.series-list__title:hover { text-decoration: underline; }
+
+.series-list__date {
+  font-variant-numeric: tabular-nums;
+}
+
 .btn--ghost:hover {
   background: var(--bg-soft);
   border-color: var(--ink);
