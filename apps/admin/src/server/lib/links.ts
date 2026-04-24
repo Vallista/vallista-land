@@ -21,15 +21,22 @@ export type LinkCheckResult = {
 
 type RawRef = { type: 'image' | 'link'; raw: string; target: string }
 
+function normalizeTarget(raw: string): string {
+  let t = raw.trim()
+  if (t.startsWith('<') && t.endsWith('>')) t = t.slice(1, -1)
+  else if (t.startsWith('<')) t = t.slice(1)
+  return t
+}
+
 function extractRefs(src: string): RawRef[] {
   const out: RawRef[] = []
-  const rxImg = /!\[[^\]]*\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g
-  const rxLink = /(?<!!)\[[^\]]*\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g
+  const rxImg = /!\[[^\]]*\]\(\s*(<[^>]+>|[^)\s]+)(?:\s+"[^"]*")?\s*\)/g
+  const rxLink = /(?<!!)\[[^\]]*\]\(\s*(<[^>]+>|[^)\s]+)(?:\s+"[^"]*")?\s*\)/g
   for (const m of src.matchAll(rxImg)) {
-    out.push({ type: 'image', raw: m[0], target: m[1] })
+    out.push({ type: 'image', raw: m[0], target: normalizeTarget(m[1]) })
   }
   for (const m of src.matchAll(rxLink)) {
-    out.push({ type: 'link', raw: m[0], target: m[1] })
+    out.push({ type: 'link', raw: m[0], target: normalizeTarget(m[1]) })
   }
   return out
 }

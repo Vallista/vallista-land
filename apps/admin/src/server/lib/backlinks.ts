@@ -25,9 +25,12 @@ function pickTitle(src: PostSource): string {
 
 function extractLinks(src: string): string[] {
   const out = new Set<string>()
-  const rxLink = /(?<!!)\[[^\]]*\]\(\s*([^)\s]+)(?:\s+"[^"]*")?\s*\)/g
+  const rxLink = /(?<!!)\[[^\]]*\]\(\s*(<[^>]+>|[^)\s]+)(?:\s+"[^"]*")?\s*\)/g
   for (const m of src.matchAll(rxLink)) {
-    out.add(m[1])
+    let t = m[1].trim()
+    if (t.startsWith('<') && t.endsWith('>')) t = t.slice(1, -1)
+    else if (t.startsWith('<')) t = t.slice(1)
+    out.add(t)
   }
   return [...out]
 }
