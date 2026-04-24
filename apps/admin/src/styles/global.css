@@ -1543,6 +1543,23 @@ textarea.input { resize: vertical; line-height: 1.5; }
   .preset-layout__list { max-height: 240px; }
 }
 
+.backlink-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.backlink-list a { color: var(--ink); text-decoration: none; font-weight: 500; }
+.backlink-list a:hover { text-decoration: underline; }
+
+.posts-table tr.is-active td {
+  background: var(--ink-hover-bg, rgba(0, 0, 0, 0.04));
+}
+
 .btn--ghost:hover {
   background: var(--bg-soft);
   border-color: var(--ink);
