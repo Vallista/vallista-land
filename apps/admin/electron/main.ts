@@ -64,10 +64,10 @@ async function createWindow(): Promise<void> {
   const win = new BrowserWindow({
     width: 1440,
     height: 920,
-    title: 'Vallista 블로그 운영 툴',
+    title: 'Pensmith',
     backgroundColor: '#ffffff',
     titleBarStyle: 'hiddenInset',
-    trafficLightPosition: { x: 14, y: 14 },
+    trafficLightPosition: { x: 14, y: 16 },
     webPreferences: {
       preload: resolve(HERE, 'preload.mjs'),
       contextIsolation: true,

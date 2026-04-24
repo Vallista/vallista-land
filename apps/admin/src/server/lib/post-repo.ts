@@ -101,6 +101,40 @@ async function discoverFiles(cat: Category): Promise<Array<{ slug: string; absPa
   return out
 }
 
+export type PostSource = {
+  category: Category
+  slug: string
+  filePath: string
+  absPath: string
+  content: string
+  data: Frontmatter
+}
+
+export async function listAllPostSources(): Promise<PostSource[]> {
+  const cats: Category[] = ['articles', 'notes', 'projects']
+  const all: PostSource[] = []
+  for (const cat of cats) {
+    const files = await discoverFiles(cat)
+    for (const f of files) {
+      try {
+        const raw = await readFile(f.absPath, 'utf8')
+        const parsed = matter(raw)
+        all.push({
+          category: cat,
+          slug: f.slug,
+          filePath: f.relPath,
+          absPath: f.absPath,
+          content: parsed.content,
+          data: parsed.data as Frontmatter
+        })
+      } catch {
+        // skip
+      }
+    }
+  }
+  return all
+}
+
 export async function listPosts(category: Category): Promise<PostMeta[]> {
   const files = await discoverFiles(category)
   const posts = await Promise.all(

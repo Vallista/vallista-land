@@ -8,6 +8,13 @@ import analyticsRoute from './routes/analytics'
 import mediaRoute from './routes/media'
 import draftsRoute from './routes/drafts'
 import ciRoute from './routes/ci'
+import assetsRoute from './routes/assets'
+import statsRoute from './routes/stats'
+import linksRoute from './routes/links'
+import seriesRoute from './routes/series'
+import presetsRoute from './routes/presets'
+import backlinksRoute from './routes/backlinks'
+import branchesRoute from './routes/branches'
 import { sweepOldDrafts } from './lib/draft-repo'
 
 export function createApp(): Hono {
@@ -32,6 +39,13 @@ export function createApp(): Hono {
   app.route('/api/media', mediaRoute)
   app.route('/api/drafts', draftsRoute)
   app.route('/api/ci', ciRoute)
+  app.route('/api/assets', assetsRoute)
+  app.route('/api/stats', statsRoute)
+  app.route('/api/links', linksRoute)
+  app.route('/api/series', seriesRoute)
+  app.route('/api/presets', presetsRoute)
+  app.route('/api/backlinks', backlinksRoute)
+  app.route('/api/branches', branchesRoute)
 
   return app
 }

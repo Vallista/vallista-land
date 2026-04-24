@@ -1,4 +1,4 @@
-import { mkdir, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises'
 import { extname, join, resolve, sep } from 'node:path'
 import { randomBytes } from 'node:crypto'
 import matter from 'gray-matter'
@@ -151,9 +151,158 @@ export async function finalizeDraft(args: {
   // index.md 를 draft 폴더에 먼저 기록한 다음 rename (all-or-nothing)
   const raw = matter.stringify(args.content, args.frontmatter)
   await writeFile(join(src, 'index.md'), raw, 'utf8')
+  // draft.json 은 임시저장용 메타이므로 finalize 시 제거
+  try {
+    await rm(join(src, DRAFT_DOC_FILENAME), { force: true })
+  } catch {
+    // noop
+  }
   await rename(src, destDir)
 
   return { filePath: `${args.category}/${args.slug}/index.md` }
+}
+
+export type DraftDoc = {
+  category: Category | null
+  slug: string
+  title: string
+  frontmatter: Record<string, unknown>
+  content: string
+  updatedAt: string
+}
+
+export type DraftSummary = {
+  draftId: string
+  category: Category | null
+  slug: string
+  title: string
+  updatedAt: string
+  createdAt: string
+  sizeBytes: number
+  assetCount: number
+}
+
+const DRAFT_DOC_FILENAME = 'draft.json'
+
+function draftDocPath(draftId: string): string {
+  return join(draftDir(draftId), DRAFT_DOC_FILENAME)
+}
+
+function asCategory(v: unknown): Category | null {
+  if (typeof v !== 'string') return null
+  return (['articles', 'notes', 'projects'] as const).includes(v as Category)
+    ? (v as Category)
+    : null
+}
+
+export async function saveDraftDoc(
+  draftId: string,
+  body: {
+    category: Category | null
+    slug: string
+    title: string
+    frontmatter: Record<string, unknown>
+    content: string
+  }
+): Promise<DraftDoc> {
+  if (!isValidDraftId(draftId)) {
+    throw Object.assign(new Error('invalid draft id'), { code: 'EINVAL' })
+  }
+  const dir = draftDir(draftId)
+  await mkdir(dir, { recursive: true })
+  const doc: DraftDoc = {
+    category: body.category,
+    slug: body.slug,
+    title: body.title,
+    frontmatter: body.frontmatter,
+    content: body.content,
+    updatedAt: new Date().toISOString()
+  }
+  await writeFile(draftDocPath(draftId), JSON.stringify(doc, null, 2), 'utf8')
+  return doc
+}
+
+export async function getDraftDoc(draftId: string): Promise<DraftDoc | null> {
+  if (!isValidDraftId(draftId)) {
+    throw Object.assign(new Error('invalid draft id'), { code: 'EINVAL' })
+  }
+  try {
+    const raw = await readFile(draftDocPath(draftId), 'utf8')
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    return {
+      category: asCategory(parsed.category),
+      slug: typeof parsed.slug === 'string' ? parsed.slug : '',
+      title: typeof parsed.title === 'string' ? parsed.title : '',
+      frontmatter:
+        parsed.frontmatter && typeof parsed.frontmatter === 'object'
+          ? (parsed.frontmatter as Record<string, unknown>)
+          : {},
+      content: typeof parsed.content === 'string' ? parsed.content : '',
+      updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : new Date().toISOString()
+    }
+  } catch {
+    return null
+  }
+}
+
+async function measureDraftSize(dir: string): Promise<{ bytes: number; assets: number }> {
+  let bytes = 0
+  let assets = 0
+  try {
+    const walk = async (d: string, depth: number): Promise<void> => {
+      if (depth > 3) return
+      const entries = await readdir(d, { withFileTypes: true })
+      for (const e of entries) {
+        const full = join(d, e.name)
+        if (e.isDirectory()) {
+          await walk(full, depth + 1)
+        } else if (e.isFile()) {
+          try {
+            const st = await stat(full)
+            bytes += st.size
+            if (d.endsWith('/assets') || d.includes(`${sep}assets`)) assets++
+          } catch {
+            // skip
+          }
+        }
+      }
+    }
+    await walk(dir, 0)
+  } catch {
+    // noop
+  }
+  return { bytes, assets }
+}
+
+export async function listDrafts(): Promise<DraftSummary[]> {
+  try {
+    await mkdir(DRAFTS_ROOT, { recursive: true })
+    const entries = await readdir(DRAFTS_ROOT, { withFileTypes: true })
+    const out: DraftSummary[] = []
+    for (const e of entries) {
+      if (!e.isDirectory()) continue
+      if (!isValidDraftId(e.name)) continue
+      const doc = await getDraftDoc(e.name)
+      if (!doc) continue
+      const tsMatch = e.name.match(/^d-(\d+)-/)
+      const createdAt = tsMatch ? new Date(Number(tsMatch[1])).toISOString() : doc.updatedAt
+      const measure = await measureDraftSize(draftDir(e.name))
+      out.push({
+        draftId: e.name,
+        category: doc.category,
+        slug: doc.slug,
+        title: doc.title,
+        updatedAt: doc.updatedAt,
+        createdAt,
+        sizeBytes: measure.bytes,
+        assetCount: measure.assets
+      })
+    }
+    out.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))
+    return out
+  } catch {
+    return []
+  }
 }
 
 export async function sweepOldDrafts(): Promise<number> {

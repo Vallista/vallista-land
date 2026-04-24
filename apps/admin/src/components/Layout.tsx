@@ -4,7 +4,7 @@ import Sidebar from './Sidebar'
 import CIStatusBar from './CIStatusBar'
 import TopBar from './TopBar'
 
-const SIDEBAR_KEY = 'admin.sidebar.collapsed'
+const SIDEBAR_KEY = 'pensmith.sidebar.collapsed'
 
 function readCollapsed(): boolean {
   try {
@@ -28,14 +28,16 @@ export default function Layout() {
   const toggle = useCallback(() => setCollapsed((v) => !v), [])
 
   return (
-    <div className={collapsed ? 'app app--no-sidebar' : 'app'}>
-      {!collapsed && <Sidebar />}
-      <div className="app__main">
-        <TopBar sidebarCollapsed={collapsed} onToggleSidebar={toggle} />
-        <CIStatusBar />
-        <main className="main">
-          <Outlet />
-        </main>
+    <div className="app">
+      <TopBar sidebarCollapsed={collapsed} onToggleSidebar={toggle} />
+      <div className={collapsed ? 'app__body app__body--no-sidebar' : 'app__body'}>
+        {!collapsed && <Sidebar />}
+        <div className="app__main">
+          <CIStatusBar />
+          <main className="main">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   )

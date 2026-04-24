@@ -14,7 +14,6 @@ export default function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar__brand">Vallista 블로그 운영 툴</div>
       <nav className="sidebar__nav">
         <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : undefined)}>
           대시보드
@@ -34,11 +33,37 @@ export default function Sidebar() {
         <NavLink to="/publish" className={({ isActive }) => (isActive ? 'active' : undefined)}>
           배포
         </NavLink>
+        <NavLink to="/branches" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          브랜치
+        </NavLink>
+        <NavLink to="/drafts" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          임시저장
+        </NavLink>
+        <NavLink to="/media" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          미디어
+        </NavLink>
+        <div className="sidebar__section">분석</div>
         <NavLink to="/analytics" className={({ isActive }) => (isActive ? 'active' : undefined)}>
           애널리틱스
         </NavLink>
+        <NavLink to="/stats" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          콘텐츠 통계
+        </NavLink>
+        <NavLink to="/links" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          링크 체커
+        </NavLink>
+        <NavLink to="/backlinks" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          백링크
+        </NavLink>
+        <div className="sidebar__section">정리</div>
+        <NavLink to="/series" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          시리즈
+        </NavLink>
+        <NavLink to="/presets" className={({ isActive }) => (isActive ? 'active' : undefined)}>
+          프리셋
+        </NavLink>
       </nav>
-      <div className="sidebar__foot">vallista-land</div>
+      <div className="sidebar__foot">Pensmith</div>
     </aside>
   )
 }

@@ -37,6 +37,9 @@ apps/admin/release
 # Playwright MCP 테스트 산출물
 .playwright-mcp
 
+# 루트에 떨어지는 임시 스크린샷 (하위 디렉토리 PNG는 영향 없음)
+/*.png
+
 
 .npmrc
 

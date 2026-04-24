@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import { getPublishStatus, publishCommit } from '@/lib/api'
-import type { PublishResult, PublishStatus } from '@/lib/types'
+import { getGitLog, getPublishStatus, publishCommit } from '@/lib/api'
+import type { GitLog, PublishResult, PublishStatus } from '@/lib/types'
+import GitGraph from '@/components/GitGraph'
+import CIHistory from '@/components/CIHistory'
 
 function statusLabel(index: string, worktree: string): string {
   const code = `${index}${worktree}`.trim()
@@ -18,6 +20,15 @@ export default function Publish() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<PublishResult | null>(null)
+  const [log, setLog] = useState<GitLog | null>(null)
+  const [logErr, setLogErr] = useState<string | null>(null)
+
+  const loadLog = () => {
+    setLogErr(null)
+    getGitLog(50)
+      .then(setLog)
+      .catch((e: unknown) => setLogErr(e instanceof Error ? e.message : String(e)))
+  }
 
   const load = () => {
     setErr(null)
@@ -29,6 +40,7 @@ export default function Publish() {
         setMessage(suggestMessage(s))
       })
       .catch((e: unknown) => setErr(e instanceof Error ? e.message : String(e)))
+    loadLog()
   }
 
   useEffect(load, [])
@@ -51,6 +63,7 @@ export default function Publish() {
       setResult(r)
       const refreshed = await getPublishStatus()
       setStatus(refreshed)
+      loadLog()
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
     } finally {
@@ -160,6 +173,39 @@ export default function Publish() {
           오류: {err}
         </div>
       )}
+      <section className="card" style={{ marginTop: 16 }}>
+        <h2>GitHub Actions 히스토리</h2>
+        <CIHistory />
+      </section>
+
+      <section className="card" style={{ marginTop: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 14
+          }}
+        >
+          <h2 style={{ margin: 0 }}>최근 커밋</h2>
+          <button
+            type="button"
+            className="btn btn--ghost btn--sm"
+            onClick={loadLog}
+            disabled={busy}
+          >
+            새로고침
+          </button>
+        </div>
+        {logErr ? (
+          <p className="err">오류: {logErr}</p>
+        ) : !log ? (
+          <p className="muted">불러오는 중…</p>
+        ) : (
+          <GitGraph commits={log.commits} />
+        )}
+      </section>
+
       {result && (
         <section className="card" style={{ marginTop: 16 }}>
           <h2>결과</h2>

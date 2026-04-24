@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { getPublishStatus, publishCommit } from '../lib/publish'
+import { getGitLog, getPublishStatus, publishCommit } from '../lib/publish'
 
 const route = new Hono()
 
@@ -13,6 +13,18 @@ route.get('/status', async (c) => {
   try {
     const status = await getPublishStatus()
     return c.json(status)
+  } catch (e) {
+    const err = e as Error
+    return c.json({ error: err.message }, 500)
+  }
+})
+
+route.get('/log', async (c) => {
+  const limitRaw = c.req.query('limit')
+  const limit = Number(limitRaw) || 50
+  try {
+    const commits = await getGitLog(limit)
+    return c.json({ commits })
   } catch (e) {
     const err = e as Error
     return c.json({ error: err.message }, 500)

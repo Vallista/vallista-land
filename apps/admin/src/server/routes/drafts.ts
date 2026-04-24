@@ -4,9 +4,12 @@ import {
   createDraft,
   deleteDraft,
   finalizeDraft,
+  getDraftDoc,
   isValidDraftId,
+  listDrafts,
   resolveDraftAssetPath,
-  saveDraftAsset
+  saveDraftAsset,
+  saveDraftDoc
 } from '../lib/draft-repo'
 import { CATEGORIES } from '../paths'
 import type { Category } from '../../lib/types'
@@ -37,9 +40,45 @@ function isCategory(v: unknown): v is Category {
 
 const route = new Hono()
 
+route.get('/', async (c) => {
+  const items = await listDrafts()
+  return c.json({ items })
+})
+
 route.post('/', async (c) => {
   const r = await createDraft()
   return c.json(r, 201)
+})
+
+route.get('/:id', async (c) => {
+  const id = c.req.param('id')
+  if (!isValidDraftId(id)) return c.json({ error: 'invalid draft id' }, 400)
+  const doc = await getDraftDoc(id)
+  if (!doc) return c.json({ error: 'not found' }, 404)
+  return c.json({ draftId: id, ...doc })
+})
+
+route.put('/:id', async (c) => {
+  const id = c.req.param('id')
+  if (!isValidDraftId(id)) return c.json({ error: 'invalid draft id' }, 400)
+  const body: unknown = await c.req.json().catch(() => null)
+  if (!body || typeof body !== 'object') return c.json({ error: 'invalid body' }, 400)
+  const o = body as Record<string, unknown>
+  const category = isCategory(o.category) ? o.category : null
+  const slug = typeof o.slug === 'string' ? o.slug : ''
+  const title = typeof o.title === 'string' ? o.title : ''
+  const frontmatter =
+    o.frontmatter && typeof o.frontmatter === 'object'
+      ? (o.frontmatter as Record<string, unknown>)
+      : {}
+  const content = typeof o.content === 'string' ? o.content : ''
+  try {
+    const doc = await saveDraftDoc(id, { category, slug, title, frontmatter, content })
+    return c.json({ draftId: id, ...doc })
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException
+    return c.json({ error: err.message }, err.code === 'EINVAL' ? 400 : 500)
+  }
 })
 
 route.delete('/:id', async (c) => {

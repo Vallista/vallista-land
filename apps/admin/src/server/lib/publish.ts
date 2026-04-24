@@ -61,6 +61,56 @@ export type PublishResult = {
   message: string
 }
 
+export type GitCommitInfo = {
+  sha: string
+  shortSha: string
+  parents: string[]
+  subject: string
+  authorName: string
+  authorEmail: string
+  authorDate: string
+  refs: string[]
+}
+
+const LOG_FIELD_SEP = '\x1f'
+const LOG_RECORD_SEP = '\x1e'
+const LOG_FORMAT = [
+  '%H',
+  '%P',
+  '%s',
+  '%an',
+  '%ae',
+  '%aI',
+  '%D'
+].join(LOG_FIELD_SEP) + LOG_RECORD_SEP
+
+export async function getGitLog(limit: number): Promise<GitCommitInfo[]> {
+  const n = Math.max(1, Math.min(200, Math.floor(limit) || 50))
+  const out = await git(['log', `-n`, String(n), `--format=${LOG_FORMAT}`])
+  const commits: GitCommitInfo[] = []
+  for (const raw of out.split(LOG_RECORD_SEP)) {
+    const line = raw.replace(/^\n+/, '')
+    if (!line.trim()) continue
+    const parts = line.split(LOG_FIELD_SEP)
+    if (parts.length < 7) continue
+    const [sha, parents, subject, an, ae, aI, refs] = parts
+    commits.push({
+      sha,
+      shortSha: sha.slice(0, 7),
+      parents: parents.split(' ').map((s) => s.trim()).filter(Boolean),
+      subject,
+      authorName: an,
+      authorEmail: ae,
+      authorDate: aI,
+      refs: refs
+        .split(',')
+        .map((r) => r.trim())
+        .filter(Boolean)
+    })
+  }
+  return commits
+}
+
 export async function publishCommit(args: {
   message: string
   push: boolean

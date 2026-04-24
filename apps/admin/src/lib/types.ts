@@ -66,6 +66,21 @@ export type PublishResult = {
   message: string
 }
 
+export type GitCommit = {
+  sha: string
+  shortSha: string
+  parents: string[]
+  subject: string
+  authorName: string
+  authorEmail: string
+  authorDate: string
+  refs: string[]
+}
+
+export type GitLog = {
+  commits: GitCommit[]
+}
+
 export type AnalyticsNotConfigured = {
   configured: false
   hint: string
@@ -94,6 +109,155 @@ export type UploadTarget =
   | { type: 'draft'; draftId: string }
 
 export type CreateDraftResult = { draftId: string }
+
+export type DraftSummary = {
+  draftId: string
+  category: Category | null
+  slug: string
+  title: string
+  updatedAt: string
+  createdAt: string
+  sizeBytes: number
+  assetCount: number
+}
+
+export type DraftsList = {
+  items: DraftSummary[]
+}
+
+export type AssetEntry = {
+  category: Category
+  postSlug: string
+  filename: string
+  relPath: string
+  sizeBytes: number
+  referenced: boolean
+  referencedBy: string[]
+}
+
+export type AssetReport = {
+  totalBytes: number
+  orphanBytes: number
+  items: AssetEntry[]
+  byCategory: Array<{ category: Category; bytes: number; count: number; orphans: number }>
+}
+
+export type DeleteAssetsResult = {
+  deleted: number
+  errors: Array<{ path: string; error: string }>
+}
+
+export type StatsMonthlyPoint = { month: string; count: number }
+export type StatsTagEntry = { tag: string; count: number }
+export type StatsReport = {
+  totalPosts: number
+  totalWords: number
+  avgWords: number
+  byCategory: Array<{ category: Category; count: number; words: number }>
+  monthly: StatsMonthlyPoint[]
+  tags: StatsTagEntry[]
+  longest: Array<{ category: Category; slug: string; title: string; words: number }>
+  shortest: Array<{ category: Category; slug: string; title: string; words: number }>
+}
+
+export type LinkCheckItem = {
+  category: Category
+  slug: string
+  type: 'image' | 'link'
+  raw: string
+  reason: 'missing-asset' | 'http-error' | 'network-error'
+  status?: number
+  message?: string
+}
+
+export type LinkCheckResult = {
+  scannedPosts: number
+  checkedLinks: number
+  items: LinkCheckItem[]
+}
+
+export type SeriesEntry = {
+  name: string
+  category: Category
+  posts: Array<{
+    slug: string
+    title: string
+    date: string | null
+    order: number | null
+  }>
+}
+
+export type SeriesReport = {
+  items: SeriesEntry[]
+}
+
+export type Preset = {
+  id: string
+  name: string
+  category: Category
+  frontmatter: Record<string, unknown>
+  body: string
+  updatedAt: string
+}
+
+export type PresetList = {
+  items: Preset[]
+}
+
+export type BacklinkEdge = {
+  from: { category: Category; slug: string; title: string }
+  to: { category: Category; slug: string; title: string }
+  target: string
+}
+
+export type BacklinkReport = {
+  edges: BacklinkEdge[]
+  byPost: Array<{
+    category: Category
+    slug: string
+    title: string
+    incoming: number
+    outgoing: number
+  }>
+}
+
+export type BranchInfo = {
+  name: string
+  current: boolean
+  upstream: string | null
+  ahead: number
+  behind: number
+  lastCommit: string | null
+  lastCommitDate: string | null
+}
+
+export type BranchList = {
+  branches: BranchInfo[]
+  stashes: Array<{ index: number; subject: string }>
+}
+
+export type BranchActionResult = {
+  ok: boolean
+  output: string
+}
+
+export type DraftDoc = {
+  draftId: string
+  category: Category | null
+  slug: string
+  title: string
+  frontmatter: Record<string, unknown>
+  content: string
+  updatedAt: string
+}
+
+export type SaveDraftBody = {
+  category: Category | null
+  slug: string
+  title: string
+  frontmatter: Record<string, unknown>
+  content: string
+}
 
 export type FinalizeDraftBody = {
   category: Category
@@ -147,3 +311,24 @@ export type CIStatusUnconfigured = {
 }
 
 export type CIStatus = CIStatusConfigured | CIStatusUnconfigured
+
+export type CIRunSummary = {
+  runId: number
+  runNumber: number
+  status: CIRunStatus
+  conclusion: CIRunConclusion
+  htmlUrl: string
+  headSha: string
+  headBranch: string | null
+  commitMessage: string | null
+  workflowName: string | null
+  event: string | null
+  actor: string | null
+  startedAt: string | null
+  updatedAt: string | null
+  durationMs: number | null
+}
+
+export type CIHistory =
+  | { configured: false; hint: string }
+  | { configured: true; runs: CIRunSummary[] }

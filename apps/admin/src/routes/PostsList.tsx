@@ -12,6 +12,9 @@ const STATUS_LABEL: Record<StatusFilter, string> = {
   trashed: '휴지통'
 }
 
+type SortKey = 'title' | 'status' | 'date'
+type SortDir = 'asc' | 'desc'
+
 function isCategory(v: string | undefined): v is Category {
   return typeof v === 'string' && (CATEGORIES as readonly string[]).includes(v)
 }
@@ -23,12 +26,55 @@ function dateToMs(v: string | null | undefined): number {
   return Number.isNaN(t) ? 0 : t
 }
 
+const STATUS_ORDER: Record<PostStatus, number> = {
+  published: 0,
+  draft: 1,
+  trashed: 2
+}
+
+function SortHeader({
+  label,
+  keyName,
+  sortKey,
+  sortDir,
+  onClick
+}: {
+  label: string
+  keyName: SortKey
+  sortKey: SortKey
+  sortDir: SortDir
+  onClick: (k: SortKey) => void
+}) {
+  const active = sortKey === keyName
+  const arrow = !active ? '↕' : sortDir === 'asc' ? '↑' : '↓'
+  return (
+    <th
+      className={active ? 'th-sort th-sort--active' : 'th-sort'}
+      onClick={() => onClick(keyName)}
+    >
+      <span>{label}</span>
+      <span className="th-sort__arrow">{arrow}</span>
+    </th>
+  )
+}
+
 export default function PostsList() {
   const { category } = useParams<{ category: string }>()
   const [posts, setPosts] = useState<PostMeta[] | null>(null)
   const [err, setErr] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [sortKey, setSortKey] = useState<SortKey>('date')
+  const [sortDir, setSortDir] = useState<SortDir>('desc')
+
+  const toggleSort = (k: SortKey) => {
+    if (sortKey === k) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(k)
+      setSortDir(k === 'date' ? 'desc' : 'asc')
+    }
+  }
 
   useEffect(() => {
     if (!isCategory(category)) return
@@ -42,15 +88,24 @@ export default function PostsList() {
   const filtered = useMemo(() => {
     if (!posts) return []
     const q = query.trim().toLowerCase()
-    return posts
+    const base = posts
       .filter((p) => (statusFilter === 'all' ? true : p.status === statusFilter))
       .filter((p) => {
         if (!q) return true
         if (p.title.toLowerCase().includes(q)) return true
         return p.tags.some((t) => t.toLowerCase().includes(q))
       })
-      .sort((a, b) => dateToMs(b.date) - dateToMs(a.date))
-  }, [posts, statusFilter, query])
+    const factor = sortDir === 'asc' ? 1 : -1
+    return [...base].sort((a, b) => {
+      if (sortKey === 'title') {
+        return a.title.localeCompare(b.title, 'ko') * factor
+      }
+      if (sortKey === 'status') {
+        return (STATUS_ORDER[a.status] - STATUS_ORDER[b.status]) * factor
+      }
+      return (dateToMs(a.date) - dateToMs(b.date)) * factor
+    })
+  }, [posts, statusFilter, query, sortKey, sortDir])
 
   if (!isCategory(category)) {
     return <div className="err">알 수 없는 카테고리입니다.</div>
@@ -93,13 +148,13 @@ export default function PostsList() {
       {!posts && !err && <div className="muted">불러오는 중…</div>}
 
       {posts && (
-        <table className="posts-table">
+        <table className="posts-table posts-table--sortable">
           <thead>
             <tr>
-              <th>제목</th>
+              <SortHeader label="제목" keyName="title" sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <th>태그</th>
-              <th>상태</th>
-              <th>작성일</th>
+              <SortHeader label="상태" keyName="status" sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
+              <SortHeader label="작성일" keyName="date" sortKey={sortKey} sortDir={sortDir} onClick={toggleSort} />
               <th></th>
             </tr>
           </thead>

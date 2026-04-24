@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { CATEGORIES, CATEGORY_LABEL } from '@/lib/types'
+import CommandPalette from './CommandPalette'
+
+function getHistoryIndex(): number {
+  const s = window.history.state as { idx?: number } | null
+  return typeof s?.idx === 'number' ? s.idx : 0
+}
 
 type Props = {
   sidebarCollapsed: boolean
@@ -9,8 +15,21 @@ type Props = {
 
 export default function TopBar({ sidebarCollapsed, onToggleSidebar }: Props) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [newOpen, setNewOpen] = useState(false)
   const newBtnRef = useRef<HTMLDivElement>(null)
+  const [navIdx, setNavIdx] = useState<number>(() => getHistoryIndex())
+  const [navLen, setNavLen] = useState<number>(() => window.history.length)
+
+  useEffect(() => {
+    setNavIdx(getHistoryIndex())
+    setNavLen(window.history.length)
+  }, [location.key])
+
+  const canBack = navIdx > 0
+  const canForward = navIdx < navLen - 1
+
+  const [paletteOpen, setPaletteOpen] = useState(false)
 
   useEffect(() => {
     if (!newOpen) return
@@ -22,39 +41,66 @@ export default function TopBar({ sidebarCollapsed, onToggleSidebar }: Props) {
     return () => document.removeEventListener('mousedown', onDoc)
   }, [newOpen])
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey
+      if (mod && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen((v) => !v)
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <header className="topbar">
       <div className="topbar__lights" aria-hidden="true" />
-      <button
-        type="button"
-        className="topbar__icon-btn"
-        onClick={onToggleSidebar}
-        aria-label={sidebarCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
-        title={sidebarCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
-      >
-        <SidebarIcon />
-      </button>
-      <button
-        type="button"
-        className="topbar__icon-btn"
-        onClick={() => navigate(-1)}
-        aria-label="뒤로 가기"
-        title="뒤로 가기"
-      >
-        <BackIcon />
-      </button>
+      <div className="topbar__left">
+        <button
+          type="button"
+          className="topbar__icon-btn"
+          onClick={onToggleSidebar}
+          aria-label={sidebarCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+          title={sidebarCollapsed ? '사이드바 펼치기' : '사이드바 접기'}
+        >
+          <SidebarIcon />
+        </button>
+        <div className="topbar__group">
+          <button
+            type="button"
+            className="topbar__icon-btn"
+            onClick={() => navigate(-1)}
+            disabled={!canBack}
+            aria-label="뒤로 가기"
+            title="뒤로 가기"
+          >
+            <BackIcon />
+          </button>
+          <button
+            type="button"
+            className="topbar__icon-btn"
+            onClick={() => navigate(1)}
+            disabled={!canForward}
+            aria-label="앞으로 가기"
+            title="앞으로 가기"
+          >
+            <ForwardIcon />
+          </button>
+        </div>
+      </div>
 
       <div className="topbar__center">
-        <div className="topbar__search">
+        <button
+          type="button"
+          className="topbar__search-trigger"
+          onClick={() => setPaletteOpen(true)}
+          aria-label="검색 열기"
+        >
           <SearchIcon />
-          <input
-            type="text"
-            placeholder="검색 (준비 중)"
-            disabled
-            aria-label="검색"
-          />
+          <span className="topbar__search-trigger-text">글·임시저장 검색</span>
           <kbd className="topbar__kbd">⌘K</kbd>
-        </div>
+        </button>
       </div>
 
       <div className="topbar__right" ref={newBtnRef}>
@@ -87,6 +133,11 @@ export default function TopBar({ sidebarCollapsed, onToggleSidebar }: Props) {
           </div>
         )}
       </div>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+      />
     </header>
   )
 }
@@ -105,6 +156,20 @@ function BackIcon() {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path
         d="M9.5 3.5 5 8l4.5 4.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function ForwardIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="M6.5 3.5 11 8l-4.5 4.5"
         stroke="currentColor"
         strokeWidth="1.4"
         strokeLinecap="round"
