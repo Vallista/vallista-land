@@ -1402,6 +1402,45 @@ code {
 
 .btn--danger:hover { background: #a93226; }
 
+.stats-taglist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stats-taglist__row {
+  display: grid;
+  grid-template-columns: 140px 1fr 48px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.stats-taglist__label {
+  color: var(--ink);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats-taglist__bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--accent, #3b82f6);
+  opacity: 0.65;
+  min-width: 2px;
+}
+
+.stats-taglist__count {
+  text-align: right;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
 .btn--ghost:hover {
   background: var(--bg-soft);
   border-color: var(--ink);
