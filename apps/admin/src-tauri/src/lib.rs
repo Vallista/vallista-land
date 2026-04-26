@@ -23,6 +23,10 @@ pub fn run() {
             commands::glean::update_glean_highlights,
             commands::glean::delete_glean,
             commands::glean::fetch_url,
+            commands::tasks::list_tasks,
+            commands::tasks::add_task,
+            commands::tasks::update_task,
+            commands::tasks::delete_task,
             commands::meta::vault_info,
         ])
         .run(tauri::generate_context!())

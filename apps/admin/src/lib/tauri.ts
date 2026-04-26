@@ -7,6 +7,7 @@ import type {
   GleanHighlight,
   GleanSource,
   GleanStatus,
+  Task,
 } from '@vallista/content-core';
 
 export interface AssetData {
@@ -86,6 +87,36 @@ export async function fetchUrl(url: string): Promise<FetchedContent> {
   return invoke<FetchedContent>('fetch_url', { url });
 }
 
+export interface TaskInput {
+  id: string;
+  title: string;
+  due?: string;
+  docId?: string;
+}
+
+export interface TaskPatch {
+  title?: string;
+  done?: boolean;
+  due?: string | null;
+  docId?: string | null;
+}
+
+export async function listTasks(): Promise<Task[]> {
+  return invoke<Task[]>('list_tasks');
+}
+
+export async function addTask(input: TaskInput): Promise<Task> {
+  return invoke<Task>('add_task', { input });
+}
+
+export async function updateTask(id: string, patch: TaskPatch): Promise<Task> {
+  return invoke<Task>('update_task', { id, patch });
+}
+
+export async function deleteTask(id: string): Promise<void> {
+  await invoke('delete_task', { id });
+}
+
 export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
@@ -103,6 +134,10 @@ if (typeof window !== 'undefined') {
     updateGleanHighlights,
     deleteGlean,
     fetchUrl,
+    listTasks,
+    addTask,
+    updateTask,
+    deleteTask,
     vaultInfo,
   };
 }
