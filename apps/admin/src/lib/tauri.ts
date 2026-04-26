@@ -1,7 +1,13 @@
 import { invoke } from '@tauri-apps/api/core';
 import type {
+  Block,
+  BlockKind,
+  BlockSource,
   DocSummary,
   DocFile,
+  Mood,
+  Report,
+  ReportSummary,
   VaultInfo,
   GleanItem,
   GleanHighlight,
@@ -117,6 +123,90 @@ export async function deleteTask(id: string): Promise<void> {
   await invoke('delete_task', { id });
 }
 
+export interface BlockInput {
+  id: string;
+  date: string;
+  start: string;
+  end: string;
+  title: string;
+  kind: BlockKind;
+  src?: string;
+  attendees?: string[];
+  source?: BlockSource;
+  externalId?: string;
+}
+
+export interface BlockPatch {
+  date?: string;
+  start?: string;
+  end?: string;
+  title?: string;
+  kind?: BlockKind;
+  src?: string | null;
+  attendees?: string[];
+  done?: boolean;
+  externalId?: string | null;
+}
+
+export async function listBlocks(): Promise<Block[]> {
+  return invoke<Block[]>('list_blocks');
+}
+
+export async function listBlocksByDate(date: string): Promise<Block[]> {
+  return invoke<Block[]>('list_blocks_by_date', { date });
+}
+
+export async function listBlocksInRange(startDate: string, endDate: string): Promise<Block[]> {
+  return invoke<Block[]>('list_blocks_in_range', { startDate, endDate });
+}
+
+export async function addBlock(input: BlockInput): Promise<Block> {
+  return invoke<Block>('add_block', { input });
+}
+
+export async function updateBlock(id: string, patch: BlockPatch): Promise<Block> {
+  return invoke<Block>('update_block', { id, patch });
+}
+
+export async function deleteBlock(id: string): Promise<void> {
+  await invoke('delete_block', { id });
+}
+
+export interface MoodInput {
+  date: string;
+  energy: number;
+  mood: number;
+  note?: string;
+}
+
+export async function listMood(): Promise<Mood[]> {
+  return invoke<Mood[]>('list_mood');
+}
+
+export async function listMoodInRange(startDate: string, endDate: string): Promise<Mood[]> {
+  return invoke<Mood[]>('list_mood_in_range', { startDate, endDate });
+}
+
+export async function getMood(date: string): Promise<Mood | null> {
+  return invoke<Mood | null>('get_mood', { date });
+}
+
+export async function setMood(input: MoodInput): Promise<Mood> {
+  return invoke<Mood>('set_mood', { input });
+}
+
+export async function deleteMood(date: string): Promise<void> {
+  await invoke('delete_mood', { date });
+}
+
+export async function listReports(): Promise<ReportSummary[]> {
+  return invoke<ReportSummary[]>('list_reports');
+}
+
+export async function readReport(path: string): Promise<Report> {
+  return invoke<Report>('read_report', { path });
+}
+
 export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
@@ -220,6 +310,19 @@ if (typeof window !== 'undefined') {
     addTask,
     updateTask,
     deleteTask,
+    listBlocks,
+    listBlocksByDate,
+    listBlocksInRange,
+    addBlock,
+    updateBlock,
+    deleteBlock,
+    listMood,
+    listMoodInRange,
+    getMood,
+    setMood,
+    deleteMood,
+    listReports,
+    readReport,
     gitStatus,
     gitLog,
     gitCommitPush,

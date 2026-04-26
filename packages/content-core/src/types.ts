@@ -93,3 +93,59 @@ export interface VaultInfo {
   articleCount: number;
   noteCount: number;
 }
+
+export type BlockKind =
+  | 'routine'
+  | 'health'
+  | 'deep'
+  | 'people'
+  | 'meal'
+  | 'leisure'
+  | 'meet'
+  | 'write'
+  | 'read'
+  | 'build'
+  | 'publish'
+  | 'life';
+
+export type BlockSource = 'local' | 'gcal' | 'applecal';
+
+export interface Block {
+  id: string;
+  date: string;
+  start: string;
+  end: string;
+  title: string;
+  kind: BlockKind;
+  src?: string;
+  attendees: string[];
+  done: boolean;
+  source: BlockSource;
+  externalId?: string;
+  createdAt: string;
+}
+
+export interface Mood {
+  date: string;
+  energy: number;
+  mood: number;
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ReportPeriod = 'day' | 'week' | 'month';
+
+export interface ReportSummary {
+  id: string;
+  period: ReportPeriod;
+  generatedAt: string;
+  model: string;
+  path: string;
+  preview: string;
+}
+
+export interface Report extends ReportSummary {
+  body: string;
+  metrics?: Record<string, unknown>;
+}

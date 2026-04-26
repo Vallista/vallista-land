@@ -1,6 +1,9 @@
+pub mod blocks;
 pub mod docs;
 pub mod git;
 pub mod glean;
 pub mod insights;
 pub mod meta;
+pub mod mood;
+pub mod reports;
 pub mod tasks;
