@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Shell, type ScreenId } from './shell/Shell';
+import { NavContext } from './shell/nav';
 import { Today } from './screens/Today';
 import { Atelier } from './screens/Atelier';
 import { Glean } from './screens/Glean';
@@ -20,8 +21,10 @@ export function App() {
   const [active, setActive] = useState<ScreenId>('today');
   const ScreenComp = SCREENS[active];
   return (
-    <Shell active={active} onSelect={setActive}>
-      <ScreenComp />
-    </Shell>
+    <NavContext.Provider value={setActive}>
+      <Shell active={active} onSelect={setActive}>
+        <ScreenComp />
+      </Shell>
+    </NavContext.Provider>
   );
 }
