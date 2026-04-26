@@ -1,11 +1,13 @@
 ---
-title: 사내 워크숍; 이펙티브 타입스크립트, 객체지향의 사실과 오해를 끝내며
-tags:
-
-date: 2022-03-27 13:27:40
+title: '사내 워크숍; 이펙티브 타입스크립트, 객체지향의 사실과 오해를 끝내며'
+tags: null
+date: 2022-03-27T13:27:40.000Z
 image: ./assets/1.jpeg
 draft: false
-slug: "in-company-workshop-effective-typescript-object-oriented-facts-and-misunderstanding-finishing"
+slug: >-
+  in-company-workshop-effective-typescript-object-oriented-facts-and-misunderstanding-finishing
+id: 01KQ5B10NZRXF0WJN62CVBJJAA
+state: published
 ---
 약 2년이 되는 시간동안 사내 웹 프론트엔드 개발자들과 함께 매주 금요일 한 시간을 짬내어 워크숍을 진행해왔다. 그러면서 점진적으로 프론트 개발자 능력 향상을 도모하고 있는데, 나름 두 워크숍을 차례로 끝내며 능력을 끌어올리고 있다는걸 느꼈다.
 

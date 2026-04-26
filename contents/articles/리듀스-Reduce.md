@@ -2,10 +2,12 @@
 title: 리듀스 (Reduce)
 tags:
   - 프론트엔드
-date: 2019-05-12 11:01:13
+date: 2019-05-12T11:01:13.000Z
 draft: true
 info: false
-slug: "reduce"
+slug: reduce
+id: 01KQ5B10NR1WWCAEGYCC9NNCCT
+state: draft
 ---
 
 Reduce는 줄이다, 감속하다 라는 뜻으로써, JavaScript에서 배열 작업 할 때 원하는 부분을 줄여서 사용할 수 있다.

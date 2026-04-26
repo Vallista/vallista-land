@@ -1,6 +1,6 @@
 ---
 title: TypeScript 디자인 패턴 - 팩토리 패턴
-date: 2020-05-05 20:44:56
+date: 2020-05-05T20:44:56.000Z
 image: ./assets/0.jpg
 tags:
   - 프론트엔드
@@ -8,7 +8,9 @@ draft: false
 info: false
 series: TypeScript 디자인 패턴
 seriesPriority: 1
-slug: "design-pattern-factory-pattern"
+slug: design-pattern-factory-pattern
+id: 01KQ5B10N7679ZJKMSMXYQX29P
+state: published
 ---
 ## 팩토리 패턴이란
 

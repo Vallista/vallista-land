@@ -2,10 +2,12 @@
 title: 2017년 회고
 tags:
   - 회고
-date: 2017-12-25 18:00:55
+date: 2017-12-25T18:00:55.000Z
 draft: false
 info: false
-slug: "2017-year-retrospective"
+slug: 2017-year-retrospective
+id: 01KQ5B10MAE4C78FPFQA25KC21
+state: published
 ---
 돌이켜보면, 2017년은 나에게 많은 변화가 있는 해였던 것 같다. 모든 것이 끝나고, 새로 시작하였으며 지리적 위치 및 만나는 사람들도 달라졌기 때문이다.
 

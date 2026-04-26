@@ -1,12 +1,14 @@
 ---
 title: 효율적인 Storybook 컴포넌트 구조 만들기
-date: 2020-04-26 15:19:08
+date: 2020-04-26T15:19:08.000Z
 image: ./assets/0.jpg
 tags:
   - 프론트엔드
 draft: false
 info: false
-slug: "efficient-component-structure-making"
+slug: efficient-component-structure-making
+id: 01KQ5B10PREW9E447SGRJGM5HE
+state: published
 ---
 최근 Storybook을 활용한 디자인 시스템 개발을 많은 회사에서 진행하고 있습니다. 디자인 시스템을 구축하면서 수많은 컴포넌트가 생성되고 사라지고를 반복하는데 이러한 컴포넌트 관리를 위해 `Atomic Design`을 많은 회사에서 채택하고 있는 듯 보입니다.
 

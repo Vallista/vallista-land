@@ -3,11 +3,12 @@ title: 컴포넌트 분리의 미학
 image: ./assets/1.jpeg
 tags:
   - 프론트엔드
-
-date: 2020-03-29 15:28:01
+date: 2020-03-29T15:28:01.000Z
 draft: false
 info: false
-slug: "separation-aesthetics"
+slug: separation-aesthetics
+id: 01KQ5B10MV8ENP71SYFWDBDJDE
+state: published
 ---
 개발을 하다보면 정답이 없는 오묘한 문제가 발생합니다. 이 문제는 잘 잡지 않으면 유지보수에 큰 영향을 주지만 정답은 없습니다. 항상 탐험해야하는 문제에 해당하죠.
 

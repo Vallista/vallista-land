@@ -2,11 +2,13 @@
 title: TypeScript의 interface와 type alias
 tags:
   - 프론트엔드
-date: 2021-10-10 16:07:18
+date: 2021-10-10T16:07:18.000Z
 draft: false
 info: false
 image: ./assets/1.jpeg
-slug: "of-and"
+slug: of-and
+id: 01KQ5B10N89TZQK2333FTQC365
+state: published
 ---
 타입스크립트의 Type Alias는 장점이면서 동시에 단점도 갖고있는 양날의 검입니다. 다양한 타입을 만들어낼 수도 있는 장점을 갖고 있지만, 다양한 타입을 만들어내므로써 쓸데없이 타입이 꼬이게 만들어 코드를 복잡하게 만든다는 단점도 존재합니다.
 

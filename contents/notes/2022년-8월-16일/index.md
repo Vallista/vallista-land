@@ -2,9 +2,11 @@
 title: 2022년 8월 16일
 tags:
   - TIL
-date: 2022-08-16 16:51:47
+date: 2022-08-16T16:51:47.000Z
 image: ./assets/splash.jpg
-slug: "2022-year-8-month-16-day"
+slug: 2022-year-8-month-16-day
+id: 01KQ5B10PVJQ42414F6S4AW624
+state: sprout
 ---
 ## 오늘 한 일
 

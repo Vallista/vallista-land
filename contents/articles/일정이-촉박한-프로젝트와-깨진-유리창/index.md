@@ -1,12 +1,13 @@
 ---
 title: 일정이 촉박한 프로젝트와 깨진 유리창
-tags:
-
-date: 2022-05-01 21:21:57
+tags: null
+date: 2022-05-01T21:21:57.000Z
 image: ./assets/1.png
 draft: false
 info: false
-slug: "schedule-tight-with-project-broken-glass-window"
+slug: schedule-tight-with-project-broken-glass-window
+id: 01KQ5B10P8D9BPSE378CWYQZ1R
+state: published
 ---
 <center>깨진 유리창 이론</center>
 

@@ -3,9 +3,11 @@ title: 글또 6기를 시작하며
 image: ./assets/1.png
 tags:
   - 잡담
-date: 2021-07-13 22:39:25
+date: 2021-07-13T22:39:25.000Z
 draft: false
-slug: "geultto-6-path-starting"
+slug: geultto-6-path-starting
+id: 01KQ5B10NHXQZ9CS5A9TDVGDXM
+state: published
 ---
 이번 2021년 하반기 6기 글또에 참여하게 되었습니다. 과거에도 글또에 참여했던 적이 있었고, 그 때의 경험이 좋아서 다시 지원하게 되었습니다.
 제 블로그에 최근에 쓰였던 글인 [TypeScript에서 Redux, Redux Saga 아름답게 개발하기](https://vallista.kr/2020/07/20/TypeScript%EC%97%90%EC%84%9C-Redux-Redux-Saga-%EC%95%84%EB%A6%84%EB%8B%B5%EA%B2%8C-%EA%B0%9C%EB%B0%9C%ED%95%98%EA%B8%B0/)는 자그마치 작년 7월 20일에 쓰였네요.

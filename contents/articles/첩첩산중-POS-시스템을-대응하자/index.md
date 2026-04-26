@@ -1,13 +1,15 @@
 ---
-title: 첩첩산중, POS 시스템을 대응하자
+title: '첩첩산중, POS 시스템을 대응하자'
 tags:
   - 프론트엔드
-date: 2021-12-19 13:25:37
+date: 2021-12-19T13:25:37.000Z
 draft: false
 image: ./assets/1.png
 series: React로 영수증 개발하기
 seriesPriority: 2
-slug: "complicated-system-response"
+slug: complicated-system-response
+id: 01KQ5B10PA42VM08G159TPBK3N
+state: published
 ---
 <center>(아..)</center>
 

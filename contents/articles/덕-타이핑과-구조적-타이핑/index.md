@@ -1,11 +1,12 @@
 ---
 title: 덕 타이핑과 구조적 타이핑
-tags:
-
-date: 2021-08-19 19:09:51
+tags: null
+date: 2021-08-19T19:09:51.000Z
 draft: false
 image: ./assets/1.png
-slug: "thanks-and-typing-structural-typing"
+slug: thanks-and-typing-structural-typing
+id: 01KQ5B10NMFDTZ70P9G4F7MKES
+state: published
 ---
 덕 타이핑과 구조적 타이핑 두 가지는 비슷하면서, 근본적으로 다르다.
 

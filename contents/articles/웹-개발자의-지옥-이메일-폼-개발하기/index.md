@@ -1,12 +1,14 @@
 ---
-title: 웹 개발자의 지옥, 이메일 폼 개발하기
+title: '웹 개발자의 지옥, 이메일 폼 개발하기'
 image: ./assets/image1.png
 tags:
   - 프론트엔드
-date: 2019-12-27 20:01:32
+date: 2019-12-27T20:01:32.000Z
 draft: false
 info: false
-slug: "web-developer-hell-email-form-developing"
+slug: web-developer-hell-email-form-developing
+id: 01KQ5B10P1JA9XSN005NEE6JWQ
+state: published
 ---
 웹을 개발하다보면 사용자를 위해, 법률적인 요소로 인해, 효율성을 위해, 등 다양한 이유 때문에 이메일을 전송하게 됩니다. 하지만 이 이메일을 HTML/CSS로 구현할 때 굉장히 고통스럽다는 사실은 상대적으로 알려져 있지 않습니다.
 

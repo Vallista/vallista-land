@@ -3,12 +3,14 @@ title: TypeScript 디자인 패턴 - 메멘토 패턴
 image: ./assets/0.jpg
 tags:
   - 프론트엔드
-date: 2020-06-07 18:41:05
+date: 2020-06-07T18:41:05.000Z
 draft: false
 info: false
 series: TypeScript 디자인 패턴
 seriesPriority: 3
-slug: "design-pattern-memento-pattern"
+slug: design-pattern-memento-pattern
+id: 01KQ5B10N58YF31GYYR2HRCJJ6
+state: published
 ---
 ## 메멘토 패턴
 

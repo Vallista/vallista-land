@@ -2,10 +2,12 @@
 title: Redux
 tags:
   - React
-date: 2019-05-15 11:16:29
+date: 2019-05-15T11:16:29.000Z
 draft: true
 info: false
-slug: "redux"
+slug: redux
+id: 01KQ5B10N2GFQDHCAVSXXMBKTJ
+state: draft
 ---
 
 Redux는 React에만 속한 프레임워크가 아닌, 광범위로 사용할 수 있는 프레임워크이다.

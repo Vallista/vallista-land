@@ -3,12 +3,14 @@ title: TypeScript 디자인 패턴 - 옵저버 패턴
 image: ./assets/0.jpg
 tags:
   - 프론트엔드
-date: 2020-05-22 20:30:33
+date: 2020-05-22T20:30:33.000Z
 draft: false
 info: false
 series: TypeScript 디자인 패턴
 seriesPriority: 2
-slug: "design-pattern-observer-pattern"
+slug: design-pattern-observer-pattern
+id: 01KQ5B10N6XKPCE5N94B42AXME
+state: published
 ---
 ## 옵저버 패턴이란
 

@@ -2,10 +2,12 @@
 title: 브라우저 렌더링 과정
 tags:
   - 프론트엔드
-date: 2019-05-06 19:08:52
+date: 2019-05-06T19:08:52.000Z
 draft: true
 info: false
-slug: "browser-rendering-process"
+slug: browser-rendering-process
+id: 01KQ5B10NXRH9NFAEZ49ZXBPMX
+state: draft
 ---
 
 [NAVER D2](https://d2.naver.com/helloworld/59361)

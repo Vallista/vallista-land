@@ -3,10 +3,12 @@ title: 글또 4기를 시작하면서
 image: ./assets/1.jpg
 tags:
   - 잡담
-date: 2020-03-01 15:04:00
+date: 2020-03-01T15:04:00.000Z
 draft: false
 info: false
-slug: "geultto-4-path-while-starting"
+slug: geultto-4-path-while-starting
+id: 01KQ5B10NG2Y1ET26TZ3H0J83M
+state: published
 ---
 글또 3기에 이어서 글또 4기도 시작하게 되었습니다.
 

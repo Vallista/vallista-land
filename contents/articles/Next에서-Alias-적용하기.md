@@ -2,10 +2,12 @@
 title: Next에서 Alias 적용하기
 tags:
   - 프론트엔드
-date: 2019-05-15 11:17:29
+date: 2019-05-15T11:17:29.000Z
 draft: true
 info: false
-slug: "at-apply"
+slug: at-apply
+id: 01KQ5B10N1JHJ05QNY72ZW41GS
+state: draft
 ---
 
 next.js에서 alias를 적용하려면 여러군데에 적용해야하는데, 이게 좀 복잡하다.

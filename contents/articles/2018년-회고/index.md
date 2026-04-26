@@ -2,10 +2,12 @@
 title: 2018년 회고
 tags:
   - 회고
-date: 2019-01-05 18:02:10
+date: 2019-01-05T18:02:10.000Z
 draft: false
 info: false
-slug: "2018-year-retrospective"
+slug: 2018-year-retrospective
+id: 01KQ5B10MD65X6QRVVM7ZJKCGV
+state: published
 ---
 [2017년 회고](https://vallista.github.io/2017/12/25/2017년-회고/)를 한 것이 엊그제 같은데, 작년에 이어 올해도 어김없이 회고를 작성하려 합니다.
 

@@ -1,13 +1,15 @@
 ---
-title: 영수증, React 그리고 emotion
+title: '영수증, React 그리고 emotion'
 tags:
   - 프론트엔드
-date: 2021-11-21 11:57:00
+date: 2021-11-21T11:57:00.000Z
 draft: false
 image: ./assets/1.jpeg
 series: React로 영수증 개발하기
 seriesPriority: 1
-slug: "receipt-and"
+slug: receipt-and
+id: 01KQ5B10P0VTFSZ86QJ6DJ45Y5
+state: published
 ---
 4년 넘도록 커머스 도메인의 웹 프론트엔드를 개발해오면서 사용자(대고객)와 맞닿는 영역 그리고 사용자에겐 보이지 않는 영역 두 가지를 개발해왔다. 오늘은 그 중에서, "사용자에겐 보이지 않는 영역" 쪽의 영수증 이야기를 해볼까 한다.
 

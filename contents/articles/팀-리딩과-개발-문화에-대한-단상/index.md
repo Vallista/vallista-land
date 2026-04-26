@@ -3,10 +3,12 @@ title: 팀 리딩과 개발 문화에 대한 단상
 image: ./assets/0.jpeg
 tags:
   - 잡담
-date: 2021-07-25 17:05:28
+date: 2021-07-25T17:05:28.000Z
 draft: false
 info: false
-slug: "team-reading-development-culture-about-thoughts"
+slug: team-reading-development-culture-about-thoughts
+id: 01KQ5B10PE6ZKT65WFA7NBRMDP
+state: published
 ---
 약 1년 반 이라는 기간동안 프론트앤드 챕터의 리딩을 맡아오면서, 지금까지 개발에 대한 리딩만 신경을 써왔음을 자각하게 되었다.
 이러한 생각의 바탕에는 첫째로, 작년에 비해 약 2배 이상의 인원이 들어오게 되면서 팀 단위의 생산성을 신경쓰게 되었으며

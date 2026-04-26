@@ -12,13 +12,10 @@
       <stop offset="0" stop-color="#2a2a2e"/>
       <stop offset="1" stop-color="#0f0f11"/>
     </linearGradient>
-    <clipPath id="rounded">
-      <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224"/>
-    </clipPath>
   </defs>
 
-  <g clip-path="url(#rounded)">
-    <rect width="1024" height="1024" fill="url(#bg)"/>
+  <g transform="translate(512 512) scale(0.833) translate(-512 -512)">
+    <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#bg)"/>
 
     <path
       d="M 380 250

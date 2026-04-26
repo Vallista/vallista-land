@@ -2,9 +2,11 @@
 title: 2022년 8월 15일
 tags:
   - TIL
-date: 2022-08-15 16:51:47
+date: 2022-08-15T16:51:47.000Z
 image: ./assets/splash.jpg
-slug: "2022-year-8-month-15-day"
+slug: 2022-year-8-month-15-day
+id: 01KQ5B10PT149Y30875H4M4463
+state: sprout
 ---
 ## 오늘 한 일
 

@@ -2,10 +2,12 @@
 title: E2E (end to end) Test
 tags:
   - 프론트엔드
-date: 2017-07-01 18:41:35
+date: 2017-07-01T18:41:35.000Z
 draft: true
 info: false
-slug: "E2E-(end-to-end)-Test"
+slug: E2E-(end-to-end)-Test
+id: 01KQ5B10MXNTDGM768G43FQQR2
+state: draft
 ---
 
 전체 시스템이 제대로 작동하는지 확인하기 위한 테스트.

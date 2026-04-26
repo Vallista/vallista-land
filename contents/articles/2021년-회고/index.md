@@ -3,8 +3,10 @@ title: 2021년 회고
 image: ./assets/0.jpeg
 tags:
   - 회고
-date: 2022-01-09 02:30:00
-slug: "2021-year-retrospective"
+date: 2022-01-09T02:30:00.000Z
+slug: 2021-year-retrospective
+id: 01KQ5B10MJKN8EZG5ZV367TS3K
+state: published
 ---
 2022년이 되어, 어김없이 2021년 회고를 진행하려합니다. 이번 회고는 2020년 하반기도 진행을 안 했기 때문에, 살짝 2020년 이야기도 넣었습니다. 회고를 진행하면서 느꼈던 점은, 점점 해가 지날수록 더 많은 일을 하고 있다고 느끼며, 일하면서 비즈니스를 더 깊게 고민하면서 성장하고 있었습니다.
 

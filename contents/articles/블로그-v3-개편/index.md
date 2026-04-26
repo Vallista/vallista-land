@@ -2,9 +2,11 @@
 title: 블로그 리뉴얼 그리고 회고
 tags:
   - 회고
-date: 2022-01-17 01:23:00
+date: 2022-01-17T01:23:00.000Z
 image: ./assets/5.jpg
-slug: "blog-3"
+slug: blog-3
+id: 01KQ5B10NY1VQHF3BQJV95N1QV
+state: published
 ---
 <center>지금까지 블로그를 회고해보자</center>
 

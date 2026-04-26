@@ -26,11 +26,11 @@
     "preview:blog": "pnpm --filter @vallista/blog-astro run preview",
     "check:blog": "pnpm --filter @vallista/blog-astro run check",
     "deploy:blog": "pnpm --filter @vallista/blog-astro run deploy",
-    "dev:pensmith": "pnpm --filter @vallista/pensmith run dev",
-    "build:pensmith": "pnpm --filter @vallista/pensmith run build",
-    "dev:app": "pnpm --filter @vallista/pensmith run dev:app",
-    "pack:app": "pnpm --filter @vallista/pensmith run pack:app",
-    "build:app": "pnpm --filter @vallista/pensmith run build:app"
+    "dev:pensmith": "pnpm --filter @vallista/pensmith run tauri:dev",
+    "build:pensmith": "pnpm --filter @vallista/pensmith run tauri:build",
+    "type-check:pensmith": "pnpm --filter @vallista/pensmith run type-check",
+    "migrate:content": "pnpm --filter @vallista/pensmith run migrate:content",
+    "migrate:content:dry": "pnpm --filter @vallista/pensmith run migrate:content:dry"
   },
   "husky": {
     "hooks": {

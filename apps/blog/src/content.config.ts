@@ -3,6 +3,23 @@ import { glob } from 'astro/loaders'
 
 const COVERS = ['grid', 'stripes', 'dots', 'blocks', 'lines'] as const
 
+const DOC_STATES = ['seed', 'sprout', 'draft', 'published'] as const
+
+const pensmithLinksSchema = z
+  .object({
+    in: z.array(z.string()).default([]),
+    out: z.array(z.string()).default([])
+  })
+  .optional()
+
+const pensmithFields = {
+  id: z.string().optional(),
+  state: z.enum(DOC_STATES).optional(),
+  parentId: z.string().optional(),
+  sproutScore: z.number().min(0).max(1).optional(),
+  links: pensmithLinksSchema
+}
+
 function coerceTags(v: unknown): string[] {
   if (Array.isArray(v)) return v.map(String).filter((s) => s.trim().length > 0)
   if (typeof v === 'string' && v.trim().length > 0) return [v]
@@ -42,7 +59,8 @@ const articleSchema = z
           total: z.number().int().optional()
         })
       ])
-      .optional()
+      .optional(),
+    ...pensmithFields
   })
   .transform((data) => {
     const slug = data.slug ?? ''
@@ -89,7 +107,8 @@ const notes = defineCollection({
     tags: z.preprocess(coerceTags, z.array(z.string())).default([]),
     slug: z.string().optional(),
     image: z.string().optional(),
-    draft: z.boolean().default(false)
+    draft: z.boolean().default(false),
+    ...pensmithFields
   })
 })
 

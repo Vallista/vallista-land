@@ -3,11 +3,13 @@ title: LDAP (Lightweight Directory Access Protocol)
 image: ./assets/0.jpg
 tags:
   - 네트워크
-date: 2022-09-25 18:26:21
+date: 2022-09-25T18:26:21.000Z
 info: false
 series: 네트워크
 seriesPriority: 1
-slug: "ldap-lightweight-directory-access-protocol"
+slug: ldap-lightweight-directory-access-protocol
+id: 01KQ5B10N0M4GK2GGYY2H3W6RB
+state: published
 ---
 얼마 전, 회사에서 데브옵스 개발을 진행하던 중 회사의 조직도, 회사 구성원의 정보에 접근해야하는 일이 생겼다. 구성원들의 민감한 정보가 아닌, 조직구성도 상에서의 팀원 정보가 필요했기에 회사 구성원의 정보가 있는 DB에 들어가서 해당 데이터를 가져와 새벽 6시마다 변경된 조직도를 대상으로 정보를 업데이트 해주려는 생각이었다. 왜냐하면 데브옵스에서 Slack, Gitlab 등 사내에서 사용하는 툴의 DB에서 각 팀원의 정보에 매칭되는 사용자 정보를 가져와서 각 서비스별 아이디를 이용해 멘션을 하거나 리뷰어를 지정해주는 등 여러 기능이 동작하고 있기 때문이다. 그래서 여러 서비스에서 매칭할 데이터는 소스코드 내 메타데이터를 저장해놓고 조직구성이 변경될때마다 갱신을 해주었는데, 이 부분을 자동화하기 위함이었다.
 

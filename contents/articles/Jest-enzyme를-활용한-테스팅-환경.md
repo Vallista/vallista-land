@@ -2,10 +2,12 @@
 title: 'Jest, enzyme를 활용한 테스팅 환경'
 tags:
   - 프론트엔드
-date: 2019-05-13 11:08:23
+date: 2019-05-13T11:08:23.000Z
 draft: true
 info: false
-slug: "utilizing-testing-environment"
+slug: utilizing-testing-environment
+id: 01KQ5B10MZTGAN3G544VE3CJ37
+state: draft
 ---
 
 먼저 설명에 들어가기 앞서, 테스트에 대해서 조금 알아보도록 하자.

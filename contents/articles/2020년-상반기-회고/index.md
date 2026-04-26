@@ -3,10 +3,12 @@ title: 2020년 상반기 회고
 image: ./assets/0.jpg
 tags:
   - 회고
-date: 2020-07-11 23:57:59
+date: 2020-07-11T23:57:59.000Z
 draft: false
 info: false
-slug: "2020-year-first-half-retrospective"
+slug: 2020-year-first-half-retrospective
+id: 01KQ5B10MHXWZAVAGYD0E4DKJ4
+state: published
 ---
 2020년, 올해 상반기는 많은 일이 있었습니다. 그래서 2020년 12월에 총합한 회고를 하기보다 중간 점검을 통해 한번 짚고 넘어가는게 좋을거라 생각되어 회고를 진행하려 합니다.
 

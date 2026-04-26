@@ -5,6 +5,8 @@ tags:
   - 회고
 date: '2025-01-01T16:24:46.000Z'
 slug: 2024-year-retrospective
+id: 01KQ5B10MN4SX88M2SZYPV5ZR1
+state: published
 ---
 진짜 많은 일이 있었는데 다 못 적는다..
 

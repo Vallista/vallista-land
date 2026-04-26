@@ -3,8 +3,10 @@ title: 2022년 8월 17일
 image: ./assets/splash.jpg
 tags:
   - TIL
-date: 2022-08-17 20:23:34
-slug: "2022-year-8-month-17-day"
+date: 2022-08-17T20:23:34.000Z
+slug: 2022-year-8-month-17-day
+id: 01KQ5B10PX4R5K0EMB0J67PQBM
+state: sprout
 ---
 ## 오늘 한 일
 

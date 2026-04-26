@@ -1,11 +1,12 @@
 ---
 title: 동시성과 병렬성 (Concurrency & Parallelism)
-tags:
-
-date: 2019-12-28 16:42:00
+tags: null
+date: 2019-12-28T16:42:00.000Z
 draft: false
 info: false
-slug: "concurrency-parallelism"
+slug: concurrency-parallelism
+id: 01KQ5B10NNBVC1089T8B2EDPSW
+state: published
 ---
 비동기 작업을 할 때 `Concurrency`와 `Parallelism`에 대한 이야기가 자주오고 갑니다. 주로 비동기 작업을 처리하는데 있어 이 두 가지 방법 중 하나를 사용하기 때문이며 구현을 할 때 컴파일러, OS, 소프트웨어등 어느 관점에서든 이 구현 방법은 유효합니다.
 

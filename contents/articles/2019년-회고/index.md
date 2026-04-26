@@ -3,10 +3,12 @@ title: 2019년 회고
 image: ./assets/image1.png
 tags:
   - 회고
-date: 2019-12-29 18:24:03
+date: 2019-12-29T18:24:03.000Z
 draft: false
 info: false
-slug: "2019-year-retrospective"
+slug: 2019-year-retrospective
+id: 01KQ5B10MFSZ4MA2NYG9TEXGWY
+state: published
 ---
 2019년 한 해는 저에게 있어 많은 깨달음과 변화를 주었던 해입니다. 수많은 실패를 말미암아 부족한 점을 찾아 공부하고 다양한 시도를 통해 자기 자신의 AB 테스트를 진행했습니다. 덕분에 작년에 올해의 목표치를 달성하지 못했으나 더 값진 경험을 했다고 생각합니다.
 

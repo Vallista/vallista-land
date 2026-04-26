@@ -3,10 +3,12 @@ title: 우아한형제들 헤커톤- 제 1회 우아톤 2019 후기
 image: ./assets/icon.jpg
 tags:
   - 잡담
-date: 2019-12-10 00:51:35
+date: 2019-12-10T00:51:35.000Z
 draft: false
 info: false
-slug: "baemin-hackathon-my-1-meeting-wooathon-2019-review"
+slug: baemin-hackathon-my-1-meeting-wooathon-2019-review
+id: 01KQ5B10P00XJR1EJN0YE3A3VF
+state: published
 ---
 우아한형제들에서 제 1회, 처음으로! 사내 이벤트로써 헤커톤이 진행되었습니다. 그간 수많은 헤커톤을 해봤지만 사내에서 열리는 헤커톤을 참가해보기는 처음이었습니다. 이제 본격적으로 헤커톤 이야기를 풀어보도록 할께요!
 

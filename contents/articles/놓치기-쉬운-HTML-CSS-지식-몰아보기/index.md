@@ -3,10 +3,12 @@ title: 놓치기 쉬운 HTML/CSS 지식 몰아보기
 image: ./assets/image1.png
 tags:
   - 프론트엔드
-date: 2019-11-25 01:28:52
+date: 2019-11-25T01:28:52.000Z
 draft: false
 info: false
-slug: "missing-easy-knowledge-binge"
+slug: missing-easy-knowledge-binge
+id: 01KQ5B10NKP1QVE7W3H44SCBXN
+state: published
 ---
 하나의 프로덕트를 개발하면서 웹은 들어갈 수 밖에 없는 필수 존재입니다. 특히나 최근의 웹 시장은 웹 프론트앤드 개발자가 부족해짐에 따라 서버 개발자들이 어드민을 개발하는 일이 종종 일어나고 있습니다. 하지만 서버 개발자 중에서 HTML/CSS를 잘하시는 분도 있지만 자신 없는 분도 있기 마련입니다. 이 포스팅은 이러한 HTML/CSS에 약하신 분을 위해 중요한 개념만 짚고 넘어가고자 준비한 글 입니다.
 
