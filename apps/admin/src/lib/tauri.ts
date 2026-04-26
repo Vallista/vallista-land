@@ -163,6 +163,46 @@ export async function gitCommitPush(input: CommitInput): Promise<GitCommit> {
   return invoke<GitCommit>('git_commit_push', { input });
 }
 
+export interface InsightsDocRef {
+  id: string;
+  title: string;
+  path: string;
+  state: string;
+  updatedAt: string;
+  tags: string[];
+}
+
+export interface InsightsDocWithDegree extends InsightsDocRef {
+  inCount: number;
+  outCount: number;
+}
+
+export interface InsightsStateCounts {
+  seed: number;
+  sprout: number;
+  draft: number;
+  published: number;
+}
+
+export interface InsightsTagCount {
+  tag: string;
+  count: number;
+}
+
+export interface Insights {
+  total: number;
+  stateCounts: InsightsStateCounts;
+  orphans: InsightsDocRef[];
+  staleSeeds: InsightsDocRef[];
+  tagCounts: InsightsTagCount[];
+  hubs: InsightsDocWithDegree[];
+  recentUpdates: InsightsDocRef[];
+}
+
+export async function computeInsights(): Promise<Insights> {
+  return invoke<Insights>('compute_insights');
+}
+
 if (typeof window !== 'undefined') {
   (window as unknown as { pensmith?: unknown }).pensmith = {
     listDocs,
@@ -183,6 +223,7 @@ if (typeof window !== 'undefined') {
     gitStatus,
     gitLog,
     gitCommitPush,
+    computeInsights,
     vaultInfo,
   };
 }

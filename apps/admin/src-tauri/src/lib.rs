@@ -30,6 +30,7 @@ pub fn run() {
             commands::git::git_status,
             commands::git::git_log,
             commands::git::git_commit_push,
+            commands::insights::compute_insights,
             commands::meta::vault_info,
         ])
         .run(tauri::generate_context!())
