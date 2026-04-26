@@ -121,6 +121,48 @@ export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
 
+export interface GitFile {
+  path: string;
+  status: string;
+  staged: boolean;
+  unstaged: boolean;
+  untracked: boolean;
+}
+
+export interface GitCommit {
+  hash: string;
+  subject: string;
+  author: string;
+  time: string;
+}
+
+export interface GitState {
+  branch: string;
+  upstream: string | null;
+  ahead: number;
+  behind: number;
+  files: GitFile[];
+  lastCommit: GitCommit | null;
+}
+
+export interface CommitInput {
+  message: string;
+  paths: string[];
+  push: boolean;
+}
+
+export async function gitStatus(): Promise<GitState> {
+  return invoke<GitState>('git_status');
+}
+
+export async function gitLog(limit: number): Promise<GitCommit[]> {
+  return invoke<GitCommit[]>('git_log', { limit });
+}
+
+export async function gitCommitPush(input: CommitInput): Promise<GitCommit> {
+  return invoke<GitCommit>('git_commit_push', { input });
+}
+
 if (typeof window !== 'undefined') {
   (window as unknown as { pensmith?: unknown }).pensmith = {
     listDocs,
@@ -138,6 +180,9 @@ if (typeof window !== 'undefined') {
     addTask,
     updateTask,
     deleteTask,
+    gitStatus,
+    gitLog,
+    gitCommitPush,
     vaultInfo,
   };
 }

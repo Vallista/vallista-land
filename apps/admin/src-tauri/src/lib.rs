@@ -27,6 +27,9 @@ pub fn run() {
             commands::tasks::add_task,
             commands::tasks::update_task,
             commands::tasks::delete_task,
+            commands::git::git_status,
+            commands::git::git_log,
+            commands::git::git_commit_push,
             commands::meta::vault_info,
         ])
         .run(tauri::generate_context!())
