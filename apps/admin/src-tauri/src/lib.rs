@@ -16,6 +16,13 @@ pub fn run() {
             commands::docs::read_doc,
             commands::docs::write_doc,
             commands::docs::read_asset,
+            commands::glean::list_glean,
+            commands::glean::read_glean,
+            commands::glean::add_glean,
+            commands::glean::update_glean_status,
+            commands::glean::update_glean_highlights,
+            commands::glean::delete_glean,
+            commands::glean::fetch_url,
             commands::meta::vault_info,
         ])
         .run(tauri::generate_context!())
