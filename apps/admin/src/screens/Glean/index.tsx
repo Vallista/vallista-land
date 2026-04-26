@@ -4,6 +4,7 @@ import { listGlean } from '../../lib/tauri';
 import { PageHead } from '../../components/atoms/Atoms';
 import { GleanList } from './GleanList';
 import { GleanDetail } from './GleanDetail';
+import { SourcesRail, type SourceFilter } from './SourcesRail';
 
 export type StatusFilter = GleanStatus | 'all';
 
@@ -11,6 +12,7 @@ export function Glean() {
   const [items, setItems] = useState<GleanItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatusFilter>('all');
+  const [source, setSource] = useState<SourceFilter>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
@@ -25,9 +27,11 @@ export function Glean() {
 
   const filtered = useMemo(() => {
     if (!items) return [];
-    if (filter === 'all') return items;
-    return items.filter((i) => i.status === filter);
-  }, [items, filter]);
+    let out = items;
+    if (filter !== 'all') out = out.filter((i) => i.status === filter);
+    if (source !== 'all') out = out.filter((i) => i.source === source);
+    return out;
+  }, [items, filter, source]);
 
   const selected = useMemo(
     () => filtered.find((i) => i.id === selectedId) ?? null,
@@ -83,11 +87,12 @@ export function Glean() {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '320px 1fr',
+        gridTemplateColumns: '200px 320px 1fr',
         height: '100%',
         minHeight: 0,
       }}
     >
+      <SourcesRail items={items} source={source} onSource={setSource} />
       <GleanList
         items={filtered}
         totalCount={items.length}
