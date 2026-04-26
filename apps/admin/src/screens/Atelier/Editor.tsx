@@ -1,104 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { EditorView, keymap } from '@codemirror/view';
-import { readDoc } from '../../lib/tauri';
 import { Mono } from '../../components/atoms/Atoms';
-import { parseDoc, persistDoc } from './save';
+import { useDoc, type DocStatus } from './state';
 
-type Props = { path: string };
-
-type Status = 'loading' | 'idle' | 'dirty' | 'saving' | 'saved' | 'error';
-
-const DEBOUNCE_MS = 1500;
-
-export function Editor({ path }: Props) {
-  const [body, setBody] = useState<string>('');
-  const [frontmatter, setFrontmatter] = useState<Record<string, unknown>>({});
-  const [status, setStatus] = useState<Status>('loading');
-  const [error, setError] = useState<string | null>(null);
-  const [savedAt, setSavedAt] = useState<Date | null>(null);
-
-  const lastSavedRef = useRef<string | null>(null);
-  const timerRef = useRef<number | null>(null);
-  const flushRef = useRef<() => Promise<void>>(async () => {});
-
-  useEffect(() => {
-    setStatus('loading');
-    setError(null);
-    setSavedAt(null);
-    lastSavedRef.current = null;
-    let alive = true;
-    readDoc(path)
-      .then((file) => {
-        if (!alive) return;
-        const parsed = parseDoc(file.raw);
-        setFrontmatter(parsed.data);
-        setBody(parsed.body);
-        lastSavedRef.current = parsed.body;
-        setStatus('idle');
-      })
-      .catch((e: unknown) => {
-        if (!alive) return;
-        setError(String(e));
-        setStatus('error');
-      });
-    return () => {
-      alive = false;
-    };
-  }, [path]);
-
-  const flush = async () => {
-    if (timerRef.current !== null) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (lastSavedRef.current === null) return;
-    if (lastSavedRef.current === body) return;
-    setStatus('saving');
-    try {
-      await persistDoc(path, frontmatter, body);
-      lastSavedRef.current = body;
-      setSavedAt(new Date());
-      setStatus('saved');
-      setError(null);
-    } catch (e) {
-      setStatus('error');
-      setError(String(e));
-    }
-  };
-
-  useEffect(() => {
-    flushRef.current = flush;
-  });
-
-  useEffect(() => {
-    if (status === 'loading') return;
-    if (lastSavedRef.current === null) return;
-    if (lastSavedRef.current === body) return;
-    setStatus('dirty');
-    if (timerRef.current !== null) clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
-      flushRef.current();
-    }, DEBOUNCE_MS);
-    return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [body]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) {
-        clearTimeout(timerRef.current);
-        timerRef.current = null;
-        flushRef.current();
-      }
-    };
-  }, []);
+export function Editor() {
+  const { path, status, error, savedAt, body, frontmatter, setBody, flush } = useDoc();
 
   const cmExtensions = useMemo(
     () => [
@@ -129,13 +37,13 @@ export function Editor({ path }: Props) {
           key: 'Mod-s',
           preventDefault: true,
           run: () => {
-            flushRef.current();
+            flush();
             return true;
           },
         },
       ]),
     ],
-    [],
+    [flush],
   );
 
   if (status === 'loading') {
@@ -144,7 +52,7 @@ export function Editor({ path }: Props) {
     );
   }
 
-  if (status === 'error' && lastSavedRef.current === null) {
+  if (status === 'error' && body === '' && Object.keys(frontmatter).length === 0) {
     return (
       <div style={{ padding: 40 }}>
         <Mono style={{ fontSize: 11, color: 'var(--err)' }}>READ ERROR</Mono>
@@ -199,7 +107,7 @@ function Header({
 }: {
   path: string;
   title: string;
-  status: Status;
+  status: DocStatus;
   savedAt: Date | null;
   error: string | null;
 }) {
@@ -260,7 +168,7 @@ function SaveIndicator({
   savedAt,
   error,
 }: {
-  status: Status;
+  status: DocStatus;
   savedAt: Date | null;
   error: string | null;
 }) {
