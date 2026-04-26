@@ -3,6 +3,7 @@ import type { DocSummary } from '@vallista/content-core';
 import { listDocs } from '../../lib/tauri';
 import { Mono, PageHead } from '../../components/atoms/Atoms';
 import { DocList } from './DocList';
+import { Editor } from './Editor';
 
 export function Atelier() {
   const [docs, setDocs] = useState<DocSummary[] | null>(null);
@@ -44,8 +45,6 @@ export function Atelier() {
     );
   }
 
-  const selectedDoc = selectedPath ? docs.find((d) => d.path === selectedPath) ?? null : null;
-
   return (
     <div
       style={{
@@ -56,14 +55,14 @@ export function Atelier() {
       }}
     >
       <DocList docs={docs} selectedPath={selectedPath} onSelect={setSelectedPath} />
-      <EditorStub doc={selectedDoc} path={selectedPath} />
+      <CenterPane path={selectedPath} />
       <RightStub path={selectedPath} />
     </div>
   );
 }
 
-function EditorStub({ doc, path }: { doc: DocSummary | null; path: string | null }) {
-  if (!path || !doc) {
+function CenterPane({ path }: { path: string | null }) {
+  if (!path) {
     return (
       <div
         style={{
@@ -79,17 +78,7 @@ function EditorStub({ doc, path }: { doc: DocSummary | null; path: string | null
       </div>
     );
   }
-  return (
-    <div style={{ padding: '40px 56px', overflow: 'auto' }}>
-      <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>EDITOR · {path}</Mono>
-      <h1 style={{ margin: '14px 0 0', fontSize: 24, fontWeight: 700, color: 'var(--ink)' }}>
-        {doc.title || doc.slug || '(제목 없음)'}
-      </h1>
-      <p style={{ marginTop: 32, color: 'var(--ink-mute)', fontSize: 13 }}>
-        에디터는 M1.2에서 들어옵니다 — CodeMirror 6 마크다운 + 디바운스 자동 저장.
-      </p>
-    </div>
-  );
+  return <Editor key={path} path={path} />;
 }
 
 function RightStub({ path }: { path: string | null }) {
