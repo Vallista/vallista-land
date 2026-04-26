@@ -207,6 +207,60 @@ export async function readReport(path: string): Promise<Report> {
   return invoke<Report>('read_report', { path });
 }
 
+export interface LlmModelInfo {
+  name: string;
+  path: string;
+  size: number;
+}
+
+export interface LlmStatus {
+  dataDir: string;
+  binPath: string;
+  binPresent: boolean;
+  modelsDir: string;
+  models: LlmModelInfo[];
+  running: boolean;
+  port: number | null;
+  currentModel: string | null;
+}
+
+export interface LlmStartInput {
+  modelName: string;
+  contextSize?: number;
+  threads?: number;
+}
+
+export interface LlmChatMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+export interface LlmChatInput {
+  messages: LlmChatMessage[];
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export async function llmStatus(): Promise<LlmStatus> {
+  return invoke<LlmStatus>('llm_status');
+}
+
+export async function llmStart(input: LlmStartInput): Promise<number> {
+  return invoke<number>('llm_start', { input });
+}
+
+export async function llmStop(): Promise<void> {
+  await invoke('llm_stop');
+}
+
+export async function llmHealth(): Promise<boolean> {
+  return invoke<boolean>('llm_health');
+}
+
+export async function llmChat(input: LlmChatInput): Promise<string> {
+  return invoke<string>('llm_chat', { input });
+}
+
 export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
@@ -323,6 +377,11 @@ if (typeof window !== 'undefined') {
     deleteMood,
     listReports,
     readReport,
+    llmStatus,
+    llmStart,
+    llmStop,
+    llmHealth,
+    llmChat,
     gitStatus,
     gitLog,
     gitCommitPush,

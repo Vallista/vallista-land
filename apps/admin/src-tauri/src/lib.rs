@@ -1,7 +1,10 @@
 mod commands;
 mod repo;
 
+use std::fs;
 use tauri::Manager;
+
+use commands::llm::LlmState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -9,6 +12,13 @@ pub fn run() {
         .setup(|app| {
             let root = repo::resolve_vault_root().expect("could not resolve vault root");
             app.manage(repo::AppState { vault_root: root });
+            let data_dir = app
+                .path()
+                .app_data_dir()
+                .expect("could not resolve app data dir");
+            let _ = fs::create_dir_all(&data_dir);
+            let _ = fs::create_dir_all(data_dir.join("models"));
+            app.manage(LlmState::new(data_dir));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -40,6 +50,11 @@ pub fn run() {
             commands::mood::delete_mood,
             commands::reports::list_reports,
             commands::reports::read_report,
+            commands::llm::llm_status,
+            commands::llm::llm_start,
+            commands::llm::llm_stop,
+            commands::llm::llm_health,
+            commands::llm::llm_chat,
             commands::git::git_status,
             commands::git::git_log,
             commands::git::git_commit_push,
