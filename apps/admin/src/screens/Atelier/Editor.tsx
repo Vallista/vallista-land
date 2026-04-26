@@ -1,12 +1,16 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { EditorView, keymap } from '@codemirror/view';
 import { Mono } from '../../components/atoms/Atoms';
 import { useDoc, type DocStatus } from './state';
+import { LayoutEditor } from './LayoutEditor';
+
+type Mode = 'source' | 'layout';
 
 export function Editor() {
   const { path, status, error, savedAt, body, frontmatter, setBody, flush } = useDoc();
+  const [mode, setMode] = useState<Mode>('source');
 
   const cmExtensions = useMemo(
     () => [
@@ -67,22 +71,34 @@ export function Editor() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
-      <Header path={path} title={title} status={status} savedAt={savedAt} error={error} />
+      <Header
+        path={path}
+        title={title}
+        status={status}
+        savedAt={savedAt}
+        error={error}
+        mode={mode}
+        onModeChange={setMode}
+      />
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-        <CodeMirror
-          value={body}
-          onChange={setBody}
-          extensions={cmExtensions}
-          basicSetup={{
-            lineNumbers: false,
-            foldGutter: false,
-            highlightActiveLine: false,
-            highlightActiveLineGutter: false,
-            highlightSelectionMatches: false,
-          }}
-          theme="none"
-          style={{ height: '100%' }}
-        />
+        {mode === 'source' ? (
+          <CodeMirror
+            value={body}
+            onChange={setBody}
+            extensions={cmExtensions}
+            basicSetup={{
+              lineNumbers: false,
+              foldGutter: false,
+              highlightActiveLine: false,
+              highlightActiveLineGutter: false,
+              highlightSelectionMatches: false,
+            }}
+            theme="none"
+            style={{ height: '100%' }}
+          />
+        ) : (
+          <LayoutEditor />
+        )}
       </div>
     </div>
   );
@@ -104,12 +120,16 @@ function Header({
   status,
   savedAt,
   error,
+  mode,
+  onModeChange,
 }: {
   path: string;
   title: string;
   status: DocStatus;
   savedAt: Date | null;
   error: string | null;
+  mode: Mode;
+  onModeChange: (m: Mode) => void;
 }) {
   return (
     <div
@@ -143,6 +163,7 @@ function Header({
         >
           {path}
         </Mono>
+        <ModeToggle mode={mode} onChange={onModeChange} />
         <SaveIndicator status={status} savedAt={savedAt} error={error} />
       </div>
       <h1
@@ -157,9 +178,63 @@ function Header({
         {title}
       </h1>
       <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)' }}>
-        ⌘S · 1.5s 디바운스 자동 저장 · 복구 = git 만 (백업 없음)
+        {mode === 'source'
+          ? '⌘S · 1.5s 디바운스 자동 저장 · 복구 = git 만 (백업 없음)'
+          : '레이아웃 모드 — 저장 시 마크다운이 재포맷됩니다 (목록 마커, 코드 펜스 등)'}
       </Mono>
     </div>
+  );
+}
+
+function ModeToggle({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: 1,
+        padding: 1,
+        background: 'var(--bg)',
+        border: '1px solid var(--line)',
+        borderRadius: 5,
+      }}
+    >
+      <ModeButton active={mode === 'source'} onClick={() => onChange('source')}>
+        SOURCE
+      </ModeButton>
+      <ModeButton active={mode === 'layout'} onClick={() => onChange('layout')}>
+        LAYOUT
+      </ModeButton>
+    </div>
+  );
+}
+
+function ModeButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '3px 10px',
+        borderRadius: 3,
+        border: 'none',
+        background: active ? 'var(--bg-shade)' : 'transparent',
+        color: active ? 'var(--ink)' : 'var(--ink-mute)',
+        fontFamily: 'var(--font-mono)',
+        fontSize: 9.5,
+        letterSpacing: '0.06em',
+        cursor: 'pointer',
+        fontWeight: active ? 600 : 500,
+      }}
+    >
+      {children}
+    </button>
   );
 }
 

@@ -22,6 +22,9 @@
     "@codemirror/state": "^6.5.0",
     "@codemirror/view": "^6.35.3",
     "@tauri-apps/api": "^2.1.1",
+    "@tiptap/pm": "^3.22.4",
+    "@tiptap/react": "^3.22.4",
+    "@tiptap/starter-kit": "^3.22.4",
     "@uiw/react-codemirror": "^4.23.7",
     "@vallista/content-core": "workspace:*",
     "@vallista/ui": "workspace:*",
@@ -35,6 +38,7 @@
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
+    "tiptap-markdown": "^0.9.0",
     "unified": "^11.0.5"
   },
   "devDependencies": {
