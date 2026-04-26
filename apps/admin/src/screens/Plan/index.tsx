@@ -1,86 +1,175 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { Task } from '@vallista/content-core';
-import { deleteTask, listTasks, updateTask } from '../../lib/tauri';
-import { Mono, PageHead } from '../../components/atoms/Atoms';
-import { TaskRow } from './TaskRow';
-import { QuickAdd } from './QuickAdd';
+import type { Block, GleanItem, Task } from '@vallista/content-core';
+import {
+  addBlock,
+  deleteBlock,
+  listBlocksInRange,
+  listGlean,
+  listTasks,
+  updateBlock,
+  updateTask,
+} from '../../lib/tauri';
+import { Button, Eyebrow, IconBtn, Mono } from '../../components/atoms/Atoms';
+import { WeekCalendar, type CalendarDay } from './WeekCalendar';
+import { AddBlockDialog, blockToDraft, type AddBlockDraft } from './AddBlockDialog';
 
-export type Filter = 'open' | 'today' | 'overdue' | 'done' | 'all';
-
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'open', label: '미완료' },
-  { id: 'today', label: '오늘' },
-  { id: 'overdue', label: '연체' },
-  { id: 'done', label: '완료' },
-  { id: 'all', label: '전체' },
-];
+const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
 export function Plan() {
+  const [now, setNow] = useState<Date>(() => new Date());
+  const [weekStart, setWeekStart] = useState<Date>(() => mondayOf(new Date()));
+  const [blocks, setBlocks] = useState<Block[] | null>(null);
   const [tasks, setTasks] = useState<Task[] | null>(null);
+  const [glean, setGlean] = useState<GleanItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>('open');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogInitial, setDialogInitial] = useState<Partial<AddBlockDraft> | null>(null);
+  const [editingBlock, setEditingBlock] = useState<Block | null>(null);
 
-  const refresh = useCallback(() => {
+  const days = useMemo<CalendarDay[]>(() => buildDays(weekStart, now), [weekStart, now]);
+  const startKey = days[0]!.date;
+  const endKey = days[days.length - 1]!.date;
+  const firstDayKey = days[0]!.date;
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const refreshBlocks = useCallback(() => {
+    listBlocksInRange(startKey, endKey)
+      .then(setBlocks)
+      .catch((e: unknown) => setError(String(e)));
+  }, [startKey, endKey]);
+
+  useEffect(() => {
+    refreshBlocks();
+  }, [refreshBlocks]);
+
+  useEffect(() => {
     listTasks()
       .then(setTasks)
       .catch((e: unknown) => setError(String(e)));
+    listGlean()
+      .then(setGlean)
+      .catch(() => setGlean([]));
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const upsert = useCallback((task: Task) => {
-    setTasks((prev) => {
-      if (!prev) return [task];
-      const idx = prev.findIndex((t) => t.id === task.id);
-      if (idx === -1) return [...prev, task];
+  const upsertBlock = useCallback((b: Block) => {
+    setBlocks((prev) => {
+      if (!prev) return [b];
+      const idx = prev.findIndex((x) => x.id === b.id);
+      if (idx === -1) return [...prev, b];
       const next = prev.slice();
-      next[idx] = task;
+      next[idx] = b;
       return next;
     });
   }, []);
 
-  const remove = useCallback((id: string) => {
-    setTasks((prev) => prev?.filter((t) => t.id !== id) ?? null);
+  const removeBlock = useCallback((id: string) => {
+    setBlocks((prev) => (prev ? prev.filter((b) => b.id !== id) : prev));
   }, []);
 
-  const filtered = useMemo(() => {
-    if (!tasks) return [];
-    const today = todayKey();
-    return tasks
-      .filter((t) => {
-        if (filter === 'all') return true;
-        if (filter === 'done') return t.done;
-        if (filter === 'open') return !t.done;
-        if (filter === 'today') return !t.done && t.due && dayKey(t.due) === today;
-        if (filter === 'overdue') return !t.done && t.due && dayKey(t.due) < today;
-        return true;
-      })
-      .sort(taskSort);
-  }, [tasks, filter]);
+  const openAddAt = useCallback((date: string, hour: number) => {
+    setEditingBlock(null);
+    setDialogInitial({
+      date,
+      start: `${pad(hour)}:00`,
+      end: `${pad(hour + 1)}:00`,
+    });
+    setDialogOpen(true);
+  }, []);
 
-  const counts = useMemo(() => {
-    const c = { open: 0, today: 0, overdue: 0, done: 0, all: 0 };
-    if (!tasks) return c;
-    const today = todayKey();
-    for (const t of tasks) {
-      c.all += 1;
-      if (t.done) c.done += 1;
-      else c.open += 1;
-      if (!t.done && t.due) {
-        const k = dayKey(t.due);
-        if (k === today) c.today += 1;
-        if (k < today) c.overdue += 1;
+  const openEdit = useCallback((b: Block) => {
+    setEditingBlock(b);
+    setDialogInitial(blockToDraft(b));
+    setDialogOpen(true);
+  }, []);
+
+  const closeDialog = useCallback(() => {
+    setDialogOpen(false);
+    setEditingBlock(null);
+    setDialogInitial(null);
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (draft: AddBlockDraft) => {
+      if (editingBlock) {
+        const updated = await updateBlock(editingBlock.id, {
+          date: draft.date,
+          start: draft.start,
+          end: draft.end,
+          title: draft.title,
+          kind: draft.kind,
+          attendees: draft.attendees,
+        });
+        upsertBlock(updated);
+      } else {
+        const created = await addBlock({
+          id: newId(),
+          date: draft.date,
+          start: draft.start,
+          end: draft.end,
+          title: draft.title,
+          kind: draft.kind,
+          attendees: draft.attendees,
+        });
+        upsertBlock(created);
       }
-    }
-    return c;
+    },
+    [editingBlock, upsertBlock],
+  );
+
+  const handleDelete = useCallback(async () => {
+    if (!editingBlock) return;
+    await deleteBlock(editingBlock.id);
+    removeBlock(editingBlock.id);
+  }, [editingBlock, removeBlock]);
+
+  const taskInbox = useMemo(() => {
+    if (!tasks) return [];
+    return tasks
+      .filter((t) => !t.done)
+      .sort((a, b) => {
+        const ad = a.due ?? '';
+        const bd = b.due ?? '';
+        if (ad && bd) return ad < bd ? -1 : ad > bd ? 1 : 0;
+        if (ad) return -1;
+        if (bd) return 1;
+        return a.createdAt < b.createdAt ? 1 : -1;
+      })
+      .slice(0, 8);
   }, [tasks]);
 
-  if (error) {
+  const readQueue = useMemo(() => {
+    if (!glean) return [];
+    return glean
+      .filter((g) => g.status === 'unread')
+      .sort((a, b) => (a.fetchedAt < b.fetchedAt ? 1 : -1))
+      .slice(0, 6);
+  }, [glean]);
+
+  const weekLabel = useMemo(() => weekRangeLabel(weekStart), [weekStart]);
+  const weekNumber = useMemo(() => isoWeekNumber(weekStart), [weekStart]);
+
+  const upsertTaskDone = useCallback(
+    async (id: string, done: boolean) => {
+      const updated = await updateTask(id, { done });
+      setTasks((prev) => {
+        if (!prev) return [updated];
+        const idx = prev.findIndex((t) => t.id === id);
+        if (idx === -1) return [...prev, updated];
+        const next = prev.slice();
+        next[idx] = updated;
+        return next;
+      });
+    },
+    [],
+  );
+
+  if (error && !blocks) {
     return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
-        <PageHead title="할 일" sub="tasks 읽기 실패" />
+      <div style={{ padding: 32 }}>
         <div
           style={{
             padding: 16,
@@ -98,127 +187,334 @@ export function Plan() {
     );
   }
 
-  if (!tasks) {
-    return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
-        <PageHead title="할 일" sub="tasks 읽는 중…" />
-      </div>
-    );
-  }
-
   return (
-    <div style={{ padding: '28px 48px 48px', maxWidth: 880, margin: '0 auto' }}>
-      <PageHead
-        title="할 일"
-        sub={`${counts.open}개 미완료 · ${counts.today}개 오늘 · ${counts.overdue}개 연체`}
-      />
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 18 }}>
-        {FILTERS.map((f) => (
-          <FilterChip
-            key={f.id}
-            active={filter === f.id}
-            onClick={() => setFilter(f.id)}
-            count={counts[f.id]}
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        background: 'var(--bg)',
+        overflow: 'hidden',
+      }}
+    >
+      <aside
+        style={{
+          flex: '0 0 280px',
+          borderRight: '1px solid var(--line)',
+          background: 'var(--bg-soft)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto',
+        }}
+      >
+        <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid var(--line)' }}>
+          <Eyebrow>이번 주</Eyebrow>
+          <div
+            style={{
+              marginTop: 6,
+              fontSize: 18,
+              fontWeight: 700,
+              color: 'var(--ink)',
+              letterSpacing: '-0.3px',
+            }}
           >
-            {f.label}
-          </FilterChip>
-        ))}
+            {weekStart.getFullYear()}-W{pad(weekNumber)}
+          </div>
+          <div
+            style={{
+              marginTop: 6,
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+              fontSize: 11,
+              color: 'var(--ink-mute)',
+            }}
+          >
+            <Mono>{weekLabel}</Mono>
+          </div>
+        </div>
+
+        <div style={{ padding: '16px 18px 8px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 8,
+            }}
+          >
+            <Eyebrow>TODO 인박스</Eyebrow>
+            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              {taskInbox.length}
+            </Mono>
+          </div>
+          {taskInbox.length === 0 ? (
+            <SidebarEmpty text="비어 있음" />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {taskInbox.map((t) => (
+                <TaskInboxRow
+                  key={t.id}
+                  task={t}
+                  onDone={(done) => upsertTaskDone(t.id, done)}
+                  onSchedule={() => {
+                    setEditingBlock(null);
+                    setDialogInitial({
+                      date: t.due
+                        ? toDateKey(t.due) ?? firstDayKey
+                        : firstDayKey,
+                      start: '09:00',
+                      end: '10:00',
+                      title: t.title,
+                      kind: 'write',
+                    });
+                    setDialogOpen(true);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ padding: '16px 18px 8px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 8,
+            }}
+          >
+            <Eyebrow>읽기 큐 → 시간에 꽂기</Eyebrow>
+            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              {readQueue.length}
+            </Mono>
+          </div>
+          {readQueue.length === 0 ? (
+            <SidebarEmpty text="안 읽은 캡처가 없습니다" />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {readQueue.map((g) => (
+                <ClipRow
+                  key={g.id}
+                  item={g}
+                  onSchedule={() => {
+                    setEditingBlock(null);
+                    setDialogInitial({
+                      date: firstDayKey,
+                      start: '14:00',
+                      end: '15:00',
+                      title: g.title || hostname(g.url),
+                      kind: 'read',
+                    });
+                    setDialogOpen(true);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+        }}
+      >
+        <div
+          style={{
+            height: 48,
+            borderBottom: '1px solid var(--line)',
+            background: 'var(--bg-soft)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 18px',
+            gap: 12,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <Button sm ghost onClick={() => setWeekStart(mondayOf(new Date()))}>
+              오늘
+            </Button>
+            <IconBtn title="이전 주" onClick={() => setWeekStart(addDays(weekStart, -7))}>
+              ‹
+            </IconBtn>
+            <IconBtn title="다음 주" onClick={() => setWeekStart(addDays(weekStart, 7))}>
+              ›
+            </IconBtn>
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>
+            {weekLabel}
+          </span>
+          <span style={{ flex: 1 }} />
+          <Button
+            sm
+            onClick={() => {
+              setEditingBlock(null);
+              setDialogInitial({
+                date: firstDayKey,
+                start: '09:00',
+                end: '10:00',
+              });
+              setDialogOpen(true);
+            }}
+          >
+            + 블록
+          </Button>
+        </div>
+
+        <WeekCalendar
+          days={days}
+          blocks={blocks ?? []}
+          now={now}
+          onSlotClick={openAddAt}
+          onBlockClick={openEdit}
+        />
       </div>
 
-      <QuickAdd
-        onAdded={(t) => {
-          upsert(t);
-          if (filter === 'done' && !t.done) setFilter('open');
-        }}
+      <AddBlockDialog
+        open={dialogOpen}
+        initial={dialogInitial}
+        editingId={editingBlock?.id}
+        onSubmit={handleSubmit}
+        onClose={closeDialog}
+        onDelete={editingBlock ? handleDelete : undefined}
       />
+    </div>
+  );
+}
 
-      <div style={{ marginTop: 18 }}>
-        {filtered.length === 0 ? (
-          <Empty filter={filter} />
-        ) : (
-          filtered.map((t) => (
-            <TaskRow
-              key={t.id}
-              task={t}
-              onUpdate={async (patch) => {
-                const updated = await updateTask(t.id, patch);
-                upsert(updated);
-              }}
-              onDelete={async () => {
-                await deleteTask(t.id);
-                remove(t.id);
-              }}
-            />
-          ))
+function TaskInboxRow({
+  task,
+  onDone,
+  onSchedule,
+}: {
+  task: Task;
+  onDone: (done: boolean) => void;
+  onSchedule: () => void;
+}) {
+  return (
+    <div
+      style={{
+        padding: '10px 12px',
+        border: '1px solid var(--line)',
+        background: 'var(--bg)',
+        borderRadius: 6,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 5,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 12.5,
+          color: 'var(--ink)',
+          lineHeight: 1.4,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {task.title}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {task.due && (
+          <Mono style={{ fontSize: 10, color: 'var(--blue)' }}>
+            {toDateKey(task.due) ?? '날짜'}
+          </Mono>
         )}
+        <span style={{ flex: 1 }} />
+        <button
+          onClick={() => onDone(true)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--ok)',
+            cursor: 'pointer',
+            fontSize: 10.5,
+            padding: 0,
+            fontFamily: 'inherit',
+          }}
+          title="완료"
+        >
+          ✓
+        </button>
+        <button
+          onClick={onSchedule}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--blue)',
+            cursor: 'pointer',
+            fontSize: 10.5,
+            padding: 0,
+            fontFamily: 'inherit',
+          }}
+          title="시간에 꽂기"
+        >
+          ⇢ 시간
+        </button>
       </div>
     </div>
   );
 }
 
-function FilterChip({
-  active,
-  onClick,
-  children,
-  count,
+function ClipRow({
+  item,
+  onSchedule,
 }: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  count: number;
+  item: GleanItem;
+  onSchedule: () => void;
 }) {
   return (
     <button
-      onClick={onClick}
+      onClick={onSchedule}
       style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '4px 11px',
-        borderRadius: 999,
-        border: '1px solid transparent',
-        background: active ? 'var(--ink)' : 'transparent',
-        color: active ? 'var(--on-accent)' : 'var(--ink-soft)',
-        fontSize: 11.5,
-        fontFamily: 'inherit',
+        padding: '10px 12px',
+        border: '1px dashed var(--line-strong)',
+        borderRadius: 6,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 5,
+        textAlign: 'left',
+        background: 'transparent',
         cursor: 'pointer',
-        lineHeight: 1.2,
+        fontFamily: 'inherit',
       }}
     >
-      <span>{children}</span>
-      <Mono
+      <div
         style={{
-          fontSize: 10,
-          color: active ? 'var(--on-accent)' : 'var(--ink-mute)',
-          opacity: 0.85,
+          fontSize: 12.5,
+          color: 'var(--ink)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
         }}
       >
-        {count}
-      </Mono>
+        {item.title || '(제목 없음)'}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+          {hostname(item.url)}
+        </Mono>
+        <Mono style={{ fontSize: 10, color: 'var(--blue)', marginLeft: 'auto' }}>
+          ⇢ 꽂기
+        </Mono>
+      </div>
     </button>
   );
 }
 
-function Empty({ filter }: { filter: Filter }) {
-  const text =
-    filter === 'today'
-      ? '오늘 할 일이 없습니다'
-      : filter === 'overdue'
-        ? '연체된 할 일이 없습니다'
-        : filter === 'done'
-          ? '완료한 할 일이 없습니다'
-          : filter === 'open'
-            ? '모두 비웠습니다 ✓'
-            : '아직 할 일이 없습니다';
+function SidebarEmpty({ text }: { text: string }) {
   return (
     <div
       style={{
+        padding: '8px 0',
         color: 'var(--ink-mute)',
-        textAlign: 'center',
-        padding: '40px 0',
+        fontSize: 11.5,
         fontStyle: 'italic',
-        fontSize: 13,
       }}
     >
       {text}
@@ -226,28 +522,84 @@ function Empty({ filter }: { filter: Filter }) {
   );
 }
 
-function taskSort(a: Task, b: Task): number {
-  if (a.done !== b.done) return a.done ? 1 : -1;
-  const ad = a.due ?? '';
-  const bd = b.due ?? '';
-  if (ad && bd) return ad < bd ? -1 : ad > bd ? 1 : 0;
-  if (ad) return -1;
-  if (bd) return 1;
-  return a.createdAt < b.createdAt ? -1 : 1;
+function mondayOf(d: Date): Date {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const day = x.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  x.setDate(x.getDate() + diff);
+  return x;
 }
 
-function todayKey(): string {
-  const d = new Date();
+function addDays(d: Date, days: number): Date {
+  const x = new Date(d);
+  x.setDate(x.getDate() + days);
+  return x;
+}
+
+function buildDays(start: Date, now: Date): CalendarDay[] {
+  const todayK = isoKey(now);
+  const out: CalendarDay[] = [];
+  for (let i = 0; i < 5; i++) {
+    const d = addDays(start, i);
+    out.push({
+      date: isoKey(d),
+      label: DAY_LABELS[i] ?? '',
+      dayNumber: d.getDate(),
+      isToday: isoKey(d) === todayK,
+    });
+  }
+  return out;
+}
+
+function weekRangeLabel(start: Date): string {
+  const end = addDays(start, 4);
+  const sameYear = start.getFullYear() === end.getFullYear();
+  const sameMonth = sameYear && start.getMonth() === end.getMonth();
+  if (sameMonth) {
+    return `${start.getMonth() + 1}월 ${start.getDate()}일 — ${end.getDate()}일, ${start.getFullYear()}`;
+  }
+  if (sameYear) {
+    return `${start.getMonth() + 1}월 ${start.getDate()}일 — ${end.getMonth() + 1}월 ${end.getDate()}일, ${start.getFullYear()}`;
+  }
+  return `${start.getFullYear()}.${pad(start.getMonth() + 1)}.${pad(start.getDate())} — ${end.getFullYear()}.${pad(end.getMonth() + 1)}.${pad(end.getDate())}`;
+}
+
+function isoWeekNumber(d: Date): number {
+  const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = (target.getUTCDay() + 6) % 7;
+  target.setUTCDate(target.getUTCDate() - dayNum + 3);
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+  const diff = (target.getTime() - firstThursday.getTime()) / 86_400_000;
+  return 1 + Math.round((diff - ((firstThursday.getUTCDay() + 6) % 7) + 3) / 7);
+}
+
+function isoKey(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-function dayKey(iso: string): string {
+function toDateKey(iso: string): string | null {
   const t = Date.parse(iso);
-  if (!Number.isFinite(t)) return iso.slice(0, 10);
+  if (!Number.isFinite(t)) return iso.slice(0, 10) || null;
   const d = new Date(t);
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return isoKey(d);
+}
+
+function hostname(url: string): string {
+  if (!url) return '';
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return '';
+  }
 }
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
+}
+
+function newId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
