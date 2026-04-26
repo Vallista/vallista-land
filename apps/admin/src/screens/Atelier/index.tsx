@@ -6,11 +6,15 @@ import { DocList } from './DocList';
 import { Editor } from './Editor';
 import { RightPane } from './RightPane';
 import { DocProvider } from './state';
+import { LibraryRail, type StateFilter } from './LibraryRail';
 
 export function Atelier() {
   const [docs, setDocs] = useState<DocSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  const [stateFilter, setStateFilter] = useState<StateFilter>('all');
+  const [folder, setFolder] = useState<string | null>(null);
+  const [tag, setTag] = useState<string | null>(null);
 
   useEffect(() => {
     listDocs()
@@ -53,18 +57,36 @@ export function Atelier() {
     );
   }
 
-  const collection = selectedPath ? collectionByPath.get(selectedPath) ?? 'articles' : null;
+  const collection = selectedPath
+    ? collectionByPath.get(selectedPath) ?? 'articles'
+    : null;
 
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '240px 1fr 360px',
+        gridTemplateColumns: '192px 290px 1fr 320px',
         height: '100%',
         minHeight: 0,
       }}
     >
-      <DocList docs={docs} selectedPath={selectedPath} onSelect={setSelectedPath} />
+      <LibraryRail
+        docs={docs}
+        filter={stateFilter}
+        folder={folder}
+        tag={tag}
+        onFilter={setStateFilter}
+        onFolder={setFolder}
+        onTag={setTag}
+      />
+      <DocList
+        docs={docs}
+        selectedPath={selectedPath}
+        onSelect={setSelectedPath}
+        stateFilter={stateFilter}
+        folder={folder}
+        tag={tag}
+      />
       {selectedPath && collection ? (
         <DocProvider key={selectedPath} path={selectedPath}>
           <Editor />
