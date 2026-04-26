@@ -1,11 +1,13 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::io::Write;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
 use std::thread;
 use std::time::{Duration, Instant};
+use tauri::ipc::Channel;
 use tauri::State;
 
 pub struct LlmState {
@@ -291,4 +293,214 @@ pub async fn llm_chat(input: ChatInput, state: State<'_, LlmState>) -> Result<St
         .ok_or_else(|| format!("unexpected response: {}", text))?
         .to_string();
     Ok(content)
+}
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase", tag = "kind", content = "data")]
+pub enum DownloadEvent {
+    Started { total: Option<u64> },
+    Progress { downloaded: u64, total: Option<u64> },
+    Finished { path: String },
+    Failed { message: String },
+}
+
+fn safe_file_name(name: &str) -> Result<(), String> {
+    if name.is_empty()
+        || name.contains('/')
+        || name.contains('\\')
+        || name.contains("..")
+        || name.starts_with('.')
+    {
+        return Err(format!("invalid file name: {}", name));
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn llm_download_model(
+    url: String,
+    file_name: String,
+    on_event: Channel<DownloadEvent>,
+    state: State<'_, LlmState>,
+) -> Result<String, String> {
+    safe_file_name(&file_name)?;
+    let models_dir = state.models_dir();
+    fs::create_dir_all(&models_dir).map_err(|e| e.to_string())?;
+    let dest = models_dir.join(&file_name);
+    if dest.exists() {
+        return Err(format!("already exists: {}", dest.display()));
+    }
+    let tmp = models_dir.join(format!("{}.part", file_name));
+    if tmp.exists() {
+        let _ = fs::remove_file(&tmp);
+    }
+
+    let client = reqwest::Client::builder()
+        .build()
+        .map_err(|e| e.to_string())?;
+    let resp = match client
+        .get(&url)
+        .timeout(Duration::from_secs(86_400))
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            let msg = e.to_string();
+            let _ = on_event.send(DownloadEvent::Failed {
+                message: msg.clone(),
+            });
+            return Err(msg);
+        }
+    };
+    if !resp.status().is_success() {
+        let msg = format!("HTTP {}", resp.status());
+        let _ = on_event.send(DownloadEvent::Failed {
+            message: msg.clone(),
+        });
+        return Err(msg);
+    }
+    let total = resp.content_length();
+    let _ = on_event.send(DownloadEvent::Started { total });
+    let mut file = match std::fs::File::create(&tmp) {
+        Ok(f) => f,
+        Err(e) => {
+            let msg = e.to_string();
+            let _ = on_event.send(DownloadEvent::Failed {
+                message: msg.clone(),
+            });
+            return Err(msg);
+        }
+    };
+    let mut downloaded: u64 = 0;
+    let mut last_emit = Instant::now();
+    let mut stream = resp;
+    loop {
+        match stream.chunk().await {
+            Ok(Some(chunk)) => {
+                if let Err(e) = file.write_all(&chunk) {
+                    let _ = fs::remove_file(&tmp);
+                    let msg = e.to_string();
+                    let _ = on_event.send(DownloadEvent::Failed {
+                        message: msg.clone(),
+                    });
+                    return Err(msg);
+                }
+                downloaded += chunk.len() as u64;
+                if last_emit.elapsed() > Duration::from_millis(150) {
+                    let _ = on_event.send(DownloadEvent::Progress { downloaded, total });
+                    last_emit = Instant::now();
+                }
+            }
+            Ok(None) => break,
+            Err(e) => {
+                let _ = fs::remove_file(&tmp);
+                let msg = e.to_string();
+                let _ = on_event.send(DownloadEvent::Failed {
+                    message: msg.clone(),
+                });
+                return Err(msg);
+            }
+        }
+    }
+    if let Err(e) = file.sync_all() {
+        let msg = e.to_string();
+        let _ = on_event.send(DownloadEvent::Failed {
+            message: msg.clone(),
+        });
+        return Err(msg);
+    }
+    drop(file);
+    if let Err(e) = fs::rename(&tmp, &dest) {
+        let msg = e.to_string();
+        let _ = on_event.send(DownloadEvent::Failed {
+            message: msg.clone(),
+        });
+        return Err(msg);
+    }
+    let _ = on_event.send(DownloadEvent::Progress { downloaded, total });
+    let path_str = dest.to_string_lossy().to_string();
+    let _ = on_event.send(DownloadEvent::Finished {
+        path: path_str.clone(),
+    });
+    Ok(path_str)
+}
+
+#[tauri::command]
+pub fn llm_delete_model(file_name: String, state: State<'_, LlmState>) -> Result<(), String> {
+    safe_file_name(&file_name)?;
+    let path = state.models_dir().join(&file_name);
+    if !path.is_file() {
+        return Err(format!("not found: {}", path.display()));
+    }
+    if let Some(running_model) = state
+        .child
+        .lock()
+        .map_err(|e| e.to_string())?
+        .as_ref()
+        .map(|r| r.model.clone())
+    {
+        if running_model == file_name {
+            return Err("cannot delete model while server is running".into());
+        }
+    }
+    fs::remove_file(&path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn llm_install_binary(
+    source_path: String,
+    state: State<'_, LlmState>,
+) -> Result<String, String> {
+    let src = Path::new(&source_path);
+    if !src.is_file() {
+        return Err(format!("source not found: {}", source_path));
+    }
+    fs::create_dir_all(&state.data_dir).map_err(|e| e.to_string())?;
+    let dest = state.bin_path();
+    fs::copy(src, &dest).map_err(|e| format!("copy: {}", e))?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = fs::metadata(&dest)
+            .map_err(|e| e.to_string())?
+            .permissions();
+        perms.set_mode(0o755);
+        fs::set_permissions(&dest, perms).map_err(|e| e.to_string())?;
+    }
+    Ok(dest.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn llm_open_data_dir(state: State<'_, LlmState>) -> Result<(), String> {
+    let dir = &state.data_dir;
+    fs::create_dir_all(dir).ok();
+    #[cfg(target_os = "macos")]
+    {
+        Command::new("open")
+            .arg(dir)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+    #[cfg(target_os = "linux")]
+    {
+        Command::new("xdg-open")
+            .arg(dir)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+    #[cfg(target_os = "windows")]
+    {
+        Command::new("explorer")
+            .arg(dir)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        return Ok(());
+    }
+    #[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "windows")))]
+    {
+        Err("unsupported platform".into())
+    }
 }

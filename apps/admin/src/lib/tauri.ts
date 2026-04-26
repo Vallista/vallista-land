@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { Channel, invoke } from '@tauri-apps/api/core';
 import type {
   Block,
   BlockKind,
@@ -261,6 +261,34 @@ export async function llmChat(input: LlmChatInput): Promise<string> {
   return invoke<string>('llm_chat', { input });
 }
 
+export type LlmDownloadEvent =
+  | { kind: 'started'; data: { total: number | null } }
+  | { kind: 'progress'; data: { downloaded: number; total: number | null } }
+  | { kind: 'finished'; data: { path: string } }
+  | { kind: 'failed'; data: { message: string } };
+
+export async function llmDownloadModel(
+  url: string,
+  fileName: string,
+  onEvent: (event: LlmDownloadEvent) => void,
+): Promise<string> {
+  const channel = new Channel<LlmDownloadEvent>();
+  channel.onmessage = onEvent;
+  return invoke<string>('llm_download_model', { url, fileName, onEvent: channel });
+}
+
+export async function llmDeleteModel(fileName: string): Promise<void> {
+  await invoke('llm_delete_model', { fileName });
+}
+
+export async function llmInstallBinary(sourcePath: string): Promise<string> {
+  return invoke<string>('llm_install_binary', { sourcePath });
+}
+
+export async function llmOpenDataDir(): Promise<void> {
+  await invoke('llm_open_data_dir');
+}
+
 export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
@@ -382,6 +410,10 @@ if (typeof window !== 'undefined') {
     llmStop,
     llmHealth,
     llmChat,
+    llmDownloadModel,
+    llmDeleteModel,
+    llmInstallBinary,
+    llmOpenDataDir,
     gitStatus,
     gitLog,
     gitCommitPush,
