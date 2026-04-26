@@ -1,6 +1,11 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { DocSummary, DocFile, VaultInfo } from '@vallista/content-core';
 
+export interface AssetData {
+  mime: string;
+  base64: string;
+}
+
 export async function listDocs(): Promise<DocSummary[]> {
   return invoke<DocSummary[]>('list_docs');
 }
@@ -13,6 +18,10 @@ export async function writeDoc(path: string, content: string): Promise<void> {
   await invoke('write_doc', { path, content });
 }
 
+export async function readAsset(path: string): Promise<AssetData> {
+  return invoke<AssetData>('read_asset', { path });
+}
+
 export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
@@ -22,6 +31,7 @@ if (typeof window !== 'undefined') {
     listDocs,
     readDoc,
     writeDoc,
+    readAsset,
     vaultInfo,
   };
 }

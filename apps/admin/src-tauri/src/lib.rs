@@ -15,6 +15,7 @@ pub fn run() {
             commands::docs::list_docs,
             commands::docs::read_doc,
             commands::docs::write_doc,
+            commands::docs::read_asset,
             commands::meta::vault_info,
         ])
         .run(tauri::generate_context!())

@@ -34,143 +34,119 @@ export function MetaPanel({ collection }: { collection: Collection }) {
   const featured = frontmatter.featured === true;
 
   return (
-    <div
-      style={{
-        borderLeft: '1px solid var(--line)',
-        background: 'var(--bg-soft)',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        minHeight: 0,
-      }}
-    >
-      <div
-        style={{
-          padding: '14px 18px 10px',
-          borderBottom: '1px solid var(--line)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 8,
-        }}
-      >
-        <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>META</Mono>
-        <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)' }}>
-          {collection === 'articles' ? '긴 글' : '짧은 글'}
-        </Mono>
-      </div>
+    <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px 24px' }}>
+      <Field label="TITLE">
+        <input
+          value={title}
+          onChange={(e) => setKey('title', e.target.value)}
+          style={inputStyle}
+          placeholder="제목"
+        />
+      </Field>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px 24px' }}>
-        <Field label="TITLE">
-          <input
-            value={title}
-            onChange={(e) => setKey('title', e.target.value)}
-            style={inputStyle}
-            placeholder="제목"
-          />
-        </Field>
+      <Field label="SLUG">
+        <input
+          value={slug}
+          onChange={(e) => setKey('slug', e.target.value)}
+          style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+          placeholder="kebab-case"
+          spellCheck={false}
+        />
+      </Field>
 
-        <Field label="SLUG">
-          <input
-            value={slug}
-            onChange={(e) => setKey('slug', e.target.value)}
-            style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
-            placeholder="kebab-case"
-            spellCheck={false}
-          />
-        </Field>
+      <Field label="DATE">
+        <input
+          type="datetime-local"
+          value={dateLocal}
+          onChange={(e) => {
+            const iso = localInputToISO(e.target.value);
+            setKey('date', iso);
+          }}
+          style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+        />
+      </Field>
 
-        <Field label="DATE">
-          <input
-            type="datetime-local"
-            value={dateLocal}
+      <Field label="STATE">
+        <select
+          value={state ?? ''}
+          onChange={(e) => {
+            const v = e.target.value;
+            setKey('state', v === '' ? undefined : (v as DocState));
+          }}
+          style={{ ...inputStyle, cursor: 'pointer' }}
+        >
+          <option value="">(미지정)</option>
+          {STATE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label} · {o.value}
+            </option>
+          ))}
+        </select>
+      </Field>
+
+      <Field label="TAGS">
+        <TagsField />
+      </Field>
+
+      {collection === 'articles' && (
+        <Field label="DEK">
+          <textarea
+            value={dek}
             onChange={(e) => {
-              const iso = localInputToISO(e.target.value);
-              setKey('date', iso);
+              setKey('dek', e.target.value);
+              if (typeof frontmatter.description === 'string') {
+                setKey('description', e.target.value);
+              }
             }}
-            style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+            rows={2}
+            style={{ ...inputStyle, resize: 'vertical', minHeight: 50, lineHeight: 1.5 }}
+            placeholder="부제 / 한 줄 요약"
           />
         </Field>
+      )}
 
-        <Field label="STATE">
-          <select
-            value={state ?? ''}
-            onChange={(e) => {
-              const v = e.target.value;
-              setKey('state', v === '' ? undefined : (v as DocState));
+      {collection === 'articles' && (
+        <Field
+          label="SERIES"
+          hint={isObjectSeries(frontmatter.series) ? '객체 형태 — name 만 편집됩니다' : undefined}
+        >
+          <SeriesField />
+        </Field>
+      )}
+
+      <Field label="IMAGE" hint="문서 폴더 기준 상대 경로 (./assets/cover.jpg)">
+        <input
+          value={image}
+          onChange={(e) => setKey('image', e.target.value)}
+          style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+          placeholder="./assets/…"
+          spellCheck={false}
+        />
+      </Field>
+
+      {collection === 'articles' && (
+        <Field label="FEATURED">
+          <label
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 12,
+              color: 'var(--ink)',
+              cursor: 'pointer',
+              userSelect: 'none',
             }}
-            style={{ ...inputStyle, cursor: 'pointer' }}
           >
-            <option value="">(미지정)</option>
-            {STATE_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label} · {o.value}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <Field label="TAGS">
-          <TagsField />
-        </Field>
-
-        {collection === 'articles' && (
-          <Field label="DEK">
-            <textarea
-              value={dek}
-              onChange={(e) => {
-                setKey('dek', e.target.value);
-                if (typeof frontmatter.description === 'string') {
-                  setKey('description', e.target.value);
-                }
-              }}
-              rows={2}
-              style={{ ...inputStyle, resize: 'vertical', minHeight: 50, lineHeight: 1.5 }}
-              placeholder="부제 / 한 줄 요약"
+            <input
+              type="checkbox"
+              checked={featured}
+              onChange={(e) => setKey('featured', e.target.checked || undefined)}
+              style={{ cursor: 'pointer' }}
             />
-          </Field>
-        )}
-
-        {collection === 'articles' && (
-          <Field label="SERIES" hint={isObjectSeries(frontmatter.series) ? '객체 형태 — name 만 편집됩니다' : undefined}>
-            <SeriesField />
-          </Field>
-        )}
-
-        <Field label="IMAGE" hint="문서 폴더 기준 상대 경로 (./assets/cover.jpg)">
-          <input
-            value={image}
-            onChange={(e) => setKey('image', e.target.value)}
-            style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
-            placeholder="./assets/…"
-            spellCheck={false}
-          />
+            홈 상단 노출
+          </label>
         </Field>
-
-        {collection === 'articles' && (
-          <Field label="FEATURED">
-            <label
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                fontSize: 12,
-                color: 'var(--ink)',
-                cursor: 'pointer',
-                userSelect: 'none',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={featured}
-                onChange={(e) => setKey('featured', e.target.checked || undefined)}
-                style={{ cursor: 'pointer' }}
-              />
-              홈 상단 노출
-            </label>
-          </Field>
-        )}
-      </div>
+      )}
     </div>
   );
 }

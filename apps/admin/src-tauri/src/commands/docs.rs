@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose, Engine as _};
 use serde::Serialize;
 use std::fs;
 use std::path::Path;
@@ -218,4 +219,44 @@ pub fn write_doc(
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
     fs::write(&safe, content).map_err(|e| e.to_string())
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetData {
+    pub mime: String,
+    pub base64: String,
+}
+
+#[tauri::command]
+pub fn read_asset(path: String, state: State<'_, AppState>) -> Result<AssetData, String> {
+    let safe = ensure_inside(&state.vault_root, Path::new(&path))?;
+    if !safe.is_file() {
+        return Err(format!("not a file: {}", safe.display()));
+    }
+    let bytes = fs::read(&safe).map_err(|e| e.to_string())?;
+    Ok(AssetData {
+        mime: guess_mime(&safe),
+        base64: general_purpose::STANDARD.encode(&bytes),
+    })
+}
+
+fn guess_mime(path: &Path) -> String {
+    let ext = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .unwrap_or("")
+        .to_lowercase();
+    match ext.as_str() {
+        "png" => "image/png",
+        "jpg" | "jpeg" => "image/jpeg",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "svg" => "image/svg+xml",
+        "avif" => "image/avif",
+        "bmp" => "image/bmp",
+        "ico" => "image/x-icon",
+        _ => "application/octet-stream",
+    }
+    .to_string()
 }

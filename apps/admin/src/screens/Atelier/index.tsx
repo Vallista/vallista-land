@@ -4,7 +4,7 @@ import { listDocs } from '../../lib/tauri';
 import { PageHead } from '../../components/atoms/Atoms';
 import { DocList } from './DocList';
 import { Editor } from './Editor';
-import { MetaPanel } from './MetaPanel';
+import { RightPane } from './RightPane';
 import { DocProvider } from './state';
 
 export function Atelier() {
@@ -68,7 +68,7 @@ export function Atelier() {
       {selectedPath && collection ? (
         <DocProvider key={selectedPath} path={selectedPath}>
           <Editor />
-          <MetaPanel collection={collection} />
+          <RightPane collection={collection} />
         </DocProvider>
       ) : (
         <>
