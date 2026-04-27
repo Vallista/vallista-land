@@ -2,9 +2,19 @@ mod commands;
 mod repo;
 
 use std::fs;
-use tauri::Manager;
+use tauri::menu::{MenuBuilder, MenuItemBuilder};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+use tauri::{Manager, WindowEvent};
 
 use commands::llm::LlmState;
+
+fn show_main(app: &tauri::AppHandle) {
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.show();
+        let _ = win.unminimize();
+        let _ = win.set_focus();
+    }
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -19,6 +29,46 @@ pub fn run() {
             let _ = fs::create_dir_all(&data_dir);
             let _ = fs::create_dir_all(data_dir.join("models"));
             app.manage(LlmState::new(data_dir));
+
+            let open_item = MenuItemBuilder::with_id("tray.open", "Bento 열기").build(app)?;
+            let quit_item = MenuItemBuilder::with_id("tray.quit", "종료").build(app)?;
+            let menu = MenuBuilder::new(app)
+                .items(&[&open_item, &quit_item])
+                .build()?;
+            let _tray = TrayIconBuilder::with_id("bento-main")
+                .tooltip("Bento")
+                .icon(app.default_window_icon().unwrap().clone())
+                .menu(&menu)
+                .show_menu_on_left_click(false)
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "tray.open" => show_main(app),
+                    "tray.quit" => app.exit(0),
+                    _ => {}
+                })
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        show_main(tray.app_handle());
+                    }
+                })
+                .build(app)?;
+
+            if let Some(win) = app.get_webview_window("main") {
+                let app_handle = app.handle().clone();
+                win.on_window_event(move |event| {
+                    if let WindowEvent::CloseRequested { api, .. } = event {
+                        api.prevent_close();
+                        if let Some(w) = app_handle.get_webview_window("main") {
+                            let _ = w.hide();
+                        }
+                    }
+                });
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

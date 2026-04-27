@@ -1,20 +1,20 @@
 [package]
-name = "pensmith"
+name = "bento"
 version = "0.0.1"
-description = "Pensmith — vallista's personal workshop"
+description = "Bento — vallista's personal daily companion"
 authors = ["vallista"]
 edition = "2021"
 rust-version = "1.77"
 
 [lib]
-name = "pensmith_lib"
+name = "bento_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["macos-private-api"] }
+tauri = { version = "2", features = ["macos-private-api", "tray-icon", "image-png"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 walkdir = "2"
@@ -24,6 +24,9 @@ reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"
 scraper = "0.20"
 ego-tree = "0.6"
 tokio = { version = "1", features = ["rt", "macros"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+flate2 = "1"
+tar = "0.4"
 
 [profile.release]
 panic = "abort"
