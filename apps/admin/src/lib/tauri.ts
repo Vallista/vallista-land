@@ -172,6 +172,41 @@ export async function deleteBlock(id: string): Promise<void> {
   await invoke('delete_block', { id });
 }
 
+export interface IcalImportResult {
+  added: number;
+  updated: number;
+  skipped: number;
+  total: number;
+}
+
+export interface IcalFeed {
+  id: string;
+  label: string;
+  url: string;
+  lastSyncedAt?: string | null;
+  lastResult?: IcalImportResult | null;
+}
+
+export async function importIcalUrl(url: string): Promise<IcalImportResult> {
+  return invoke<IcalImportResult>('import_ical_url', { url });
+}
+
+export async function listIcalFeeds(): Promise<IcalFeed[]> {
+  return invoke<IcalFeed[]>('list_ical_feeds');
+}
+
+export async function addIcalFeed(label: string, url: string): Promise<IcalFeed> {
+  return invoke<IcalFeed>('add_ical_feed', { input: { label, url } });
+}
+
+export async function removeIcalFeed(id: string): Promise<void> {
+  await invoke('remove_ical_feed', { id });
+}
+
+export async function syncIcalFeeds(): Promise<IcalFeed[]> {
+  return invoke<IcalFeed[]>('sync_ical_feeds');
+}
+
 export interface MoodInput {
   date: string;
   energy: number;
@@ -277,6 +312,14 @@ export async function llmDownloadModel(
   return invoke<string>('llm_download_model', { url, fileName, onEvent: channel });
 }
 
+export async function llmDownloadServer(
+  onEvent: (event: LlmDownloadEvent) => void,
+): Promise<string> {
+  const channel = new Channel<LlmDownloadEvent>();
+  channel.onmessage = onEvent;
+  return invoke<string>('llm_download_server', { onEvent: channel });
+}
+
 export async function llmDeleteModel(fileName: string): Promise<void> {
   await invoke('llm_delete_model', { fileName });
 }
@@ -376,7 +419,7 @@ export async function computeInsights(): Promise<Insights> {
 }
 
 if (typeof window !== 'undefined') {
-  (window as unknown as { pensmith?: unknown }).pensmith = {
+  (window as unknown as { bento?: unknown }).bento = {
     listDocs,
     readDoc,
     writeDoc,
@@ -398,6 +441,11 @@ if (typeof window !== 'undefined') {
     addBlock,
     updateBlock,
     deleteBlock,
+    importIcalUrl,
+    listIcalFeeds,
+    addIcalFeed,
+    removeIcalFeed,
+    syncIcalFeeds,
     listMood,
     listMoodInRange,
     getMood,
@@ -411,6 +459,7 @@ if (typeof window !== 'undefined') {
     llmHealth,
     llmChat,
     llmDownloadModel,
+    llmDownloadServer,
     llmDeleteModel,
     llmInstallBinary,
     llmOpenDataDir,

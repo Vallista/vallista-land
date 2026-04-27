@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Block, GleanItem, Task } from '@vallista/content-core';
 import {
   addBlock,
+  addTask,
   deleteBlock,
   listBlocksInRange,
   listGlean,
@@ -12,6 +13,7 @@ import {
 import { Button, Eyebrow, IconBtn, Mono } from '../../components/atoms/Atoms';
 import { WeekCalendar, type CalendarDay } from './WeekCalendar';
 import { AddBlockDialog, blockToDraft, type AddBlockDraft } from './AddBlockDialog';
+import { IcalDialog } from './IcalDialog';
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -25,6 +27,7 @@ export function Plan() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogInitial, setDialogInitial] = useState<Partial<AddBlockDraft> | null>(null);
   const [editingBlock, setEditingBlock] = useState<Block | null>(null);
+  const [icalOpen, setIcalOpen] = useState(false);
 
   const days = useMemo<CalendarDay[]>(() => buildDays(weekStart, now), [weekStart, now]);
   const startKey = days[0]!.date;
@@ -167,6 +170,16 @@ export function Plan() {
     [],
   );
 
+  const createTask = useCallback(async (title: string, due?: string) => {
+    const id = `t_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const created = await addTask({
+      id,
+      title,
+      due: due ? `${due}T09:00:00` : undefined,
+    });
+    setTasks((prev) => (prev ? [...prev, created] : [created]));
+  }, []);
+
   if (error && !blocks) {
     return (
       <div style={{ padding: 32 }}>
@@ -247,6 +260,7 @@ export function Plan() {
               {taskInbox.length}
             </Mono>
           </div>
+          <TaskQuickAdd onAdd={createTask} />
           {taskInbox.length === 0 ? (
             <SidebarEmpty text="비어 있음" />
           ) : (
@@ -349,6 +363,9 @@ export function Plan() {
             {weekLabel}
           </span>
           <span style={{ flex: 1 }} />
+          <Button sm ghost onClick={() => setIcalOpen(true)}>
+            캘린더
+          </Button>
           <Button
             sm
             onClick={() => {
@@ -382,6 +399,110 @@ export function Plan() {
         onClose={closeDialog}
         onDelete={editingBlock ? handleDelete : undefined}
       />
+
+      <IcalDialog
+        open={icalOpen}
+        onClose={() => setIcalOpen(false)}
+        onSynced={refreshBlocks}
+      />
+    </div>
+  );
+}
+
+function TaskQuickAdd({
+  onAdd,
+}: {
+  onAdd: (title: string, due?: string) => Promise<void>;
+}) {
+  const [title, setTitle] = useState('');
+  const [due, setDue] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const submit = async () => {
+    const text = title.trim();
+    if (!text) return;
+    setBusy(true);
+    try {
+      await onAdd(text, due || undefined);
+      setTitle('');
+      setDue('');
+      setOpen(false);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div style={{ marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onFocus={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            submit();
+          }
+          if (e.key === 'Escape') {
+            setOpen(false);
+            (e.currentTarget as HTMLInputElement).blur();
+          }
+        }}
+        placeholder="+ 할 일 추가"
+        style={{
+          padding: '7px 10px',
+          fontSize: 12.5,
+          border: '1px solid var(--line)',
+          background: 'var(--bg)',
+          color: 'var(--ink)',
+          borderRadius: 6,
+          fontFamily: 'inherit',
+          outline: 'none',
+        }}
+      />
+      {open && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+        >
+          <input
+            type="date"
+            value={due}
+            onChange={(e) => setDue(e.target.value)}
+            style={{
+              padding: '5px 7px',
+              fontSize: 11.5,
+              border: '1px solid var(--line)',
+              background: 'var(--bg)',
+              color: 'var(--ink)',
+              borderRadius: 5,
+              fontFamily: 'inherit',
+              outline: 'none',
+              flex: 1,
+              minWidth: 0,
+            }}
+          />
+          <button
+            onClick={submit}
+            disabled={busy || !title.trim()}
+            style={{
+              padding: '6px 10px',
+              fontSize: 11.5,
+              border: 'none',
+              background: title.trim() ? 'var(--ink)' : 'var(--bg-shade)',
+              color: title.trim() ? 'var(--on-accent)' : 'var(--ink-mute)',
+              borderRadius: 5,
+              cursor: title.trim() && !busy ? 'pointer' : 'default',
+              fontFamily: 'inherit',
+              fontWeight: 500,
+            }}
+          >
+            {busy ? '…' : '담기'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
