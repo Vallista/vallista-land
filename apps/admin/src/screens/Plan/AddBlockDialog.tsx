@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Block, BlockKind, BlockSource, KnownBlockKind } from '@vallista/content-core';
 import { Button, Eyebrow, Input, Mono } from '../../components/atoms/Atoms';
+import { BlockInfoView } from './BlockInfoView';
 
 const SOURCE_LABEL: Record<Exclude<BlockSource, 'local'>, string> = {
   gcal: 'Google · iCal 구독',
@@ -41,6 +42,7 @@ export function AddBlockDialog({
   onDelete,
   editingId,
   source,
+  block,
 }: {
   open: boolean;
   initial: Partial<AddBlockDraft> | null;
@@ -49,6 +51,7 @@ export function AddBlockDialog({
   onDelete?: () => Promise<void>;
   editingId?: string;
   source?: BlockSource;
+  block?: Block;
 }) {
   const readOnly = !!source && source !== 'local';
   const sourceLabel =
@@ -181,7 +184,7 @@ export function AddBlockDialog({
       >
         <header
           style={{
-            padding: '16px 18px 12px',
+            padding: '14px 18px 12px',
             borderBottom: '1px solid var(--line)',
             background: 'var(--bg-soft)',
           }}
@@ -189,16 +192,18 @@ export function AddBlockDialog({
           <Eyebrow>
             {readOnly ? '외부 캘린더 — 읽기 전용' : editingId ? '블록 편집' : '블록 추가'}
           </Eyebrow>
-          <h2
-            style={{
-              margin: '4px 0 0',
-              fontSize: 16,
-              fontWeight: 600,
-              color: 'var(--ink)',
-            }}
-          >
-            {readOnly ? title || '(제목 없음)' : '시간대를 정하고 무엇을 할지 적기'}
-          </h2>
+          {!readOnly && (
+            <h2
+              style={{
+                margin: '4px 0 0',
+                fontSize: 16,
+                fontWeight: 600,
+                color: 'var(--ink)',
+              }}
+            >
+              시간대를 정하고 무엇을 할지 적기
+            </h2>
+          )}
           {readOnly && sourceLabel && (
             <Mono
               style={{
@@ -213,137 +218,143 @@ export function AddBlockDialog({
             </Mono>
           )}
         </header>
-        <div
-          style={{
-            padding: 18,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12,
-          }}
-        >
-          <Field label="제목">
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              autoFocus={!readOnly}
-              placeholder="예: 글쓰기 — 토큰 계층"
-              readOnly={readOnly}
-              sm
-            />
-          </Field>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <Field label="시작 날짜">
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                readOnly={readOnly}
-                sm
-              />
-            </Field>
-            <Field label="끝 날짜 (선택)">
-              <Input
-                type="date"
-                value={endDate || date}
-                onChange={(e) => setEndDate(e.target.value === date ? '' : e.target.value)}
-                min={date || undefined}
-                readOnly={readOnly}
-                sm
-              />
-            </Field>
-            <Field label="시작 시간">
-              <Input
-                type="time"
-                value={start}
-                onChange={(e) => setStart(e.target.value)}
-                step={300}
-                readOnly={readOnly}
-                sm
-              />
-            </Field>
-            <Field label="끝 시간">
-              <Input
-                type="time"
-                value={end}
-                onChange={(e) => setEnd(e.target.value)}
-                step={300}
-                readOnly={readOnly}
-                sm
-              />
-            </Field>
+        {readOnly && block ? (
+          <div style={{ padding: 18 }}>
+            <BlockInfoView block={block} showFooterNote={false} />
           </div>
-          <Field label="종류">
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 4,
-              }}
-            >
-              {KINDS.map((k) => (
+        ) : (
+          <div
+            style={{
+              padding: 18,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
+            <Field label="제목">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                autoFocus={!readOnly}
+                placeholder="예: 글쓰기 — 토큰 계층"
+                readOnly={readOnly}
+                sm
+              />
+            </Field>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <Field label="시작 날짜">
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  readOnly={readOnly}
+                  sm
+                />
+              </Field>
+              <Field label="끝 날짜 (선택)">
+                <Input
+                  type="date"
+                  value={endDate || date}
+                  onChange={(e) => setEndDate(e.target.value === date ? '' : e.target.value)}
+                  min={date || undefined}
+                  readOnly={readOnly}
+                  sm
+                />
+              </Field>
+              <Field label="시작 시간">
+                <Input
+                  type="time"
+                  value={start}
+                  onChange={(e) => setStart(e.target.value)}
+                  step={300}
+                  readOnly={readOnly}
+                  sm
+                />
+              </Field>
+              <Field label="끝 시간">
+                <Input
+                  type="time"
+                  value={end}
+                  onChange={(e) => setEnd(e.target.value)}
+                  step={300}
+                  readOnly={readOnly}
+                  sm
+                />
+              </Field>
+            </div>
+            <Field label="종류">
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 4,
+                }}
+              >
+                {KINDS.map((k) => (
+                  <button
+                    key={k.id}
+                    onClick={() => setKind(k.id)}
+                    disabled={readOnly}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: 999,
+                      border: '1px solid transparent',
+                      background:
+                        kind === k.id ? 'var(--ink)' : 'var(--bg-soft)',
+                      color: kind === k.id ? 'var(--on-accent)' : 'var(--ink-soft)',
+                      fontSize: 11.5,
+                      cursor: readOnly ? 'not-allowed' : 'pointer',
+                      fontFamily: 'inherit',
+                      opacity: readOnly && kind !== k.id ? 0.5 : 1,
+                    }}
+                  >
+                    {k.label}
+                  </button>
+                ))}
                 <button
-                  key={k.id}
-                  onClick={() => setKind(k.id)}
+                  onClick={() => setKind('custom')}
                   disabled={readOnly}
                   style={{
                     padding: '4px 10px',
                     borderRadius: 999,
-                    border: '1px solid transparent',
-                    background:
-                      kind === k.id ? 'var(--ink)' : 'var(--bg-soft)',
-                    color: kind === k.id ? 'var(--on-accent)' : 'var(--ink-soft)',
+                    border: '1px dashed var(--line)',
+                    background: kind === 'custom' ? 'var(--ink)' : 'transparent',
+                    color: kind === 'custom' ? 'var(--on-accent)' : 'var(--ink-soft)',
                     fontSize: 11.5,
                     cursor: readOnly ? 'not-allowed' : 'pointer',
                     fontFamily: 'inherit',
-                    opacity: readOnly && kind !== k.id ? 0.5 : 1,
+                    opacity: readOnly && kind !== 'custom' ? 0.5 : 1,
                   }}
                 >
-                  {k.label}
+                  + 직접
                 </button>
-              ))}
-              <button
-                onClick={() => setKind('custom')}
-                disabled={readOnly}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: 999,
-                  border: '1px dashed var(--line)',
-                  background: kind === 'custom' ? 'var(--ink)' : 'transparent',
-                  color: kind === 'custom' ? 'var(--on-accent)' : 'var(--ink-soft)',
-                  fontSize: 11.5,
-                  cursor: readOnly ? 'not-allowed' : 'pointer',
-                  fontFamily: 'inherit',
-                  opacity: readOnly && kind !== 'custom' ? 0.5 : 1,
-                }}
-              >
-                + 직접
-              </button>
-            </div>
-          </Field>
-          {kind === 'custom' && (
-            <Field label="직접 입력한 종류 이름">
+              </div>
+            </Field>
+            {kind === 'custom' && (
+              <Field label="직접 입력한 종류 이름">
+                <Input
+                  value={customLabel}
+                  onChange={(e) => setCustomLabel(e.target.value)}
+                  placeholder="예: 회고, 산책, 명상…"
+                  readOnly={readOnly}
+                  sm
+                />
+              </Field>
+            )}
+            <Field label="참석자 (쉼표로 구분, 선택)">
               <Input
-                value={customLabel}
-                onChange={(e) => setCustomLabel(e.target.value)}
-                placeholder="예: 회고, 산책, 명상…"
+                value={attendees}
+                onChange={(e) => setAttendees(e.target.value)}
+                placeholder="@지영, @팀"
                 readOnly={readOnly}
                 sm
               />
             </Field>
-          )}
-          <Field label="참석자 (쉼표로 구분, 선택)">
-            <Input
-              value={attendees}
-              onChange={(e) => setAttendees(e.target.value)}
-              placeholder="@지영, @팀"
-              readOnly={readOnly}
-              sm
-            />
-          </Field>
-          {error && (
-            <Mono style={{ fontSize: 11, color: 'var(--err)' }}>{error}</Mono>
-          )}
-        </div>
+            {error && (
+              <Mono style={{ fontSize: 11, color: 'var(--err)' }}>{error}</Mono>
+            )}
+          </div>
+        )}
         <footer
           style={{
             padding: '12px 18px',
@@ -364,7 +375,7 @@ export function AddBlockDialog({
                   letterSpacing: '0.04em',
                 }}
               >
-                외부 캘린더에서 동기화된 일정 — 편집은 원본 캘린더에서
+                편집은 원본 캘린더에서
               </Mono>
               <Button sm onClick={onClose}>
                 닫기

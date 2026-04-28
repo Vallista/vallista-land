@@ -794,6 +794,7 @@ export function Plan() {
         initial={dialogInitial}
         editingId={editingBlock?.id}
         source={editingBlock?.source}
+        block={editingBlock ?? undefined}
         onSubmit={handleSubmit}
         onClose={closeDialog}
         onDelete={editingBlock ? handleDelete : undefined}

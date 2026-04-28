@@ -1,22 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Block, BlockSource, KnownBlockKind, Task } from '@vallista/content-core';
+import type { Block, KnownBlockKind, Task } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
-
-const SOURCE_LABEL: Record<BlockSource, string> = {
-  local: '내 블록',
-  gcal: 'GCAL',
-  applecal: 'APPLE',
-};
-
-function isLocal(b: Block): boolean {
-  return !b.source || b.source === 'local';
-}
-
-function isAllDayBlock(b: Block): boolean {
-  if (b.start !== '00:00') return false;
-  if (b.end === '00:00' || b.end === '23:59') return true;
-  return false;
-}
+import { BlockInfoView } from './BlockInfoView';
+import {
+  EXTERNAL_COLOR,
+  KIND_COLOR,
+  SOURCE_LABEL,
+  dayOffset,
+  isAllDayBlock,
+  isLocal,
+  spanDayCount,
+} from './blockMeta';
 
 const DEFAULT_HOUR_START = 0;
 const DEFAULT_HOUR_END = 23;
@@ -25,93 +19,6 @@ const HEADER_HEIGHT = 38;
 const SNAP_MIN = 15;
 const SNAP_FRAC = SNAP_MIN / 60;
 const CLICK_THRESHOLD_PX = 5;
-
-const KIND_LABEL: Record<KnownBlockKind, string> = {
-  meet: '미팅',
-  write: '글쓰기',
-  read: '독서',
-  deep: '몰입',
-  build: '제작',
-  publish: '배포',
-  health: '건강',
-  meal: '식사',
-  leisure: '여가',
-  people: '사람',
-  routine: '루틴',
-  life: '일상',
-};
-
-const KIND_COLOR: Record<
-  KnownBlockKind,
-  { bg: string; border: string; ink: string }
-> = {
-  meet: {
-    bg: 'rgba(196,181,253,0.10)',
-    border: 'rgba(196,181,253,0.32)',
-    ink: 'var(--hl-violet)',
-  },
-  write: {
-    bg: 'rgba(96,165,250,0.10)',
-    border: 'rgba(96,165,250,0.32)',
-    ink: 'var(--blue)',
-  },
-  read: {
-    bg: 'rgba(253,164,175,0.10)',
-    border: 'rgba(253,164,175,0.32)',
-    ink: 'var(--hl-rose)',
-  },
-  deep: {
-    bg: 'rgba(74,222,128,0.10)',
-    border: 'rgba(74,222,128,0.32)',
-    ink: 'var(--ok)',
-  },
-  build: {
-    bg: 'rgba(252,211,77,0.10)',
-    border: 'rgba(252,211,77,0.32)',
-    ink: 'var(--hl-amber)',
-  },
-  publish: {
-    bg: 'rgba(96,165,250,0.18)',
-    border: 'rgba(96,165,250,0.45)',
-    ink: 'var(--blue)',
-  },
-  health: {
-    bg: 'rgba(74,222,128,0.10)',
-    border: 'rgba(74,222,128,0.32)',
-    ink: 'var(--ok)',
-  },
-  meal: {
-    bg: 'rgba(252,211,77,0.10)',
-    border: 'rgba(252,211,77,0.32)',
-    ink: 'var(--hl-amber)',
-  },
-  leisure: {
-    bg: 'rgba(253,164,175,0.10)',
-    border: 'rgba(253,164,175,0.32)',
-    ink: 'var(--hl-rose)',
-  },
-  people: {
-    bg: 'rgba(196,181,253,0.10)',
-    border: 'rgba(196,181,253,0.32)',
-    ink: 'var(--hl-violet)',
-  },
-  routine: {
-    bg: 'rgba(120,120,128,0.10)',
-    border: 'rgba(120,120,128,0.32)',
-    ink: 'var(--ink-mute)',
-  },
-  life: {
-    bg: 'rgba(120,120,128,0.10)',
-    border: 'rgba(120,120,128,0.32)',
-    ink: 'var(--ink-mute)',
-  },
-};
-
-const EXTERNAL_COLOR = {
-  bg: 'rgba(120,120,128,0.08)',
-  border: 'rgba(120,120,128,0.28)',
-  ink: 'var(--ink-mute)',
-};
 
 export interface CalendarDay {
   date: string;
@@ -1357,52 +1264,8 @@ function HoverCard({
   x: number;
   y: number;
 }) {
-  const external = !isLocal(block);
-  const allDay = isAllDayBlock(block);
-  const c = external
-    ? EXTERNAL_COLOR
-    : (KIND_COLOR[block.kind as KnownBlockKind] ?? KIND_COLOR.life);
-  const kindLabel =
-    (KIND_LABEL as Record<string, string>)[block.kind] ??
-    block.customLabel ??
-    block.kind;
-  const sourceLabel =
-    block.source && block.source !== 'local' ? SOURCE_LABEL[block.source] : null;
-  const totalDays = spanDayCount(block);
-  const dayIndex = totalDays > 1 ? dayOffset(block.date, dayDate) + 1 : 1;
-  const timeText = allDay
-    ? totalDays > 1
-      ? `종일 · ${block.date} → ${block.endDate ?? block.date}`
-      : '종일'
-    : segment.isMulti
-      ? `${segment.start}–${segment.end === '24:00' ? '24:00' : segment.end} · ${block.start}–${block.end} (${dayIndex}/${totalDays})`
-      : `${block.start} – ${block.end}`;
-
-  const locationText = (block.location ?? '').trim();
-  const notesText = (block.notes ?? '').trim();
-  const calendarName = (block.calendarName ?? '').trim();
-  const urlText = (block.url ?? '').trim();
-  const recurring = block.recurring === true;
-  const urlHost = (() => {
-    if (!urlText) return '';
-    try {
-      return new URL(urlText).host;
-    } catch {
-      return urlText.length > 48 ? urlText.slice(0, 48) + '…' : urlText;
-    }
-  })();
-  const fallbackLocation =
-    !locationText && block.source === 'applecal' && block.attendees.length === 1
-      ? block.attendees[0]?.trim() ?? ''
-      : '';
-  const showLocation = (locationText || fallbackLocation).length > 0;
-  const showAttendees =
-    block.attendees.length > 0 && !(fallbackLocation && block.attendees.length === 1);
-  const showNotes = notesText.length > 0;
-  const showUrl = urlHost.length > 0;
   const W = 320;
-  const H_EST =
-    110 + (showLocation ? 22 : 0) + (showUrl ? 22 : 0) + (showNotes ? 80 : 0);
+  const H_EST = 200;
   const margin = 12;
   const winW = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
@@ -1420,200 +1283,11 @@ function HoverCard({
         zIndex: 9998,
         pointerEvents: 'none',
         width: W,
-        padding: '10px 12px',
-        background: 'var(--bg)',
-        border: `1px solid ${c.border}`,
-        borderLeft: `3px solid ${c.ink}`,
-        borderRadius: 6,
         boxShadow:
           '0 10px 30px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 6,
       }}
     >
-      <Mono
-        style={{
-          fontSize: 9.5,
-          color: c.ink,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-        }}
-      >
-        {timeText}
-      </Mono>
-      <div
-        style={{
-          fontSize: 13,
-          fontWeight: 600,
-          color: 'var(--ink)',
-          lineHeight: 1.35,
-          wordBreak: 'break-word',
-          textDecoration: block.done ? 'line-through' : 'none',
-          opacity: block.done ? 0.6 : 1,
-        }}
-      >
-        {block.title || '(제목 없음)'}
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-          alignItems: 'center',
-        }}
-      >
-        <Mono
-          style={{
-            fontSize: 9,
-            padding: '2px 6px',
-            borderRadius: 999,
-            background: c.bg,
-            color: c.ink,
-            border: `1px solid ${c.border}`,
-            letterSpacing: '0.04em',
-          }}
-        >
-          {kindLabel}
-        </Mono>
-        {sourceLabel && (
-          <Mono
-            style={{
-              fontSize: 9,
-              padding: '2px 6px',
-              borderRadius: 999,
-              background: 'var(--bg-soft)',
-              color: 'var(--ink-mute)',
-              border: '1px dashed var(--line)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {sourceLabel}
-          </Mono>
-        )}
-        {calendarName && (
-          <Mono
-            style={{
-              fontSize: 9,
-              padding: '2px 6px',
-              borderRadius: 999,
-              background: 'var(--bg-soft)',
-              color: 'var(--ink-soft)',
-              border: '1px solid var(--line)',
-              letterSpacing: '0.04em',
-              maxWidth: 140,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-            title={calendarName}
-          >
-            {calendarName}
-          </Mono>
-        )}
-        {totalDays > 1 && !allDay && (
-          <Mono
-            style={{
-              fontSize: 9,
-              padding: '2px 6px',
-              borderRadius: 999,
-              background: 'var(--bg-soft)',
-              color: 'var(--ink-mute)',
-              border: '1px solid var(--line)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            다일 {dayIndex}/{totalDays}
-          </Mono>
-        )}
-        {recurring && (
-          <Mono
-            style={{
-              fontSize: 9,
-              padding: '2px 6px',
-              borderRadius: 999,
-              background: 'var(--bg-soft)',
-              color: 'var(--ink-mute)',
-              border: '1px solid var(--line)',
-              letterSpacing: '0.04em',
-            }}
-            title="반복 일정"
-          >
-            반복
-          </Mono>
-        )}
-      </div>
-      {showLocation && (
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--ink-soft)',
-            lineHeight: 1.4,
-            wordBreak: 'break-word',
-          }}
-        >
-          <span style={{ color: 'var(--ink-mute)' }}>위치 · </span>
-          {locationText || fallbackLocation}
-        </div>
-      )}
-      {showUrl && (
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--ink-soft)',
-            lineHeight: 1.4,
-            wordBreak: 'break-all',
-          }}
-          title={urlText}
-        >
-          <span style={{ color: 'var(--ink-mute)' }}>링크 · </span>
-          {urlHost}
-        </div>
-      )}
-      {showAttendees && (
-        <div
-          style={{
-            fontSize: 11,
-            color: 'var(--ink-soft)',
-            lineHeight: 1.4,
-            wordBreak: 'break-word',
-          }}
-        >
-          <span style={{ color: 'var(--ink-mute)' }}>참석 · </span>
-          {block.attendees.join(', ')}
-        </div>
-      )}
-      {showNotes && (
-        <div
-          style={{
-            marginTop: 2,
-            paddingTop: 6,
-            borderTop: '1px solid var(--line-subtle)',
-            fontSize: 11,
-            color: 'var(--ink-soft)',
-            lineHeight: 1.5,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            display: '-webkit-box',
-            WebkitLineClamp: 6,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
-          {notesText}
-        </div>
-      )}
-      {external && (
-        <Mono
-          style={{
-            fontSize: 9,
-            color: 'var(--ink-mute)',
-            letterSpacing: '0.04em',
-          }}
-        >
-          외부 캘린더 — 편집은 원본 캘린더에서
-        </Mono>
-      )}
+      <BlockInfoView block={block} dayDate={dayDate} segment={segment} />
     </div>
   );
 }
@@ -1808,14 +1482,3 @@ function blockSegment(
   return { start, end, isMulti: true };
 }
 
-function spanDayCount(b: Block): number {
-  const startDay = b.date;
-  const endDay = b.endDate ?? b.date;
-  return dayOffset(startDay, endDay) + 1;
-}
-
-function dayOffset(from: string, to: string): number {
-  const a = new Date(`${from}T00:00:00`);
-  const b = new Date(`${to}T00:00:00`);
-  return Math.round((b.getTime() - a.getTime()) / 86400000);
-}
