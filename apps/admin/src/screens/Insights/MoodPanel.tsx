@@ -21,8 +21,31 @@ export function MoodPanel({ moods }: { moods: Mood[] }) {
     );
   }
 
-  const sorted = [...moods].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...moods]
+    .filter((m): m is Mood & { energy: number; mood: number } =>
+      typeof m.energy === 'number' && typeof m.mood === 'number',
+    )
+    .sort((a, b) => a.date.localeCompare(b.date));
   const tail = sorted.slice(-7);
+
+  if (tail.length === 0) {
+    return (
+      <Card padded>
+        <CardTitle style={{ marginBottom: 12 }}>기분 · 에너지</CardTitle>
+        <div
+          style={{
+            padding: '24px 0',
+            color: 'var(--ink-mute)',
+            fontSize: 12.5,
+            textAlign: 'center',
+            fontStyle: 'italic',
+          }}
+        >
+          이 기간에 기록된 컨디션이 없습니다
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card padded>
@@ -45,9 +68,10 @@ export function MoodPanel({ moods }: { moods: Mood[] }) {
                 flexDirection: 'column',
                 gap: 3,
               }}
+              title={`${shortDate(m.date)} · 에너지 ${Math.round(m.energy * 100)} · 기분 ${Math.round(m.mood * 100)}${m.note ? ` · ${m.note}` : ''}`}
             >
-              <Bar value={m.energy} color="var(--hl-amber)" />
-              <Bar value={m.mood} color="var(--blue)" />
+              <Bar value={m.energy} color="var(--hl-amber)" label={`에너지 ${Math.round(m.energy * 100)}`} />
+              <Bar value={m.mood} color="var(--blue)" label={`기분 ${Math.round(m.mood * 100)}`} />
             </div>
             <span
               style={{
@@ -84,10 +108,19 @@ export function MoodPanel({ moods }: { moods: Mood[] }) {
   );
 }
 
-function Bar({ value, color }: { value: number; color: string }) {
+function Bar({
+  value,
+  color,
+  label,
+}: {
+  value: number;
+  color: string;
+  label?: string;
+}) {
   const pct = Math.max(0, Math.min(1, value)) * 100;
   return (
     <div
+      title={label}
       style={{
         position: 'relative',
         height: 4,

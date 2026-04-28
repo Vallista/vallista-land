@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { GleanItem, GleanSource } from '@vallista/content-core';
 import { addGlean, fetchUrl } from '../../lib/tauri';
-import { Mono } from '../../components/atoms/Atoms';
+import { Input, Mono, Textarea } from '../../components/atoms/Atoms';
 
 type Props = {
   onClose: () => void;
@@ -141,12 +141,12 @@ export function AddDialog({ onClose, onAdded }: Props) {
         >
           <Field label="URL">
             <div style={{ display: 'flex', gap: 6 }}>
-              <input
+              <Input
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://… (선택)"
-                style={inputStyle()}
+                style={{ padding: '7px 10px', fontSize: 12.5, borderRadius: 5 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -177,37 +177,72 @@ export function AddDialog({ onClose, onAdded }: Props) {
             </div>
           </Field>
           <Field label="제목">
-            <input
+            <Input
               ref={titleRef}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="이 글을 무엇이라 부를까요"
-              style={inputStyle()}
+              style={{ padding: '7px 10px', fontSize: 12.5, borderRadius: 5 }}
             />
           </Field>
           <Field label="요약 (선택)">
-            <input
+            <Input
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               placeholder="비우면 본문 앞부분에서 자동 생성"
-              style={inputStyle()}
+              style={{ padding: '7px 10px', fontSize: 12.5, borderRadius: 5 }}
             />
           </Field>
           <Field label="본문">
-            <textarea
+            <Textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="기사 본문을 붙여넣으세요"
               rows={10}
               style={{
-                ...inputStyle(),
                 fontFamily: 'var(--font-serif)',
                 lineHeight: 1.55,
-                resize: 'vertical',
                 minHeight: 140,
               }}
             />
           </Field>
+
+          <details style={{ fontSize: 11.5, color: 'var(--ink-soft)' }}>
+            <summary style={{ cursor: 'pointer', listStyle: 'none', padding: '4px 0' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Mono style={{ color: 'var(--blue)', fontSize: 10.5 }}>?</Mono>
+                Threads · Instagram · X 같은 SNS는 어떻게?
+              </span>
+            </summary>
+            <ul
+              style={{
+                margin: '6px 0 0 0',
+                padding: '8px 12px',
+                fontSize: 11,
+                lineHeight: 1.6,
+                listStyle: 'none',
+                border: '1px dashed var(--line)',
+                borderRadius: 6,
+                background: 'var(--bg-soft)',
+              }}
+            >
+              <li>
+                <strong>네이티브 RSS는 거의 없습니다</strong> — 메타·인스타·트위터는 공식 RSS를 닫았습니다. 대안은 RSS 변환 게이트웨이입니다.
+              </li>
+              <li style={{ marginTop: 4 }}>
+                <strong>RSSHub</strong> — <Mono>rsshub.app/threads/:user</Mono>, <Mono>rsshub.app/picuki/profile/:user</Mono>(Instagram), <Mono>rsshub.app/twitter/user/:user</Mono>. 자체 호스팅 권장 (rate limit · 정책 변경에 강함).
+              </li>
+              <li style={{ marginTop: 4 }}>
+                <strong>Nitter</strong> — X 전용. <Mono>nitter.net/&lt;user&gt;/rss</Mono> (인스턴스 자주 바뀜 · status.d420.de 참고).
+              </li>
+              <li style={{ marginTop: 4 }}>
+                <strong>FetchRSS · Feedity · Politepol</strong> — 임의 페이지를 RSS로 변환. 무료 한도가 있고, 로그인 벽 뒤 콘텐츠는 못 긁습니다.
+              </li>
+              <li style={{ marginTop: 4 }}>
+                <strong>대안</strong> — IFTTT/Zapier로 SNS → 이메일/노션, 또는 그냥 본문을 PASTE로 붙여넣기. 짧은 글은 PASTE가 가장 안전합니다.
+              </li>
+            </ul>
+          </details>
         </div>
 
         {error && (
@@ -304,21 +339,6 @@ function SourcePicker({
       ))}
     </div>
   );
-}
-
-function inputStyle(): React.CSSProperties {
-  return {
-    padding: '7px 10px',
-    border: '1px solid var(--line)',
-    background: 'var(--bg-input, var(--bg))',
-    color: 'var(--ink)',
-    fontSize: 12.5,
-    borderRadius: 5,
-    fontFamily: 'inherit',
-    outline: 'none',
-    width: '100%',
-    boxSizing: 'border-box',
-  };
 }
 
 function btnGhost(): React.CSSProperties {

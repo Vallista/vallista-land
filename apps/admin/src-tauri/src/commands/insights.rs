@@ -75,7 +75,8 @@ struct DocRecord {
 
 #[tauri::command]
 pub fn compute_insights(state: State<'_, AppState>) -> Result<Insights, String> {
-    let root = &state.vault_root;
+    let root = state.content_root()?;
+    let root = root.as_path();
     let collections = ["contents/articles", "contents/notes"];
 
     let mut docs: Vec<DocRecord> = Vec::new();

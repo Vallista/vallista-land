@@ -471,6 +471,309 @@ pub fn llm_install_binary(
     Ok(dest.to_string_lossy().to_string())
 }
 
+fn current_release_target() -> Result<&'static str, String> {
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    {
+        return Ok("macos-arm64");
+    }
+    #[cfg(all(target_os = "macos", target_arch = "x86_64"))]
+    {
+        return Ok("macos-x64");
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err("자동 설치는 현재 macOS만 지원합니다".into())
+    }
+}
+
+#[derive(Clone, Copy)]
+enum ArchiveKind {
+    #[allow(dead_code)]
+    Zip,
+    #[allow(dead_code)]
+    TarGz,
+}
+
+fn preferred_archive() -> (ArchiveKind, &'static str) {
+    #[cfg(target_os = "windows")]
+    {
+        return (ArchiveKind::Zip, "zip");
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        (ArchiveKind::TarGz, "tar.gz")
+    }
+}
+
+async fn resolve_latest_server_asset() -> Result<(String, ArchiveKind), String> {
+    let target = current_release_target()?;
+    let (kind, ext) = preferred_archive();
+    let client = reqwest::Client::builder()
+        .user_agent("Bento/0.1 (+https://vallista.kr)")
+        .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let resp = client
+        .get("https://api.github.com/repos/ggml-org/llama.cpp/releases/latest")
+        .header("Accept", "application/vnd.github+json")
+        .send()
+        .await
+        .map_err(|e| format!("github api: {}", e))?;
+    if !resp.status().is_success() {
+        return Err(format!("github api: HTTP {}", resp.status()));
+    }
+    let json: serde_json::Value = resp.json().await.map_err(|e| e.to_string())?;
+    let assets = json["assets"]
+        .as_array()
+        .ok_or_else(|| "릴리스 assets 없음".to_string())?;
+    let exact_suffix = format!("-bin-{}.{}", target, ext);
+    let dot_ext = format!(".{}", ext);
+    let mut fallback: Option<String> = None;
+    for asset in assets {
+        let name = asset["name"].as_str().unwrap_or("");
+        if !name.ends_with(&dot_ext) {
+            continue;
+        }
+        if !name.contains(target) {
+            continue;
+        }
+        let url = match asset["browser_download_url"].as_str() {
+            Some(u) => u.to_string(),
+            None => continue,
+        };
+        if name.ends_with(&exact_suffix) {
+            return Ok((url, kind));
+        }
+        if fallback.is_none() {
+            fallback = Some(url);
+        }
+    }
+    fallback
+        .map(|u| (u, kind))
+        .ok_or_else(|| format!("최신 릴리스에서 {} {} 아카이브를 찾지 못했습니다", target, ext))
+}
+
+async fn stream_to_file(
+    url: &str,
+    dest: &Path,
+    on_event: &Channel<DownloadEvent>,
+) -> Result<(), String> {
+    let client = reqwest::Client::builder()
+        .user_agent("Bento/0.1 (+https://vallista.kr)")
+        .redirect(reqwest::redirect::Policy::limited(10))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let resp = client
+        .get(url)
+        .timeout(Duration::from_secs(86_400))
+        .send()
+        .await
+        .map_err(|e| format!("request: {}", e))?;
+    if !resp.status().is_success() {
+        return Err(format!("HTTP {}", resp.status()));
+    }
+    let total = resp.content_length();
+    let _ = on_event.send(DownloadEvent::Started { total });
+    let mut file = std::fs::File::create(dest).map_err(|e| e.to_string())?;
+    let mut downloaded: u64 = 0;
+    let mut last_emit = Instant::now();
+    let mut stream = resp;
+    loop {
+        match stream.chunk().await {
+            Ok(Some(chunk)) => {
+                file.write_all(&chunk).map_err(|e| e.to_string())?;
+                downloaded += chunk.len() as u64;
+                if last_emit.elapsed() > Duration::from_millis(150) {
+                    let _ = on_event.send(DownloadEvent::Progress { downloaded, total });
+                    last_emit = Instant::now();
+                }
+            }
+            Ok(None) => break,
+            Err(e) => return Err(e.to_string()),
+        }
+    }
+    file.sync_all().map_err(|e| e.to_string())?;
+    let _ = on_event.send(DownloadEvent::Progress { downloaded, total });
+    Ok(())
+}
+
+fn is_runtime_file(file_name: &str) -> (bool, bool) {
+    let lower = file_name.to_lowercase();
+    let is_server = file_name == "llama-server" || file_name == "llama-server.exe";
+    let is_runtime = lower.ends_with(".dylib")
+        || lower.ends_with(".so")
+        || lower.ends_with(".metal")
+        || lower.ends_with(".metallib")
+        || lower.ends_with(".dll");
+    (is_server, is_runtime)
+}
+
+fn write_runtime_file(
+    data_dir: &Path,
+    file_name: &str,
+    is_server: bool,
+    reader: &mut dyn std::io::Read,
+) -> Result<(), String> {
+    let dest = data_dir.join(file_name);
+    let mut out = std::fs::File::create(&dest).map_err(|e| e.to_string())?;
+    std::io::copy(reader, &mut out).map_err(|e| e.to_string())?;
+    out.sync_all().ok();
+    drop(out);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mode = if is_server { 0o755 } else { 0o644 };
+        let mut perms = fs::metadata(&dest)
+            .map_err(|e| e.to_string())?
+            .permissions();
+        perms.set_mode(mode);
+        fs::set_permissions(&dest, perms).map_err(|e| e.to_string())?;
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = is_server;
+    }
+    Ok(())
+}
+
+fn extract_runtime_files(
+    archive_path: &Path,
+    kind: ArchiveKind,
+    data_dir: &Path,
+) -> Result<bool, String> {
+    match kind {
+        ArchiveKind::Zip => extract_zip(archive_path, data_dir),
+        ArchiveKind::TarGz => extract_targz(archive_path, data_dir),
+    }
+}
+
+fn extract_zip(archive_path: &Path, data_dir: &Path) -> Result<bool, String> {
+    let zip_file = std::fs::File::open(archive_path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(zip_file).map_err(|e| format!("zip: {}", e))?;
+    let mut server_extracted = false;
+    for i in 0..archive.len() {
+        let mut entry = archive.by_index(i).map_err(|e| e.to_string())?;
+        if entry.is_dir() {
+            continue;
+        }
+        let name = entry.name().to_string();
+        let file_name = match Path::new(&name).file_name().and_then(|s| s.to_str()) {
+            Some(n) => n.to_string(),
+            None => continue,
+        };
+        if file_name.is_empty() || file_name.starts_with('.') {
+            continue;
+        }
+        let (is_server, is_runtime) = is_runtime_file(&file_name);
+        if !is_server && !is_runtime {
+            continue;
+        }
+        write_runtime_file(data_dir, &file_name, is_server, &mut entry)?;
+        if is_server {
+            server_extracted = true;
+        }
+    }
+    Ok(server_extracted)
+}
+
+fn extract_targz(archive_path: &Path, data_dir: &Path) -> Result<bool, String> {
+    let f = std::fs::File::open(archive_path).map_err(|e| e.to_string())?;
+    let gz = flate2::read::GzDecoder::new(f);
+    let mut tar = tar::Archive::new(gz);
+    let entries = tar.entries().map_err(|e| format!("tar: {}", e))?;
+    let mut server_extracted = false;
+    for entry in entries {
+        let mut entry = entry.map_err(|e| e.to_string())?;
+        let header_kind = entry.header().entry_type();
+        if !header_kind.is_file() {
+            continue;
+        }
+        let path = entry.path().map_err(|e| e.to_string())?.into_owned();
+        let file_name = match path.file_name().and_then(|s| s.to_str()) {
+            Some(n) => n.to_string(),
+            None => continue,
+        };
+        if file_name.is_empty() || file_name.starts_with('.') {
+            continue;
+        }
+        let (is_server, is_runtime) = is_runtime_file(&file_name);
+        if !is_server && !is_runtime {
+            continue;
+        }
+        write_runtime_file(data_dir, &file_name, is_server, &mut entry)?;
+        if is_server {
+            server_extracted = true;
+        }
+    }
+    Ok(server_extracted)
+}
+
+#[tauri::command]
+pub async fn llm_download_server(
+    on_event: Channel<DownloadEvent>,
+    state: State<'_, LlmState>,
+) -> Result<String, String> {
+    let data_dir = state.data_dir.clone();
+    fs::create_dir_all(&data_dir).map_err(|e| e.to_string())?;
+    let bin_path = state.bin_path();
+
+    let (url, kind) = match resolve_latest_server_asset().await {
+        Ok(v) => v,
+        Err(e) => {
+            let _ = on_event.send(DownloadEvent::Failed {
+                message: e.clone(),
+            });
+            return Err(e);
+        }
+    };
+
+    let tmp_archive = data_dir.join("llama-server.archive.part");
+    if tmp_archive.exists() {
+        let _ = fs::remove_file(&tmp_archive);
+    }
+    if let Err(e) = stream_to_file(&url, &tmp_archive, &on_event).await {
+        let _ = fs::remove_file(&tmp_archive);
+        let _ = on_event.send(DownloadEvent::Failed {
+            message: e.clone(),
+        });
+        return Err(e);
+    }
+
+    let extracted = match extract_runtime_files(&tmp_archive, kind, &data_dir) {
+        Ok(v) => v,
+        Err(e) => {
+            let _ = fs::remove_file(&tmp_archive);
+            let _ = on_event.send(DownloadEvent::Failed {
+                message: e.clone(),
+            });
+            return Err(e);
+        }
+    };
+    let _ = fs::remove_file(&tmp_archive);
+    if !extracted {
+        let msg = "zip 안에 llama-server를 찾지 못했습니다".to_string();
+        let _ = on_event.send(DownloadEvent::Failed {
+            message: msg.clone(),
+        });
+        return Err(msg);
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let _ = Command::new("xattr")
+            .arg("-rd")
+            .arg("com.apple.quarantine")
+            .arg(&data_dir)
+            .output();
+    }
+
+    let path_str = bin_path.to_string_lossy().to_string();
+    let _ = on_event.send(DownloadEvent::Finished {
+        path: path_str.clone(),
+    });
+    Ok(path_str)
+}
+
 #[tauri::command]
 pub fn llm_open_data_dir(state: State<'_, LlmState>) -> Result<(), String> {
     let dir = &state.data_dir;

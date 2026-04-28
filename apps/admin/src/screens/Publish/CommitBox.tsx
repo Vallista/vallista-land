@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Checkbox, Textarea } from '../../components/atoms/Atoms';
 
 type Props = {
   canCommit: boolean;
@@ -46,7 +47,7 @@ export function CommitBox({ canCommit, canPush, defaultPush, pushing, onSubmit }
           커밋 메시지
         </h2>
       </header>
-      <textarea
+      <Textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="예) feat(blog): X 게시 + 표지 정리"
@@ -58,19 +59,6 @@ export function CommitBox({ canCommit, canPush, defaultPush, pushing, onSubmit }
             if (ready) submit();
           }
         }}
-        style={{
-          width: '100%',
-          padding: '8px 10px',
-          borderRadius: 6,
-          border: '1px solid var(--line)',
-          background: 'var(--bg-input, var(--bg))',
-          color: 'var(--ink)',
-          fontSize: 13,
-          fontFamily: 'inherit',
-          resize: 'vertical',
-          outline: 'none',
-          boxSizing: 'border-box',
-        }}
       />
       <div
         style={{
@@ -81,25 +69,15 @@ export function CommitBox({ canCommit, canPush, defaultPush, pushing, onSubmit }
           gap: 12,
         }}
       >
-        <label
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 12,
-            color: canPush ? 'var(--ink-soft)' : 'var(--ink-faint)',
-            cursor: canPush ? 'pointer' : 'not-allowed',
-          }}
+        <Checkbox
+          checked={push && canPush}
+          disabled={!canPush || pushing}
+          onChange={setPush}
           title={canPush ? '커밋 후 origin으로 푸시' : '브랜치에 upstream이 없거나 main이 아니면 비활성'}
+          style={{ color: canPush ? 'var(--ink-soft)' : 'var(--ink-faint)' }}
         >
-          <input
-            type="checkbox"
-            checked={push && canPush}
-            disabled={!canPush || pushing}
-            onChange={(e) => setPush(e.target.checked)}
-          />
           푸시까지 한 번에
-        </label>
+        </Checkbox>
         <button
           onClick={submit}
           disabled={!ready}

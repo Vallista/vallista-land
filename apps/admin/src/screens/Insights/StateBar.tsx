@@ -9,9 +9,9 @@ const STATE_COLOR: Record<keyof InsightsStateCounts, string> = {
 };
 
 const STATE_LABEL: Record<keyof InsightsStateCounts, string> = {
-  seed: '씨앗',
-  sprout: '새싹',
-  draft: '초안',
+  seed: '메모',
+  sprout: '초안',
+  draft: '교정',
   published: '공개',
 };
 

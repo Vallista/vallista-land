@@ -10,6 +10,15 @@ const TASKS_FILE: &str = "tasks.json";
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct Subtask {
+    pub id: String,
+    pub title: String,
+    #[serde(default)]
+    pub done: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Task {
     pub id: String,
     pub title: String,
@@ -18,6 +27,16 @@ pub struct Task {
     pub due: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub doc_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub est_min: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub start_at: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub notes: Option<String>,
+    #[serde(default)]
+    pub subtasks: Vec<Subtask>,
     pub created_at: String,
 }
 
@@ -82,7 +101,7 @@ fn civil_from_days(days: i64) -> (i32, u32, u32) {
 
 #[tauri::command]
 pub fn list_tasks(state: State<'_, AppState>) -> Result<Vec<Task>, String> {
-    load_all(&state.vault_root)
+    load_all(&state.data_root)
 }
 
 #[derive(Deserialize)]
@@ -94,11 +113,21 @@ pub struct TaskInput {
     pub due: Option<String>,
     #[serde(default)]
     pub doc_id: Option<String>,
+    #[serde(default)]
+    pub est_min: Option<u32>,
+    #[serde(default)]
+    pub start_at: Option<String>,
+    #[serde(default)]
+    pub tags: Option<Vec<String>>,
+    #[serde(default)]
+    pub notes: Option<String>,
+    #[serde(default)]
+    pub subtasks: Option<Vec<Subtask>>,
 }
 
 #[tauri::command]
 pub fn add_task(input: TaskInput, state: State<'_, AppState>) -> Result<Task, String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     if all.iter().any(|t| t.id == input.id) {
         return Err(format!("task already exists: {}", input.id));
     }
@@ -108,10 +137,21 @@ pub fn add_task(input: TaskInput, state: State<'_, AppState>) -> Result<Task, St
         done: false,
         due: input.due.filter(|s| !s.is_empty()),
         doc_id: input.doc_id.filter(|s| !s.is_empty()),
+        est_min: input.est_min.filter(|n| *n > 0),
+        start_at: input.start_at.filter(|s| !s.is_empty()),
+        tags: input
+            .tags
+            .unwrap_or_default()
+            .into_iter()
+            .map(|t| t.trim().to_string())
+            .filter(|t| !t.is_empty())
+            .collect(),
+        notes: input.notes.filter(|s| !s.is_empty()),
+        subtasks: input.subtasks.unwrap_or_default(),
         created_at: now_iso(),
     };
     all.push(task.clone());
-    save_all(&state.vault_root, &all)?;
+    save_all(&state.data_root, &all)?;
     Ok(task)
 }
 
@@ -126,6 +166,16 @@ pub struct TaskPatch {
     pub due: Option<Option<String>>,
     #[serde(default)]
     pub doc_id: Option<Option<String>>,
+    #[serde(default)]
+    pub est_min: Option<Option<u32>>,
+    #[serde(default)]
+    pub start_at: Option<Option<String>>,
+    #[serde(default)]
+    pub tags: Option<Vec<String>>,
+    #[serde(default)]
+    pub notes: Option<Option<String>>,
+    #[serde(default)]
+    pub subtasks: Option<Vec<Subtask>>,
 }
 
 #[tauri::command]
@@ -134,7 +184,7 @@ pub fn update_task(
     patch: TaskPatch,
     state: State<'_, AppState>,
 ) -> Result<Task, String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     let idx = all
         .iter()
         .position(|t| t.id == id)
@@ -151,18 +201,40 @@ pub fn update_task(
     if let Some(doc_id) = patch.doc_id {
         all[idx].doc_id = doc_id.filter(|s| !s.is_empty());
     }
+    if let Some(est) = patch.est_min {
+        all[idx].est_min = est.filter(|n| *n > 0);
+    }
+    if let Some(start) = patch.start_at {
+        all[idx].start_at = start.filter(|s| !s.is_empty());
+    }
+    if let Some(tags) = patch.tags {
+        all[idx].tags = tags
+            .into_iter()
+            .map(|t| t.trim().to_string())
+            .filter(|t| !t.is_empty())
+            .collect();
+    }
+    if let Some(notes) = patch.notes {
+        all[idx].notes = notes.filter(|s| !s.is_empty());
+    }
+    if let Some(subtasks) = patch.subtasks {
+        all[idx].subtasks = subtasks
+            .into_iter()
+            .filter(|s| !s.title.trim().is_empty())
+            .collect();
+    }
     let updated = all[idx].clone();
-    save_all(&state.vault_root, &all)?;
+    save_all(&state.data_root, &all)?;
     Ok(updated)
 }
 
 #[tauri::command]
 pub fn delete_task(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     let before = all.len();
     all.retain(|t| t.id != id);
     if all.len() == before {
         return Err(format!("task not found: {}", id));
     }
-    save_all(&state.vault_root, &all)
+    save_all(&state.data_root, &all)
 }

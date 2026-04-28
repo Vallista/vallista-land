@@ -31,6 +31,12 @@ pub struct GleanItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promoted_doc_id: Option<String>,
     pub highlights: Vec<GleanHighlight>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub digest: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub feed_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub external_id: Option<String>,
 }
 
 fn glean_dir(root: &Path) -> std::path::PathBuf {
@@ -80,9 +86,8 @@ fn civil_from_days(days: i64) -> (i32, u32, u32) {
     (year as i32, m as u32, d as u32)
 }
 
-#[tauri::command]
-pub fn list_glean(state: State<'_, AppState>) -> Result<Vec<GleanItem>, String> {
-    let dir = glean_dir(&state.vault_root);
+pub fn list_items(root: &Path) -> Result<Vec<GleanItem>, String> {
+    let dir = glean_dir(root);
     if !dir.is_dir() {
         return Ok(Vec::new());
     }
@@ -109,6 +114,11 @@ pub fn list_glean(state: State<'_, AppState>) -> Result<Vec<GleanItem>, String> 
     Ok(items)
 }
 
+#[tauri::command]
+pub fn list_glean(state: State<'_, AppState>) -> Result<Vec<GleanItem>, String> {
+    list_items(&state.data_root)
+}
+
 fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
     let p = item_path(root, id)?;
     let safe = ensure_inside(root, &p)?;
@@ -118,7 +128,7 @@ fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
 
 #[tauri::command]
 pub fn read_glean(id: String, state: State<'_, AppState>) -> Result<GleanItem, String> {
-    read_item(&state.vault_root, &id)
+    read_item(&state.data_root, &id)
 }
 
 #[derive(Deserialize)]
@@ -130,11 +140,15 @@ pub struct GleanInput {
     pub title: String,
     pub excerpt: String,
     pub body: String,
+    #[serde(default)]
+    pub feed_id: Option<String>,
+    #[serde(default)]
+    pub external_id: Option<String>,
 }
 
 #[tauri::command]
 pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanItem, String> {
-    let dir = glean_dir(&state.vault_root);
+    let dir = glean_dir(&state.data_root);
     if !dir.is_dir() {
         fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     }
@@ -149,8 +163,11 @@ pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanI
         status: "unread".into(),
         promoted_doc_id: None,
         highlights: Vec::new(),
+        digest: None,
+        feed_id: input.feed_id,
+        external_id: input.external_id,
     };
-    write_item(&state.vault_root, &item)?;
+    write_item(&state.data_root, &item)?;
     Ok(item)
 }
 
@@ -161,12 +178,12 @@ pub fn update_glean_status(
     promoted_doc_id: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<GleanItem, String> {
-    let mut item = read_item(&state.vault_root, &id)?;
+    let mut item = read_item(&state.data_root, &id)?;
     item.status = status;
     if let Some(pdid) = promoted_doc_id {
         item.promoted_doc_id = Some(pdid);
     }
-    write_item(&state.vault_root, &item)?;
+    write_item(&state.data_root, &item)?;
     Ok(item)
 }
 
@@ -176,23 +193,35 @@ pub fn update_glean_highlights(
     highlights: Vec<GleanHighlight>,
     state: State<'_, AppState>,
 ) -> Result<GleanItem, String> {
-    let mut item = read_item(&state.vault_root, &id)?;
+    let mut item = read_item(&state.data_root, &id)?;
     item.highlights = highlights;
-    write_item(&state.vault_root, &item)?;
+    write_item(&state.data_root, &item)?;
+    Ok(item)
+}
+
+#[tauri::command]
+pub fn update_glean_digest(
+    id: String,
+    digest: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<GleanItem, String> {
+    let mut item = read_item(&state.data_root, &id)?;
+    item.digest = digest.filter(|s| !s.trim().is_empty());
+    write_item(&state.data_root, &item)?;
     Ok(item)
 }
 
 #[tauri::command]
 pub fn delete_glean(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let p = item_path(&state.vault_root, &id)?;
-    let safe = ensure_inside(&state.vault_root, &p)?;
+    let p = item_path(&state.data_root, &id)?;
+    let safe = ensure_inside(&state.data_root, &p)?;
     if safe.is_file() {
         fs::remove_file(&safe).map_err(|e| e.to_string())?;
     }
     Ok(())
 }
 
-fn write_item(root: &Path, item: &GleanItem) -> Result<(), String> {
+pub fn write_item(root: &Path, item: &GleanItem) -> Result<(), String> {
     let p = item_path(root, &item.id)?;
     let safe = ensure_inside(root, &p)?;
     if let Some(parent) = safe.parent() {
@@ -220,7 +249,7 @@ pub async fn fetch_url(url: String) -> Result<FetchedContent, String> {
         return Err("URL은 http:// 또는 https:// 로 시작해야 합니다".into());
     }
     let client = reqwest::Client::builder()
-        .user_agent("Pensmith/0.1 (+https://vallista.kr)")
+        .user_agent("Bento/0.1 (+https://vallista.kr)")
         .timeout(Duration::from_secs(15))
         .redirect(reqwest::redirect::Policy::limited(5))
         .build()

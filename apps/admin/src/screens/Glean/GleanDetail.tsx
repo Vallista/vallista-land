@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { GleanItem, GleanStatus } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
-import { deleteGlean, updateGleanHighlights, updateGleanStatus } from '../../lib/tauri';
+import {
+  deleteGlean,
+  llmChat,
+  llmStatus,
+  updateGleanDigest,
+  updateGleanHighlights,
+  updateGleanStatus,
+} from '../../lib/tauri';
 import { buildSegments, getTextOffset, mergeHighlight, removeHighlight } from './highlight';
 import { PromoteDialog } from './PromoteDialog';
 
@@ -106,6 +113,7 @@ export function GleanDetail({ item, onChange, onDelete }: Props) {
         </div>
       )}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 36px' }}>
+        <DigestCard item={item} onChange={onChange} />
         <Body
           item={item}
           bodyRef={bodyRef}
@@ -174,7 +182,7 @@ function Header({
         <button
           onClick={onPromote}
           disabled={busy || promoted}
-          title={promoted ? '이미 씨앗이 되었습니다' : '씨앗으로 — notes에 새 노트 생성'}
+          title={promoted ? '이미 노트가 되었습니다' : '노트로 — notes에 새 노트 생성'}
           style={{
             padding: '3px 10px',
             border: '1px solid var(--ok)',
@@ -188,7 +196,7 @@ function Header({
             opacity: promoted ? 0.6 : 1,
           }}
         >
-          {promoted ? '씨앗 ✓' : '씨앗으로'}
+          {promoted ? '담김 ✓' : '노트로'}
         </button>
         <button
           onClick={onDelete}
@@ -337,6 +345,7 @@ function Body({
   }
   return (
     <article
+      className="psm-selectable"
       style={{
         fontFamily: 'var(--font-serif)',
         fontSize: 14,
@@ -451,6 +460,178 @@ function HighlightAction({
       </button>
     </div>
   );
+}
+
+function DigestCard({
+  item,
+  onChange,
+}: {
+  item: GleanItem;
+  onChange: (item: GleanItem) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const lines = (item.digest ?? '')
+    .split('\n')
+    .map((s) => s.replace(/^[-•]\s*/, '').trim())
+    .filter(Boolean);
+
+  const summarize = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const status = await llmStatus();
+      if (!status.binPresent || status.models.length === 0) {
+        throw new Error('로컬 LLM이 준비되지 않았습니다');
+      }
+      const source = (item.body || item.excerpt || '').trim();
+      if (!source) throw new Error('요약할 본문이 없습니다');
+      const trimmed = source.length > 6000 ? source.slice(0, 6000) : source;
+      const out = await llmChat({
+        messages: [
+          {
+            role: 'system',
+            content:
+              '한국어로 핵심을 정확히 3줄로 요약한다. 각 줄은 "- "로 시작하고 80자 이내. 부연·인사·메타발화 금지.',
+          },
+          {
+            role: 'user',
+            content: `제목: ${item.title || '(없음)'}\n본문:\n${trimmed}`,
+          },
+        ],
+        temperature: 0.2,
+        maxTokens: 320,
+      });
+      const cleaned = cleanDigest(out);
+      const updated = await updateGleanDigest(item.id, cleaned);
+      onChange(updated);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const clear = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const updated = await updateGleanDigest(item.id, null);
+      onChange(updated);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section
+      style={{
+        marginBottom: 20,
+        padding: '14px 16px',
+        border: '1px solid var(--line)',
+        borderRadius: 8,
+        background: 'var(--bg-soft)',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 8,
+        }}
+      >
+        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', letterSpacing: '0.06em' }}>
+          3줄 요약
+        </Mono>
+        <span style={{ flex: 1 }} />
+        <button
+          onClick={summarize}
+          disabled={busy}
+          style={{
+            padding: '3px 9px',
+            border: '1px solid var(--line)',
+            background: 'var(--bg)',
+            color: 'var(--ink)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 9.5,
+            letterSpacing: '0.06em',
+            borderRadius: 4,
+            cursor: busy ? 'wait' : 'pointer',
+          }}
+        >
+          {busy ? '생각 중…' : lines.length > 0 ? '다시' : '요약'}
+        </button>
+        {lines.length > 0 && !busy && (
+          <button
+            onClick={clear}
+            style={{
+              padding: '3px 9px',
+              border: '1px solid var(--line)',
+              background: 'transparent',
+              color: 'var(--ink-mute)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 9.5,
+              letterSpacing: '0.06em',
+              borderRadius: 4,
+              cursor: 'pointer',
+            }}
+          >
+            지우기
+          </button>
+        )}
+      </div>
+      {error && (
+        <Mono
+          style={{
+            display: 'block',
+            marginBottom: 6,
+            fontSize: 10.5,
+            color: 'var(--err)',
+          }}
+        >
+          {error}
+        </Mono>
+      )}
+      {lines.length > 0 ? (
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+          {lines.slice(0, 3).map((l, i) => (
+            <li
+              key={i}
+              style={{
+                fontSize: 13,
+                lineHeight: 1.55,
+                color: 'var(--ink)',
+                padding: '4px 0',
+                display: 'flex',
+                gap: 8,
+              }}
+            >
+              <span style={{ color: 'var(--ink-mute)', flex: '0 0 auto' }}>—</span>
+              <span>{l}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', fontStyle: 'italic' }}>
+          {busy ? '본문에서 핵심을 뽑는 중…' : '아직 요약이 없습니다'}
+        </Mono>
+      )}
+    </section>
+  );
+}
+
+function cleanDigest(out: string): string {
+  const lines = out
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => (s.startsWith('-') || s.startsWith('•') ? s : `- ${s}`));
+  return lines.slice(0, 3).join('\n');
 }
 
 function formatTime(iso: string): string {

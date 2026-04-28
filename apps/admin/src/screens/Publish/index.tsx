@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DocSummary } from '@vallista/content-core';
 import { listDocs, readDoc } from '../../lib/tauri';
 import {
@@ -52,7 +52,8 @@ export function Publish() {
         try {
           const file = await readDoc(doc.path);
           const fm = parseFrontmatter(file.raw);
-          const publishedAt = fm.publishedAt ?? doc.updatedAt;
+          const publishedAt =
+            fm.publishedAt ?? fm.date ?? fm.updated ?? doc.updatedAt;
           const slug = fm.slug ?? doc.slug ?? slugFromPath(doc.path);
           return { doc, publishedAt, slug };
         } catch {
@@ -189,7 +190,7 @@ export function Publish() {
               tone="blue"
             />
             <KPI
-              label="씨앗"
+              label="메모"
               value={String(kpi.seedCount)}
               unit="개"
               sub={`작성중 ${kpi.draftCount}편`}
@@ -529,37 +530,105 @@ function PublishChart({ series }: { series: PublishSeries }) {
   const H = 140;
   const max = Math.max(1, ...series.bins.map((b) => b.count));
   const barWidth = series.bins.length > 0 ? W / series.bins.length : W;
+  const [hover, setHover] = useState<number | null>(null);
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none">
-      {[0.25, 0.5, 0.75].map((p, i) => (
-        <line
-          key={i}
-          x1="0"
-          x2={W}
-          y1={H * p}
-          y2={H * p}
-          stroke="var(--line-subtle)"
-          strokeWidth="1"
-        />
-      ))}
-      {series.bins.map((b, i) => {
-        const h = (b.count / max) * (H - 16);
-        const x = i * barWidth + 2;
-        const y = H - h - 4;
-        return (
-          <rect
+    <div
+      ref={ref}
+      style={{ position: 'relative', width: '100%' }}
+      onMouseLeave={() => {
+        setHover(null);
+        setPos(null);
+      }}
+    >
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        height={H}
+        preserveAspectRatio="none"
+      >
+        {[0.25, 0.5, 0.75].map((p, i) => (
+          <line
             key={i}
-            x={x}
-            y={y}
-            width={Math.max(2, barWidth - 4)}
-            height={Math.max(0, h)}
-            fill="var(--blue)"
-            opacity="0.78"
-            rx="1.5"
+            x1="0"
+            x2={W}
+            y1={H * p}
+            y2={H * p}
+            stroke="var(--line-subtle)"
+            strokeWidth="1"
           />
-        );
-      })}
-    </svg>
+        ))}
+        {series.bins.map((b, i) => {
+          const h = (b.count / max) * (H - 16);
+          const x = i * barWidth + 2;
+          const y = H - h - 4;
+          return (
+            <g key={i}>
+              <rect
+                x={x}
+                y={y}
+                width={Math.max(2, barWidth - 4)}
+                height={Math.max(0, h)}
+                fill="var(--blue)"
+                opacity={hover === null || hover === i ? 0.85 : 0.4}
+                rx="1.5"
+              >
+                <title>
+                  {b.label} · {b.count} {series.peakUnit}
+                </title>
+              </rect>
+              <rect
+                x={i * barWidth}
+                y={0}
+                width={barWidth}
+                height={H}
+                fill="transparent"
+                onMouseEnter={(e) => {
+                  setHover(i);
+                  const rect = ref.current?.getBoundingClientRect();
+                  if (!rect) return;
+                  const targetRect = (
+                    e.currentTarget as SVGRectElement
+                  ).getBoundingClientRect();
+                  setPos({
+                    left: targetRect.left - rect.left + targetRect.width / 2,
+                    top: targetRect.top - rect.top,
+                  });
+                }}
+                style={{ cursor: 'pointer' }}
+              />
+            </g>
+          );
+        })}
+      </svg>
+      {hover !== null && pos && series.bins[hover] && (
+        <div
+          style={{
+            position: 'absolute',
+            left: pos.left,
+            top: Math.max(0, pos.top - 48),
+            transform: 'translateX(-50%)',
+            background: 'var(--ink)',
+            color: 'var(--on-accent)',
+            padding: '6px 10px',
+            borderRadius: 6,
+            fontSize: 11.5,
+            fontFamily: 'var(--font-mono)',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.16)',
+            zIndex: 4,
+          }}
+        >
+          <span style={{ opacity: 0.7 }}>{series.bins[hover].label}</span>
+          <span style={{ marginLeft: 8, fontWeight: 600 }}>
+            {series.bins[hover].count} {series.peakUnit}
+          </span>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -702,15 +771,22 @@ function rangeLabel(range: Range): string {
   }
 }
 
-function parseFrontmatter(raw: string): { publishedAt?: string; slug?: string } {
+interface Frontmatter {
+  publishedAt?: string;
+  date?: string;
+  updated?: string;
+  slug?: string;
+}
+
+function parseFrontmatter(raw: string): Frontmatter {
   const match = /^---\s*\n([\s\S]*?)\n---\s*\n?/m.exec(raw);
   if (!match) return {};
   const body = match[1] ?? '';
-  const out: { publishedAt?: string; slug?: string } = {};
+  const out: Frontmatter = {};
   for (const line of body.split(/\n/)) {
-    const m = /^(publishedAt|slug)\s*:\s*(.+?)\s*$/.exec(line);
+    const m = /^(publishedAt|date|updated|slug)\s*:\s*(.+?)\s*$/.exec(line);
     if (!m) continue;
-    const key = m[1] as 'publishedAt' | 'slug';
+    const key = m[1] as keyof Frontmatter;
     let value = m[2] ?? '';
     value = value.replace(/^["']|["']$/g, '');
     out[key] = value;

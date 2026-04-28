@@ -1,0 +1,214 @@
+/*
+ * @vallista/markdown — admin prose styles.
+ * 컨테이너: `.preview__prose` (Electron-시절 admin과 동일한 클래스명).
+ * 색상 토큰은 호스트(admin)가 .preview-scroll에서 light 팔레트로 재정의해
+ * 실제 배포된 블로그와 동일한 톤으로 보이게 한다.
+ * 이미지: <figure class="img-card"><img data-asset-path="..."> (PreviewPanel이 비동기로 src 채움)
+ */
+
+.preview__prose {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--ink-2);
+  font-family: var(--font-serif);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.preview__prose > *:first-child { margin-top: 0; }
+.preview__prose > *:last-child { margin-bottom: 0; }
+
+/* ─── Headings ─── */
+.preview__prose h2 {
+  font-size: 26px;
+  line-height: 1.25;
+  letter-spacing: -0.3px;
+  margin: 52px 0 14px;
+  font-weight: 700;
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+.preview__prose h3 {
+  font-size: 19px;
+  line-height: 1.3;
+  margin: 36px 0 10px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+.preview__prose h4 {
+  font-size: 16px;
+  margin: 28px 0 10px;
+  font-weight: 600;
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+.preview__prose h2 a,
+.preview__prose h3 a,
+.preview__prose h4 a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: none;
+}
+.preview__prose .anchor {
+  margin-left: 6px;
+  font-size: 0.78em;
+  color: var(--ink-mute);
+  opacity: 0;
+  text-decoration: none;
+  transition: opacity 120ms ease-out;
+}
+.preview__prose h2:hover .anchor,
+.preview__prose h3:hover .anchor,
+.preview__prose h4:hover .anchor {
+  opacity: 0.6;
+}
+
+/* ─── Paragraphs & inline ─── */
+.preview__prose p { margin: 0 0 20px; }
+.preview__prose strong { color: var(--ink); font-weight: 700; }
+.preview__prose em { color: var(--ink); font-style: italic; }
+
+.preview__prose a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--line-strong);
+  text-decoration: none;
+  transition: border-color 120ms;
+}
+.preview__prose a:hover { border-bottom-color: var(--ink); }
+
+/* ─── Lists ─── */
+.preview__prose ul,
+.preview__prose ol {
+  margin: 0 0 22px;
+  padding-left: 26px;
+}
+.preview__prose li { margin: 4px 0; }
+.preview__prose li > p { margin: 0; }
+.preview__prose li > p + p { margin-top: 0.5em; }
+
+/* ─── Quote ─── */
+.preview__prose blockquote {
+  border-left: 3px solid var(--line-strong);
+  padding: 2px 0 2px 20px;
+  margin: 22px 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.preview__prose blockquote p { margin: 0.4em 0; }
+
+/* ─── Code ─── */
+.preview__prose code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-shade);
+  color: var(--ink);
+}
+.preview__prose pre {
+  margin: 22px 0;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.preview__prose pre code {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ─── Hr ─── */
+.preview__prose hr {
+  margin: 44px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ─── Image cards (blog remark-article-assets와 동일한 톤) ─── */
+.preview__prose .img-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 32px 0;
+  padding: 12px;
+  min-height: 260px;
+  max-height: 520px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.preview__prose .img-card img {
+  display: block;
+  margin: 0;
+  width: auto;
+  max-width: 100%;
+  max-height: 460px;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.preview__prose .img-card.is-loaded img,
+.preview__prose .img-card img[data-loaded='1'] {
+  opacity: 1;
+}
+.preview__prose .img-card.is-error {
+  min-height: 120px;
+  border-style: dashed;
+}
+.preview__prose .img-card.is-error::after {
+  content: "이미지를 불러올 수 없습니다";
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-mute);
+}
+.preview__prose .img-card.is-error img { display: none; }
+.preview__prose .img-card__caption {
+  margin: 10px 8px 0;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* 카드 밖 직접 img 폴백 */
+.preview__prose > img {
+  display: block;
+  margin: 24px auto;
+  border-radius: var(--radius);
+  max-width: 100%;
+}
+
+/* ─── Tables ─── */
+.preview__prose table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 24px 0;
+  font-size: 14px;
+  font-family: var(--font-sans);
+}
+.preview__prose th,
+.preview__prose td {
+  border: 1px solid var(--line);
+  padding: 9px 12px;
+  text-align: left;
+}
+.preview__prose th {
+  background: var(--bg-soft);
+  font-weight: 600;
+  color: var(--ink);
+}

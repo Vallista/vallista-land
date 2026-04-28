@@ -8,6 +8,7 @@ import {
 } from '../../lib/tauri';
 import type { Insights as InsightsData } from '../../lib/tauri';
 import { Eyebrow, Mono, PageHead } from '../../components/atoms/Atoms';
+import { useBlogEnabled } from '../../shell/blogContext';
 import { StateBar } from './StateBar';
 import { DocSection } from './DocSection';
 import { TagCloud } from './TagCloud';
@@ -17,9 +18,29 @@ import { MoodPanel } from './MoodPanel';
 import { HourHeatmap } from './HourHeatmap';
 import { PeoplePanel } from './PeoplePanel';
 import { ClusterPanel } from './ClusterPanel';
-import { WeeklyReview, type WeeklyReviewInput } from './WeeklyReview';
+import { WeeklyReview, MonthlyReview, type WeeklyReviewInput } from './WeeklyReview';
+import { saveReport, type ReportInput } from './exportReport';
+import { avgMoodStats, filterThisWeek, filterThisMonth } from '../../lib/moodStats';
+import type { WeekStartDay } from '../../lib/autoSummary';
+
+const WEEK_START_KEY = 'bento.summary.weekStartDay';
+
+function readWeekStartDay(): WeekStartDay {
+  try {
+    const v = localStorage.getItem(WEEK_START_KEY);
+    return v === 'sun' ? 'sun' : 'mon';
+  } catch {
+    return 'mon';
+  }
+}
 
 type RangeKey = '7d' | '30d' | '12w' | '1y';
+
+type ExportState =
+  | { kind: 'idle' }
+  | { kind: 'saving' }
+  | { kind: 'done'; path: string; alreadyExisted: boolean }
+  | { kind: 'error'; message: string };
 
 const RANGE_LABEL: Record<RangeKey, string> = {
   '7d': '7일',
@@ -38,13 +59,25 @@ const RANGE_DAYS: Record<RangeKey, number> = {
 const DEEP_KINDS = new Set(['deep', 'write', 'build']);
 
 export function Insights() {
+  const blogEnabled = useBlogEnabled();
   const [range, setRange] = useState<RangeKey>('7d');
   const [data, setData] = useState<InsightsData | null>(null);
   const [docs, setDocs] = useState<DocSummary[] | null>(null);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [moods, setMoods] = useState<Mood[]>([]);
+  const [monthlyMoods, setMonthlyMoods] = useState<Mood[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exportState, setExportState] = useState<ExportState>({ kind: 'idle' });
+
+  useEffect(() => {
+    const today = new Date();
+    const todayKey = isoKey(today);
+    const monthStart = `${todayKey.slice(0, 7)}-01`;
+    listMoodInRange(monthStart, todayKey)
+      .then(setMonthlyMoods)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -57,13 +90,17 @@ export function Insights() {
 
     setLoading(true);
     setError(null);
+    const docPromise: Promise<[InsightsData | null, DocSummary[]]> = blogEnabled
+      ? Promise.all([computeInsights(), listDocs()]).catch(
+          () => [null, []] as [InsightsData | null, DocSummary[]],
+        )
+      : Promise.resolve([null, []] as [InsightsData | null, DocSummary[]]);
     Promise.all([
-      computeInsights(),
-      listDocs(),
+      docPromise,
       listBlocksInRange(startKey, endKey),
       listMoodInRange(startKey, endKey),
     ])
-      .then(([d, allDocs, bs, ms]) => {
+      .then(([[d, allDocs], bs, ms]) => {
         if (!alive) return;
         setData(d);
         setDocs(allDocs);
@@ -80,9 +117,23 @@ export function Insights() {
     return () => {
       alive = false;
     };
+  }, [range, blogEnabled]);
+
+  useEffect(() => {
+    setExportState({ kind: 'idle' });
   }, [range]);
 
   const today = useMemo(() => isoKey(new Date()), []);
+
+  const conditionStats = useMemo(() => {
+    const ws = readWeekStartDay();
+    const week = filterThisWeek(monthlyMoods, today, ws);
+    const month = filterThisMonth(monthlyMoods, today);
+    return {
+      week: avgMoodStats(week),
+      month: avgMoodStats(month),
+    };
+  }, [monthlyMoods, today]);
 
   const stats = useMemo(() => {
     const totalH = blocks.reduce(
@@ -150,6 +201,42 @@ export function Insights() {
     };
   }, [blocks, docs, moods, range, stats]);
 
+  const handleExport = async () => {
+    if (!docs || !reviewInput) return;
+    if (exportState.kind === 'saving') return;
+    setExportState({ kind: 'saving' });
+    const start = new Date();
+    start.setDate(start.getDate() - (RANGE_DAYS[range] - 1));
+    const startKey = isoKey(start);
+    const endKey = today;
+    const publishedDocs = docs.filter(
+      (d) => d.state === 'published' && d.updatedAt.slice(0, 10) >= startKey,
+    );
+    const input: ReportInput = {
+      rangeLabel: rangeLabelText(range),
+      rangeKey: range,
+      startKey,
+      endKey,
+      blocks,
+      moods,
+      docs,
+      publishedDocs,
+      totalHours: stats.totalH,
+      deepHours: stats.deepH,
+      deepRatio: stats.deepRatio,
+      topKindHours: reviewInput.topKindHours,
+      topPeople: reviewInput.topPeople,
+      topTags: reviewInput.topTags,
+      vault: data,
+    };
+    try {
+      const r = await saveReport(input);
+      setExportState({ kind: 'done', path: r.path, alreadyExisted: r.alreadyExisted });
+    } catch (e) {
+      setExportState({ kind: 'error', message: String(e) });
+    }
+  };
+
   if (error && !data) {
     return (
       <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
@@ -185,40 +272,89 @@ export function Insights() {
           sub={
             data
               ? `${data.total}개 노트 · ${rangeLabelText(range)}`
-              : 'vault 스캔 중…'
+              : blogEnabled
+                ? 'vault 스캔 중…'
+                : rangeLabelText(range)
           }
           right={
-            <div
-              style={{
-                display: 'flex',
-                gap: 0,
-                padding: 2,
-                background: 'var(--bg-soft)',
-                border: '1px solid var(--line)',
-                borderRadius: 6,
-              }}
-            >
-              {(Object.keys(RANGE_LABEL) as RangeKey[]).map((k) => (
-                <button
-                  key={k}
-                  onClick={() => setRange(k)}
-                  style={{
-                    padding: '4px 12px',
-                    border: 'none',
-                    background: k === range ? 'var(--bg-shade)' : 'transparent',
-                    color: k === range ? 'var(--ink)' : 'var(--ink-soft)',
-                    fontSize: 11.5,
-                    cursor: 'pointer',
-                    borderRadius: 4,
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  {RANGE_LABEL[k]}
-                </button>
-              ))}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                onClick={handleExport}
+                disabled={!reviewInput || exportState.kind === 'saving'}
+                title="리포트를 contents/notes/reports 에 마크다운으로 저장"
+                style={{
+                  padding: '5px 12px',
+                  fontSize: 11.5,
+                  fontFamily: 'inherit',
+                  color: 'var(--ink)',
+                  background: 'var(--bg)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 6,
+                  cursor: reviewInput ? 'pointer' : 'not-allowed',
+                  opacity: !reviewInput || exportState.kind === 'saving' ? 0.5 : 1,
+                }}
+              >
+                {exportState.kind === 'saving' ? '저장 중…' : '리포트 내보내기'}
+              </button>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 0,
+                  padding: 2,
+                  background: 'var(--bg-soft)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 6,
+                }}
+              >
+                {(Object.keys(RANGE_LABEL) as RangeKey[]).map((k) => (
+                  <button
+                    key={k}
+                    onClick={() => setRange(k)}
+                    style={{
+                      padding: '4px 12px',
+                      border: 'none',
+                      background: k === range ? 'var(--bg-shade)' : 'transparent',
+                      color: k === range ? 'var(--ink)' : 'var(--ink-soft)',
+                      fontSize: 11.5,
+                      cursor: 'pointer',
+                      borderRadius: 4,
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {RANGE_LABEL[k]}
+                  </button>
+                ))}
+              </div>
             </div>
           }
         />
+
+        {exportState.kind === 'done' && (
+          <Mono
+            style={{
+              display: 'block',
+              marginTop: -8,
+              marginBottom: 16,
+              fontSize: 11,
+              color: 'var(--ok)',
+            }}
+          >
+            {exportState.alreadyExisted ? '갱신' : '저장'} → {exportState.path}
+          </Mono>
+        )}
+        {exportState.kind === 'error' && (
+          <Mono
+            style={{
+              display: 'block',
+              marginTop: -8,
+              marginBottom: 16,
+              fontSize: 11,
+              color: 'var(--err)',
+            }}
+          >
+            저장 실패: {exportState.message}
+          </Mono>
+        )}
 
         {loading && !data && (
           <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
@@ -230,7 +366,7 @@ export function Insights() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: blogEnabled ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
             gap: 12,
             marginBottom: 24,
           }}
@@ -248,23 +384,53 @@ export function Insights() {
             sub={`${stats.deepH.toFixed(1)}h / ${stats.totalH.toFixed(1)}h`}
             tone="ok"
           />
+          {blogEnabled && (
+            <>
+              <Kpi
+                label="발행"
+                value={String(stats.publishedCount)}
+                unit="편"
+                sub={publishedSub(stats.publishedCount, RANGE_DAYS[range])}
+              />
+              <Kpi
+                label="메모 / 초안"
+                value={`${stats.seedCount}`}
+                unit={`/${stats.seedCount + stats.sproutCount}`}
+                sub={`${stats.sproutCount}개 진행 중`}
+                tone="blue"
+              />
+            </>
+          )}
+        </div>
+
+        {/* Condition KPI */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 12,
+            marginBottom: 24,
+          }}
+        >
           <Kpi
-            label="발행"
-            value={String(stats.publishedCount)}
-            unit="편"
-            sub={publishedSub(stats.publishedCount, RANGE_DAYS[range])}
+            label="이번 주 평균 컨디션"
+            value={conditionAverageDisplay(conditionStats.week)}
+            unit={conditionStats.week.count > 0 ? '%' : ''}
+            sub={conditionSub(conditionStats.week)}
+            tone="blue"
           />
           <Kpi
-            label="씨앗 / 새싹"
-            value={`${stats.seedCount}`}
-            unit={`/${stats.seedCount + stats.sproutCount}`}
-            sub={`${stats.sproutCount}개 자라는 중`}
+            label="이번 달 평균 컨디션"
+            value={conditionAverageDisplay(conditionStats.month)}
+            unit={conditionStats.month.count > 0 ? '%' : ''}
+            sub={conditionSub(conditionStats.month)}
             tone="blue"
           />
         </div>
 
         {/* AI weekly review */}
         {reviewInput && <WeeklyReview input={reviewInput} />}
+        <MonthlyReview />
 
         {/* Two-col: focus / mood */}
         <div
@@ -286,13 +452,13 @@ export function Insights() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: blogEnabled ? '1fr 1fr' : '1fr',
             gap: 20,
             marginBottom: 24,
           }}
         >
           <PeoplePanel blocks={blocks} today={today} />
-          <ClusterPanel docs={docs ?? []} />
+          {blogEnabled && <ClusterPanel docs={docs ?? []} />}
         </div>
 
         {/* Vault patterns (legacy section preserved at bottom) */}
@@ -326,9 +492,9 @@ export function Insights() {
                 docs={data.orphans}
               />
               <DocSection
-                title="자라지 못한 씨앗"
-                subtitle="30일 넘게 손이 닿지 않은 씨앗"
-                emptyText="모든 씨앗이 최근에 손이 닿았습니다 ✓"
+                title="멈춘 메모"
+                subtitle="30일 넘게 손이 닿지 않은 메모"
+                emptyText="모든 메모가 최근에 손이 닿았습니다 ✓"
                 docs={data.staleSeeds}
               />
             </div>
@@ -506,4 +672,28 @@ function publishedSub(count: number, days: number): string {
   if (count === 0) return `${days}일간 무발행`;
   const avgDays = days / count;
   return `평균 ${avgDays.toFixed(1)}일/편`;
+}
+
+function conditionAverageDisplay(s: {
+  energy: number | null;
+  mood: number | null;
+  count: number;
+}): string {
+  if (s.count === 0) return '—';
+  const vals = [s.energy, s.mood].filter((v): v is number => typeof v === 'number');
+  if (vals.length === 0) return '—';
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  return String(Math.round(avg * 100));
+}
+
+function conditionSub(s: {
+  energy: number | null;
+  mood: number | null;
+  count: number;
+}): string {
+  if (s.count === 0) return '아직 기록 없음';
+  const parts: string[] = [];
+  if (typeof s.energy === 'number') parts.push(`E ${Math.round(s.energy * 100)}`);
+  if (typeof s.mood === 'number') parts.push(`M ${Math.round(s.mood * 100)}`);
+  return `${parts.join(' · ')} · ${s.count}일`;
 }

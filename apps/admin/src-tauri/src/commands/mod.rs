@@ -9,4 +9,6 @@ pub mod macos_cal;
 pub mod meta;
 pub mod mood;
 pub mod reports;
+pub mod rss;
+pub mod summaries;
 pub mod tasks;

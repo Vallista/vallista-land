@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { DocState, DocSummary } from '@vallista/content-core';
-import { Mono } from '../../components/atoms/Atoms';
+import { Input, Mono } from '../../components/atoms/Atoms';
 import type { StateFilter } from './LibraryRail';
 
 type Props = {
@@ -20,14 +20,14 @@ const STATE_DOT: Record<DocState, string> = {
 };
 
 const STATE_LABEL: Record<DocState, string> = {
-  seed: '씨앗',
-  sprout: '새싹',
-  draft: '초고',
+  seed: '메모',
+  sprout: '초안',
+  draft: '교정',
   published: '공개',
 };
 
 const STATE_COLOR: Record<DocState, string> = {
-  seed: 'var(--blue)',
+  seed: 'var(--ink-mute)',
   sprout: 'var(--blue)',
   draft: 'var(--hl-amber)',
   published: 'var(--ok)',
@@ -94,6 +94,8 @@ export function DocList({
         flexDirection: 'column',
         height: '100%',
         minHeight: 0,
+        minWidth: 0,
+        overflowX: 'hidden',
         borderRight: '1px solid var(--line)',
         background: 'var(--bg)',
       }}
@@ -108,22 +110,11 @@ export function DocList({
           gap: 8,
         }}
       >
-        <input
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="문서 검색…"
-          style={{
-            flex: 1,
-            padding: '6px 10px',
-            borderRadius: 6,
-            border: '1px solid var(--line)',
-            background: 'var(--bg-input)',
-            color: 'var(--ink)',
-            fontSize: 12,
-            fontFamily: 'inherit',
-            outline: 'none',
-            boxSizing: 'border-box',
-          }}
+          style={{ flex: 1, padding: '6px 10px', fontSize: 12 }}
         />
       </div>
       <div
@@ -188,17 +179,26 @@ function DocRow({
         gap: 6,
         width: '100%',
         padding: '12px 16px',
+        boxSizing: 'border-box',
         background: active ? 'var(--bg-shade)' : 'transparent',
-        borderLeft: `2px solid ${active ? 'var(--blue)' : 'transparent'}`,
-        border: 'none',
+        borderTop: 'none',
+        borderRight: 'none',
         borderBottom: '1px solid var(--line-subtle)',
+        borderLeft: `2px solid ${active ? 'var(--blue)' : 'transparent'}`,
         textAlign: 'left',
         cursor: 'pointer',
         fontFamily: 'inherit',
         color: 'var(--ink)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 8,
+          minWidth: 0,
+        }}
+      >
         <span
           style={{
             width: 6,
@@ -206,16 +206,19 @@ function DocRow({
             borderRadius: 999,
             background: STATE_DOT[doc.state] ?? 'var(--ink-mute)',
             flex: '0 0 6px',
+            marginTop: 6,
           }}
         />
         <span
           style={{
             flex: 1,
+            minWidth: 0,
             fontSize: 13,
             fontWeight: 500,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
+            lineHeight: 1.4,
+            whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
+            wordBreak: 'break-word',
             color: 'var(--ink)',
           }}
         >

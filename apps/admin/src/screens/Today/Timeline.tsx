@@ -1,6 +1,6 @@
-import type { Block, BlockKind } from '@vallista/content-core';
+import type { Block, KnownBlockKind } from '@vallista/content-core';
 
-const KIND_COLOR: Record<BlockKind, string> = {
+const KIND_COLOR: Record<KnownBlockKind, string> = {
   routine: 'var(--ink-mute)',
   health: 'var(--ok)',
   deep: 'var(--blue)',
@@ -15,7 +15,7 @@ const KIND_COLOR: Record<BlockKind, string> = {
   life: 'var(--ink-mute)',
 };
 
-const KIND_LABEL: Record<BlockKind, string> = {
+const KIND_LABEL: Record<KnownBlockKind, string> = {
   routine: '루틴',
   health: '건강',
   deep: '몰입',
@@ -30,7 +30,11 @@ const KIND_LABEL: Record<BlockKind, string> = {
   life: '일상',
 };
 
-const VISIBLE_KINDS: BlockKind[] = ['routine', 'health', 'deep', 'people', 'meal', 'leisure'];
+const VISIBLE_KINDS: KnownBlockKind[] = ['routine', 'health', 'deep', 'people', 'meal', 'leisure'];
+
+function colorOf(kind: string): string {
+  return KIND_COLOR[kind as KnownBlockKind] ?? 'var(--ink-mute)';
+}
 
 export function Timeline({ blocks, now }: { blocks: Block[]; now: Date }) {
   const startH = 7;
@@ -145,7 +149,7 @@ export function Timeline({ blocks, now }: { blocks: Block[]; now: Date }) {
           const left = ((sH - startH) / span) * 100;
           const width = ((eH - sH) / span) * 100;
           const past = endFrac <= nowH || b.done;
-          const color = KIND_COLOR[b.kind] ?? 'var(--ink-mute)';
+          const color = colorOf(b.kind);
           return (
             <div
               key={b.id}

@@ -5,21 +5,23 @@ import { Eyebrow, Mono } from '../../components/atoms/Atoms';
 export type SourceFilter = GleanSource | 'all';
 
 const SOURCES: { id: SourceFilter; label: string; icon: string }[] = [
-  { id: 'all', label: '모든 소스', icon: '◇' },
+  { id: 'all', label: '모든 소스', icon: '◈' },
   { id: 'web', label: '웹 클립', icon: '◐' },
   { id: 'rss', label: 'RSS', icon: '⌬' },
-  { id: 'youtube', label: 'YouTube', icon: '▶' },
-  { id: 'paste', label: '붙여넣기', icon: '✎' },
+  { id: 'youtube', label: 'YouTube', icon: '▷' },
+  { id: 'paste', label: '붙여넣기', icon: '▤' },
 ];
 
 export function SourcesRail({
   items,
   source,
   onSource,
+  onOpenRss,
 }: {
   items: GleanItem[];
   source: SourceFilter;
   onSource: (s: SourceFilter) => void;
+  onOpenRss?: () => void;
 }) {
   const counts = useMemo(() => {
     const c: Record<GleanSource, number> = { web: 0, rss: 0, youtube: 0, paste: 0 };
@@ -108,7 +110,7 @@ export function SourcesRail({
       {seeds.length > 0 && (
         <>
           <div style={{ padding: '20px 10px 8px' }}>
-            <Eyebrow>씨앗 · 반복 키워드</Eyebrow>
+            <Eyebrow>반복 키워드</Eyebrow>
           </div>
           <div
             style={{
@@ -191,8 +193,31 @@ export function SourcesRail({
             <span style={{ flex: 1 }} />
           </div>
           <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>
-            URL은 수동 추가 — 자동 크롤러 없음
+            RSS 구독 + 수동 추가
           </Mono>
+          {onOpenRss && (
+            <button
+              onClick={onOpenRss}
+              style={{
+                marginTop: 4,
+                padding: '6px 10px',
+                background: 'var(--bg-soft)',
+                border: '1px solid var(--line)',
+                borderRadius: 5,
+                color: 'var(--ink-2)',
+                fontSize: 11,
+                fontFamily: 'inherit',
+                cursor: 'pointer',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--blue)' }}>⌬</span>
+              RSS 구독 관리
+            </button>
+          )}
         </div>
       </div>
     </aside>

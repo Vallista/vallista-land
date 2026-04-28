@@ -1,7 +1,7 @@
-import type { Block, BlockKind } from '@vallista/content-core';
+import type { Block, KnownBlockKind } from '@vallista/content-core';
 import { Card, CardTitle, Mono } from '../../components/atoms/Atoms';
 
-const KIND_COLOR: Record<BlockKind, string> = {
+const KIND_COLOR: Record<KnownBlockKind, string> = {
   routine: 'var(--ink-mute)',
   health: 'var(--ok)',
   deep: 'var(--blue)',
@@ -16,7 +16,7 @@ const KIND_COLOR: Record<BlockKind, string> = {
   life: 'var(--ink-mute)',
 };
 
-const KIND_LABEL: Record<BlockKind, string> = {
+const KIND_LABEL: Record<KnownBlockKind, string> = {
   routine: '루틴',
   health: '건강',
   deep: '몰입',
@@ -31,31 +31,58 @@ const KIND_LABEL: Record<BlockKind, string> = {
   life: '일상',
 };
 
+const CUSTOM_PALETTE = [
+  'var(--hl-violet)',
+  'var(--hl-amber)',
+  'var(--hl-rose)',
+  'var(--blue)',
+  'var(--ok)',
+];
+
+function colorOf(kind: string): string {
+  if (kind in KIND_COLOR) return KIND_COLOR[kind as KnownBlockKind];
+  let hash = 0;
+  for (let i = 0; i < kind.length; i++) hash = (hash * 31 + kind.charCodeAt(i)) | 0;
+  return CUSTOM_PALETTE[Math.abs(hash) % CUSTOM_PALETTE.length]!;
+}
+
+function labelOf(b: Block): string {
+  if (b.customLabel && b.customLabel.trim()) return b.customLabel;
+  if (b.kind in KIND_LABEL) return KIND_LABEL[b.kind as KnownBlockKind];
+  return b.kind;
+}
+
 export interface FocusBucket {
-  kind: BlockKind;
+  kind: string;
   hours: number;
   color: string;
   label: string;
 }
 
 export function bucketBlocks(blocks: Block[]): FocusBucket[] {
-  const totals = new Map<BlockKind, number>();
+  const totals = new Map<string, { hours: number; label: string }>();
+  const accumulate = (b: Block) => {
+    const dur = durationHours(b.start, b.end);
+    if (dur <= 0) return;
+    const key = b.customLabel?.trim() || b.kind;
+    const prev = totals.get(key);
+    if (prev) {
+      prev.hours += dur;
+    } else {
+      totals.set(key, { hours: dur, label: labelOf(b) });
+    }
+  };
   for (const b of blocks) {
     if (b.done === false) continue;
-    const dur = durationHours(b.start, b.end);
-    if (dur <= 0) continue;
-    totals.set(b.kind, (totals.get(b.kind) ?? 0) + dur);
+    accumulate(b);
   }
-  // include all blocks (planned/incomplete) under hours total too
   for (const b of blocks) {
     if (b.done) continue;
-    const dur = durationHours(b.start, b.end);
-    if (dur <= 0) continue;
-    totals.set(b.kind, (totals.get(b.kind) ?? 0) + dur);
+    accumulate(b);
   }
   const out: FocusBucket[] = [];
-  for (const [k, h] of totals.entries()) {
-    out.push({ kind: k, hours: h, color: KIND_COLOR[k], label: KIND_LABEL[k] });
+  for (const [k, v] of totals.entries()) {
+    out.push({ kind: k, hours: v.hours, color: colorOf(k), label: v.label });
   }
   return out.sort((a, b) => b.hours - a.hours);
 }

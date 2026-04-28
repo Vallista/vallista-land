@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   llmDownloadModel,
+  llmDownloadServer,
   llmOpenDataDir,
   llmStatus,
   type LlmStatus,
@@ -56,6 +57,7 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
   const [status, setStatus] = useState<LlmStatus | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [download, setDownload] = useState<DownloadState | null>(null);
+  const [serverDownload, setServerDownload] = useState<DownloadState | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -75,6 +77,42 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
     () => new Set(status?.models.map((m) => m.name) ?? []),
     [status],
   );
+
+  const beginServerDownload = useCallback(async () => {
+    if (serverDownload && serverDownload.status !== 'failed' && serverDownload.status !== 'finished') return;
+    setServerDownload({ fileName: 'llama-server', downloaded: 0, total: null, status: 'started' });
+    try {
+      await llmDownloadServer((event: LlmDownloadEvent) => {
+        if (event.kind === 'started') {
+          setServerDownload((prev) =>
+            prev ? { ...prev, total: event.data.total, status: 'started' } : prev,
+          );
+        } else if (event.kind === 'progress') {
+          setServerDownload((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  downloaded: event.data.downloaded,
+                  total: event.data.total,
+                  status: 'progress',
+                }
+              : prev,
+          );
+        } else if (event.kind === 'finished') {
+          setServerDownload((prev) => (prev ? { ...prev, status: 'finished' } : prev));
+        } else if (event.kind === 'failed') {
+          setServerDownload((prev) =>
+            prev ? { ...prev, status: 'failed', message: event.data.message } : prev,
+          );
+        }
+      });
+      await refresh();
+    } catch (e: unknown) {
+      setServerDownload((prev) =>
+        prev ? { ...prev, status: 'failed', message: String(e) } : prev,
+      );
+    }
+  }, [serverDownload, refresh]);
 
   const beginDownload = useCallback(
     async (entry: ModelEntry) => {
@@ -189,7 +227,12 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
             </div>
           )}
 
-          <BinarySection status={status} onRefresh={refresh} />
+          <BinarySection
+            status={status}
+            download={serverDownload}
+            onDownload={beginServerDownload}
+            onRefresh={refresh}
+          />
 
           <div style={{ marginTop: 24 }}>
             <Eyebrow>2 — 모델 선택</Eyebrow>
@@ -216,12 +259,23 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
 
 function BinarySection({
   status,
+  download,
+  onDownload,
   onRefresh,
 }: {
   status: LlmStatus | null;
+  download: DownloadState | null;
+  onDownload: () => void;
   onRefresh: () => void;
 }) {
   const present = status?.binPresent ?? false;
+  const inProgress = download && (download.status === 'started' || download.status === 'progress');
+  const failed = download?.status === 'failed';
+  const pct =
+    download && download.total && download.total > 0
+      ? Math.min(100, Math.round((download.downloaded / download.total) * 100))
+      : null;
+
   return (
     <div>
       <Eyebrow>1 — llama-server 바이너리</Eyebrow>
@@ -234,21 +288,77 @@ function BinarySection({
           background: 'var(--bg-soft)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <StatusDot tone={present ? 'ok' : 'warn'} />
-          <span style={{ fontSize: 13, color: 'var(--ink)' }}>
-            {present ? '설치됨' : '미설치 — 수동으로 배치해야 합니다'}
-          </span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginBottom: 8,
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <StatusDot tone={present ? 'ok' : 'warn'} />
+              <span style={{ fontSize: 13, color: 'var(--ink)' }}>
+                {present ? '설치됨' : '미설치'}
+              </span>
+            </div>
+            <p
+              style={{
+                margin: '0 0 6px',
+                color: 'var(--ink-soft)',
+                fontSize: 12.5,
+                lineHeight: 1.5,
+              }}
+            >
+              {present
+                ? '내 디바이스에서 보고서를 생성할 준비가 끝났습니다.'
+                : 'llama.cpp 최신 릴리스에서 llama-server를 자동으로 받아 설치합니다.'}
+            </p>
+            <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+              {status?.binPath ?? '(아직 모름)'}
+            </Mono>
+          </div>
+          <div>
+            {present ? (
+              <Button sm ghost disabled>
+                완료
+              </Button>
+            ) : inProgress ? (
+              <Button sm ghost disabled>
+                {pct !== null ? `${pct}%` : '받는 중…'}
+              </Button>
+            ) : (
+              <Button sm onClick={onDownload}>
+                {failed ? '다시 시도' : '받기'}
+              </Button>
+            )}
+          </div>
         </div>
-        <p style={{ margin: '0 0 10px', color: 'var(--ink-soft)', fontSize: 12.5, lineHeight: 1.5 }}>
-          Homebrew의 <Mono>brew install llama.cpp</Mono> 설치 후, 또는{' '}
-          <Mono>llama.cpp</Mono> 릴리스의 <Mono>llama-server</Mono> 실행 파일을 아래 폴더로 복사해 주세요.
-          <br />
-          <Mono style={{ fontSize: 11.5, color: 'var(--ink-mute)' }}>
-            {status?.binPath ?? '(아직 모름)'}
-          </Mono>
-        </p>
-        <div style={{ display: 'flex', gap: 8 }}>
+
+        {inProgress && (
+          <div style={{ marginTop: 10 }}>
+            <ProgressBar pct={pct} downloaded={download.downloaded} total={download.total} />
+          </div>
+        )}
+        {failed && download.message && (
+          <div
+            style={{
+              marginTop: 10,
+              padding: 8,
+              background: 'var(--err-soft)',
+              color: 'var(--err)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              borderRadius: 6,
+            }}
+          >
+            {download.message}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
           <Button sm ghost onClick={() => llmOpenDataDir().catch(() => {})}>
             폴더 열기
           </Button>

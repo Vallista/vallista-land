@@ -1,5 +1,5 @@
 import type { GitFile } from '../../lib/tauri';
-import { Mono } from '../../components/atoms/Atoms';
+import { Checkbox, Mono } from '../../components/atoms/Atoms';
 
 type Props = {
   files: GitFile[];
@@ -52,23 +52,13 @@ export function FileList({
           </Mono>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <label
-            style={{
-              fontSize: 11,
-              color: 'var(--ink-soft)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              cursor: 'pointer',
-            }}
+          <Checkbox
+            checked={contentsOnly}
+            onChange={onContentsOnlyChange}
+            style={{ fontSize: 11, color: 'var(--ink-soft)' }}
           >
-            <input
-              type="checkbox"
-              checked={contentsOnly}
-              onChange={(e) => onContentsOnlyChange(e.target.checked)}
-            />
             contents/만
-          </label>
+          </Checkbox>
           {files.length > 0 && (
             <button
               onClick={onToggleAll}
@@ -148,7 +138,7 @@ function Row({
         cursor: 'pointer',
       }}
     >
-      <input type="checkbox" checked={checked} onChange={onToggle} />
+      <Checkbox checked={checked} onChange={onToggle} />
       <Mono
         style={{
           fontSize: 10,

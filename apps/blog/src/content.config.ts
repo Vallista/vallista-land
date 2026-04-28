@@ -5,19 +5,19 @@ const COVERS = ['grid', 'stripes', 'dots', 'blocks', 'lines'] as const
 
 const DOC_STATES = ['seed', 'sprout', 'draft', 'published'] as const
 
-const pensmithLinksSchema = z
+const bentoLinksSchema = z
   .object({
     in: z.array(z.string()).default([]),
     out: z.array(z.string()).default([])
   })
   .optional()
 
-const pensmithFields = {
+const bentoFields = {
   id: z.string().optional(),
   state: z.enum(DOC_STATES).optional(),
   parentId: z.string().optional(),
   sproutScore: z.number().min(0).max(1).optional(),
-  links: pensmithLinksSchema
+  links: bentoLinksSchema
 }
 
 function coerceTags(v: unknown): string[] {
@@ -60,7 +60,7 @@ const articleSchema = z
         })
       ])
       .optional(),
-    ...pensmithFields
+    ...bentoFields
   })
   .transform((data) => {
     const slug = data.slug ?? ''
@@ -108,7 +108,7 @@ const notes = defineCollection({
     slug: z.string().optional(),
     image: z.string().optional(),
     draft: z.boolean().default(false),
-    ...pensmithFields
+    ...bentoFields
   })
 })
 

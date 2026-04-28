@@ -1,8 +1,17 @@
-import type { CSSProperties, ReactNode, ButtonHTMLAttributes, InputHTMLAttributes } from 'react';
+import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import type {
+  CSSProperties,
+  ReactNode,
+  ButtonHTMLAttributes,
+  InputHTMLAttributes,
+  HTMLAttributes,
+  TextareaHTMLAttributes,
+} from 'react';
 
 type Tone = 'ok' | 'warn' | 'err' | 'blue' | 'mute';
 
-export function Mono({ children, style, ...rest }: { children: ReactNode; style?: CSSProperties }) {
+export function Mono({ children, style, ...rest }: HTMLAttributes<HTMLSpanElement> & { children: ReactNode }) {
   return (
     <span
       style={{
@@ -296,25 +305,116 @@ export function CardTitle({ children, style }: { children: ReactNode; style?: CS
   );
 }
 
-export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  const { style, ...rest } = props;
+type InputProps = InputHTMLAttributes<HTMLInputElement> & {
+  sm?: boolean;
+  mono?: boolean;
+};
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { sm, mono, style, ...rest },
+  ref,
+) {
   return (
     <input
+      ref={ref}
       {...rest}
       style={{
-        padding: '8px 11px',
-        borderRadius: 6,
+        padding: sm ? '6px 9px' : '8px 11px',
+        borderRadius: sm ? 5 : 6,
         border: '1px solid var(--line)',
-        background: 'var(--bg-input)',
+        background: sm ? 'var(--bg)' : 'var(--bg-input)',
         color: 'var(--ink)',
-        fontSize: 13,
+        fontSize: sm ? 12 : 13,
         width: '100%',
-        fontFamily: 'inherit',
+        fontFamily: mono ? 'var(--font-mono)' : 'inherit',
         outline: 'none',
         transition: 'border-color 120ms',
+        boxSizing: 'border-box',
         ...style,
       }}
     />
+  );
+});
+
+type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  sm?: boolean;
+  mono?: boolean;
+};
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { sm, mono, style, ...rest },
+  ref,
+) {
+  return (
+    <textarea
+      ref={ref}
+      {...rest}
+      style={{
+        padding: sm ? '6px 9px' : '8px 11px',
+        borderRadius: sm ? 5 : 6,
+        border: '1px solid var(--line)',
+        background: sm ? 'var(--bg)' : 'var(--bg-input)',
+        color: 'var(--ink)',
+        fontSize: sm ? 12 : 13,
+        width: '100%',
+        fontFamily: mono ? 'var(--font-mono)' : 'inherit',
+        outline: 'none',
+        transition: 'border-color 120ms',
+        resize: 'vertical',
+        lineHeight: 1.5,
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    />
+  );
+});
+
+export function Checkbox({
+  checked,
+  onChange,
+  disabled,
+  children,
+  title,
+  style,
+}: {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  disabled?: boolean;
+  children?: ReactNode;
+  title?: string;
+  style?: CSSProperties;
+}) {
+  const box = (
+    <input
+      type="checkbox"
+      checked={checked}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.checked)}
+      style={{
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        accentColor: 'var(--ink)',
+        margin: 0,
+      }}
+    />
+  );
+  if (!children) return box;
+  return (
+    <label
+      title={title}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        fontSize: 12,
+        color: disabled ? 'var(--ink-faint)' : 'var(--ink)',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        userSelect: 'none',
+        ...style,
+      }}
+    >
+      {box}
+      {children}
+    </label>
   );
 }
 
@@ -363,18 +463,26 @@ export function PageHead({
   );
 }
 
-export function LoamIcon({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) {
+export function BentoIcon({ size = 18, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 18 18" fill="none">
-      <line x1="2" y1="14" x2="16" y2="14" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
-      <line x1="9" y1="14" x2="9" y2="6" stroke={color} strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M9 9 C 6 8.5, 4 7, 4 5 C 6 5, 8 6.5, 9 9 Z" fill={color} />
-      <path d="M9 7 C 12 6.5, 14 5, 14 3 C 12 3, 10 4.5, 9 7 Z" fill={color} />
+      <rect
+        x="2.4"
+        y="3.4"
+        width="13.2"
+        height="11.2"
+        rx="2.4"
+        ry="2.4"
+        stroke={color}
+        strokeWidth="1.4"
+      />
+      <line x1="9" y1="3.6" x2="9" y2="14.4" stroke={color} strokeWidth="1.4" />
+      <line x1="9" y1="9" x2="15.4" y2="9" stroke={color} strokeWidth="1.4" />
     </svg>
   );
 }
 
-export function BrandMark({ name = 'Pensmith' }: { name?: string }) {
+export function BrandMark({ name = 'Bento' }: { name?: string }) {
   return (
     <span
       style={{
@@ -401,10 +509,239 @@ export function BrandMark({ name = 'Pensmith' }: { name?: string }) {
           border: '1px solid var(--line)',
         }}
       >
-        <LoamIcon size={14} />
+        <BentoIcon size={14} />
       </span>
       {name}
     </span>
+  );
+}
+
+export interface SelectOption<T extends string = string> {
+  value: T;
+  label: string;
+  hint?: string;
+  dot?: string;
+}
+
+export function Select<T extends string = string>({
+  value,
+  options,
+  placeholder = '선택',
+  onChange,
+  fullWidth = true,
+}: {
+  value: T | '' | null | undefined;
+  options: SelectOption<T>[];
+  placeholder?: string;
+  onChange: (v: T | undefined) => void;
+  fullWidth?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
+
+  const updatePos = useCallback(() => {
+    const btn = buttonRef.current;
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    setPos({ left: r.left, top: r.bottom + 4, width: r.width });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (open) updatePos();
+  }, [open, updatePos]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onScroll = () => updatePos();
+    const onResize = () => updatePos();
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onResize);
+    };
+  }, [open, updatePos]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (wrapRef.current?.contains(target)) return;
+      if (dropdownRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const cur = options.find((o) => o.value === value);
+
+  return (
+    <div
+      ref={wrapRef}
+      style={{
+        position: 'relative',
+        width: fullWidth ? '100%' : 'auto',
+      }}
+    >
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          width: '100%',
+          padding: '6px 9px',
+          background: 'var(--bg)',
+          border: '1px solid var(--line)',
+          borderRadius: 5,
+          color: cur ? 'var(--ink)' : 'var(--ink-mute)',
+          fontSize: 12,
+          fontFamily: 'inherit',
+          cursor: 'pointer',
+          textAlign: 'left',
+          outline: 'none',
+        }}
+      >
+        {cur?.dot && (
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: 999,
+              background: cur.dot,
+              flex: '0 0 6px',
+            }}
+          />
+        )}
+        <span
+          style={{
+            flex: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {cur ? cur.label : placeholder}
+        </span>
+        <span style={{ color: 'var(--ink-mute)', fontSize: 9 }}>▾</span>
+      </button>
+      {open && pos &&
+        createPortal(
+          <div
+            ref={dropdownRef}
+            style={{
+              position: 'fixed',
+              top: pos.top,
+              left: pos.left,
+              width: fullWidth ? pos.width : Math.max(pos.width, 160),
+              zIndex: 9999,
+              background: 'var(--bg)',
+              border: '1px solid var(--line)',
+              borderRadius: 6,
+              boxShadow: '0 6px 24px rgba(0,0,0,0.18)',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: 4,
+            }}
+          >
+            <SelectRow
+              label={placeholder}
+              active={!cur}
+              onClick={() => {
+                onChange(undefined);
+                setOpen(false);
+              }}
+            />
+            {options.map((o) => (
+              <SelectRow
+                key={o.value}
+                label={o.label}
+                hint={o.hint}
+                dot={o.dot}
+                active={o.value === value}
+                onClick={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
+              />
+            ))}
+          </div>,
+          document.body,
+        )}
+    </div>
+  );
+}
+
+function SelectRow({
+  label,
+  hint,
+  dot,
+  active,
+  onClick,
+}: {
+  label: string;
+  hint?: string;
+  dot?: string;
+  active?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '6px 8px',
+        border: 'none',
+        background: active ? 'var(--bg-shade)' : 'transparent',
+        color: 'var(--ink)',
+        fontSize: 12,
+        fontFamily: 'inherit',
+        cursor: 'pointer',
+        textAlign: 'left',
+        borderRadius: 4,
+      }}
+    >
+      {dot && (
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: 999,
+            background: dot,
+            flex: '0 0 6px',
+          }}
+        />
+      )}
+      <span style={{ flex: 1 }}>{label}</span>
+      {hint && (
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 10,
+            color: 'var(--ink-mute)',
+          }}
+        >
+          {hint}
+        </span>
+      )}
+    </button>
   );
 }
 

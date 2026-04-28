@@ -14,17 +14,31 @@ interface MdNode {
   alt?: string | null;
   title?: string | null;
   value?: string;
+  data?: { hName?: string; [k: string]: unknown };
+}
+
+export interface RenderOptions {
+  /**
+   * docPath: vault 내 상대 경로 (예: "articles/foo/index.md").
+   * 이 경로를 기준으로 상대 이미지(`./assets/x.png`)를 vault 절대 경로로 해석한다.
+   * undefined 면 image transform 생략.
+   */
+  docPath?: string;
 }
 
 export interface RenderResult {
   html: string;
 }
 
-export function renderMarkdown(source: string, docPath: string): RenderResult {
+export function renderMarkdown(source: string, options: RenderOptions = {}): RenderResult {
+  const docPath = options.docPath;
   const file = unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(() => (tree: MdNode) => transformImages(tree, docPath))
+    .use(() => (tree: MdNode) => {
+      if (!docPath) return;
+      transformImages(tree, docPath);
+    })
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeSlug)
@@ -58,6 +72,20 @@ function transformImages(tree: MdNode, docPath: string): void {
     for (let i = 0; i < children.length; i += 1) {
       const node = children[i];
       if (!node) continue;
+
+      // image only paragraph(공백·br 한정) → paragraph unwrap → figure를 블록 레벨로 끌어올림.
+      if (node.type === 'paragraph' && Array.isArray(node.children)) {
+        const meaningful = node.children.filter((c) => !isFiller(c));
+        if (
+          meaningful.length === 1 &&
+          meaningful[0] &&
+          meaningful[0].type === 'image'
+        ) {
+          children[i] = imageToHtml(meaningful[0], docPath);
+          continue;
+        }
+      }
+
       if (node.type === 'image') {
         children[i] = imageToHtml(node, docPath);
         continue;
@@ -67,6 +95,15 @@ function transformImages(tree: MdNode, docPath: string): void {
       }
     }
   }
+}
+
+function isFiller(n: MdNode | undefined): boolean {
+  if (!n) return true;
+  if (n.type === 'break') return true;
+  if (n.type === 'text' && typeof n.value === 'string' && n.value.trim().length === 0) {
+    return true;
+  }
+  return false;
 }
 
 function imageToHtml(node: MdNode, docPath: string): MdNode {
@@ -81,10 +118,12 @@ function imageToHtml(node: MdNode, docPath: string): MdNode {
   } else {
     imgAttrs = `src="${escAttr(url)}" alt="${escAttr(alt)}"${titleAttr}`;
   }
-  const captionHtml = alt ? `<figcaption class="md-img__caption">${escAttr(alt)}</figcaption>` : '';
+  const captionHtml = alt
+    ? `<figcaption class="img-card__caption">${escAttr(alt)}</figcaption>`
+    : '';
   return {
     type: 'html',
-    value: `<figure class="md-img"><img ${imgAttrs} loading="lazy" decoding="async" />${captionHtml}</figure>`,
+    value: `<figure class="img-card"><img ${imgAttrs} loading="lazy" decoding="async" />${captionHtml}</figure>`,
   };
 }
 

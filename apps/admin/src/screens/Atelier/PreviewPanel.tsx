@@ -1,18 +1,43 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { renderMarkdown, resolveAssetPath } from '@vallista/markdown';
+import '@vallista/markdown/prose.css';
 import { loadAssetUrl } from '../../lib/assetCache';
 import { useDoc } from './state';
-import { renderMarkdown, resolveAssetPath } from './render';
 
 export function PreviewPanel() {
   const { body, frontmatter, path } = useDoc();
-  const { html } = useMemo(() => renderMarkdown(body, path), [body, path]);
+  const { html } = useMemo(() => renderMarkdown(body, { docPath: path }), [body, path]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   const title = strOr(frontmatter.title, '');
-  const dek = strOr(frontmatter.dek ?? frontmatter.description, '');
-  const tags = tagsAsArray(frontmatter.tags);
   const coverImage = strOr(frontmatter.image, '');
   const coverResolved = coverImage ? resolveAssetPath(path, coverImage) : null;
+
+  const [splashUrl, setSplashUrl] = useState<string | null>(null);
+  const [splashError, setSplashError] = useState(false);
+
+  useEffect(() => {
+    setSplashUrl(null);
+    setSplashError(false);
+    if (!coverImage) return;
+    if (/^(https?:)?\/\//i.test(coverImage) || coverImage.startsWith('data:')) {
+      setSplashUrl(coverImage);
+      return;
+    }
+    if (!coverResolved) return;
+    let alive = true;
+    loadAssetUrl(coverResolved).then(
+      (url) => {
+        if (alive) setSplashUrl(url);
+      },
+      () => {
+        if (alive) setSplashError(true);
+      },
+    );
+    return () => {
+      alive = false;
+    };
+  }, [coverImage, coverResolved]);
 
   useEffect(() => {
     const root = containerRef.current;
@@ -20,58 +45,45 @@ export function PreviewPanel() {
     const imgs = Array.from(root.querySelectorAll<HTMLImageElement>('img[data-asset-path]'));
     let alive = true;
     imgs.forEach((img) => {
-      if (img.dataset.loaded === '1' || img.dataset.loading === '1') return;
+      if (img.dataset.loaded === '1') return;
       const ap = img.getAttribute('data-asset-path');
       if (!ap) return;
-      img.dataset.loading = '1';
       loadAssetUrl(ap).then(
         (url) => {
           if (!alive) return;
           img.src = url;
           img.dataset.loaded = '1';
-          delete img.dataset.loading;
+          const card = img.closest('.img-card');
+          if (card) card.classList.add('is-loaded');
         },
         () => {
           if (!alive) return;
           img.dataset.error = '1';
-          delete img.dataset.loading;
+          const card = img.closest('.img-card');
+          if (card) card.classList.add('is-error');
         },
       );
     });
     return () => {
       alive = false;
     };
-  }, [html, coverResolved]);
+  }, [html]);
 
   return (
     <div
-      style={{
-        flex: 1,
-        minHeight: 0,
-        overflowY: 'auto',
-        padding: '20px 22px 32px',
-      }}
+      ref={containerRef}
+      className="preview-scroll"
+      style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}
     >
       <style>{previewCss}</style>
-      <div ref={containerRef} className="pensmith-preview">
+      <article className="preview">
         {coverResolved && (
-          <figure className="md-img cover">
-            <img data-asset-path={coverResolved} alt={title} loading="lazy" decoding="async" />
+          <figure className={`preview__splash${splashError ? ' is-error' : ''}`}>
+            {splashUrl && <img src={splashUrl} alt={title} loading="lazy" />}
           </figure>
         )}
-        {title && <h1 className="preview-title">{title}</h1>}
-        {dek && <p className="preview-dek">{dek}</p>}
-        {tags.length > 0 && (
-          <div className="preview-tags">
-            {tags.map((t) => (
-              <span key={t} className="preview-tag">
-                #{t}
-              </span>
-            ))}
-          </div>
-        )}
-        <div className="preview-body" dangerouslySetInnerHTML={{ __html: html }} />
-      </div>
+        <div className="preview__prose" dangerouslySetInnerHTML={{ __html: html }} />
+      </article>
     </div>
   );
 }
@@ -81,157 +93,70 @@ function strOr(v: unknown, fallback: string): string {
   return fallback;
 }
 
-function tagsAsArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v.map(String).filter((s) => s.trim().length > 0);
-  if (typeof v === 'string' && v.trim().length > 0) return [v];
-  return [];
+const previewCss = `
+.preview-scroll {
+  /* 블로그 라이트 팔레트로 토큰 재정의 — 다크 admin 안에서도 실제 배포 블로그와 동일한 톤 */
+  --bg: #ffffff;
+  --bg-soft: #fafbfc;
+  --bg-shade: #f1f2f6;
+  --bg-elev: #ffffff;
+  --ink: #0b1220;
+  --ink-2: #3a4255;
+  --ink-soft: #6b7389;
+  --ink-mute: #9aa1b4;
+  --ink-faint: #b8bdc9;
+  --line: #e6e8ee;
+  --line-strong: #d2d6df;
+  --line-subtle: #f1f2f6;
+  --accent: #0b1220;
+  --accent-ring: rgba(11, 18, 32, 0.14);
+  --blue: #2b6cff;
+  --blue-soft: rgba(43, 108, 255, 0.08);
+  --err: #b91c1c;
+  --err-soft: rgba(185, 28, 28, 0.08);
+  --ok: #2a7f3f;
+  --warn: #8a6628;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  color-scheme: light;
+  background: #ffffff;
+  color: var(--ink);
+  padding: 48px 56px 96px;
 }
 
-const previewCss = `
-.pensmith-preview {
+.preview {
+  max-width: 680px;
+  margin: 0 auto;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 14px;
-  line-height: 1.65;
-  word-break: keep-all;
-  overflow-wrap: break-word;
 }
-.pensmith-preview .preview-title {
-  margin: 6px 0 6px;
-  font-family: var(--font-serif);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.2px;
-  line-height: 1.25;
-}
-.pensmith-preview .preview-dek {
-  margin: 0 0 12px;
-  color: var(--ink-mute);
-  font-size: 13px;
-  font-style: italic;
-  line-height: 1.55;
-}
-.pensmith-preview .preview-tags {
+
+.preview__splash {
+  margin: 0 0 32px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-shade);
+  min-height: 180px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
+  align-items: center;
+  justify-content: center;
 }
-.pensmith-preview .preview-tag {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--ink-mute);
-  padding: 2px 7px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-}
-.pensmith-preview .preview-body {
-  margin-top: 14px;
-}
-.pensmith-preview .preview-body > *:first-child { margin-top: 0; }
-.pensmith-preview h1, .pensmith-preview h2, .pensmith-preview h3, .pensmith-preview h4 {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  letter-spacing: -0.15px;
-  line-height: 1.3;
-  margin: 1.4em 0 0.4em;
-  color: var(--ink);
-}
-.pensmith-preview h1 { font-size: 19px; }
-.pensmith-preview h2 { font-size: 17px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
-.pensmith-preview h3 { font-size: 15px; }
-.pensmith-preview h4 { font-size: 14px; }
-.pensmith-preview h2 a, .pensmith-preview h3 a, .pensmith-preview h4 a {
-  color: inherit;
-  text-decoration: none;
-}
-.pensmith-preview p { margin: 0.7em 0; }
-.pensmith-preview a { color: var(--blue); }
-.pensmith-preview a:hover { text-decoration: underline; }
-.pensmith-preview ul, .pensmith-preview ol {
-  margin: 0.7em 0;
-  padding-left: 1.25em;
-}
-.pensmith-preview li { margin: 0.25em 0; }
-.pensmith-preview blockquote {
-  margin: 0.9em 0;
-  padding: 4px 12px;
-  border-left: 3px solid var(--line);
-  color: var(--ink-mute);
-  font-style: italic;
-}
-.pensmith-preview code {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  padding: 0.1em 0.35em;
-}
-.pensmith-preview pre {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 10px 12px;
-  overflow-x: auto;
-  line-height: 1.5;
-}
-.pensmith-preview pre code {
-  background: transparent;
-  border: none;
-  padding: 0;
-  font-size: inherit;
-}
-.pensmith-preview hr {
-  border: none;
-  border-top: 1px solid var(--line);
-  margin: 1.5em 0;
-}
-.pensmith-preview table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  margin: 0.9em 0;
-}
-.pensmith-preview th, .pensmith-preview td {
-  padding: 6px 8px;
-  border: 1px solid var(--line);
-  text-align: left;
-}
-.pensmith-preview th { background: var(--bg); }
-.pensmith-preview .md-img {
-  margin: 1em 0;
-  text-align: center;
-}
-.pensmith-preview .md-img img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
-  background: var(--bg);
-}
-.pensmith-preview .md-img img[data-asset-path]:not([src]) {
+.preview__splash img {
   display: block;
-  min-height: 80px;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: cover;
 }
-.pensmith-preview .md-img img[data-error] {
-  outline: 1px dashed var(--err-soft);
+.preview__splash.is-error {
+  outline: 1px dashed var(--line-strong);
 }
-.pensmith-preview .md-img__caption {
-  margin-top: 6px;
-  font-size: 10.5px;
+.preview__splash.is-error::after {
+  content: "커버 이미지를 불러올 수 없습니다";
+  font-family: var(--font-mono);
+  font-size: 12px;
   color: var(--ink-mute);
-  font-style: italic;
-}
-.pensmith-preview .md-img.cover {
-  margin: 0 0 12px;
-}
-.pensmith-preview .anchor {
-  margin-left: 6px;
-  font-size: 0.8em;
-  opacity: 0.4;
-  text-decoration: none;
 }
 `;

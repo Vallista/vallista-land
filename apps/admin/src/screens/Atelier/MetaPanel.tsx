@@ -1,15 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
 import type { DocState } from '@vallista/content-core';
-import { Mono } from '../../components/atoms/Atoms';
+import { Checkbox, Input, Mono, Select, Textarea, type SelectOption } from '../../components/atoms/Atoms';
+import { TagInput } from '../../components/TagInput';
 import { useDoc } from './state';
 
 type Collection = 'articles' | 'notes';
 
-const STATE_OPTIONS: { value: DocState; label: string }[] = [
-  { value: 'seed', label: '씨앗' },
-  { value: 'sprout', label: '새싹' },
-  { value: 'draft', label: '초안' },
-  { value: 'published', label: '공개' },
+const STATE_OPTIONS: SelectOption<DocState>[] = [
+  { value: 'seed', label: '메모', hint: 'seed', dot: 'var(--ink-mute)' },
+  { value: 'sprout', label: '초안', hint: 'sprout', dot: 'var(--blue)' },
+  { value: 'draft', label: '교정', hint: 'draft', dot: 'var(--warn)' },
+  { value: 'published', label: '공개', hint: 'published', dot: 'var(--ok)' },
 ];
 
 export function MetaPanel({ collection }: { collection: Collection }) {
@@ -36,52 +36,47 @@ export function MetaPanel({ collection }: { collection: Collection }) {
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px 24px' }}>
       <Field label="TITLE">
-        <input
+        <Input
+          sm
           value={title}
           onChange={(e) => setKey('title', e.target.value)}
-          style={inputStyle}
           placeholder="제목"
         />
       </Field>
 
       <Field label="SLUG">
-        <input
+        <Input
+          sm
+          mono
           value={slug}
           onChange={(e) => setKey('slug', e.target.value)}
-          style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+          style={{ fontSize: 11.5 }}
           placeholder="kebab-case"
           spellCheck={false}
         />
       </Field>
 
       <Field label="DATE">
-        <input
+        <Input
+          sm
+          mono
           type="datetime-local"
           value={dateLocal}
           onChange={(e) => {
             const iso = localInputToISO(e.target.value);
             setKey('date', iso);
           }}
-          style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+          style={{ fontSize: 11.5 }}
         />
       </Field>
 
       <Field label="STATE">
-        <select
-          value={state ?? ''}
-          onChange={(e) => {
-            const v = e.target.value;
-            setKey('state', v === '' ? undefined : (v as DocState));
-          }}
-          style={{ ...inputStyle, cursor: 'pointer' }}
-        >
-          <option value="">(미지정)</option>
-          {STATE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label} · {o.value}
-            </option>
-          ))}
-        </select>
+        <Select<DocState>
+          value={state ?? null}
+          options={STATE_OPTIONS}
+          placeholder="(미지정)"
+          onChange={(v) => setKey('state', v)}
+        />
       </Field>
 
       <Field label="TAGS">
@@ -90,7 +85,8 @@ export function MetaPanel({ collection }: { collection: Collection }) {
 
       {collection === 'articles' && (
         <Field label="DEK">
-          <textarea
+          <Textarea
+            sm
             value={dek}
             onChange={(e) => {
               setKey('dek', e.target.value);
@@ -99,7 +95,7 @@ export function MetaPanel({ collection }: { collection: Collection }) {
               }
             }}
             rows={2}
-            style={{ ...inputStyle, resize: 'vertical', minHeight: 50, lineHeight: 1.5 }}
+            style={{ minHeight: 50 }}
             placeholder="부제 / 한 줄 요약"
           />
         </Field>
@@ -115,10 +111,12 @@ export function MetaPanel({ collection }: { collection: Collection }) {
       )}
 
       <Field label="IMAGE" hint="문서 폴더 기준 상대 경로 (./assets/cover.jpg)">
-        <input
+        <Input
+          sm
+          mono
           value={image}
           onChange={(e) => setKey('image', e.target.value)}
-          style={{ ...inputStyle, fontFamily: 'var(--font-mono)', fontSize: 11.5 }}
+          style={{ fontSize: 11.5 }}
           placeholder="./assets/…"
           spellCheck={false}
         />
@@ -126,25 +124,12 @@ export function MetaPanel({ collection }: { collection: Collection }) {
 
       {collection === 'articles' && (
         <Field label="FEATURED">
-          <label
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: 12,
-              color: 'var(--ink)',
-              cursor: 'pointer',
-              userSelect: 'none',
-            }}
+          <Checkbox
+            checked={featured}
+            onChange={(v) => setKey('featured', v || undefined)}
           >
-            <input
-              type="checkbox"
-              checked={featured}
-              onChange={(e) => setKey('featured', e.target.checked || undefined)}
-              style={{ cursor: 'pointer' }}
-            />
             홈 상단 노출
-          </label>
+          </Checkbox>
         </Field>
       )}
     </div>
@@ -186,49 +171,18 @@ function Field({
 function TagsField() {
   const { frontmatter, setFrontmatter } = useDoc();
   const tags = tagsAsArray(frontmatter.tags);
-  const initial = tags.join(', ');
-  const [text, setText] = useState(initial);
-  const lastTagsRef = useRef<string>(initial);
 
-  useEffect(() => {
-    const next = tags.join(', ');
-    if (next !== lastTagsRef.current) {
-      setText(next);
-      lastTagsRef.current = next;
-    }
-  }, [tags]);
-
-  const commit = () => {
-    const parsed = text
-      .split(',')
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-    const next = { ...frontmatter };
-    if (parsed.length === 0) {
-      delete next.tags;
+  const onChange = (next: string[]) => {
+    const fm = { ...frontmatter };
+    if (next.length === 0) {
+      delete fm.tags;
     } else {
-      next.tags = parsed;
+      fm.tags = next;
     }
-    setFrontmatter(next);
-    lastTagsRef.current = parsed.join(', ');
+    setFrontmatter(fm);
   };
 
-  return (
-    <input
-      value={text}
-      onChange={(e) => setText(e.target.value)}
-      onBlur={commit}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          commit();
-          (e.target as HTMLInputElement).blur();
-        }
-      }}
-      style={inputStyle}
-      placeholder="쉼표로 구분"
-    />
-  );
+  return <TagInput value={tags} onChange={onChange} />;
 }
 
 function SeriesField() {
@@ -249,27 +203,14 @@ function SeriesField() {
   };
 
   return (
-    <input
+    <Input
+      sm
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      style={inputStyle}
       placeholder="시리즈 이름"
     />
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '6px 9px',
-  background: 'var(--bg)',
-  border: '1px solid var(--line)',
-  borderRadius: 5,
-  color: 'var(--ink)',
-  fontSize: 12,
-  fontFamily: 'inherit',
-  outline: 'none',
-  boxSizing: 'border-box',
-};
 
 function strOr(v: unknown, fallback: string): string {
   if (typeof v === 'string') return v;

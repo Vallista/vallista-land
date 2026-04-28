@@ -57,6 +57,15 @@ export interface GleanItem {
   status: GleanStatus;
   promotedDocId?: string;
   highlights: GleanHighlight[];
+  digest?: string;
+  feedId?: string;
+  externalId?: string;
+}
+
+export interface Subtask {
+  id: string;
+  title: string;
+  done: boolean;
 }
 
 export interface Task {
@@ -65,6 +74,11 @@ export interface Task {
   done: boolean;
   due?: string;
   docId?: string;
+  estMin?: number;
+  startAt?: string;
+  tags?: string[];
+  notes?: string;
+  subtasks?: Subtask[];
   createdAt: string;
 }
 
@@ -94,19 +108,24 @@ export interface VaultInfo {
   noteCount: number;
 }
 
-export type BlockKind =
-  | 'routine'
-  | 'health'
-  | 'deep'
-  | 'people'
-  | 'meal'
-  | 'leisure'
-  | 'meet'
-  | 'write'
-  | 'read'
-  | 'build'
-  | 'publish'
-  | 'life';
+export type BlockKind = string;
+
+export const KNOWN_BLOCK_KINDS = [
+  'routine',
+  'health',
+  'deep',
+  'people',
+  'meal',
+  'leisure',
+  'meet',
+  'write',
+  'read',
+  'build',
+  'publish',
+  'life',
+] as const;
+
+export type KnownBlockKind = (typeof KNOWN_BLOCK_KINDS)[number];
 
 export type BlockSource = 'local' | 'gcal' | 'applecal';
 
@@ -117,21 +136,44 @@ export interface Block {
   end: string;
   title: string;
   kind: BlockKind;
+  endDate?: string;
+  customLabel?: string;
   src?: string;
   attendees: string[];
   done: boolean;
   source: BlockSource;
   externalId?: string;
+  taskId?: string;
+  notes?: string;
+  location?: string;
+  calendarName?: string;
+  url?: string;
+  recurring?: boolean;
   createdAt: string;
 }
 
 export interface Mood {
   date: string;
-  energy: number;
-  mood: number;
+  energy?: number;
+  mood?: number;
   note?: string;
+  retrospectiveNote?: string;
+  retrospectiveAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export type SummaryKind = 'weekly' | 'monthly';
+
+export interface Summary {
+  id: string;
+  kind: SummaryKind;
+  period: string;
+  text: string;
+  metricsJson?: string;
+  generatedAt: string;
+  readAt?: string;
+  model?: string;
 }
 
 export type ReportPeriod = 'day' | 'week' | 'month';

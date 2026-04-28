@@ -17,6 +17,32 @@ body,
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+input,
+textarea,
+[contenteditable='true'],
+[data-selectable='true'],
+.psm-selectable,
+.psm-selectable *,
+.cm-content,
+.cm-content *,
+.cm-line,
+.bento-preview,
+.bento-preview * {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+
+img,
+svg,
+a {
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 button {

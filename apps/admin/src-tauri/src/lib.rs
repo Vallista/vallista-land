@@ -199,6 +199,11 @@ pub fn run() {
                 }
             }
 
+            {
+                let app_handle = app.handle().clone();
+                tauri::async_runtime::spawn(commands::rss::start_poller(app_handle));
+            }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -240,10 +245,15 @@ pub fn run() {
             commands::glean::update_glean_digest,
             commands::glean::delete_glean,
             commands::glean::fetch_url,
-            // === life: reports ===
+            // === life: reports / summaries ===
             commands::reports::list_reports,
             commands::reports::read_report,
             commands::reports::migrate_reports,
+            commands::summaries::list_summaries,
+            commands::summaries::get_summary,
+            commands::summaries::latest_unread_summary,
+            commands::summaries::upsert_summary,
+            commands::summaries::mark_summary_read,
             // === life: LLM ===
             commands::llm::llm_status,
             commands::llm::llm_start,
@@ -277,6 +287,15 @@ pub fn run() {
             commands::keychain::keychain_set_token,
             commands::keychain::keychain_has_token,
             commands::keychain::keychain_delete_token,
+            // === life: rss feeds ===
+            commands::rss::list_rss_feeds,
+            commands::rss::add_rss_feed,
+            commands::rss::remove_rss_feed,
+            commands::rss::update_rss_feed,
+            commands::rss::get_rss_config,
+            commands::rss::set_rss_config,
+            commands::rss::sync_rss_feed,
+            commands::rss::sync_rss_feeds,
             // === window / quick ===
             close_quick_window,
             show_quick_window,

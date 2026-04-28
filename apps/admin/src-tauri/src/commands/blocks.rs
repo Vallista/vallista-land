@@ -9,22 +9,7 @@ use crate::repo::{ensure_inside, AppState};
 const BLOCKS_FILE: &str = "blocks.json";
 const ICAL_FEEDS_FILE: &str = "ical_feeds.json";
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
-pub enum BlockKind {
-    Routine,
-    Health,
-    Deep,
-    People,
-    Meal,
-    Leisure,
-    Meet,
-    Write,
-    Read,
-    Build,
-    Publish,
-    Life,
-}
+pub type BlockKind = String;
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -50,6 +35,10 @@ pub struct Block {
     pub title: String,
     pub kind: BlockKind,
     #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub end_date: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub custom_label: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub src: Option<String>,
     #[serde(default)]
     pub attendees: Vec<String>,
@@ -59,7 +48,23 @@ pub struct Block {
     pub source: BlockSource,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub external_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub task_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub notes: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub location: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub calendar_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub url: Option<String>,
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub recurring: bool,
     pub created_at: String,
+}
+
+fn is_false(b: &bool) -> bool {
+    !*b
 }
 
 fn blocks_path(root: &Path) -> std::path::PathBuf {
@@ -133,7 +138,7 @@ fn sorted(mut blocks: Vec<Block>) -> Vec<Block> {
 
 #[tauri::command]
 pub fn list_blocks(state: State<'_, AppState>) -> Result<Vec<Block>, String> {
-    Ok(sorted(load_all(&state.vault_root)?))
+    Ok(sorted(load_all(&state.data_root)?))
 }
 
 #[tauri::command]
@@ -141,7 +146,7 @@ pub fn list_blocks_by_date(
     date: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<Block>, String> {
-    let all = load_all(&state.vault_root)?;
+    let all = load_all(&state.data_root)?;
     Ok(sorted(all.into_iter().filter(|b| b.date == date).collect()))
 }
 
@@ -151,7 +156,7 @@ pub fn list_blocks_in_range(
     end_date: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<Block>, String> {
-    let all = load_all(&state.vault_root)?;
+    let all = load_all(&state.data_root)?;
     Ok(sorted(
         all.into_iter()
             .filter(|b| b.date >= start_date && b.date <= end_date)
@@ -169,6 +174,10 @@ pub struct BlockInput {
     pub title: String,
     pub kind: BlockKind,
     #[serde(default)]
+    pub end_date: Option<String>,
+    #[serde(default)]
+    pub custom_label: Option<String>,
+    #[serde(default)]
     pub src: Option<String>,
     #[serde(default)]
     pub attendees: Vec<String>,
@@ -176,11 +185,13 @@ pub struct BlockInput {
     pub source: Option<BlockSource>,
     #[serde(default)]
     pub external_id: Option<String>,
+    #[serde(default)]
+    pub task_id: Option<String>,
 }
 
 #[tauri::command]
 pub fn add_block(input: BlockInput, state: State<'_, AppState>) -> Result<Block, String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     if all.iter().any(|b| b.id == input.id) {
         return Err(format!("block already exists: {}", input.id));
     }
@@ -191,15 +202,23 @@ pub fn add_block(input: BlockInput, state: State<'_, AppState>) -> Result<Block,
         end: input.end,
         title: input.title,
         kind: input.kind,
+        end_date: input.end_date.filter(|s| !s.is_empty()),
+        custom_label: input.custom_label.filter(|s| !s.is_empty()),
         src: input.src.filter(|s| !s.is_empty()),
         attendees: input.attendees,
         done: false,
         source: input.source.unwrap_or_default(),
         external_id: input.external_id.filter(|s| !s.is_empty()),
+        task_id: input.task_id.filter(|s| !s.is_empty()),
+        notes: None,
+        location: None,
+        calendar_name: None,
+        url: None,
+        recurring: false,
         created_at: now_iso(),
     };
     all.push(block.clone());
-    save_all(&state.vault_root, &all)?;
+    save_all(&state.data_root, &all)?;
     Ok(block)
 }
 
@@ -217,6 +236,10 @@ pub struct BlockPatch {
     #[serde(default)]
     pub kind: Option<BlockKind>,
     #[serde(default)]
+    pub end_date: Option<Option<String>>,
+    #[serde(default)]
+    pub custom_label: Option<Option<String>>,
+    #[serde(default)]
     pub src: Option<Option<String>>,
     #[serde(default)]
     pub attendees: Option<Vec<String>>,
@@ -224,6 +247,8 @@ pub struct BlockPatch {
     pub done: Option<bool>,
     #[serde(default)]
     pub external_id: Option<Option<String>>,
+    #[serde(default)]
+    pub task_id: Option<Option<String>>,
 }
 
 #[tauri::command]
@@ -232,7 +257,7 @@ pub fn update_block(
     patch: BlockPatch,
     state: State<'_, AppState>,
 ) -> Result<Block, String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     let idx = all
         .iter()
         .position(|b| b.id == id)
@@ -252,6 +277,12 @@ pub fn update_block(
     if let Some(v) = patch.kind {
         all[idx].kind = v;
     }
+    if let Some(v) = patch.end_date {
+        all[idx].end_date = v.filter(|s| !s.is_empty());
+    }
+    if let Some(v) = patch.custom_label {
+        all[idx].custom_label = v.filter(|s| !s.is_empty());
+    }
     if let Some(v) = patch.src {
         all[idx].src = v.filter(|s| !s.is_empty());
     }
@@ -264,20 +295,23 @@ pub fn update_block(
     if let Some(v) = patch.external_id {
         all[idx].external_id = v.filter(|s| !s.is_empty());
     }
+    if let Some(v) = patch.task_id {
+        all[idx].task_id = v.filter(|s| !s.is_empty());
+    }
     let updated = all[idx].clone();
-    save_all(&state.vault_root, &all)?;
+    save_all(&state.data_root, &all)?;
     Ok(updated)
 }
 
 #[tauri::command]
 pub fn delete_block(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     let before = all.len();
     all.retain(|b| b.id != id);
     if all.len() == before {
         return Err(format!("block not found: {}", id));
     }
-    save_all(&state.vault_root, &all)
+    save_all(&state.data_root, &all)
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -294,26 +328,64 @@ pub async fn import_ical_url(
     url: String,
     state: State<'_, AppState>,
 ) -> Result<IcalImportResult, String> {
-    let root = state.vault_root.clone();
+    let root = state.data_root.clone();
     import_ical_url_inner(&root, &url).await
+}
+
+#[derive(Default, Clone)]
+struct IcalRawDt {
+    value: String,
+    tzid: Option<String>,
+    is_date: bool,
 }
 
 #[derive(Default)]
 struct IcalEvent {
     uid: String,
     summary: String,
-    dtstart: Option<String>,
-    dtend: Option<String>,
+    dtstart: Option<IcalRawDt>,
+    dtend: Option<IcalRawDt>,
     attendees: Vec<String>,
+    description: Option<String>,
+    location: Option<String>,
+    url: Option<String>,
+    recurring: bool,
+}
+
+enum ParsedIcalDt {
+    AllDay(chrono::NaiveDate),
+    Timed(chrono::DateTime<chrono::Local>),
 }
 
 impl IcalEvent {
-    fn to_local_block_time(&self) -> Option<(String, String, String)> {
-        let s = self.dtstart.as_ref()?;
-        let e = self.dtend.as_ref()?;
-        let (date, start) = parse_ical_dt(s)?;
-        let (_, end) = parse_ical_dt(e)?;
-        Some((date, start, end))
+    fn to_local_block_time(&self) -> Option<(String, String, Option<String>, String)> {
+        let s = parse_ical_dt(self.dtstart.as_ref()?)?;
+        let e = parse_ical_dt(self.dtend.as_ref()?)?;
+        match (s, e) {
+            (ParsedIcalDt::AllDay(sd), ParsedIcalDt::AllDay(ed)) => {
+                let inclusive_end = ed.pred_opt().unwrap_or(ed);
+                let date = sd.format("%Y-%m-%d").to_string();
+                let end_date = if inclusive_end == sd {
+                    None
+                } else {
+                    Some(inclusive_end.format("%Y-%m-%d").to_string())
+                };
+                Some((date, "00:00".into(), end_date, "00:00".into()))
+            }
+            (ParsedIcalDt::Timed(sd), ParsedIcalDt::Timed(ed)) => {
+                let start_date = sd.format("%Y-%m-%d").to_string();
+                let end_date_str = ed.format("%Y-%m-%d").to_string();
+                let start_time = sd.format("%H:%M").to_string();
+                let end_time = ed.format("%H:%M").to_string();
+                let end_date = if end_date_str == start_date {
+                    None
+                } else {
+                    Some(end_date_str)
+                };
+                Some((start_date, start_time, end_date, end_time))
+            }
+            _ => None,
+        }
     }
 }
 
@@ -342,8 +414,50 @@ fn parse_ical_events(raw: &str) -> Vec<IcalEvent> {
         match key {
             "UID" => ev.uid = value.to_string(),
             "SUMMARY" => ev.summary = unescape_text(value),
-            "DTSTART" => ev.dtstart = Some(value.to_string()),
-            "DTEND" => ev.dtend = Some(value.to_string()),
+            "DESCRIPTION" => {
+                let v = unescape_text(value);
+                if !v.trim().is_empty() {
+                    ev.description = Some(v);
+                }
+            }
+            "LOCATION" => {
+                let v = unescape_text(value);
+                if !v.trim().is_empty() {
+                    ev.location = Some(v);
+                }
+            }
+            "URL" => {
+                let v = value.trim();
+                if !v.is_empty() {
+                    ev.url = Some(v.to_string());
+                }
+            }
+            "RRULE" => {
+                if !value.trim().is_empty() {
+                    ev.recurring = true;
+                }
+            }
+            "DTSTART" | "DTEND" => {
+                let mut tzid = None;
+                let mut is_date = false;
+                for param in key_full.split(';').skip(1) {
+                    if let Some(rest) = param.strip_prefix("TZID=") {
+                        tzid = Some(rest.trim_matches('"').to_string());
+                    } else if param.eq_ignore_ascii_case("VALUE=DATE") {
+                        is_date = true;
+                    }
+                }
+                let dt = IcalRawDt {
+                    value: value.to_string(),
+                    tzid,
+                    is_date,
+                };
+                if key == "DTSTART" {
+                    ev.dtstart = Some(dt);
+                } else {
+                    ev.dtend = Some(dt);
+                }
+            }
             "ATTENDEE" => {
                 let mut name = None;
                 for param in key_full.split(';').skip(1) {
@@ -427,7 +541,7 @@ fn save_feeds(root: &Path, feeds: &[IcalFeed]) -> Result<(), String> {
 
 #[tauri::command]
 pub fn list_ical_feeds(state: State<'_, AppState>) -> Result<Vec<IcalFeed>, String> {
-    load_feeds(&state.vault_root)
+    load_feeds(&state.data_root)
 }
 
 #[derive(Deserialize)]
@@ -442,7 +556,7 @@ pub fn add_ical_feed(
     input: IcalFeedInput,
     state: State<'_, AppState>,
 ) -> Result<IcalFeed, String> {
-    let mut feeds = load_feeds(&state.vault_root)?;
+    let mut feeds = load_feeds(&state.data_root)?;
     let url = input.url.trim().to_string();
     if url.is_empty() {
         return Err("URL이 비어 있습니다".into());
@@ -464,36 +578,36 @@ pub fn add_ical_feed(
         last_result: None,
     };
     feeds.push(feed.clone());
-    save_feeds(&state.vault_root, &feeds)?;
+    save_feeds(&state.data_root, &feeds)?;
     Ok(feed)
 }
 
 #[tauri::command]
 pub fn remove_ical_feed(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let mut feeds = load_feeds(&state.vault_root)?;
+    let mut feeds = load_feeds(&state.data_root)?;
     let before = feeds.len();
     feeds.retain(|f| f.id != id);
     if feeds.len() == before {
         return Err(format!("feed not found: {}", id));
     }
-    save_feeds(&state.vault_root, &feeds)
+    save_feeds(&state.data_root, &feeds)
 }
 
 #[tauri::command]
 pub async fn sync_ical_feeds(
     state: State<'_, AppState>,
 ) -> Result<Vec<IcalFeed>, String> {
-    let mut feeds = load_feeds(&state.vault_root)?;
+    let mut feeds = load_feeds(&state.data_root)?;
     let urls: Vec<(String, String)> =
         feeds.iter().map(|f| (f.id.clone(), f.url.clone())).collect();
     for (id, url) in urls {
-        let result = import_ical_url_inner(&state.vault_root, &url).await;
+        let result = import_ical_url_inner(&state.data_root, &url).await;
         if let Some(idx) = feeds.iter().position(|f| f.id == id) {
             feeds[idx].last_synced_at = Some(now_iso());
             feeds[idx].last_result = result.ok();
         }
     }
-    save_feeds(&state.vault_root, &feeds)?;
+    save_feeds(&state.data_root, &feeds)?;
     Ok(feeds)
 }
 
@@ -529,7 +643,7 @@ async fn import_ical_url_inner(
     let mut skipped = 0usize;
     let total = events.len();
     for ev in events {
-        let Some((date, start, end)) = ev.to_local_block_time() else {
+        let Some((date, start, end_date, end)) = ev.to_local_block_time() else {
             skipped += 1;
             continue;
         };
@@ -539,6 +653,10 @@ async fn import_ical_url_inner(
             ev.summary.clone()
         };
         let attendees = ev.attendees.clone();
+        let notes = ev.description.clone();
+        let location = ev.location.clone();
+        let url = ev.url.clone();
+        let recurring = ev.recurring;
         let external = ev.uid.clone();
         let existing_idx = all.iter().position(|b| {
             matches!(b.source, BlockSource::Gcal)
@@ -559,12 +677,32 @@ async fn import_ical_url_inner(
                 prev.end = end.clone();
                 changed = true;
             }
+            if prev.end_date != end_date {
+                prev.end_date = end_date.clone();
+                changed = true;
+            }
             if prev.title != title {
                 prev.title = title.clone();
                 changed = true;
             }
             if prev.attendees != attendees {
                 prev.attendees = attendees.clone();
+                changed = true;
+            }
+            if prev.notes != notes {
+                prev.notes = notes.clone();
+                changed = true;
+            }
+            if prev.location != location {
+                prev.location = location.clone();
+                changed = true;
+            }
+            if prev.url != url {
+                prev.url = url.clone();
+                changed = true;
+            }
+            if prev.recurring != recurring {
+                prev.recurring = recurring;
                 changed = true;
             }
             if changed {
@@ -587,12 +725,20 @@ async fn import_ical_url_inner(
                 start,
                 end,
                 title,
-                kind: BlockKind::Meet,
+                kind: "meet".to_string(),
+                end_date,
+                custom_label: None,
                 src: None,
                 attendees,
                 done: false,
                 source: BlockSource::Gcal,
                 external_id: Some(external),
+                task_id: None,
+                notes,
+                location,
+                calendar_name: None,
+                url,
+                recurring,
                 created_at: now_iso(),
             };
             all.push(block);
@@ -608,22 +754,176 @@ async fn import_ical_url_inner(
     })
 }
 
-fn parse_ical_dt(s: &str) -> Option<(String, String)> {
-    let raw = s.trim().trim_end_matches('Z');
-    if raw.contains('T') {
-        let mut parts = raw.splitn(2, 'T');
-        let d = parts.next()?;
-        let t = parts.next()?;
-        if d.len() < 8 || t.len() < 4 {
-            return None;
+pub struct SourcedBlockInput {
+    pub external_id: String,
+    pub date: String,
+    pub start: String,
+    pub end: String,
+    pub end_date: Option<String>,
+    pub title: String,
+    pub kind: BlockKind,
+    pub source: BlockSource,
+    pub attendees: Vec<String>,
+    pub notes: Option<String>,
+    pub location: Option<String>,
+    pub calendar_name: Option<String>,
+    pub url: Option<String>,
+    pub recurring: bool,
+}
+
+pub fn upsert_sourced_blocks(
+    root: &Path,
+    records: &[SourcedBlockInput],
+    id_prefix: &str,
+) -> Result<IcalImportResult, String> {
+    let mut all = load_all(root)?;
+    let mut added = 0usize;
+    let mut updated = 0usize;
+    let mut skipped = 0usize;
+    let total = records.len();
+    for r in records {
+        let existing_idx = all.iter().position(|b| {
+            block_source_id(&b.source) == block_source_id(&r.source)
+                && b.external_id.as_deref() == Some(r.external_id.as_str())
+        });
+        if let Some(idx) = existing_idx {
+            let prev = &mut all[idx];
+            let mut changed = false;
+            if prev.date != r.date {
+                prev.date = r.date.clone();
+                changed = true;
+            }
+            if prev.start != r.start {
+                prev.start = r.start.clone();
+                changed = true;
+            }
+            if prev.end != r.end {
+                prev.end = r.end.clone();
+                changed = true;
+            }
+            if prev.end_date != r.end_date {
+                prev.end_date = r.end_date.clone();
+                changed = true;
+            }
+            if prev.title != r.title {
+                prev.title = r.title.clone();
+                changed = true;
+            }
+            if prev.attendees != r.attendees {
+                prev.attendees = r.attendees.clone();
+                changed = true;
+            }
+            if prev.notes != r.notes {
+                prev.notes = r.notes.clone();
+                changed = true;
+            }
+            if prev.location != r.location {
+                prev.location = r.location.clone();
+                changed = true;
+            }
+            if prev.calendar_name != r.calendar_name {
+                prev.calendar_name = r.calendar_name.clone();
+                changed = true;
+            }
+            if prev.url != r.url {
+                prev.url = r.url.clone();
+                changed = true;
+            }
+            if prev.recurring != r.recurring {
+                prev.recurring = r.recurring;
+                changed = true;
+            }
+            if changed {
+                updated += 1;
+            } else {
+                skipped += 1;
+            }
+        } else {
+            let sanitized: String = r
+                .external_id
+                .chars()
+                .filter(|c| c.is_ascii_alphanumeric() || *c == '_' || *c == '-')
+                .take(48)
+                .collect();
+            let id = format!("{}_{}", id_prefix, sanitized);
+            let block = Block {
+                id,
+                date: r.date.clone(),
+                start: r.start.clone(),
+                end: r.end.clone(),
+                title: r.title.clone(),
+                kind: r.kind.clone(),
+                end_date: r.end_date.clone(),
+                custom_label: None,
+                src: None,
+                attendees: r.attendees.clone(),
+                done: false,
+                source: r.source,
+                external_id: Some(r.external_id.clone()),
+                task_id: None,
+                notes: r.notes.clone(),
+                location: r.location.clone(),
+                calendar_name: r.calendar_name.clone(),
+                url: r.url.clone(),
+                recurring: r.recurring,
+                created_at: now_iso(),
+            };
+            all.push(block);
+            added += 1;
         }
-        let date = format!("{}-{}-{}", &d[0..4], &d[4..6], &d[6..8]);
-        let time = format!("{}:{}", &t[0..2], &t[2..4]);
-        Some((date, time))
-    } else if raw.len() == 8 {
-        let date = format!("{}-{}-{}", &raw[0..4], &raw[4..6], &raw[6..8]);
-        Some((date, "00:00".to_string()))
-    } else {
-        None
     }
+    save_all(root, &all)?;
+    Ok(IcalImportResult {
+        added,
+        updated,
+        skipped,
+        total,
+    })
+}
+
+fn block_source_id(s: &BlockSource) -> u8 {
+    match s {
+        BlockSource::Local => 0,
+        BlockSource::Gcal => 1,
+        BlockSource::Applecal => 2,
+    }
+}
+
+fn parse_ical_dt(raw: &IcalRawDt) -> Option<ParsedIcalDt> {
+    use chrono::{Local, NaiveDate, NaiveTime, TimeZone, Utc};
+    let v = raw.value.trim();
+
+    if raw.is_date || (v.len() == 8 && !v.contains('T')) {
+        let d = NaiveDate::parse_from_str(&v[..8.min(v.len())], "%Y%m%d").ok()?;
+        return Some(ParsedIcalDt::AllDay(d));
+    }
+
+    let (date_part, time_part) = v.split_once('T')?;
+    let utc_marked = time_part.ends_with('Z');
+    let time_clean = time_part.trim_end_matches('Z');
+    if date_part.len() < 8 || time_clean.len() < 4 {
+        return None;
+    }
+
+    let d = NaiveDate::parse_from_str(&date_part[..8], "%Y%m%d").ok()?;
+    let t = if time_clean.len() >= 6 {
+        NaiveTime::parse_from_str(&time_clean[..6], "%H%M%S").ok()?
+    } else {
+        let h: u32 = time_clean[0..2].parse().ok()?;
+        let m: u32 = time_clean[2..4].parse().ok()?;
+        NaiveTime::from_hms_opt(h, m, 0)?
+    };
+    let naive = d.and_time(t);
+
+    let local = if utc_marked {
+        Utc.from_utc_datetime(&naive).with_timezone(&Local)
+    } else if let Some(tzid) = &raw.tzid {
+        let tz: chrono_tz::Tz = tzid.parse().ok()?;
+        tz.from_local_datetime(&naive)
+            .single()?
+            .with_timezone(&Local)
+    } else {
+        Local.from_local_datetime(&naive).single()?
+    };
+    Some(ParsedIcalDt::Timed(local))
 }

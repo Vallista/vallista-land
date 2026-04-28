@@ -32,7 +32,8 @@ pub struct DocFile {
 
 #[tauri::command]
 pub fn list_docs(state: State<'_, AppState>) -> Result<Vec<DocSummary>, String> {
-    let root = &state.vault_root;
+    let root = state.content_root()?;
+    let root = root.as_path();
     let collections = [
         ("articles", "contents/articles"),
         ("notes", "contents/notes"),
@@ -48,7 +49,11 @@ pub fn list_docs(state: State<'_, AppState>) -> Result<Vec<DocSummary>, String> 
                 continue;
             }
             let path = entry.path();
-            if path.extension().map_or(true, |e| e != "md") {
+            if path
+                .extension()
+                .and_then(|e| e.to_str())
+                .map_or(true, |ext| ext != "md" && ext != "mdx")
+            {
                 continue;
             }
             let raw = match fs::read_to_string(path) {
@@ -63,12 +68,12 @@ pub fn list_docs(state: State<'_, AppState>) -> Result<Vec<DocSummary>, String> 
 
 fn parse_summary(raw: &str, path: &Path, root: &Path, collection: &str) -> DocSummary {
     let metadata = fs::metadata(path).ok();
-    let updated_at = metadata
+    let fs_modified = metadata
         .as_ref()
         .and_then(|m| m.modified().ok())
         .map(format_systime)
         .unwrap_or_default();
-    let created_at = metadata
+    let fs_created = metadata
         .as_ref()
         .and_then(|m| m.created().ok())
         .map(format_systime)
@@ -87,6 +92,9 @@ fn parse_summary(raw: &str, path: &Path, root: &Path, collection: &str) -> DocSu
     let mut title = String::new();
     let mut slug: Option<String> = None;
     let mut tags: Vec<String> = Vec::new();
+    let mut fm_date: Option<String> = None;
+    let mut fm_updated: Option<String> = None;
+    let mut fm_created: Option<String> = None;
 
     if let Some(data) = parsed.data {
         if let Ok(map) = data.as_hashmap() {
@@ -109,8 +117,34 @@ fn parse_summary(raw: &str, path: &Path, root: &Path, collection: &str) -> DocSu
                     tags = vec![s];
                 }
             }
+            for key in ["date", "pubDate", "publishedAt", "published"] {
+                if let Some(v) = map.get(key).and_then(|p| p.as_string().ok()) {
+                    fm_date = Some(normalize_iso(&v));
+                    break;
+                }
+            }
+            for key in ["updated", "updatedAt"] {
+                if let Some(v) = map.get(key).and_then(|p| p.as_string().ok()) {
+                    fm_updated = Some(normalize_iso(&v));
+                    break;
+                }
+            }
+            for key in ["createdAt", "created"] {
+                if let Some(v) = map.get(key).and_then(|p| p.as_string().ok()) {
+                    fm_created = Some(normalize_iso(&v));
+                    break;
+                }
+            }
         }
     }
+
+    let created_at = fm_created
+        .clone()
+        .or_else(|| fm_date.clone())
+        .unwrap_or(fs_created);
+    let updated_at = fm_updated
+        .or_else(|| fm_date.clone())
+        .unwrap_or(fs_modified);
 
     if title.is_empty() {
         if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
@@ -140,6 +174,17 @@ fn parse_summary(raw: &str, path: &Path, root: &Path, collection: &str) -> DocSu
         created_at,
         words,
     }
+}
+
+fn normalize_iso(s: &str) -> String {
+    let trimmed = s.trim();
+    if trimmed.is_empty() {
+        return String::new();
+    }
+    if trimmed.len() == 10 && trimmed.chars().nth(4) == Some('-') {
+        return format!("{}T00:00:00Z", trimmed);
+    }
+    trimmed.to_string()
 }
 
 fn format_systime(t: SystemTime) -> String {
@@ -193,14 +238,15 @@ fn count_words(body: &str) -> u64 {
 
 #[tauri::command]
 pub fn read_doc(path: String, state: State<'_, AppState>) -> Result<DocFile, String> {
-    let safe = ensure_inside(&state.vault_root, Path::new(&path))?;
+    let root = state.content_root()?;
+    let safe = ensure_inside(&root, Path::new(&path))?;
     let exists = safe.exists();
     let raw = if exists {
         fs::read_to_string(&safe).map_err(|e| e.to_string())?
     } else {
         String::new()
     };
-    let rel = safe.strip_prefix(&state.vault_root).unwrap_or(&safe);
+    let rel = safe.strip_prefix(&root).unwrap_or(&safe);
     Ok(DocFile {
         path: rel.to_string_lossy().replace('\\', "/"),
         raw,
@@ -214,7 +260,8 @@ pub fn write_doc(
     content: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    let safe = ensure_inside(&state.vault_root, Path::new(&path))?;
+    let root = state.content_root()?;
+    let safe = ensure_inside(&root, Path::new(&path))?;
     if let Some(parent) = safe.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
@@ -230,7 +277,8 @@ pub struct AssetData {
 
 #[tauri::command]
 pub fn read_asset(path: String, state: State<'_, AppState>) -> Result<AssetData, String> {
-    let safe = ensure_inside(&state.vault_root, Path::new(&path))?;
+    let root = state.content_root()?;
+    let safe = ensure_inside(&root, Path::new(&path))?;
     if !safe.is_file() {
         return Err(format!("not a file: {}", safe.display()));
     }

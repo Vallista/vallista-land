@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { GleanItem } from '@vallista/content-core';
 import { writeDoc, updateGleanStatus, readDoc } from '../../lib/tauri';
 import { serializeDoc } from '../Atelier/save';
-import { Mono } from '../../components/atoms/Atoms';
+import { Input, Mono } from '../../components/atoms/Atoms';
 
 type Props = {
   item: GleanItem;
@@ -97,19 +97,20 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
           }}
         >
           <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', letterSpacing: '0.06em' }}>
-            씨앗으로 — contents/notes/
+            노트로 — contents/notes/
           </Mono>
         </div>
         <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <p style={{ margin: 0, fontSize: 12.5, color: 'var(--ink-soft)', lineHeight: 1.55 }}>
-            이 캡처를 새 노트(seed)로 옮깁니다. 하이라이트와 출처가 본문에 인용되고, 이 줍기 항목은 <Mono style={{ color: 'var(--ok)' }}>promoted</Mono>로 표시됩니다.
+            이 캡처를 새 노트로 옮깁니다. 하이라이트와 출처가 본문에 인용되고, 이 줍기 항목은 <Mono style={{ color: 'var(--ok)' }}>promoted</Mono>로 표시됩니다.
           </p>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)', letterSpacing: '0.06em' }}>
               SLUG
             </Mono>
-            <input
+            <Input
               ref={slugRef}
+              mono
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               onKeyDown={(e) => {
@@ -118,16 +119,7 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
                   submit();
                 }
               }}
-              style={{
-                padding: '7px 10px',
-                border: '1px solid var(--line)',
-                background: 'var(--bg-input, var(--bg))',
-                color: 'var(--ink)',
-                fontSize: 12.5,
-                borderRadius: 5,
-                fontFamily: 'var(--font-mono)',
-                outline: 'none',
-              }}
+              style={{ padding: '7px 10px', fontSize: 12.5, borderRadius: 5 }}
             />
           </label>
           {item.highlights.length > 0 && (
@@ -191,7 +183,7 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
               cursor: busy ? 'wait' : 'pointer',
             }}
           >
-            {busy ? '심는 중…' : '씨앗 만들기'}
+            {busy ? '담는 중…' : '노트 만들기'}
           </button>
         </div>
       </div>

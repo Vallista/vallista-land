@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { listen } from '@tauri-apps/api/event';
 import type { GleanItem, GleanStatus } from '@vallista/content-core';
 import { listGlean } from '../../lib/tauri';
 import { PageHead } from '../../components/atoms/Atoms';
 import { GleanList } from './GleanList';
 import { GleanDetail } from './GleanDetail';
 import { SourcesRail, type SourceFilter } from './SourcesRail';
+import { RssDialog } from './RssDialog';
 
 export type StatusFilter = GleanStatus | 'all';
 
@@ -14,6 +16,7 @@ export function Glean() {
   const [filter, setFilter] = useState<StatusFilter>('all');
   const [source, setSource] = useState<SourceFilter>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [rssOpen, setRssOpen] = useState(false);
 
   const refresh = useCallback(() => {
     listGlean()
@@ -23,6 +26,18 @@ export function Glean() {
 
   useEffect(() => {
     refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    let unlisten: (() => void) | null = null;
+    listen('bento:rss-synced', () => {
+      refresh();
+    }).then((fn) => {
+      unlisten = fn;
+    });
+    return () => {
+      unlisten?.();
+    };
   }, [refresh]);
 
   const filtered = useMemo(() => {
@@ -92,7 +107,12 @@ export function Glean() {
         minHeight: 0,
       }}
     >
-      <SourcesRail items={items} source={source} onSource={setSource} />
+      <SourcesRail
+        items={items}
+        source={source}
+        onSource={setSource}
+        onOpenRss={() => setRssOpen(true)}
+      />
       <GleanList
         items={filtered}
         totalCount={items.length}
@@ -115,6 +135,7 @@ export function Glean() {
       ) : (
         <EmptyDetail count={items.length} />
       )}
+      <RssDialog open={rssOpen} onClose={() => setRssOpen(false)} onSynced={refresh} />
     </div>
   );
 }

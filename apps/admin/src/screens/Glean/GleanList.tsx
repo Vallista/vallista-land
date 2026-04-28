@@ -19,7 +19,7 @@ const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
   { id: 'unread', label: '안 읽음' },
   { id: 'read', label: '읽음' },
   { id: 'archived', label: '보관' },
-  { id: 'promoted', label: '씨앗' },
+  { id: 'promoted', label: '담김' },
 ];
 
 const STATUS_DOT: Record<GleanStatus, string> = {
@@ -30,10 +30,10 @@ const STATUS_DOT: Record<GleanStatus, string> = {
 };
 
 const SOURCE_GLYPH: Record<GleanSource, string> = {
-  web: '🌐',
-  rss: '📰',
-  youtube: '▶',
-  paste: '✎',
+  web: '◐',
+  rss: '⌬',
+  youtube: '▷',
+  paste: '▤',
 };
 
 export function GleanList({
@@ -198,7 +198,23 @@ function Row({ item, active, onClick }: { item: GleanItem; active: boolean; onCl
           {item.title || '(제목 없음)'}
         </span>
       </div>
-      {item.excerpt && (
+      {item.digest ? (
+        <div
+          style={{
+            fontSize: 11,
+            color: 'var(--ink-soft)',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            paddingLeft: 13,
+            lineHeight: 1.4,
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {item.digest}
+        </div>
+      ) : item.excerpt ? (
         <div
           style={{
             fontSize: 11,
@@ -213,9 +229,10 @@ function Row({ item, active, onClick }: { item: GleanItem; active: boolean; onCl
         >
           {item.excerpt}
         </div>
-      )}
+      ) : null}
       <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)', paddingLeft: 13 }}>
         {hostname(item.url) || item.source} · {time}
+        {item.digest ? ' · 요약' : ''}
       </Mono>
     </button>
   );

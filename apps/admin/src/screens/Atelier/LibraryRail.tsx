@@ -14,10 +14,10 @@ interface LibraryItem {
 
 const LIBRARY: LibraryItem[] = [
   { id: 'all', label: '전부', icon: '◇', color: 'var(--ink-mute)' },
-  { id: 'seed', label: '씨앗', icon: '✦', color: 'var(--blue)' },
-  { id: 'sprout', label: '새싹', icon: '✿', color: 'var(--blue)' },
-  { id: 'draft', label: '초고', icon: '◐', color: 'var(--hl-amber)' },
-  { id: 'published', label: '발행됨', icon: '●', color: 'var(--ok)' },
+  { id: 'seed', label: '메모', icon: '◦', color: 'var(--ink-mute)' },
+  { id: 'sprout', label: '초안', icon: '◐', color: 'var(--blue)' },
+  { id: 'draft', label: '교정', icon: '◑', color: 'var(--hl-amber)' },
+  { id: 'published', label: '공개', icon: '●', color: 'var(--ok)' },
 ];
 
 interface FolderRow {
@@ -238,7 +238,7 @@ export function LibraryRail({
       )}
 
       <div style={{ marginTop: 'auto', padding: '14px 10px 0' }}>
-        <Eyebrow>씨앗 발아</Eyebrow>
+        <Eyebrow>작성 중</Eyebrow>
         <div
           style={{
             marginTop: 8,
@@ -254,10 +254,10 @@ export function LibraryRail({
           {sproutCount > 0 ? (
             <>
               <Mono style={{ color: 'var(--blue)' }}>{sproutCount}개</Mono>의
-              새싹이 자라는 중
+              초안 진행
             </>
           ) : (
-            '아직 자라는 새싹이 없어요'
+            '진행 중인 초안이 없어요'
           )}
         </div>
       </div>
@@ -286,9 +286,9 @@ function topSegment(p: string): string | null {
 
 function iconForFolder(name: string): string {
   if (/people/i.test(name)) return '@';
-  if (/article|writing/i.test(name)) return '✎';
+  if (/article|writing/i.test(name)) return '▤';
   if (/note|daily/i.test(name)) return '◐';
-  if (/tech/i.test(name)) return '▤';
-  if (/glean|library/i.test(name)) return '↧';
+  if (/tech/i.test(name)) return '⌬';
+  if (/glean|library/i.test(name)) return '⊞';
   return '·';
 }

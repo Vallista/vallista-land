@@ -12,10 +12,16 @@ const MOOD_FILE: &str = "mood.json";
 #[serde(rename_all = "camelCase")]
 pub struct Mood {
     pub date: String,
-    pub energy: f32,
-    pub mood: f32,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub energy: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub mood: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub note: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub retrospective_note: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub retrospective_at: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -88,7 +94,7 @@ fn validate_unit(name: &str, v: f32) -> Result<(), String> {
 
 #[tauri::command]
 pub fn list_mood(state: State<'_, AppState>) -> Result<Vec<Mood>, String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     all.sort_by(|a, b| a.date.cmp(&b.date));
     Ok(all)
 }
@@ -99,7 +105,7 @@ pub fn list_mood_in_range(
     end_date: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<Mood>, String> {
-    let all = load_all(&state.vault_root)?;
+    let all = load_all(&state.data_root)?;
     let mut filtered: Vec<Mood> = all
         .into_iter()
         .filter(|m| m.date >= start_date && m.date <= end_date)
@@ -110,7 +116,7 @@ pub fn list_mood_in_range(
 
 #[tauri::command]
 pub fn get_mood(date: String, state: State<'_, AppState>) -> Result<Option<Mood>, String> {
-    let all = load_all(&state.vault_root)?;
+    let all = load_all(&state.data_root)?;
     Ok(all.into_iter().find(|m| m.date == date))
 }
 
@@ -128,15 +134,17 @@ pub struct MoodInput {
 pub fn set_mood(input: MoodInput, state: State<'_, AppState>) -> Result<Mood, String> {
     validate_unit("energy", input.energy)?;
     validate_unit("mood", input.mood)?;
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     let now = now_iso();
     let entry = if let Some(idx) = all.iter().position(|m| m.date == input.date) {
         let existing = &all[idx];
         let updated = Mood {
             date: input.date,
-            energy: input.energy,
-            mood: input.mood,
+            energy: Some(input.energy),
+            mood: Some(input.mood),
             note: input.note.filter(|s| !s.is_empty()),
+            retrospective_note: existing.retrospective_note.clone(),
+            retrospective_at: existing.retrospective_at.clone(),
             created_at: existing.created_at.clone(),
             updated_at: now,
         };
@@ -145,26 +153,86 @@ pub fn set_mood(input: MoodInput, state: State<'_, AppState>) -> Result<Mood, St
     } else {
         let entry = Mood {
             date: input.date,
-            energy: input.energy,
-            mood: input.mood,
+            energy: Some(input.energy),
+            mood: Some(input.mood),
             note: input.note.filter(|s| !s.is_empty()),
+            retrospective_note: None,
+            retrospective_at: None,
             created_at: now.clone(),
             updated_at: now,
         };
         all.push(entry.clone());
         entry
     };
-    save_all(&state.vault_root, &all)?;
+    save_all(&state.data_root, &all)?;
+    Ok(entry)
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RetrospectiveInput {
+    pub date: String,
+    pub note: String,
+}
+
+#[tauri::command]
+pub fn set_retrospective(
+    input: RetrospectiveInput,
+    state: State<'_, AppState>,
+) -> Result<Mood, String> {
+    let mut all = load_all(&state.data_root)?;
+    let now = now_iso();
+    let trimmed = input.note.trim();
+    let note_opt = if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    };
+    let retro_at = if note_opt.is_some() {
+        Some(now.clone())
+    } else {
+        None
+    };
+
+    let entry = if let Some(idx) = all.iter().position(|m| m.date == input.date) {
+        let existing = &all[idx];
+        let updated = Mood {
+            date: input.date,
+            energy: existing.energy,
+            mood: existing.mood,
+            note: existing.note.clone(),
+            retrospective_note: note_opt,
+            retrospective_at: retro_at,
+            created_at: existing.created_at.clone(),
+            updated_at: now,
+        };
+        all[idx] = updated.clone();
+        updated
+    } else {
+        let entry = Mood {
+            date: input.date,
+            energy: None,
+            mood: None,
+            note: None,
+            retrospective_note: note_opt,
+            retrospective_at: retro_at,
+            created_at: now.clone(),
+            updated_at: now,
+        };
+        all.push(entry.clone());
+        entry
+    };
+    save_all(&state.data_root, &all)?;
     Ok(entry)
 }
 
 #[tauri::command]
 pub fn delete_mood(date: String, state: State<'_, AppState>) -> Result<(), String> {
-    let mut all = load_all(&state.vault_root)?;
+    let mut all = load_all(&state.data_root)?;
     let before = all.len();
     all.retain(|m| m.date != date);
     if all.len() == before {
         return Err(format!("mood entry not found: {}", date));
     }
-    save_all(&state.vault_root, &all)
+    save_all(&state.data_root, &all)
 }

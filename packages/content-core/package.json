@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "Pensmith content core — Doc model, frontmatter parsing, vault paths",
+  "description": "Bento content core — Doc model, frontmatter parsing, vault paths",
   "exports": {
     ".": "./src/index.ts",
     "./types": "./src/types.ts",

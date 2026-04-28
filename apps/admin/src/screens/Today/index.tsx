@@ -3,10 +3,12 @@ import type { Block, GleanItem, Mood, Task } from '@vallista/content-core';
 import {
   getMood,
   listBlocksByDate,
+  listBlocksInRange,
   listGlean,
   listMoodInRange,
   listTasks,
   setMood,
+  setRetrospective,
   updateTask,
 } from '../../lib/tauri';
 import {
@@ -14,9 +16,12 @@ import {
   Card,
   CardTitle,
   Eyebrow,
+  Input,
   Mono,
   Tag,
+  Textarea,
 } from '../../components/atoms/Atoms';
+import { StreakIcon } from '../../components/atoms/Icons';
 import { useNavigate } from '../../shell/nav';
 import { Timeline } from './Timeline';
 
@@ -30,13 +35,24 @@ export function Today() {
   const [glean, setGlean] = useState<GleanItem[] | null>(null);
   const [todayMood, setTodayMood] = useState<Mood | null | undefined>(undefined);
   const [moodRange, setMoodRange] = useState<Mood[] | null>(null);
+  const [routineBlocks, setRoutineBlocks] = useState<Block[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const today = todayKey(now);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(id);
+    const tick = () => setNow(new Date());
+    const id = setInterval(tick, 60_000);
+    const onVis = () => {
+      if (document.visibilityState === 'visible') tick();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('focus', tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('focus', tick);
+    };
   }, []);
 
   useEffect(() => {
@@ -56,6 +72,9 @@ export function Today() {
     listMoodInRange(start, today)
       .then(setMoodRange)
       .catch(() => setMoodRange([]));
+    listBlocksInRange(start, today)
+      .then(setRoutineBlocks)
+      .catch(() => setRoutineBlocks([]));
   }, [today]);
 
   const sortedBlocks = useMemo(() => {
@@ -73,18 +92,33 @@ export function Today() {
   const todayTasks = useMemo(() => {
     if (!tasks) return [];
     return tasks
-      .filter((t) => !t.done && t.due && dayKey(t.due) <= today)
-      .sort((a, b) => (a.due ?? '').localeCompare(b.due ?? ''));
+      .filter((t) => {
+        if (t.done) return false;
+        if (t.due && dayKey(t.due) <= today) return true;
+        if (t.startAt && dayKey(t.startAt) === today) return true;
+        return false;
+      })
+      .sort((a, b) => {
+        const ak =
+          a.startAt && dayKey(a.startAt) === today ? a.startAt : a.due ?? '';
+        const bk =
+          b.startAt && dayKey(b.startAt) === today ? b.startAt : b.due ?? '';
+        return ak.localeCompare(bk);
+      });
   }, [tasks, today]);
 
   const taskCounts = useMemo(() => {
     if (!tasks) return { done: 0, total: 0, overdue: 0 };
-    const todayPlus = tasks.filter(
-      (t) => t.due && dayKey(t.due) <= today,
+    const relevant = tasks.filter(
+      (t) =>
+        (t.due && dayKey(t.due) <= today) ||
+        (t.startAt && dayKey(t.startAt) === today),
     );
-    const done = todayPlus.filter((t) => t.done).length;
-    const overdue = todayPlus.filter((t) => !t.done && dayKey(t.due!) < today).length;
-    return { done, total: todayPlus.length, overdue };
+    const done = relevant.filter((t) => t.done).length;
+    const overdue = relevant.filter(
+      (t) => !t.done && t.due && dayKey(t.due) < today,
+    ).length;
+    return { done, total: relevant.length, overdue };
   }, [tasks, today]);
 
   const inboxRows = useMemo(() => {
@@ -112,6 +146,11 @@ export function Today() {
 
   const moodSeries = useMemo(() => buildMoodSeries(moodRange ?? [], today), [moodRange, today]);
 
+  const routineSummary = useMemo(
+    () => buildRoutineStreaks(routineBlocks ?? [], today),
+    [routineBlocks, today],
+  );
+
   const upsertTask = useCallback((task: Task) => {
     setTasks((prev) => {
       if (!prev) return [task];
@@ -127,6 +166,18 @@ export function Today() {
     async (energy: number, mood: number, note?: string) => {
       try {
         const updated = await setMood({ date: today, energy, mood, note });
+        setTodayMood(updated);
+      } catch (e: unknown) {
+        setError(String(e));
+      }
+    },
+    [today],
+  );
+
+  const handleRetrospectiveSubmit = useCallback(
+    async (note: string) => {
+      try {
+        const updated = await setRetrospective(today, note);
         setTodayMood(updated);
       } catch (e: unknown) {
         setError(String(e));
@@ -303,6 +354,26 @@ export function Today() {
           </div>
         </Card>
 
+        {routineSummary.length > 0 && (
+          <Card padded={false} style={{ marginBottom: 20 }}>
+            <div
+              style={{
+                padding: '14px 18px',
+                borderBottom: '1px solid var(--line)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <CardTitle>루틴 · 스트릭</CardTitle>
+              <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+                30일 · {routineSummary.length}개
+              </Mono>
+            </div>
+            <RoutineStreaks routines={routineSummary} />
+          </Card>
+        )}
+
         <div
           style={{
             display: 'grid',
@@ -343,6 +414,10 @@ export function Today() {
             loading={moodRange === null}
             onSubmit={handleMoodSubmit}
           />
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <RetrospectCard today={todayMood} onSubmit={handleRetrospectiveSubmit} />
         </div>
       </div>
     </div>
@@ -426,7 +501,7 @@ function MoodStat({ mood }: { mood: Mood | null | undefined }) {
   if (mood === undefined) {
     return <LifeStat label="컨디션" value="…" sub="읽는 중" tone="ok" />;
   }
-  if (!mood) {
+  if (!mood || mood.energy === undefined || mood.mood === undefined) {
     return <LifeStat label="컨디션" value="—" sub="아직 기록 안 함" tone="ok" />;
   }
   const energyPct = Math.round(mood.energy * 100);
@@ -792,8 +867,8 @@ function MoodCard({
 
   useEffect(() => {
     if (today) {
-      setEnergy(today.energy);
-      setMood(today.mood);
+      if (today.energy !== undefined) setEnergy(today.energy);
+      if (today.mood !== undefined) setMood(today.mood);
       setNote(today.note ?? '');
     }
   }, [today]);
@@ -817,7 +892,7 @@ function MoodCard({
           marginBottom: 14,
         }}
       >
-        <CardTitle>30일 · 컨디션</CardTitle>
+        <CardTitle>아침 컨디션 · 30일</CardTitle>
         <div
           style={{
             display: 'flex',
@@ -921,21 +996,11 @@ function MoodCard({
           color="var(--blue)"
         />
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <input
+          <Input
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="짧은 메모 (선택)"
-            style={{
-              flex: 1,
-              padding: '6px 10px',
-              borderRadius: 6,
-              border: '1px solid var(--line)',
-              background: 'var(--bg-input)',
-              color: 'var(--ink)',
-              fontSize: 12.5,
-              fontFamily: 'inherit',
-              outline: 'none',
-            }}
+            style={{ flex: 1, padding: '6px 10px', fontSize: 12.5 }}
           />
           <Button sm onClick={submit} disabled={busy}>
             {today ? '갱신' : '체크인'}
@@ -978,6 +1043,263 @@ function SliderRow({
       </Mono>
     </div>
   );
+}
+
+function RetrospectCard({
+  today,
+  onSubmit,
+}: {
+  today: Mood | null | undefined;
+  onSubmit: (note: string) => Promise<void>;
+}) {
+  const [note, setNote] = useState<string>(today?.retrospectiveNote ?? '');
+  const [busy, setBusy] = useState(false);
+  const isEvening = new Date().getHours() >= 18;
+
+  useEffect(() => {
+    if (today) {
+      setNote(today.retrospectiveNote ?? '');
+    }
+  }, [today]);
+
+  const submit = async () => {
+    setBusy(true);
+    try {
+      await onSubmit(note);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const recordedAt = today?.retrospectiveAt ? formatRel(today.retrospectiveAt) : null;
+  const dirty = note.trim() !== (today?.retrospectiveNote ?? '');
+
+  return (
+    <Card padded>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 12,
+          gap: 12,
+        }}
+      >
+        <CardTitle>저녁 회고</CardTitle>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {isEvening && !today?.retrospectiveNote && (
+            <Mono
+              style={{
+                fontSize: 10.5,
+                color: 'var(--blue)',
+                letterSpacing: '0.06em',
+              }}
+            >
+              저녁 · 시작하기 좋은 시간
+            </Mono>
+          )}
+          {recordedAt && (
+            <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+              {recordedAt}
+            </Mono>
+          )}
+        </div>
+      </div>
+      <Textarea
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder={
+          isEvening ? '오늘 하루를 짧게 적어보세요' : '잠자기 전에 돌아보세요'
+        }
+        rows={5}
+        style={{
+          width: '100%',
+          fontSize: 13.5,
+          lineHeight: 1.65,
+          resize: 'vertical',
+        }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          marginTop: 10,
+          gap: 8,
+          alignItems: 'center',
+        }}
+      >
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', flex: 1 }}>
+          {note.length > 0 ? `${note.length}자` : ' '}
+        </Mono>
+        <Button sm onClick={submit} disabled={busy || !dirty}>
+          {busy ? '저장 중…' : today?.retrospectiveNote ? '갱신' : '기록'}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+interface RoutineSummary {
+  title: string;
+  streak: number;
+  best: number;
+  rate: number;
+  scheduledDays: number;
+  doneDays: number;
+  cells: { date: string; state: 'done' | 'missed' | 'none' }[];
+}
+
+function RoutineStreaks({ routines }: { routines: RoutineSummary[] }) {
+  return (
+    <ul style={{ listStyle: 'none', margin: 0, padding: 6 }}>
+      {routines.map((r) => (
+        <li
+          key={r.title}
+          style={{
+            padding: '10px 12px',
+            display: 'grid',
+            gridTemplateColumns: '1fr auto',
+            gap: 10,
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ minWidth: 0 }}>
+            <div
+              style={{
+                fontSize: 13.5,
+                color: 'var(--ink)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                marginBottom: 6,
+              }}
+            >
+              {r.title}
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(30, 1fr)',
+                gap: 2,
+              }}
+            >
+              {r.cells.map((c) => (
+                <span
+                  key={c.date}
+                  title={`${c.date} · ${
+                    c.state === 'done' ? '완료' : c.state === 'missed' ? '놓침' : '없음'
+                  }`}
+                  style={{
+                    height: 12,
+                    borderRadius: 2,
+                    background:
+                      c.state === 'done'
+                        ? 'var(--ok)'
+                        : c.state === 'missed'
+                          ? 'var(--err-soft)'
+                          : 'var(--bg-shade)',
+                    opacity: c.state === 'none' ? 0.4 : 1,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              gap: 2,
+              minWidth: 64,
+            }}
+          >
+            <Mono
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: r.streak > 0 ? 'var(--ok)' : 'var(--ink-mute)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              {r.streak > 0 ? (
+                <>
+                  <StreakIcon size={11} />
+                  {r.streak}
+                </>
+              ) : (
+                '— 0'
+              )}
+            </Mono>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+              {r.doneDays}/{r.scheduledDays} · {Math.round(r.rate * 100)}%
+            </Mono>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-faint)' }}>최고 {r.best}</Mono>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function buildRoutineStreaks(blocks: Block[], today: string): RoutineSummary[] {
+  const routines = blocks.filter((b) => b.kind === 'routine');
+  if (routines.length === 0) return [];
+  const byTitle = new Map<string, Map<string, boolean>>();
+  for (const b of routines) {
+    const title = b.title.trim();
+    if (!title) continue;
+    let m = byTitle.get(title);
+    if (!m) {
+      m = new Map<string, boolean>();
+      byTitle.set(title, m);
+    }
+    const prev = m.get(b.date) ?? false;
+    m.set(b.date, prev || b.done);
+  }
+  const summaries: RoutineSummary[] = [];
+  for (const [title, dayMap] of byTitle) {
+    const cells: RoutineSummary['cells'] = [];
+    let scheduledDays = 0;
+    let doneDays = 0;
+    for (let i = 29; i >= 0; i--) {
+      const d = isoDaysAgo(today, i);
+      if (dayMap.has(d)) {
+        scheduledDays += 1;
+        if (dayMap.get(d)) {
+          doneDays += 1;
+          cells.push({ date: d, state: 'done' });
+        } else {
+          cells.push({ date: d, state: 'missed' });
+        }
+      } else {
+        cells.push({ date: d, state: 'none' });
+      }
+    }
+    let streak = 0;
+    for (let i = cells.length - 1; i >= 0; i--) {
+      const c = cells[i]!;
+      if (c.state === 'done') streak += 1;
+      else if (c.state === 'missed') break;
+      else if (i === cells.length - 1) continue;
+      else break;
+    }
+    let best = 0;
+    let cur = 0;
+    for (const c of cells) {
+      if (c.state === 'done') {
+        cur += 1;
+        if (cur > best) best = cur;
+      } else if (c.state === 'missed') {
+        cur = 0;
+      }
+    }
+    const rate = scheduledDays > 0 ? doneDays / scheduledDays : 0;
+    summaries.push({ title, streak, best, rate, scheduledDays, doneDays, cells });
+  }
+  summaries.sort((a, b) => b.streak - a.streak || b.scheduledDays - a.scheduledDays);
+  return summaries.slice(0, 6);
 }
 
 function EmptyState({ text }: { text: string }) {
@@ -1148,8 +1470,8 @@ function buildMoodSeries(records: Mood[], today: string): MoodSeriesEntry[] {
     const r = map.get(d);
     out.push({
       date: d,
-      energy: r ? r.energy : null,
-      mood: r ? r.mood : null,
+      energy: r?.energy ?? null,
+      mood: r?.mood ?? null,
     });
   }
   return out;
