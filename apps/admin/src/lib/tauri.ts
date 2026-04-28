@@ -232,6 +232,62 @@ export async function syncIcalFeeds(): Promise<IcalFeed[]> {
   return invoke<IcalFeed[]>('sync_ical_feeds');
 }
 
+export interface EventNote {
+  id: string;
+  eventKey: string;
+  seriesKey: string;
+  eventTitleSnapshot: string;
+  eventDateSnapshot: string;
+  body: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventNoteUpsertInput {
+  id?: string;
+  eventKey: string;
+  seriesKey: string;
+  eventTitleSnapshot: string;
+  eventDateSnapshot: string;
+  body: string;
+  tags?: string[];
+}
+
+export function eventNoteKeysFromBlock(block: Block, occurrenceDate?: string): {
+  eventKey: string;
+  seriesKey: string;
+} {
+  const date = occurrenceDate ?? block.date;
+  const source = block.source ?? 'local';
+  if (source === 'local' || !block.externalId) {
+    const key = `local:${block.id}`;
+    return { eventKey: key, seriesKey: key };
+  }
+  const seriesKey = `${source}:${block.externalId}`;
+  return { eventKey: `${seriesKey}@${date}`, seriesKey };
+}
+
+export async function listEventNotes(): Promise<EventNote[]> {
+  return invoke<EventNote[]>('list_event_notes');
+}
+
+export async function listEventNotesByEvent(eventKey: string): Promise<EventNote[]> {
+  return invoke<EventNote[]>('list_event_notes_by_event', { eventKey });
+}
+
+export async function listEventNotesBySeries(seriesKey: string): Promise<EventNote[]> {
+  return invoke<EventNote[]>('list_event_notes_by_series', { seriesKey });
+}
+
+export async function upsertEventNote(input: EventNoteUpsertInput): Promise<EventNote> {
+  return invoke<EventNote>('upsert_event_note', { input });
+}
+
+export async function deleteEventNote(id: string): Promise<void> {
+  await invoke('delete_event_note', { id });
+}
+
 export interface RssSyncResult {
   added: number;
   updated: number;
@@ -723,6 +779,11 @@ if (typeof window !== 'undefined') {
     addIcalFeed,
     removeIcalFeed,
     syncIcalFeeds,
+    listEventNotes,
+    listEventNotesByEvent,
+    listEventNotesBySeries,
+    upsertEventNote,
+    deleteEventNote,
     listRssFeeds,
     addRssFeed,
     removeRssFeed,

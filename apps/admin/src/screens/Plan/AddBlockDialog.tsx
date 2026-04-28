@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Block, BlockKind, BlockSource, KnownBlockKind } from '@vallista/content-core';
 import { Button, Eyebrow, Input, Mono } from '../../components/atoms/Atoms';
 import { BlockInfoView } from './BlockInfoView';
+import { EventNotesPanel } from './EventNotesPanel';
 
 const SOURCE_LABEL: Record<Exclude<BlockSource, 'local'>, string> = {
   gcal: 'Google · iCal 구독',
@@ -173,12 +174,15 @@ export function AddBlockDialog({
     >
       <div
         style={{
-          width: 'min(420px, 100%)',
+          width: 'min(480px, 100%)',
+          maxHeight: 'calc(100vh - 64px)',
           background: 'var(--bg)',
           border: '1px solid var(--line)',
           borderRadius: 12,
           boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -219,8 +223,17 @@ export function AddBlockDialog({
           )}
         </header>
         {readOnly && block ? (
-          <div style={{ padding: 18 }}>
+          <div
+            style={{
+              padding: 18,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              overflowY: 'auto',
+            }}
+          >
             <BlockInfoView block={block} showFooterNote={false} />
+            <EventNotesPanel block={block} />
           </div>
         ) : (
           <div
@@ -229,6 +242,7 @@ export function AddBlockDialog({
               display: 'flex',
               flexDirection: 'column',
               gap: 12,
+              overflowY: 'auto',
             }}
           >
             <Field label="제목">
@@ -353,6 +367,7 @@ export function AddBlockDialog({
             {error && (
               <Mono style={{ fontSize: 11, color: 'var(--err)' }}>{error}</Mono>
             )}
+            {editingId && block && <EventNotesPanel block={block} />}
           </div>
         )}
         <footer

@@ -4,12 +4,14 @@ import {
   getMood,
   listBlocksByDate,
   listBlocksInRange,
+  listEventNotes,
   listGlean,
   listMoodInRange,
   listTasks,
   setMood,
   setRetrospective,
   updateTask,
+  type EventNote,
 } from '../../lib/tauri';
 import {
   Button,
@@ -36,6 +38,7 @@ export function Today() {
   const [todayMood, setTodayMood] = useState<Mood | null | undefined>(undefined);
   const [moodRange, setMoodRange] = useState<Mood[] | null>(null);
   const [routineBlocks, setRoutineBlocks] = useState<Block[] | null>(null);
+  const [eventNotes, setEventNotes] = useState<EventNote[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const today = todayKey(now);
@@ -75,6 +78,9 @@ export function Today() {
     listBlocksInRange(start, today)
       .then(setRoutineBlocks)
       .catch(() => setRoutineBlocks([]));
+    listEventNotes()
+      .then(setEventNotes)
+      .catch(() => setEventNotes([]));
   }, [today]);
 
   const sortedBlocks = useMemo(() => {
@@ -150,6 +156,21 @@ export function Today() {
     () => buildRoutineStreaks(routineBlocks ?? [], today),
     [routineBlocks, today],
   );
+
+  const todayNotes = useMemo(() => {
+    const all = eventNotes ?? [];
+    const writtenToday = all.filter((n) => (n.updatedAt ?? '').slice(0, 10) === today);
+    const forTodayEvent = all.filter((n) => n.eventDateSnapshot === today);
+    const seen = new Set<string>();
+    const merged: EventNote[] = [];
+    for (const n of [...forTodayEvent, ...writtenToday]) {
+      if (seen.has(n.id)) continue;
+      seen.add(n.id);
+      merged.push(n);
+    }
+    merged.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return merged;
+  }, [eventNotes, today]);
 
   const upsertTask = useCallback((task: Task) => {
     setTasks((prev) => {
@@ -414,6 +435,10 @@ export function Today() {
             loading={moodRange === null}
             onSubmit={handleMoodSubmit}
           />
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <NotesCard notes={todayNotes} loading={eventNotes === null} />
         </div>
 
         <div style={{ marginBottom: 20 }}>
@@ -1042,6 +1067,94 @@ function SliderRow({
         {Math.round(value * 100)}
       </Mono>
     </div>
+  );
+}
+
+function NotesCard({
+  notes,
+  loading,
+}: {
+  notes: EventNote[];
+  loading: boolean;
+}) {
+  return (
+    <Card padded={false}>
+      <div
+        style={{
+          padding: '14px 18px',
+          borderBottom: '1px solid var(--line)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <CardTitle>일정 메모</CardTitle>
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+          {notes.length > 0 ? `${notes.length}건` : '비어 있음'}
+        </Mono>
+      </div>
+      {loading ? (
+        <Skeleton text="읽는 중…" />
+      ) : notes.length === 0 ? (
+        <EmptyState text="오늘 일정에 남긴 메모가 없습니다" />
+      ) : (
+        <ul style={{ listStyle: 'none', margin: 0, padding: 6 }}>
+          {notes.slice(0, 8).map((n) => (
+            <li
+              key={n.id}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                padding: '10px 12px',
+                borderRadius: 6,
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontSize: 11,
+                  color: 'var(--ink-mute)',
+                }}
+              >
+                <Mono style={{ fontSize: 10, color: 'var(--blue)' }}>
+                  {n.eventDateSnapshot}
+                </Mono>
+                <span
+                  style={{
+                    color: 'var(--ink-soft)',
+                    fontSize: 12,
+                    flex: 1,
+                    minWidth: 0,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {n.eventTitleSnapshot || '(제목 없음)'}
+                </span>
+                <Mono style={{ fontSize: 10, color: 'var(--ink-faint)' }}>
+                  {formatRel(n.updatedAt)}
+                </Mono>
+              </div>
+              <div
+                style={{
+                  fontSize: 12.5,
+                  color: 'var(--ink)',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  lineHeight: 1.5,
+                }}
+              >
+                {n.body}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }
 

@@ -1,5 +1,6 @@
 pub mod blocks;
 pub mod docs;
+pub mod event_notes;
 pub mod git;
 pub mod glean;
 pub mod insights;

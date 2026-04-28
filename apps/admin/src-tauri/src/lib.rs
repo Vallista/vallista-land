@@ -229,6 +229,12 @@ pub fn run() {
             commands::macos_cal::macos_cal_list,
             commands::macos_cal::macos_cal_import,
             commands::macos_cal::macos_cal_open_privacy,
+            // === life: event notes (캘린더 일정 메모 사이드카) ===
+            commands::event_notes::list_event_notes,
+            commands::event_notes::list_event_notes_by_event,
+            commands::event_notes::list_event_notes_by_series,
+            commands::event_notes::upsert_event_note,
+            commands::event_notes::delete_event_note,
             // === life: mood ===
             commands::mood::list_mood,
             commands::mood::list_mood_in_range,
