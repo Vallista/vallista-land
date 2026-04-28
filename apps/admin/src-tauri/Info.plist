@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Bento에서 macOS 캘린더의 일정을 가져와 일주일 일정과 합칠 수 있도록 캘린더 접근이 필요합니다.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Bento에서 macOS 캘린더의 일정을 가져와 일주일 일정과 합칠 수 있도록 캘린더 접근이 필요합니다.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>일정에 포함된 참석자 정보를 표시하기 위해 연락처 접근이 필요할 수 있습니다.</string>
+</dict>
+</plist>

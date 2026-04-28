@@ -5,6 +5,7 @@ pub mod glean;
 pub mod insights;
 pub mod keychain;
 pub mod llm;
+pub mod macos_cal;
 pub mod meta;
 pub mod mood;
 pub mod reports;

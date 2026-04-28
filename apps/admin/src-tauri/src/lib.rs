@@ -219,6 +219,11 @@ pub fn run() {
             commands::blocks::add_ical_feed,
             commands::blocks::remove_ical_feed,
             commands::blocks::sync_ical_feeds,
+            commands::macos_cal::macos_cal_status,
+            commands::macos_cal::macos_cal_request_access,
+            commands::macos_cal::macos_cal_list,
+            commands::macos_cal::macos_cal_import,
+            commands::macos_cal::macos_cal_open_privacy,
             // === life: mood ===
             commands::mood::list_mood,
             commands::mood::list_mood_in_range,
