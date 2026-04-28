@@ -7,10 +7,11 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::State;
 use walkdir::WalkDir;
 
-use crate::repo::{ensure_inside, AppState};
+use crate::repo::{ensure_inside, load_config, save_config, AppState};
 
-const REPORTS_DIR: &str = "contents/reports";
 const PREVIEW_CHARS: usize = 160;
+const LEGACY_REPORTS_SUBPATH: &str = "contents/reports";
+const LEGACY_NOTES_REPORTS_SUBPATH: &str = "contents/notes/reports";
 
 #[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -37,14 +38,21 @@ pub struct Report {
     pub metrics: Option<Value>,
 }
 
-fn reports_dir(root: &Path) -> PathBuf {
-    root.join(REPORTS_DIR)
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrateReportsReport {
+    pub copied: usize,
+    pub skipped: usize,
+    pub backup_path: String,
+}
+
+fn data_reports_dir(state: &AppState) -> PathBuf {
+    state.data_root.join("reports")
 }
 
 #[tauri::command]
 pub fn list_reports(state: State<'_, AppState>) -> Result<Vec<ReportSummary>, String> {
-    let root = &state.vault_root;
-    let dir = reports_dir(root);
+    let dir = data_reports_dir(&state);
     if !dir.is_dir() {
         return Ok(Vec::new());
     }
@@ -61,7 +69,7 @@ pub fn list_reports(state: State<'_, AppState>) -> Result<Vec<ReportSummary>, St
             Ok(s) => s,
             Err(_) => continue,
         };
-        let parsed = parse_report(&raw, path, root);
+        let parsed = parse_report(&raw, path, &dir);
         out.push(ReportSummary {
             id: parsed.id,
             period: parsed.period,
@@ -77,12 +85,139 @@ pub fn list_reports(state: State<'_, AppState>) -> Result<Vec<ReportSummary>, St
 
 #[tauri::command]
 pub fn read_report(path: String, state: State<'_, AppState>) -> Result<Report, String> {
-    let safe = ensure_inside(&state.vault_root, Path::new(&path))?;
+    let dir = data_reports_dir(&state);
+    let safe = ensure_inside(&dir, Path::new(&path))?;
     if !safe.is_file() {
         return Err(format!("report not found: {}", path));
     }
     let raw = fs::read_to_string(&safe).map_err(|e| e.to_string())?;
-    Ok(parse_report(&raw, &safe, &state.vault_root))
+    Ok(parse_report(&raw, &safe, &dir))
+}
+
+#[tauri::command]
+pub fn migrate_reports(state: State<'_, AppState>) -> Result<MigrateReportsReport, String> {
+    let cfg_check = load_config(&state.data_root);
+    if cfg_check.reports_migrated {
+        return Err("이미 보고서를 이전했습니다.".to_string());
+    }
+
+    let content_root = state.try_content_root().ok_or_else(|| {
+        "content root가 설정되어 있지 않아 이전할 보고서를 찾을 수 없습니다.".to_string()
+    })?;
+
+    let target_dir = data_reports_dir(&state);
+    fs::create_dir_all(&target_dir).map_err(|e| format!("대상 폴더 생성 실패: {}", e))?;
+
+    let timestamp = backup_timestamp();
+    let backup_root = state
+        .data_root
+        .join("backups")
+        .join(format!("reports-{}", timestamp));
+    fs::create_dir_all(&backup_root).map_err(|e| format!("백업 폴더 생성 실패: {}", e))?;
+
+    let legacy_paths = [
+        content_root.join(LEGACY_REPORTS_SUBPATH),
+        content_root.join(LEGACY_NOTES_REPORTS_SUBPATH),
+    ];
+
+    let mut copied = 0usize;
+    let mut skipped = 0usize;
+    let mut moved_sources: Vec<(PathBuf, PathBuf)> = Vec::new();
+
+    for legacy_dir in legacy_paths.iter() {
+        if !legacy_dir.is_dir() {
+            continue;
+        }
+        for entry in WalkDir::new(legacy_dir).into_iter().filter_map(|e| e.ok()) {
+            if !entry.file_type().is_file() {
+                continue;
+            }
+            let path = entry.path();
+            if path.extension().map_or(true, |e| e != "md") {
+                continue;
+            }
+            let file_name = match path.file_name().and_then(|s| s.to_str()) {
+                Some(name) => name.to_string(),
+                None => continue,
+            };
+            let target_path = target_dir.join(&file_name);
+            if target_path.exists() {
+                skipped += 1;
+                continue;
+            }
+            let raw = match fs::read(path) {
+                Ok(b) => b,
+                Err(e) => {
+                    rollback_moves(&moved_sources);
+                    return Err(format!("읽기 실패 {}: {}", path.display(), e));
+                }
+            };
+            if let Err(e) = fs::write(&target_path, &raw) {
+                rollback_moves(&moved_sources);
+                return Err(format!("쓰기 실패 {}: {}", target_path.display(), e));
+            }
+            let backup_target = backup_root.join(&file_name);
+            if backup_target.exists() {
+                let _ = fs::remove_file(&target_path);
+                rollback_moves(&moved_sources);
+                return Err(format!(
+                    "백업 충돌: {} (이미 존재). 작업을 중단합니다.",
+                    backup_target.display()
+                ));
+            }
+            if let Err(e) = fs::rename(path, &backup_target) {
+                let _ = fs::remove_file(&target_path);
+                rollback_moves(&moved_sources);
+                return Err(format!("원본 이동 실패 {}: {}", path.display(), e));
+            }
+            moved_sources.push((backup_target.clone(), path.to_path_buf()));
+            copied += 1;
+        }
+    }
+
+    let mut cfg = load_config(&state.data_root);
+    cfg.reports_migrated = true;
+    if let Err(e) = save_config(&state.data_root, &cfg) {
+        rollback_moves(&moved_sources);
+        return Err(format!("설정 저장 실패: {}", e));
+    }
+
+    Ok(MigrateReportsReport {
+        copied,
+        skipped,
+        backup_path: backup_root.to_string_lossy().to_string(),
+    })
+}
+
+fn rollback_moves(moved: &[(PathBuf, PathBuf)]) {
+    for (backup_target, original) in moved.iter().rev() {
+        if let Some(parent) = original.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        let _ = fs::rename(backup_target, original);
+    }
+}
+
+fn backup_timestamp() -> String {
+    let secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
+    iso_compact_from_unix(secs)
+}
+
+fn iso_compact_from_unix(secs: i64) -> String {
+    let days = secs.div_euclid(86_400);
+    let mut s = secs.rem_euclid(86_400);
+    let hour = (s / 3600) as u32;
+    s %= 3600;
+    let minute = (s / 60) as u32;
+    let second = (s % 60) as u32;
+    let (year, month, day) = civil_from_days(days);
+    format!(
+        "{:04}{:02}{:02}-{:02}{:02}{:02}",
+        year, month, day, hour, minute, second
+    )
 }
 
 fn parse_report(raw: &str, path: &Path, root: &Path) -> Report {

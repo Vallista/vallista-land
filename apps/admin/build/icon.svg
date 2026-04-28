@@ -1,46 +1,17 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#efeff2"/>
-    </linearGradient>
-    <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f34794"/>
-      <stop offset="1" stop-color="#d72670"/>
-    </linearGradient>
-    <linearGradient id="nib" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2a2a2e"/>
-      <stop offset="1" stop-color="#0f0f11"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2a2c"/>
+      <stop offset="1" stop-color="#161618"/>
     </linearGradient>
   </defs>
 
-  <g transform="translate(512 512) scale(0.833) translate(-512 -512)">
+  <g transform="translate(512 512) scale(0.805) translate(-512 -512)">
     <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="url(#bg)"/>
+    <rect x="6" y="6" width="1012" height="1012" rx="220" ry="220" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>
 
-    <path
-      d="M 380 250
-         L 644 250
-         Q 694 250 698 300
-         Q 704 420 682 515
-         Q 658 620 582 725
-         L 512 830
-         L 442 725
-         Q 366 620 342 515
-         Q 320 420 326 300
-         Q 330 250 380 250
-         Z"
-      fill="url(#nib)"
-    />
-
-    <circle cx="512" cy="465" r="36" fill="url(#bg)"/>
-
-    <rect x="506" y="465" width="12" height="345" rx="4" fill="url(#bg)"/>
-
-    <path
-      d="M 512 855
-         Q 548 905 512 940
-         Q 476 905 512 855 Z"
-      fill="url(#ink)"
-    />
+    <rect x="180" y="220" width="304" height="584" rx="40" ry="40" fill="none" stroke="#f5f5f7" stroke-width="20"/>
+    <rect x="540" y="220" width="304" height="276" rx="40" ry="40" fill="none" stroke="#f5f5f7" stroke-width="20"/>
+    <rect x="540" y="528" width="304" height="276" rx="40" ry="40" fill="none" stroke="#f5f5f7" stroke-width="20"/>
   </g>
 </svg>

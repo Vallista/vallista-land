@@ -3,6 +3,7 @@ pub mod docs;
 pub mod git;
 pub mod glean;
 pub mod insights;
+pub mod keychain;
 pub mod llm;
 pub mod meta;
 pub mod mood;

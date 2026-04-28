@@ -34,9 +34,11 @@ apps/admin/dist
 apps/admin/dist-electron
 apps/admin/release
 
-# Pensmith — local glean capture cache (vault root)
+# Bento — local glean capture cache (vault root)
 /glean
 /tasks.json
+/blocks.json
+/ical_feeds.json
 
 # Playwright MCP 테스트 산출물
 .playwright-mcp

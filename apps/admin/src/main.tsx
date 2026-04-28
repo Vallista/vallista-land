@@ -4,6 +4,9 @@ import './styles/global.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { applyInitialTweaks } from './components/Tweaks';
+
+applyInitialTweaks();
 
 const rootEl = document.getElementById('root');
 if (!rootEl) {

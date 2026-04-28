@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Pensmith",
+  "productName": "Bento",
   "version": "0.0.1",
-  "identifier": "com.vallista.pensmith",
+  "identifier": "com.vallista.bento",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5977",
@@ -13,14 +13,15 @@
     "windows": [
       {
         "label": "main",
-        "title": "Pensmith",
+        "title": "Bento",
         "width": 1440,
         "height": 920,
         "minWidth": 960,
         "minHeight": 600,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true,
-        "trafficLightPosition": { "x": 16, "y": 16 }
+        "trafficLightPosition": { "x": 16, "y": 16 },
+        "dragDropEnabled": false
       }
     ],
     "security": {
@@ -38,6 +39,9 @@
       "icons/icon.icns",
       "icons/icon.png"
     ],
-    "category": "public.app-category.developer-tools"
+    "category": "public.app-category.developer-tools",
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
   }
 }

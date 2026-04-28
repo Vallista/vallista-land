@@ -8,6 +8,8 @@ import type {
   Mood,
   Report,
   ReportSummary,
+  Summary,
+  SummaryKind,
   VaultInfo,
   GleanItem,
   GleanHighlight,
@@ -77,6 +79,13 @@ export async function updateGleanHighlights(
   return invoke<GleanItem>('update_glean_highlights', { id, highlights });
 }
 
+export async function updateGleanDigest(
+  id: string,
+  digest: string | null,
+): Promise<GleanItem> {
+  return invoke<GleanItem>('update_glean_digest', { id, digest });
+}
+
 export async function deleteGlean(id: string): Promise<void> {
   await invoke('delete_glean', { id });
 }
@@ -98,6 +107,11 @@ export interface TaskInput {
   title: string;
   due?: string;
   docId?: string;
+  estMin?: number;
+  startAt?: string;
+  tags?: string[];
+  notes?: string;
+  subtasks?: import('@vallista/content-core').Subtask[];
 }
 
 export interface TaskPatch {
@@ -105,6 +119,11 @@ export interface TaskPatch {
   done?: boolean;
   due?: string | null;
   docId?: string | null;
+  estMin?: number | null;
+  startAt?: string | null;
+  tags?: string[];
+  notes?: string | null;
+  subtasks?: import('@vallista/content-core').Subtask[];
 }
 
 export async function listTasks(): Promise<Task[]> {
@@ -130,10 +149,13 @@ export interface BlockInput {
   end: string;
   title: string;
   kind: BlockKind;
+  endDate?: string;
+  customLabel?: string;
   src?: string;
   attendees?: string[];
   source?: BlockSource;
   externalId?: string;
+  taskId?: string;
 }
 
 export interface BlockPatch {
@@ -142,10 +164,13 @@ export interface BlockPatch {
   end?: string;
   title?: string;
   kind?: BlockKind;
+  endDate?: string | null;
+  customLabel?: string | null;
   src?: string | null;
   attendees?: string[];
   done?: boolean;
   externalId?: string | null;
+  taskId?: string | null;
 }
 
 export async function listBlocks(): Promise<Block[]> {
@@ -207,6 +232,143 @@ export async function syncIcalFeeds(): Promise<IcalFeed[]> {
   return invoke<IcalFeed[]>('sync_ical_feeds');
 }
 
+export interface RssSyncResult {
+  added: number;
+  updated: number;
+  skipped: number;
+  total: number;
+  error?: string;
+}
+
+export interface RssFeed {
+  id: string;
+  label: string;
+  url: string;
+  sourceKind: string;
+  intervalMin: number;
+  enabled: boolean;
+  lastSyncedAt?: string | null;
+  lastResult?: RssSyncResult | null;
+  lastEtag?: string | null;
+  lastModified?: string | null;
+}
+
+export interface RssConfig {
+  defaultIntervalMin: number;
+  runOnAppStart: boolean;
+  maxConcurrent: number;
+  timeoutSec: number;
+  respectEtag: boolean;
+  autoSyncEnabled: boolean;
+}
+
+export interface RssFeedInput {
+  label: string;
+  url: string;
+  sourceKind?: string;
+  intervalMin?: number;
+}
+
+export interface RssFeedPatch {
+  label?: string;
+  intervalMin?: number;
+  enabled?: boolean;
+  sourceKind?: string;
+}
+
+export async function listRssFeeds(): Promise<RssFeed[]> {
+  return invoke<RssFeed[]>('list_rss_feeds');
+}
+
+export async function addRssFeed(input: RssFeedInput): Promise<RssFeed> {
+  return invoke<RssFeed>('add_rss_feed', { input });
+}
+
+export async function removeRssFeed(id: string): Promise<void> {
+  await invoke('remove_rss_feed', { id });
+}
+
+export async function updateRssFeed(id: string, patch: RssFeedPatch): Promise<RssFeed> {
+  return invoke<RssFeed>('update_rss_feed', { id, patch });
+}
+
+export async function syncRssFeed(id: string): Promise<RssSyncResult> {
+  return invoke<RssSyncResult>('sync_rss_feed', { id });
+}
+
+export async function syncRssFeeds(): Promise<Array<[string, RssSyncResult]>> {
+  return invoke<Array<[string, RssSyncResult]>>('sync_rss_feeds');
+}
+
+export async function getRssConfig(): Promise<RssConfig> {
+  return invoke<RssConfig>('get_rss_config');
+}
+
+export async function setRssConfig(input: RssConfig): Promise<RssConfig> {
+  return invoke<RssConfig>('set_rss_config', { input });
+}
+
+export interface MacosCalStatus {
+  available: boolean;
+  authorization:
+    | 'notDetermined'
+    | 'restricted'
+    | 'denied'
+    | 'writeOnly'
+    | 'fullAccess'
+    | 'unsupported'
+    | 'unknown';
+  message: string;
+}
+
+export interface MacosCalEvent {
+  title: string;
+  date: string;
+  start: string;
+  end: string;
+  calendar?: string | null;
+  location?: string | null;
+  uid?: string | null;
+  allDay: boolean;
+}
+
+export interface MacosCalImportReport {
+  total: number;
+  added: number;
+  updated: number;
+  skipped: number;
+  events: MacosCalEvent[];
+}
+
+export interface MacosCalImportArgs {
+  calendars?: string[];
+  daysBack?: number;
+  daysForward?: number;
+  dryRun?: boolean;
+}
+
+export async function macosCalStatus(): Promise<MacosCalStatus> {
+  return invoke<MacosCalStatus>('macos_cal_status');
+}
+
+export async function macosCalList(): Promise<string[]> {
+  return invoke<string[]>('macos_cal_list');
+}
+
+export async function macosCalImport(
+  args: MacosCalImportArgs,
+): Promise<MacosCalImportReport> {
+  return invoke<MacosCalImportReport>('macos_cal_import', { args });
+}
+
+export async function macosCalRequestAccess(): Promise<MacosCalStatus> {
+  return invoke<MacosCalStatus>('macos_cal_request_access');
+}
+
+export async function macosCalOpenPrivacy(): Promise<void> {
+  return invoke<void>('macos_cal_open_privacy');
+}
+
 export interface MoodInput {
   date: string;
   energy: number;
@@ -230,8 +392,43 @@ export async function setMood(input: MoodInput): Promise<Mood> {
   return invoke<Mood>('set_mood', { input });
 }
 
+export async function setRetrospective(date: string, note: string): Promise<Mood> {
+  return invoke<Mood>('set_retrospective', { input: { date, note } });
+}
+
 export async function deleteMood(date: string): Promise<void> {
   await invoke('delete_mood', { date });
+}
+
+export interface SummaryUpsertInput {
+  kind: SummaryKind;
+  period: string;
+  text: string;
+  metricsJson?: string;
+  model?: string;
+}
+
+export async function listSummaries(): Promise<Summary[]> {
+  return invoke<Summary[]>('list_summaries');
+}
+
+export async function getSummary(
+  kind: SummaryKind,
+  period: string,
+): Promise<Summary | null> {
+  return invoke<Summary | null>('get_summary', { kind, period });
+}
+
+export async function latestUnreadSummary(): Promise<Summary | null> {
+  return invoke<Summary | null>('latest_unread_summary');
+}
+
+export async function upsertSummary(input: SummaryUpsertInput): Promise<Summary> {
+  return invoke<Summary>('upsert_summary', { input });
+}
+
+export async function markSummaryRead(id: string): Promise<Summary> {
+  return invoke<Summary>('mark_summary_read', { id });
 }
 
 export async function listReports(): Promise<ReportSummary[]> {
@@ -240,6 +437,16 @@ export async function listReports(): Promise<ReportSummary[]> {
 
 export async function readReport(path: string): Promise<Report> {
   return invoke<Report>('read_report', { path });
+}
+
+export interface MigrateReportsReport {
+  copied: number;
+  skipped: number;
+  backupPath: string;
+}
+
+export async function migrateReports(): Promise<MigrateReportsReport> {
+  return invoke<MigrateReportsReport>('migrate_reports');
 }
 
 export interface LlmModelInfo {
@@ -336,6 +543,67 @@ export async function vaultInfo(): Promise<VaultInfo> {
   return invoke<VaultInfo>('vault_info');
 }
 
+export interface ContentRootStatus {
+  configured: boolean;
+  path: string | null;
+}
+
+export async function contentRootStatus(): Promise<ContentRootStatus> {
+  return invoke<ContentRootStatus>('content_root_status');
+}
+
+export async function pickContentRoot(): Promise<string | null> {
+  return invoke<string | null>('pick_content_root');
+}
+
+export async function setContentRoot(path: string): Promise<void> {
+  await invoke('set_content_root', { path });
+}
+
+export interface AppSetupStatus {
+  blogEnabled: boolean;
+  blogReady: boolean;
+  contentPath: string | null;
+  gitRemote: string | null;
+  gitBranch: string | null;
+  gitEmail: string | null;
+  gitName: string | null;
+  reportsMigrated: boolean;
+}
+
+export interface BlogConfigInput {
+  enabled: boolean;
+  contentPath?: string | null;
+  gitRemote?: string | null;
+  gitBranch?: string | null;
+  gitEmail?: string | null;
+  gitName?: string | null;
+}
+
+export async function appSetupStatus(): Promise<AppSetupStatus> {
+  return invoke<AppSetupStatus>('app_setup_status');
+}
+
+export async function setBlogConfig(input: BlogConfigInput): Promise<AppSetupStatus> {
+  return invoke<AppSetupStatus>('set_blog_config', { input });
+}
+
+export async function keychainSetToken(remote: string, token: string): Promise<void> {
+  await invoke('keychain_set_token', { remote, token });
+}
+
+export async function keychainHasToken(remote: string): Promise<boolean> {
+  return invoke<boolean>('keychain_has_token', { remote });
+}
+
+export async function keychainDeleteToken(remote: string): Promise<void> {
+  await invoke('keychain_delete_token', { remote });
+}
+
+export async function showQuick(kind: string): Promise<void> {
+  await invoke('show_quick_window', { kind });
+}
+
 export interface GitFile {
   path: string;
   status: string;
@@ -376,6 +644,14 @@ export async function gitLog(limit: number): Promise<GitCommit[]> {
 
 export async function gitCommitPush(input: CommitInput): Promise<GitCommit> {
   return invoke<GitCommit>('git_commit_push', { input });
+}
+
+export async function blogSetupWorkspace(): Promise<string> {
+  return invoke<string>('blog_setup_workspace');
+}
+
+export async function blogPull(): Promise<string> {
+  return invoke<string>('blog_pull');
 }
 
 export interface InsightsDocRef {
@@ -429,6 +705,7 @@ if (typeof window !== 'undefined') {
     addGlean,
     updateGleanStatus,
     updateGleanHighlights,
+    updateGleanDigest,
     deleteGlean,
     fetchUrl,
     listTasks,
@@ -446,11 +723,29 @@ if (typeof window !== 'undefined') {
     addIcalFeed,
     removeIcalFeed,
     syncIcalFeeds,
+    listRssFeeds,
+    addRssFeed,
+    removeRssFeed,
+    updateRssFeed,
+    syncRssFeed,
+    syncRssFeeds,
+    getRssConfig,
+    setRssConfig,
+    macosCalStatus,
+    macosCalRequestAccess,
+    macosCalList,
+    macosCalImport,
     listMood,
     listMoodInRange,
     getMood,
     setMood,
+    setRetrospective,
     deleteMood,
+    listSummaries,
+    getSummary,
+    latestUnreadSummary,
+    upsertSummary,
+    markSummaryRead,
     listReports,
     readReport,
     llmStatus,
@@ -466,7 +761,11 @@ if (typeof window !== 'undefined') {
     gitStatus,
     gitLog,
     gitCommitPush,
+    blogSetupWorkspace,
+    blogPull,
     computeInsights,
     vaultInfo,
+    appSetupStatus,
+    setBlogConfig,
   };
 }
