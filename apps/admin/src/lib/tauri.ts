@@ -135,6 +135,10 @@ export async function readAsset(path: string): Promise<AssetData> {
   return invoke<AssetData>('read_asset', { path });
 }
 
+export async function writeAsset(path: string, base64: string): Promise<void> {
+  await invoke('write_asset', { path, base64 });
+}
+
 export interface GleanPage {
   items: GleanItem[];
   total: number;
@@ -1463,6 +1467,7 @@ if (typeof window !== 'undefined') {
     readDoc,
     writeDoc,
     readAsset,
+    writeAsset,
     listGlean,
     gleanCounts,
     readGlean,

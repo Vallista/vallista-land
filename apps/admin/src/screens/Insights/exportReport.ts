@@ -32,13 +32,15 @@ export async function saveReport(input: ReportInput): Promise<ReportSaveResult> 
   const path = `contents/notes/reports/${slug}.md`;
   const existing = await readDoc(path);
   const now = new Date().toISOString();
+  const createdAt = existing.exists ? (extractCreatedAt(existing.raw) ?? now) : now;
   const front: Record<string, unknown> = {
     id: docId,
     title: `돌아보기 · ${input.rangeLabel}`,
     state: 'seed',
     tags: ['report', 'insights', input.rangeKey],
+    date: createdAt,
     source: { kind: 'report', range: input.rangeKey, startKey: input.startKey, endKey: input.endKey },
-    createdAt: existing.exists ? extractCreatedAt(existing.raw) ?? now : now,
+    createdAt,
     updatedAt: now,
   };
   const md = serializeDoc(front, buildBody(input));

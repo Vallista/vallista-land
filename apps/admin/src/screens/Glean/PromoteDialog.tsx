@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GleanItem } from '@vallista/content-core';
-import { writeDoc, updateGleanStatus, readDoc } from '../../lib/tauri';
+import { readDoc, updateGleanStatus, writeAsset, writeDoc } from '../../lib/tauri';
 import { serializeDoc } from '../Atelier/save';
 import { Input, Mono } from '../../components/atoms/Atoms';
+import { cleanThreadsText } from './ThreadsPostCard';
 
 type Props = {
   item: GleanItem;
@@ -15,6 +16,7 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const slugRef = useRef<HTMLInputElement | null>(null);
+  const imageCount = useMemo(() => splitBodyImages(item.body).images.length, [item.body]);
 
   useEffect(() => {
     slugRef.current?.focus();
@@ -43,15 +45,20 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
     setBusy(true);
     setError(null);
     try {
-      const path = `contents/notes/${cleanSlug}.md`;
-      const existing = await readDoc(path);
-      if (existing.exists) {
-        setError(`이미 존재합니다: ${path}`);
+      const dir = `contents/notes/${cleanSlug}`;
+      const path = `${dir}/index.md`;
+      const [asFolder, asFile] = await Promise.all([readDoc(path), readDoc(`${dir}.md`)]);
+      const taken = asFolder.exists ? path : asFile.exists ? `${dir}.md` : null;
+      if (taken) {
+        setError(`이미 존재합니다: ${taken}`);
         setBusy(false);
         return;
       }
       const docId = `note_${cleanSlug}`;
-      const md = buildSeedMarkdown(item, docId);
+      const { text, images } = splitBodyImages(item.body);
+      const imageRefs = await saveImages(dir, images);
+      const body = item.source === 'threads' ? cleanThreadsText(text) : text;
+      const md = buildSeedMarkdown(item, docId, body, imageRefs);
       await writeDoc(path, md);
       const updated = await updateGleanStatus(item.id, 'read', docId);
       onPromoted(updated);
@@ -127,6 +134,11 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
               하이라이트 {item.highlights.length}개가 본문에 인용됩니다
             </Mono>
           )}
+          {imageCount > 0 && (
+            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              이미지 {imageCount}장이 assets/ 폴더에 저장됩니다
+            </Mono>
+          )}
         </div>
         {error && (
           <div
@@ -191,17 +203,25 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
   );
 }
 
-function buildSeedMarkdown(item: GleanItem, docId: string): string {
+/** 블로그 notes 스키마가 `date`를 요구하므로 생성 시각을 함께 넣는다. */
+function buildSeedMarkdown(
+  item: GleanItem,
+  docId: string,
+  body: string,
+  imageRefs: string[],
+): string {
   const now = new Date().toISOString();
   const data: Record<string, unknown> = {
     id: docId,
     title: item.title || '(제목 없음)',
     state: 'seed',
     tags: [],
+    date: now,
     source: {
       kind: 'glean',
       gleanId: item.id,
       ...(item.url ? { url: item.url } : {}),
+      ...(item.publishedAt ? { publishedAt: item.publishedAt } : {}),
       fetchedAt: item.fetchedAt,
     },
     createdAt: now,
@@ -213,16 +233,16 @@ function buildSeedMarkdown(item: GleanItem, docId: string): string {
     lines.push(`> 출처: [${hostname(item.url) || item.url}](${item.url})`);
     lines.push('');
   }
-  if (item.excerpt) {
-    lines.push(item.excerpt);
-    lines.push('');
-  }
   if (item.highlights.length > 0) {
+    if (item.excerpt) {
+      lines.push(item.excerpt);
+      lines.push('');
+    }
     lines.push('## 하이라이트');
     lines.push('');
     const sorted = item.highlights.slice().sort((a, b) => a.range[0] - b.range[0]);
     for (const h of sorted) {
-      const text = item.body.slice(h.range[0], h.range[1]).trim();
+      const text = splitBodyImages(item.body.slice(h.range[0], h.range[1])).text;
       if (!text) continue;
       const quoted = text
         .split('\n')
@@ -235,13 +255,59 @@ function buildSeedMarkdown(item: GleanItem, docId: string): string {
       }
       lines.push('');
     }
-  } else if (item.body) {
+  } else if (body) {
     lines.push('## 거둔 본문');
     lines.push('');
-    lines.push(item.body);
+    lines.push(body);
+    lines.push('');
+  } else if (item.excerpt) {
+    lines.push(item.excerpt);
+    lines.push('');
+  }
+  for (const ref of imageRefs) {
+    lines.push(`![](${ref})`);
     lines.push('');
   }
   return serializeDoc(data, lines.join('\n').trimEnd() + '\n');
+}
+
+/** 본문의 `[img]<url | data URI>` 마커 줄을 텍스트와 분리한다. */
+function splitBodyImages(body: string): { text: string; images: string[] } {
+  if (!body) return { text: '', images: [] };
+  const images: string[] = [];
+  const textLines: string[] = [];
+  for (const line of body.split('\n')) {
+    if (line.startsWith('[img]')) images.push(line.slice(5).trim());
+    else textLines.push(line);
+  }
+  return { text: textLines.join('\n').trim(), images };
+}
+
+/** data URI 이미지는 `<dir>/assets/N.<ext>` 파일로 쓰고, 외부 URL은 그대로 참조한다. */
+async function saveImages(dir: string, images: string[]): Promise<string[]> {
+  const refs: string[] = [];
+  let n = 0;
+  for (const src of images) {
+    const data = parseDataUri(src);
+    if (!data) {
+      if (/^https?:\/\//i.test(src)) refs.push(src);
+      continue;
+    }
+    const rel = `assets/${n}.${data.ext}`;
+    await writeAsset(`${dir}/${rel}`, data.base64);
+    refs.push(rel);
+    n += 1;
+  }
+  return refs;
+}
+
+function parseDataUri(src: string): { ext: string; base64: string } | null {
+  const m = /^data:image\/([a-z0-9.+-]+);base64,(.+)$/i.exec(src);
+  const subtype = m?.[1]?.toLowerCase();
+  const base64 = m?.[2];
+  if (!subtype || !base64) return null;
+  const ext = subtype === 'jpeg' ? 'jpg' : subtype === 'svg+xml' ? 'svg' : subtype;
+  return { ext, base64 };
 }
 
 function hostname(url: string): string {

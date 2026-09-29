@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
@@ -283,6 +284,8 @@ pub fn persist_content_root(data_root: &Path, path: &Path) -> Result<(), String>
     save_config(data_root, &cfg)
 }
 
+/// root 안의 경로만 허용한다. 아직 없는 경로는 존재하는 가장 가까운 조상을 canonicalize한 뒤
+/// 나머지 구성요소를 잇는다(`..`로 끝나는 구성요소는 거부). 여러 단계의 새 디렉터리도 허용.
 pub fn ensure_inside(root: &Path, target: &Path) -> Result<PathBuf, String> {
     let abs = if target.is_absolute() {
         target.to_path_buf()
@@ -292,23 +295,23 @@ pub fn ensure_inside(root: &Path, target: &Path) -> Result<PathBuf, String> {
     let canonical_root = root
         .canonicalize()
         .map_err(|e| format!("canonicalize root: {}", e))?;
-    let canonical_abs = if abs.exists() {
-        abs.canonicalize()
-            .map_err(|e| format!("canonicalize target: {}", e))?
-    } else if let Some(parent) = abs.parent() {
-        if !parent.exists() {
-            return Err(format!("parent does not exist: {}", parent.display()));
-        }
-        let canon_parent = parent
-            .canonicalize()
-            .map_err(|e| format!("canonicalize parent: {}", e))?;
-        let name = abs
+    let mut existing = abs.as_path();
+    let mut pending: Vec<&OsStr> = Vec::new();
+    while !existing.exists() {
+        let name = existing
             .file_name()
-            .ok_or_else(|| "missing file name".to_string())?;
-        canon_parent.join(name)
-    } else {
-        return Err("invalid path".into());
-    };
+            .ok_or_else(|| "invalid path".to_string())?;
+        pending.push(name);
+        existing = existing
+            .parent()
+            .ok_or_else(|| "invalid path".to_string())?;
+    }
+    let mut canonical_abs = existing
+        .canonicalize()
+        .map_err(|e| format!("canonicalize target: {}", e))?;
+    for name in pending.iter().rev() {
+        canonical_abs.push(name);
+    }
     if !canonical_abs.starts_with(&canonical_root) {
         return Err(format!(
             "path escapes content root: {}",

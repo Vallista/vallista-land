@@ -289,6 +289,23 @@ pub fn read_asset(path: String, state: State<'_, AppState>) -> Result<AssetData,
     })
 }
 
+#[tauri::command]
+pub fn write_asset(
+    path: String,
+    base64: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let root = state.content_root()?;
+    let safe = ensure_inside(&root, Path::new(&path))?;
+    let bytes = general_purpose::STANDARD
+        .decode(base64.trim())
+        .map_err(|e| format!("base64 decode: {}", e))?;
+    if let Some(parent) = safe.parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    fs::write(&safe, bytes).map_err(|e| e.to_string())
+}
+
 fn guess_mime(path: &Path) -> String {
     let ext = path
         .extension()
