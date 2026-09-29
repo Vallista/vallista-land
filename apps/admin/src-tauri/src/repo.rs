@@ -40,7 +40,7 @@ pub fn require_blog_enabled(data_root: &Path) -> Result<(), String> {
     Ok(())
 }
 
-pub const CONFIG_VERSION: u32 = 3;
+pub const CONFIG_VERSION: u32 = 4;
 
 #[derive(Serialize, Deserialize, Default, Clone)]
 pub struct AppConfig {
@@ -54,6 +54,61 @@ pub struct AppConfig {
     pub rss: RssConfig,
     #[serde(default, rename = "reportsMigrated")]
     pub reports_migrated: bool,
+    #[serde(default)]
+    pub app: AppPersonalization,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AppPersonalization {
+    #[serde(default = "default_app_name")]
+    pub app_name: String,
+    #[serde(default)]
+    pub app_url: String,
+    #[serde(default = "default_keychain_service")]
+    pub keychain_service: String,
+    #[serde(default = "default_articles_dir")]
+    pub articles_dir: String,
+    #[serde(default = "default_notes_dir")]
+    pub notes_dir: String,
+}
+
+impl Default for AppPersonalization {
+    fn default() -> Self {
+        Self {
+            app_name: default_app_name(),
+            app_url: String::new(),
+            keychain_service: default_keychain_service(),
+            articles_dir: default_articles_dir(),
+            notes_dir: default_notes_dir(),
+        }
+    }
+}
+
+fn default_app_name() -> String {
+    "Bento".to_string()
+}
+fn default_keychain_service() -> String {
+    "bento.git".to_string()
+}
+fn default_articles_dir() -> String {
+    "contents/articles".to_string()
+}
+fn default_notes_dir() -> String {
+    "contents/notes".to_string()
+}
+
+pub fn build_user_agent(p: &AppPersonalization) -> String {
+    let name = if p.app_name.is_empty() {
+        "Bento"
+    } else {
+        p.app_name.as_str()
+    };
+    if p.app_url.is_empty() {
+        format!("{}/1.0", name)
+    } else {
+        format!("{}/1.0 (+{})", name, p.app_url)
+    }
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
@@ -158,37 +213,36 @@ fn migrate_config(mut cfg: AppConfig) -> (AppConfig, bool) {
         cfg.version = 3;
         changed = true;
     }
+    if cfg.version < 4 {
+        // AppPersonalization added — defaults applied by serde
+        cfg.version = 4;
+        changed = true;
+    }
     (cfg, changed)
 }
 
 pub fn validate_content_root(p: &Path) -> bool {
-    p.join("pnpm-workspace.yaml").is_file() && p.join("contents").is_dir()
+    p.is_dir()
+}
+
+fn looks_like_content_root(p: &Path) -> bool {
+    p.is_dir() && p.join("contents").is_dir()
 }
 
 fn auto_detect_content_root() -> Option<PathBuf> {
-    if let Ok(v) = std::env::var("VALLISTA_REPO_ROOT") {
-        let p = PathBuf::from(v);
-        if validate_content_root(&p) {
-            return Some(p);
-        }
-    }
-
-    if let Some(home) = std::env::var_os("HOME") {
-        let home = PathBuf::from(home);
-        let candidates = [
-            home.join("Desktop/projects/vallista-land"),
-            home.join("projects/vallista-land"),
-        ];
-        for c in &candidates {
-            if validate_content_root(c) {
-                return Some(c.clone());
+    // BENTO_CONTENT_ROOT 우선, VALLISTA_REPO_ROOT 하위호환
+    for var in &["BENTO_CONTENT_ROOT", "VALLISTA_REPO_ROOT"] {
+        if let Ok(v) = std::env::var(var) {
+            let p = PathBuf::from(v);
+            if validate_content_root(&p) {
+                return Some(p);
             }
         }
     }
 
     if let Ok(cwd) = std::env::current_dir() {
         for ancestor in cwd.ancestors() {
-            if validate_content_root(ancestor) {
+            if looks_like_content_root(ancestor) {
                 return Some(ancestor.to_path_buf());
             }
         }
@@ -219,10 +273,7 @@ pub fn resolve_content_root(data_root: &Path) -> Option<PathBuf> {
 
 pub fn persist_content_root(data_root: &Path, path: &Path) -> Result<(), String> {
     if !validate_content_root(path) {
-        return Err(format!(
-            "선택한 디렉토리에 pnpm-workspace.yaml과 contents/가 없습니다: {}",
-            path.display()
-        ));
+        return Err(format!("유효하지 않은 디렉토리입니다: {}", path.display()));
     }
     let mut cfg = load_config(data_root);
     let s = path.to_string_lossy().to_string();

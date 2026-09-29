@@ -1,18 +1,44 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { listen } from '@tauri-apps/api/event';
 import { BrandMark, IconBtn, Kbd, Mono, StatusDot } from '../components/atoms/Atoms';
-import { listDocs, listGlean, listTasks, llmStatus, vaultInfo } from '../lib/tauri';
-import type { LlmStatus } from '../lib/tauri';
+import { ClipboardHistoryPanel } from '../components/ClipboardHistoryPanel';
+import {
+  clipboardHistoryPruneByDays,
+  getMemoryInfo,
+  gleanCounts,
+  listDocs,
+  listTasks,
+  llmStatus,
+  mailUnreadCountAll,
+  startWindowDrag,
+  vaultInfo,
+} from '../lib/tauri';
+import type { LlmStatus, MemoryInfo } from '../lib/tauri';
 import type { VaultInfo } from '@vallista/content-core';
 import type { QuickKind } from '../components/QuickEntry';
+import { CLIPBOARD_SETTINGS_EVENT } from '../components/Tweaks';
+
+function readClipboardSettings() {
+  return {
+    enabled: window.localStorage.getItem('bento.clipboard.enabled') !== 'false',
+    pollMs: parseInt(window.localStorage.getItem('bento.clipboard.pollMs') ?? '2000', 10) || 2000,
+    maxItems: parseInt(window.localStorage.getItem('bento.clipboard.maxItems') ?? '200', 10) || 200,
+    retainDays: parseInt(window.localStorage.getItem('bento.clipboard.retainDays') ?? '0', 10) || 0,
+  };
+}
 
 export type ScreenId =
   | 'today'
   | 'thoughts'
   | 'plan'
+  | 'radar'
   | 'glean'
+  | 'health'
   | 'atelier'
   | 'publish'
-  | 'insights';
+  | 'insights'
+  | 'review'
+  | 'mail';
 
 interface SidebarItem {
   id: ScreenId;
@@ -32,9 +58,10 @@ interface Counts {
   plan?: number;
   planBadge?: string;
   glean?: number;
-  gleanBadge?: string;
   atelier?: number;
   thoughts?: number;
+  mailUnread?: number;
+  radarAlerts?: number;
 }
 
 function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
@@ -45,7 +72,10 @@ function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
         { id: 'today', label: '오늘', icon: '⊙' },
         { id: 'thoughts', label: '생각', icon: '⌇', count: counts.thoughts },
         { id: 'plan', label: '할 일', icon: '☐', count: counts.plan, badge: counts.planBadge },
-        { id: 'glean', label: '줍기', icon: '⊞', count: counts.glean, badge: counts.gleanBadge },
+        { id: 'radar', label: '레이더', icon: '◎', badge: counts.radarAlerts ? String(counts.radarAlerts) : undefined },
+        { id: 'glean', label: '줍기', icon: '⊞', count: counts.glean },
+        { id: 'health', label: '헬스', icon: '◉' },
+        { id: 'mail', label: '메일', icon: '✉', count: counts.mailUnread },
       ],
     },
   ];
@@ -60,7 +90,10 @@ function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
   }
   sections.push({
     label: '돌아보기',
-    items: [{ id: 'insights', label: '돌아보기', icon: '◈' }],
+    items: [
+      { id: 'insights', label: '돌아보기', icon: '◈' },
+      { id: 'review', label: '회고', icon: '⟳' },
+    ],
   });
   return sections;
 }
@@ -85,12 +118,12 @@ function Sidebar({ active, onSelect, vault, llm, counts, collapsed, blogEnabled,
           flex: '0 0 56px',
           width: 56,
           borderRight: '1px solid var(--line)',
-          padding: '14px 0 18px',
+          padding: 'var(--gap-lg) 0 var(--gap-lg)',
           background: 'var(--bg-soft)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 6,
+          gap: 'var(--gap)',
           overflowY: 'auto',
           height: '100%',
         }}
@@ -109,16 +142,16 @@ function Sidebar({ active, onSelect, vault, llm, counts, collapsed, blogEnabled,
         flex: '0 0 var(--sidebar-w)',
         width: 'var(--sidebar-w)',
         borderRight: '1px solid var(--line)',
-        padding: '14px 10px 18px',
+        padding: 'var(--gap-lg) var(--gap) calc(var(--gap-lg) + 6px)',
         background: 'var(--bg-soft)',
         display: 'flex',
         flexDirection: 'column',
-        gap: 12,
+        gap: 'var(--gap-lg)',
         overflowY: 'auto',
         height: '100%',
       }}
     >
-      <div style={{ padding: '4px 10px 10px', display: 'flex', alignItems: 'center' }}>
+      <div style={{ padding: '4px var(--gap) var(--gap)', display: 'flex', alignItems: 'center' }}>
         <BrandMark name="Bento" />
       </div>
 
@@ -128,7 +161,7 @@ function Sidebar({ active, onSelect, vault, llm, counts, collapsed, blogEnabled,
         ))}
       </nav>
 
-      <div style={{ marginTop: 'auto', padding: '0 10px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ marginTop: 'auto', padding: '0 var(--gap)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
         <LlmCard llm={llm} onClick={onOpenLLMSetup} />
         {blogEnabled && <VaultCard vault={vault} />}
         <div style={{ marginTop: 4, fontSize: 10, color: 'var(--ink-mute)', fontFamily: 'var(--font-mono)' }}>
@@ -155,7 +188,7 @@ function CollapsedRow({
       title={item.label}
       style={{
         width: 36,
-        height: 32,
+        height: 'var(--row-h)',
         borderRadius: 6,
         border: 'none',
         background: isActive ? 'var(--bg-shade)' : 'transparent',
@@ -193,7 +226,7 @@ function SectionBlock({
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
           color: 'var(--ink-mute)',
-          padding: si === 0 ? '8px 10px 4px' : '18px 10px 4px',
+          padding: si === 0 ? 'var(--gap) var(--gap) 4px' : 'var(--gap-lg) var(--gap) 4px',
         }}
       >
         {sec.label}
@@ -232,7 +265,8 @@ function SidebarRow({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '7px 10px',
+        minHeight: 'var(--row-h)',
+        padding: '0 var(--gap)',
         borderRadius: 6,
         border: 'none',
         background: isActive ? 'var(--bg-shade)' : 'transparent',
@@ -327,7 +361,7 @@ function LlmCard({ llm, onClick }: { llm: LlmStatus | null; onClick?: () => void
       onClick={onClick}
       title="로컬 LLM 설정"
       style={{
-        padding: '10px 12px',
+        padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
         background: 'var(--bg)',
         border: '1px solid var(--line)',
         borderRadius: 8,
@@ -363,7 +397,7 @@ function VaultCard({ vault }: { vault: VaultInfo | null }) {
   return (
     <div
       style={{
-        padding: '10px 12px',
+        padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
         background: 'var(--bg)',
         border: '1px solid var(--line)',
         borderRadius: 8,
@@ -388,27 +422,29 @@ function trimGguf(name: string): string {
 }
 
 function Topbar({
-  llm,
   onToggleSidebar,
   onOpenSearch,
   onOpenQuick,
   onOpenTweaks,
+  onOpenClipboard,
+  memInfo,
 }: {
-  llm: LlmStatus | null;
   onToggleSidebar: () => void;
   onOpenSearch: () => void;
   onOpenQuick: (kind: QuickKind) => void;
   onOpenTweaks: () => void;
+  onOpenClipboard: () => void;
+  memInfo: MemoryInfo | null;
 }) {
-  const running = !!llm?.running;
   return (
     <header
+      onMouseDown={startWindowDrag}
       style={{
         height: 'var(--topbar-h)',
         flex: '0 0 var(--topbar-h)',
         display: 'flex',
         alignItems: 'center',
-        padding: '0 10px 0 0',
+        padding: '0 var(--gap) 0 0',
         background: 'var(--bg-soft)',
         borderBottom: '1px solid var(--line)',
         position: 'relative',
@@ -430,7 +466,7 @@ function Topbar({
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
-          padding: '0 16px',
+          padding: '0 var(--gap-lg)',
         }}
       >
         <button
@@ -441,8 +477,8 @@ function Topbar({
             gap: 8,
             width: '100%',
             maxWidth: '32vw',
-            height: 28,
-            padding: '0 10px',
+            height: 'var(--btn-h)',
+            padding: '0 var(--gap)',
             background: 'var(--bg)',
             border: '1px solid var(--line)',
             borderRadius: 6,
@@ -470,36 +506,6 @@ function Topbar({
           gap: 6,
         }}
       >
-        {running && (
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              height: 22,
-              fontSize: 10,
-              color: 'var(--blue)',
-              background: 'var(--blue-soft)',
-              padding: '0 8px',
-              borderRadius: 999,
-              fontFamily: 'var(--font-mono)',
-              fontVariantNumeric: 'tabular-nums',
-              letterSpacing: '0.05em',
-              whiteSpace: 'nowrap',
-              lineHeight: 1,
-            }}
-          >
-            <span
-              style={{
-                width: 5,
-                height: 5,
-                borderRadius: 999,
-                background: 'var(--blue)',
-              }}
-            />
-            ondevice
-          </span>
-        )}
         <QuickActionBtn
           title="빠른 생각 (⌘N)"
           onClick={() => onOpenQuick('thought')}
@@ -520,6 +526,14 @@ function Topbar({
             <path d="M5 7.5 6.5 9 9 5.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </QuickActionBtn>
+        <QuickActionBtn title="클립보드 히스토리 (⌘⇧C)" onClick={onOpenClipboard} accent="var(--ink-2)">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ display: 'block' }}>
+            <rect x="3" y="2" width="8" height="10" rx="1" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M5 2V1.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5V2" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+            <path d="M5 5.5h4M5 7.5h3" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
+          </svg>
+        </QuickActionBtn>
+        <MemBtn info={memInfo} />
         <QuickActionBtn title="설정 (⌘,)" onClick={onOpenTweaks} accent="var(--ink)">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ display: 'block' }}>
             <circle cx="7" cy="7" r="2" stroke="currentColor" strokeWidth="1.2" />
@@ -533,6 +547,114 @@ function Topbar({
         </QuickActionBtn>
       </div>
     </header>
+  );
+}
+
+function fmtBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function MemBtn({ info }: { info: MemoryInfo | null }) {
+  const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [popPos, setPopPos] = useState({ top: 0, right: 0 });
+
+  const rssMB = info ? (info.processRssBytes / 1024 / 1024).toFixed(0) : '…';
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPopPos({ top: rect.bottom + 6, right: window.innerWidth - rect.right });
+    }
+    setOpen((v) => !v);
+  };
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        title="메모리 사용량"
+        onClick={handleClick}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'var(--line-strong)';
+          e.currentTarget.style.color = 'var(--ink-2)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--line)';
+          e.currentTarget.style.color = 'var(--ink-mute)';
+        }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          height: 'var(--btn-h)',
+          padding: '0 7px',
+          border: '1px solid var(--line)',
+          background: 'var(--bg)',
+          color: 'var(--ink-mute)',
+          borderRadius: 6,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 10.5,
+          letterSpacing: '0.02em',
+          boxSizing: 'border-box',
+          transition: 'color 120ms, border-color 120ms',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {rssMB} MB
+      </button>
+      {open && info && (
+        <>
+          <div
+            onClick={() => setOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 9998 }}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: popPos.top,
+              right: popPos.right,
+              zIndex: 9999,
+              background: 'var(--bg-soft)',
+              border: '1px solid var(--line)',
+              borderRadius: 8,
+              padding: '10px 12px',
+              minWidth: 200,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+            }}
+          >
+            <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+              메모리
+            </Mono>
+            <MemRow label="프로세스 RSS" value={fmtBytes(info.processRssBytes)} highlight />
+            <div style={{ borderTop: '1px solid var(--line)', margin: '2px 0' }} />
+            <Mono style={{ fontSize: 9, color: 'var(--ink-mute)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              데이터 파일
+            </Mono>
+            <MemRow label="캘린더/블록" value={fmtBytes(info.blocksBytes)} />
+            <MemRow label="할 일" value={fmtBytes(info.tasksBytes)} />
+            <MemRow label="일정 메모" value={fmtBytes(info.eventNotesBytes)} />
+            <MemRow label="줍기" value={fmtBytes(info.gleanBytes)} />
+            <MemRow label="기타" value={fmtBytes(info.otherBytes)} />
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function MemRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+      <Mono style={{ fontSize: 10.5, color: highlight ? 'var(--ink-2)' : 'var(--ink-soft)' }}>{label}</Mono>
+      <Mono style={{ fontSize: 10.5, color: highlight ? 'var(--ink)' : 'var(--ink-mute)' }}>{value}</Mono>
+    </div>
   );
 }
 
@@ -563,8 +685,8 @@ function QuickActionBtn({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 28,
-        height: 28,
+        width: 'var(--btn-h)',
+        height: 'var(--btn-h)',
         padding: 0,
         border: '1px solid var(--line)',
         background: 'var(--bg)',
@@ -604,11 +726,31 @@ export function Shell({
 }) {
   const [vault, setVault] = useState<VaultInfo | null>(null);
   const [llm, setLlm] = useState<LlmStatus | null>(null);
+  const [memInfo, setMemInfo] = useState<MemoryInfo | null>(null);
   const [counts, setCounts] = useState<Counts>({});
+  const [clipPanelOpen, setClipPanelOpen] = useState(false);
+  const [clipSettings, setClipSettings] = useState(readClipboardSettings);
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem('bento.sidebar.collapsed') === '1';
   });
+
+  const refreshGleanCount = useCallback(async () => {
+    const counts = await gleanCounts().catch(() => null);
+    const unread = counts?.byStatus['unread'] ?? 0;
+    setCounts((prev) => ({
+      ...prev,
+      glean: unread || undefined,
+    }));
+  }, []);
+
+  useEffect(() => {
+    const unsubs: Array<() => void> = [];
+    listen('bento:rss-synced', () => void refreshGleanCount()).then((fn) => unsubs.push(fn));
+    listen('bento:threads-synced', () => void refreshGleanCount()).then((fn) => unsubs.push(fn));
+    listen('bento:glean-changed', () => void refreshGleanCount()).then((fn) => unsubs.push(fn));
+    return () => unsubs.forEach((fn) => fn());
+  }, [refreshGleanCount]);
 
   useEffect(() => {
     setCounts((prev) => ({ ...prev, thoughts: thoughtsCount }));
@@ -630,10 +772,10 @@ export function Shell({
     let cancelled = false;
     const refreshCounts = async () => {
       try {
-        const [docs, tasks, glean] = await Promise.all([
+        const [docs, tasks, gc] = await Promise.all([
           blogEnabled ? listDocs().catch(() => []) : Promise.resolve([]),
           listTasks().catch(() => []),
-          listGlean().catch(() => []),
+          gleanCounts().catch(() => null),
         ]);
         if (cancelled) return;
         const undoneTasks = tasks.filter((t) => !t.done).length;
@@ -641,14 +783,13 @@ export function Shell({
           const today = todayKey();
           return tasks.filter((t) => !t.done && t.due && dayKey(t.due) <= today).length;
         })();
-        const unreadGlean = glean.filter((g) => g.status === 'unread').length;
+        const unreadGlean = gc?.byStatus['unread'] ?? 0;
         setCounts((prev) => ({
           ...prev,
           atelier: docs.length,
           plan: undoneTasks,
           planBadge: overdueTasks > 0 ? String(overdueTasks) : undefined,
-          glean: glean.length,
-          gleanBadge: unreadGlean > 0 ? String(unreadGlean) : undefined,
+          glean: unreadGlean || undefined,
         }));
       } catch {
         if (!cancelled) setCounts({});
@@ -678,14 +819,86 @@ export function Shell({
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const m = await getMemoryInfo();
+        if (!cancelled) setMemInfo(m);
+      } catch {
+        // 실패 시 무시
+      }
+    };
+    tick();
+    const id = setInterval(tick, 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const n = await mailUnreadCountAll();
+        if (!cancelled) setCounts((prev) => ({ ...prev, mailUnread: n || undefined }));
+      } catch {
+        // 계정 미설정 등 실패 시 조용히 무시
+      }
+    };
+    tick();
+    const id = setInterval(tick, 300_000);
+
+    const onDelta = (e: Event) => {
+      const { delta } = (e as CustomEvent<{ delta: number }>).detail;
+      setCounts((prev) => ({
+        ...prev,
+        mailUnread: Math.max(0, (prev.mailUnread ?? 0) + delta) || undefined,
+      }));
+    };
+    window.addEventListener('bento:mail-unread-delta', onDelta);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      window.removeEventListener('bento:mail-unread-delta', onDelta);
+    };
+  }, []);
+
+  useEffect(() => {
+    const reload = () => setClipSettings(readClipboardSettings());
+    window.addEventListener(CLIPBOARD_SETTINGS_EVENT, reload);
+    return () => window.removeEventListener(CLIPBOARD_SETTINGS_EVENT, reload);
+  }, []);
+
+  useEffect(() => {
+    if (clipSettings.retainDays > 0) {
+      clipboardHistoryPruneByDays(clipSettings.retainDays).catch(() => {});
+    }
+  }, [clipSettings.retainDays]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'c' || e.key === 'C')) {
+        e.preventDefault();
+        setClipPanelOpen(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg)' }}>
+      <ClipboardHistoryPanel open={clipPanelOpen} onClose={() => setClipPanelOpen(false)} />
       <Topbar
-        llm={llm}
         onToggleSidebar={() => setCollapsed((c) => !c)}
         onOpenSearch={onOpenSearch}
         onOpenQuick={onOpenQuick}
         onOpenTweaks={onOpenTweaks}
+        onOpenClipboard={() => setClipPanelOpen(true)}
+        memInfo={memInfo}
       />
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         <Sidebar

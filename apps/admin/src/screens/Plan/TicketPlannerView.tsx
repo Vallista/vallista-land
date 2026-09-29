@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Block, BlockSource, KnownBlockKind, Task } from '@vallista/content-core';
+import type { Block, BlockSource, Task } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
 import { CheckIcon, ClockIcon, PlusIcon } from '../../components/atoms/Icons';
 import { WeekCalendar, type CalendarDay } from './WeekCalendar';
+import { blockColor, isLocal, isUnscheduledBlock } from './blockMeta';
+import { resolveLabel } from './labelCatalog';
+import { eventNoteKeysFromBlock, listEventSubtasks, toggleEventSubtask, type EventSubtask } from '../../lib/tauri';
 
 const SOURCE_LABEL: Record<BlockSource, string> = {
   local: '내 블록',
@@ -10,28 +13,9 @@ const SOURCE_LABEL: Record<BlockSource, string> = {
   applecal: 'APPLE',
 };
 
-function isLocal(b: Block): boolean {
-  return !b.source || b.source === 'local';
-}
-
 const STRIP_RADIUS_DAYS = 60;
-const COLUMN_WIDTH = 184;
+const COLUMN_WIDTH = 220;
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
-
-const KIND_INK: Record<KnownBlockKind, string> = {
-  meet: 'var(--hl-violet)',
-  write: 'var(--blue)',
-  read: 'var(--hl-rose)',
-  deep: 'var(--ok)',
-  build: 'var(--hl-amber)',
-  publish: 'var(--blue)',
-  health: 'var(--ok)',
-  meal: 'var(--hl-amber)',
-  leisure: 'var(--hl-rose)',
-  people: 'var(--hl-violet)',
-  routine: 'var(--ink-mute)',
-  life: 'var(--ink-mute)',
-};
 
 interface Props {
   anchor: Date;
@@ -51,6 +35,7 @@ interface Props {
   onCreateForDay: (date: string) => void;
   onTaskClick?: (task: Task) => void;
   onTaskDone?: (taskId: string, done: boolean) => void;
+  onBlockDone?: (id: string, done: boolean) => void;
 }
 
 export function TicketPlannerView({
@@ -71,6 +56,7 @@ export function TicketPlannerView({
   onCreateForDay,
   onTaskClick,
   onTaskDone,
+  onBlockDone,
 }: Props) {
   const todayKey = isoKey(now);
   const [selectedKey, setSelectedKey] = useState<string>(todayKey);
@@ -177,14 +163,16 @@ export function TicketPlannerView({
               onBlockClick={onBlockClick}
               onTaskClick={onTaskClick}
               onTaskDone={onTaskDone}
+              onBlockDone={onBlockDone}
               onTaskDrop={
                 onTaskDrop
                   ? (taskId) => {
                       const t = tasks?.find((x) => x.id === taskId);
-                      const startStr =
-                        timeOf(t?.startAt) ?? timeOf(t?.due) ?? '09:00';
-                      const dur = t?.estMin && t.estMin > 0 ? t.estMin : 60;
-                      const endStr = addMinutesHHMM(startStr, dur);
+                      const explicitTime = timeOf(t?.startAt) ?? timeOf(t?.due);
+                      const startStr = explicitTime ?? '';
+                      const endStr = explicitTime
+                        ? addMinutesHHMM(explicitTime, t?.estMin && t.estMin > 0 ? t.estMin : 60)
+                        : '';
                       onTaskDrop(taskId, d.date, startStr, endStr);
                     }
                   : undefined
@@ -205,11 +193,11 @@ export function TicketPlannerView({
       >
         <div
           style={{
-            padding: '10px 14px',
+            padding: 'var(--gap) var(--card-pad)',
             borderBottom: '1px solid var(--line)',
             display: 'flex',
             alignItems: 'baseline',
-            gap: 10,
+            gap: 'var(--gap)',
             background: 'var(--bg-soft)',
           }}
         >
@@ -256,6 +244,7 @@ export function TicketPlannerView({
           onBlockMoveToInbox={onBlockMoveToInbox}
           onInboxHoverChange={onInboxHoverChange}
           onBlockDragChange={onBlockDragChange}
+          onBlockDone={onBlockDone}
         />
       </div>
     </div>
@@ -273,6 +262,7 @@ function DayTicketColumn({
   onBlockClick,
   onTaskClick,
   onTaskDone,
+  onBlockDone,
   onTaskDrop,
 }: {
   day: CalendarDay & { isWeekStart?: boolean };
@@ -285,10 +275,13 @@ function DayTicketColumn({
   onBlockClick: (b: Block) => void;
   onTaskClick?: (t: Task) => void;
   onTaskDone?: (id: string, done: boolean) => void;
+  onBlockDone?: (id: string, done: boolean) => void;
   onTaskDrop?: (taskId: string) => void;
 }) {
   const [dropOver, setDropOver] = useState(false);
   const localBlocks = blocks.filter(isLocal);
+  const unscheduledBlocks = localBlocks.filter(isUnscheduledBlock);
+  const scheduledBlocks = localBlocks.filter((b) => !isUnscheduledBlock(b));
   const externalBlocks = blocks.filter((b) => !isLocal(b));
   const isEmpty =
     localBlocks.length === 0 && externalBlocks.length === 0 && tasks.length === 0;
@@ -434,8 +427,36 @@ function DayTicketColumn({
           </button>
         ) : (
           <>
-            {localBlocks.map((b) => (
-              <TicketCard key={b.id} block={b} onClick={() => onBlockClick(b)} />
+            {unscheduledBlocks.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                  paddingBottom: 6,
+                  marginBottom: 2,
+                  borderBottom: scheduledBlocks.length > 0 || tasks.length > 0
+                    ? '1px dashed var(--line)'
+                    : 'none',
+                }}
+              >
+                {unscheduledBlocks.map((b) => (
+                  <TicketCard
+                    key={b.id}
+                    block={b}
+                    onClick={() => onBlockClick(b)}
+                    onDone={onBlockDone}
+                  />
+                ))}
+              </div>
+            )}
+            {scheduledBlocks.map((b) => (
+              <TicketCard
+                key={b.id}
+                block={b}
+                onClick={() => onBlockClick(b)}
+                onDone={onBlockDone}
+              />
             ))}
             {tasks.map((t) => (
               <TaskTicketCard
@@ -491,6 +512,7 @@ function DayTicketColumn({
                     key={b.id}
                     block={b}
                     onClick={() => onBlockClick(b)}
+                    onDone={onBlockDone}
                   />
                 ))}
               </div>
@@ -511,6 +533,29 @@ function TaskTicketCard({
   onClick?: () => void;
   onDone?: (done: boolean) => void;
 }) {
+  const [eventSubtasks, setEventSubtasks] = useState<EventSubtask[]>([]);
+  const eventKey = `task:${task.id}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      listEventSubtasks(eventKey).then((items) => {
+        if (!cancelled) setEventSubtasks(items);
+      });
+    };
+    load();
+    window.addEventListener('bento:subtasks-changed', load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('bento:subtasks-changed', load);
+    };
+  }, [eventKey]);
+
+  const handleSubtaskToggle = async (id: string, done: boolean) => {
+    const updated = await toggleEventSubtask(eventKey, id, done);
+    setEventSubtasks((prev) => prev.map((s) => s.id === updated.id ? updated : s));
+  };
+
   const startTime = timeOf(task.startAt);
   const dueTime = timeOf(task.due);
   const dueDate = dateOf(task.due);
@@ -530,7 +575,7 @@ function TaskTicketCard({
         gap: 4,
         padding: '7px 9px',
         border: '1px dashed var(--line-strong, var(--line))',
-        borderLeft: `3px dashed var(--blue)`,
+        borderLeft: `3px dashed ${resolveLabel(task.kind, task.color).color}`,
         borderRadius: 5,
         background: 'var(--bg)',
         cursor: onClick ? 'pointer' : 'default',
@@ -617,6 +662,65 @@ function TaskTicketCard({
           )}
         </span>
       )}
+      {eventSubtasks.length > 0 && (
+        <div
+          style={{
+            marginTop: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            paddingTop: 4,
+            borderTop: '1px solid var(--line)',
+          }}
+        >
+          {eventSubtasks.slice(0, 4).map((s) => (
+            <button
+              key={s.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                void handleSubtaskToggle(s.id, !s.done);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                fontSize: 12,
+                color: s.done ? 'var(--ink-mute)' : 'var(--ink)',
+                textDecoration: s.done ? 'line-through' : 'none',
+                background: 'transparent',
+                border: 'none',
+                padding: '2px 0',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                textAlign: 'left',
+                width: '100%',
+              }}
+            >
+              <span style={{
+                flexShrink: 0,
+                width: 14,
+                height: 14,
+                border: `1.5px solid ${s.done ? 'var(--ok)' : 'var(--line-strong, var(--line))'}`,
+                borderRadius: 3,
+                background: s.done ? 'var(--ok)' : 'transparent',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {s.done && <CheckIcon size={9} style={{ color: 'var(--bg)' }} />}
+              </span>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {s.title}
+              </span>
+            </button>
+          ))}
+          {eventSubtasks.length > 4 && (
+            <span style={{ fontSize: 11, color: 'var(--ink-mute)', paddingLeft: 21 }}>
+              +{eventSubtasks.length - 4}개 더
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -624,15 +728,20 @@ function TaskTicketCard({
 function ExternalTicketCard({
   block,
   onClick,
+  onDone,
 }: {
   block: Block;
   onClick: () => void;
+  onDone?: (id: string, done: boolean) => void;
 }) {
   const sourceLabel =
     block.source && block.source !== 'local' ? SOURCE_LABEL[block.source] : '';
   return (
-    <button
-      onClick={onClick}
+    <div
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest('button')) return;
+        onClick();
+      }}
       title={`${block.start}–${block.end} · ${block.title} (외부 캘린더 — TODO 회수 불가)`}
       style={{
         display: 'flex',
@@ -670,6 +779,27 @@ function ExternalTicketCard({
             {sourceLabel}
           </Mono>
         )}
+        {onDone && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDone(block.id, !block.done);
+            }}
+            title={block.done ? '완료 취소' : '완료'}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: block.done ? 'var(--ok)' : 'var(--ink-mute)',
+              cursor: 'pointer',
+              padding: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              opacity: block.done ? 1 : 0.55,
+            }}
+          >
+            <CheckIcon size={11} />
+          </button>
+        )}
       </div>
       <span
         style={{
@@ -697,24 +827,68 @@ function ExternalTicketCard({
           {block.attendees.join(', ')}
         </span>
       )}
-    </button>
+    </div>
   );
 }
 
-function TicketCard({ block, onClick }: { block: Block; onClick: () => void }) {
+function TicketCard({
+  block,
+  onClick,
+  onDone,
+}: {
+  block: Block;
+  onClick: () => void;
+  onDone?: (id: string, done: boolean) => void;
+}) {
   const isVirtualTask = block.id.startsWith('task:');
-  const ink = isVirtualTask
-    ? 'var(--blue)'
-    : (KIND_INK[block.kind as KnownBlockKind] ?? 'var(--ink-mute)');
+  const ink = blockColor(block).ink;
+  const showDone = !!onDone && !isVirtualTask;
+  const [eventSubtasks, setEventSubtasks] = useState<EventSubtask[]>([]);
+  const eventKey = isVirtualTask ? null : eventNoteKeysFromBlock(block).eventKey;
+
+  useEffect(() => {
+    if (!eventKey) return;
+    let cancelled = false;
+    const load = () => {
+      listEventSubtasks(eventKey).then((items) => {
+        if (!cancelled) setEventSubtasks(items);
+      });
+    };
+    load();
+    window.addEventListener('bento:subtasks-changed', load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('bento:subtasks-changed', load);
+    };
+  }, [eventKey]);
+
+  const handleSubtaskToggle = async (id: string, done: boolean) => {
+    if (!eventKey) return;
+    const updated = await toggleEventSubtask(eventKey, id, done);
+    setEventSubtasks((prev) => prev.map((s) => s.id === updated.id ? updated : s));
+  };
+  const unscheduled = isUnscheduledBlock(block);
+  const timeDisplay = unscheduled
+    ? '미정'
+    : isVirtualTask
+      ? `TODO · ${block.start}`
+      : `${block.start} – ${block.end}`;
+  const actualLabel =
+    !isVirtualTask && !unscheduled && (block.actualStart || block.actualEnd)
+      ? `실제 ${block.actualStart ?? block.start}–${block.actualEnd ?? block.end}`
+      : null;
   return (
-    <button
+    <div
       draggable
       onDragStart={(e) => {
         e.dataTransfer.setData('application/x-bento-block', block.id);
         e.dataTransfer.setData('text/plain', block.title);
         e.dataTransfer.effectAllowed = 'move';
       }}
-      onClick={onClick}
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest('button')) return;
+        onClick();
+      }}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -732,12 +906,38 @@ function TicketCard({ block, onClick }: { block: Block; onClick: () => void }) {
       title={
         isVirtualTask
           ? `${block.start}–${block.end} · ${block.title} (TODO — 인박스로 끌면 회수)`
-          : `${block.start}–${block.end} · ${block.title}`
+          : unscheduled
+            ? `미정 · ${block.title}`
+            : `${block.start}–${block.end} · ${block.title}`
       }
     >
-      <Mono style={{ fontSize: 9.5, color: ink, letterSpacing: '0.04em' }}>
-        {isVirtualTask ? `TODO · ${block.start}` : `${block.start} – ${block.end}`}
-      </Mono>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Mono style={{ fontSize: 9.5, color: ink, letterSpacing: '0.04em' }}>
+          {timeDisplay}
+        </Mono>
+        <span style={{ flex: 1 }} />
+        {showDone && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDone!(block.id, !block.done);
+            }}
+            title={block.done ? '완료 취소' : '완료'}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: block.done ? 'var(--ok)' : 'var(--ink-mute)',
+              cursor: 'pointer',
+              padding: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              opacity: block.done ? 1 : 0.55,
+            }}
+          >
+            <CheckIcon size={11} />
+          </button>
+        )}
+      </div>
       <span
         style={{
           fontSize: 12,
@@ -751,6 +951,17 @@ function TicketCard({ block, onClick }: { block: Block; onClick: () => void }) {
       >
         {block.title}
       </span>
+      {actualLabel && (
+        <Mono
+          style={{
+            fontSize: 9.5,
+            color: 'var(--ink-mute)',
+            letterSpacing: '0.04em',
+          }}
+        >
+          {actualLabel}
+        </Mono>
+      )}
       {block.attendees.length > 0 && (
         <span
           style={{
@@ -764,7 +975,61 @@ function TicketCard({ block, onClick }: { block: Block; onClick: () => void }) {
           {block.attendees.join(', ')}
         </span>
       )}
-    </button>
+      {eventSubtasks.length > 0 && (
+        <div
+          style={{
+            marginTop: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            paddingTop: 4,
+            borderTop: '1px solid var(--line)',
+          }}
+        >
+          {eventSubtasks.map((s) => (
+            <button
+              key={s.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSubtaskToggle(s.id, !s.done);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                fontSize: 12,
+                color: s.done ? 'var(--ink-mute)' : 'var(--ink)',
+                textDecoration: s.done ? 'line-through' : 'none',
+                background: 'transparent',
+                border: 'none',
+                padding: '2px 0',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                textAlign: 'left',
+                width: '100%',
+              }}
+            >
+              <span style={{
+                flexShrink: 0,
+                width: 14,
+                height: 14,
+                border: `1.5px solid ${s.done ? 'var(--ok)' : 'var(--line-strong, var(--line))'}`,
+                borderRadius: 3,
+                background: s.done ? 'var(--ok)' : 'transparent',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {s.done && <CheckIcon size={9} style={{ color: 'var(--bg)' }} />}
+              </span>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {s.title}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

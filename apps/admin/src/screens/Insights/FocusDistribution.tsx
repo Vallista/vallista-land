@@ -1,55 +1,14 @@
-import type { Block, KnownBlockKind } from '@vallista/content-core';
+import type { Block } from '@vallista/content-core';
 import { Card, CardTitle, Mono } from '../../components/atoms/Atoms';
-
-const KIND_COLOR: Record<KnownBlockKind, string> = {
-  routine: 'var(--ink-mute)',
-  health: 'var(--ok)',
-  deep: 'var(--blue)',
-  people: 'var(--hl-violet)',
-  meal: 'var(--hl-amber)',
-  leisure: 'var(--hl-rose)',
-  meet: 'var(--hl-violet)',
-  write: 'var(--blue)',
-  read: 'var(--hl-rose)',
-  build: 'var(--blue)',
-  publish: 'var(--ok)',
-  life: 'var(--ink-mute)',
-};
-
-const KIND_LABEL: Record<KnownBlockKind, string> = {
-  routine: '루틴',
-  health: '건강',
-  deep: '몰입',
-  people: '사람',
-  meal: '식사',
-  leisure: '여가',
-  meet: '미팅',
-  write: '글쓰기',
-  read: '독서',
-  build: '제작',
-  publish: '배포',
-  life: '일상',
-};
-
-const CUSTOM_PALETTE = [
-  'var(--hl-violet)',
-  'var(--hl-amber)',
-  'var(--hl-rose)',
-  'var(--blue)',
-  'var(--ok)',
-];
+import { resolveLabel } from '../Plan/labelCatalog';
 
 function colorOf(kind: string): string {
-  if (kind in KIND_COLOR) return KIND_COLOR[kind as KnownBlockKind];
-  let hash = 0;
-  for (let i = 0; i < kind.length; i++) hash = (hash * 31 + kind.charCodeAt(i)) | 0;
-  return CUSTOM_PALETTE[Math.abs(hash) % CUSTOM_PALETTE.length]!;
+  return resolveLabel(kind).color;
 }
 
 function labelOf(b: Block): string {
   if (b.customLabel && b.customLabel.trim()) return b.customLabel;
-  if (b.kind in KIND_LABEL) return KIND_LABEL[b.kind as KnownBlockKind];
-  return b.kind;
+  return resolveLabel(b.kind).name;
 }
 
 export interface FocusBucket {

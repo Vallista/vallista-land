@@ -78,7 +78,7 @@ export function Atelier() {
 
   if (error) {
     return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3)', maxWidth: 1120 }}>
         <PageHead title="글방" sub="vault 읽기 실패" />
         <div
           style={{
@@ -99,7 +99,7 @@ export function Atelier() {
 
   if (!docs) {
     return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3)', maxWidth: 1120 }}>
         <PageHead title="글방" sub="vault 읽는 중…" />
       </div>
     );

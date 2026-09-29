@@ -5,14 +5,40 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::sync::Mutex;
-use std::thread;
 use std::time::{Duration, Instant};
 use tauri::ipc::Channel;
 use tauri::State;
 
+#[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+use libc;
+
+use crate::repo::{build_user_agent, load_config, AppState};
+
 pub struct LlmState {
     pub data_dir: PathBuf,
     pub child: Mutex<Option<RunningChild>>,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct LlmSettings {
+    pub provider: String,
+    pub local_model: Option<String>,
+    pub claude_model: Option<String>,
+    pub openai_model: Option<String>,
+    pub gemini_model: Option<String>,
+}
+
+impl Default for LlmSettings {
+    fn default() -> Self {
+        Self {
+            provider: "local".to_string(),
+            local_model: None,
+            claude_model: Some("claude-sonnet-4-6".to_string()),
+            openai_model: Some("gpt-4o".to_string()),
+            gemini_model: Some("gemini-2.0-flash".to_string()),
+        }
+    }
 }
 
 pub struct RunningChild {
@@ -138,20 +164,22 @@ fn pick_free_port() -> Result<u16, String> {
     Ok(port)
 }
 
-fn wait_until_ready(port: u16, timeout: Duration) -> bool {
-    let start = Instant::now();
-    while start.elapsed() < timeout {
-        if std::net::TcpStream::connect_timeout(
-            &SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port),
-            Duration::from_millis(200),
-        )
-        .is_ok()
+async fn wait_until_ready(port: u16, timeout: Duration) -> bool {
+    let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), port);
+    let deadline = tokio::time::Instant::now() + timeout;
+    loop {
+        if tokio::time::Instant::now() >= deadline {
+            return false;
+        }
+        if tokio::time::timeout(Duration::from_millis(200), tokio::net::TcpStream::connect(addr))
+            .await
+            .map(|r| r.is_ok())
+            .unwrap_or(false)
         {
             return true;
         }
-        thread::sleep(Duration::from_millis(150));
+        tokio::time::sleep(Duration::from_millis(150)).await;
     }
-    false
 }
 
 #[derive(Deserialize)]
@@ -165,7 +193,11 @@ pub struct LlmStartInput {
 }
 
 #[tauri::command]
-pub fn llm_start(input: LlmStartInput, state: State<'_, LlmState>) -> Result<u16, String> {
+pub async fn llm_start(input: LlmStartInput, state: State<'_, LlmState>) -> Result<u16, String> {
+    #[cfg(not(all(target_os = "macos", target_arch = "aarch64")))]
+    {
+        return Err("로컬 LLM은 Apple Silicon Mac에서만 지원됩니다.".into());
+    }
     {
         let guard = state.child.lock().map_err(|e| e.to_string())?;
         if guard.is_some() {
@@ -180,6 +212,24 @@ pub fn llm_start(input: LlmStartInput, state: State<'_, LlmState>) -> Result<u16
     if !model_path.is_file() {
         return Err(format!("model not found: {}", model_path.display()));
     }
+    #[cfg(target_os = "macos")]
+    {
+        let _ = Command::new("xattr")
+            .arg("-rd")
+            .arg("com.apple.quarantine")
+            .arg(&bin)
+            .output();
+    }
+
+    let log_path = state.data_dir.join("llama-server.log");
+    let log_file = fs::OpenOptions::new()
+        .create(true)
+        .truncate(true)
+        .write(true)
+        .open(&log_path)
+        .map_err(|e| format!("log open: {}", e))?;
+    let stderr_file = log_file.try_clone().map_err(|e| format!("log clone: {}", e))?;
+
     let port = pick_free_port()?;
     let mut cmd = Command::new(&bin);
     cmd.arg("-m")
@@ -191,16 +241,45 @@ pub fn llm_start(input: LlmStartInput, state: State<'_, LlmState>) -> Result<u16
     if let Some(c) = input.context_size {
         cmd.arg("-c").arg(c.to_string());
     }
-    if let Some(t) = input.threads {
-        cmd.arg("-t").arg(t.to_string());
+    let threads = input.threads.unwrap_or_else(|| {
+        let cores = std::thread::available_parallelism()
+            .map(|n| n.get() as u32)
+            .unwrap_or(4);
+        (cores / 2).max(1)
+    });
+    cmd.arg("-t").arg(threads.to_string());
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    {
+        cmd.arg("-ngl").arg("99");
     }
-    cmd.stdout(Stdio::null()).stderr(Stdio::null());
+    cmd.stdout(Stdio::from(log_file)).stderr(Stdio::from(stderr_file));
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    {
+        use std::os::unix::process::CommandExt;
+        unsafe {
+            cmd.pre_exec(|| {
+                libc::nice(10);
+                Ok(())
+            });
+        }
+    }
     let child = cmd.spawn().map_err(|e| format!("spawn: {}", e))?;
-    if !wait_until_ready(port, Duration::from_secs(30)) {
+    if !wait_until_ready(port, Duration::from_secs(90)).await {
         let mut child = child;
         let _ = child.kill();
         let _ = child.wait();
-        return Err("llm server did not become ready within 30s".into());
+        let log_tail = fs::read_to_string(&log_path)
+            .map(|s| {
+                let lines: Vec<&str> = s.lines().collect();
+                let start = lines.len().saturating_sub(20);
+                lines[start..].join("\n")
+            })
+            .unwrap_or_default();
+        return Err(format!(
+            "llm server did not become ready within 90s\nlog ({})\n{}",
+            log_path.display(),
+            log_tail
+        ));
     }
     let mut guard = state.child.lock().map_err(|e| e.to_string())?;
     *guard = Some(RunningChild {
@@ -505,11 +584,13 @@ fn preferred_archive() -> (ArchiveKind, &'static str) {
     }
 }
 
-async fn resolve_latest_server_asset() -> Result<(String, ArchiveKind), String> {
+async fn resolve_latest_server_asset(
+    user_agent: &str,
+) -> Result<(String, ArchiveKind), String> {
     let target = current_release_target()?;
     let (kind, ext) = preferred_archive();
     let client = reqwest::Client::builder()
-        .user_agent("Bento/0.1 (+https://vallista.kr)")
+        .user_agent(user_agent)
         .timeout(Duration::from_secs(30))
         .build()
         .map_err(|e| e.to_string())?;
@@ -557,9 +638,10 @@ async fn stream_to_file(
     url: &str,
     dest: &Path,
     on_event: &Channel<DownloadEvent>,
+    user_agent: &str,
 ) -> Result<(), String> {
     let client = reqwest::Client::builder()
-        .user_agent("Bento/0.1 (+https://vallista.kr)")
+        .user_agent(user_agent)
         .redirect(reqwest::redirect::Policy::limited(10))
         .build()
         .map_err(|e| e.to_string())?;
@@ -684,8 +766,42 @@ fn extract_targz(archive_path: &Path, data_dir: &Path) -> Result<bool, String> {
     let mut server_extracted = false;
     for entry in entries {
         let mut entry = entry.map_err(|e| e.to_string())?;
-        let header_kind = entry.header().entry_type();
-        if !header_kind.is_file() {
+        let entry_type = entry.header().entry_type();
+
+        if entry_type.is_symlink() {
+            let path = entry.path().map_err(|e| e.to_string())?.into_owned();
+            let file_name = match path.file_name().and_then(|s| s.to_str()) {
+                Some(n) => n.to_string(),
+                None => continue,
+            };
+            if file_name.is_empty() || file_name.starts_with('.') {
+                continue;
+            }
+            let (_, is_runtime) = is_runtime_file(&file_name);
+            if !is_runtime {
+                continue;
+            }
+            let link_target = match entry.header().link_name().ok().flatten() {
+                Some(t) => t.into_owned(),
+                None => continue,
+            };
+            let link_target_name = match link_target.file_name().and_then(|s| s.to_str()) {
+                Some(n) => n.to_string(),
+                None => continue,
+            };
+            let dest = data_dir.join(&file_name);
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::symlink;
+                if dest.exists() || dest.is_symlink() {
+                    let _ = fs::remove_file(&dest);
+                }
+                symlink(Path::new(&link_target_name), &dest).map_err(|e| e.to_string())?;
+            }
+            continue;
+        }
+
+        if !entry_type.is_file() {
             continue;
         }
         let path = entry.path().map_err(|e| e.to_string())?.into_owned();
@@ -712,12 +828,14 @@ fn extract_targz(archive_path: &Path, data_dir: &Path) -> Result<bool, String> {
 pub async fn llm_download_server(
     on_event: Channel<DownloadEvent>,
     state: State<'_, LlmState>,
+    app_state: State<'_, AppState>,
 ) -> Result<String, String> {
     let data_dir = state.data_dir.clone();
     fs::create_dir_all(&data_dir).map_err(|e| e.to_string())?;
     let bin_path = state.bin_path();
+    let ua = build_user_agent(&load_config(&app_state.data_root).app);
 
-    let (url, kind) = match resolve_latest_server_asset().await {
+    let (url, kind) = match resolve_latest_server_asset(&ua).await {
         Ok(v) => v,
         Err(e) => {
             let _ = on_event.send(DownloadEvent::Failed {
@@ -731,7 +849,7 @@ pub async fn llm_download_server(
     if tmp_archive.exists() {
         let _ = fs::remove_file(&tmp_archive);
     }
-    if let Err(e) = stream_to_file(&url, &tmp_archive, &on_event).await {
+    if let Err(e) = stream_to_file(&url, &tmp_archive, &on_event, &ua).await {
         let _ = fs::remove_file(&tmp_archive);
         let _ = on_event.send(DownloadEvent::Failed {
             message: e.clone(),
@@ -806,4 +924,37 @@ pub fn llm_open_data_dir(state: State<'_, LlmState>) -> Result<(), String> {
     {
         Err("unsupported platform".into())
     }
+}
+
+fn llm_settings_path(data_dir: &Path) -> PathBuf {
+    data_dir.join("llm_settings.json")
+}
+
+#[tauri::command]
+pub fn llm_get_settings(state: State<'_, LlmState>) -> LlmSettings {
+    let path = llm_settings_path(&state.data_dir);
+    if let Ok(content) = fs::read_to_string(&path) {
+        if let Ok(s) = serde_json::from_str::<LlmSettings>(&content) {
+            return s;
+        }
+    }
+    LlmSettings::default()
+}
+
+#[tauri::command]
+pub fn llm_save_settings(settings: LlmSettings, state: State<'_, LlmState>) -> Result<(), String> {
+    let path = llm_settings_path(&state.data_dir);
+    let content = serde_json::to_string_pretty(&settings)
+        .map_err(|e| format!("serialize settings: {}", e))?;
+    fs::write(&path, content).map_err(|e| format!("write settings: {}", e))
+}
+
+#[tauri::command]
+pub fn llm_get_api_key(
+    provider: String,
+    _llm_state: State<'_, LlmState>,
+    app_state: State<'_, crate::repo::AppState>,
+) -> Result<Option<String>, String> {
+    let remote = format!("llm-apikey-{}", provider);
+    crate::commands::keychain::read_token(&remote, &app_state.data_root)
 }

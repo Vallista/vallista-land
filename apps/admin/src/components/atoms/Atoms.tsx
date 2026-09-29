@@ -230,8 +230,8 @@ export function IconBtn({
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 28,
-        height: 28,
+        width: 'var(--btn-h)',
+        height: 'var(--btn-h)',
         border: 'none',
         background: 'transparent',
         color: 'var(--ink-soft)',
@@ -270,19 +270,19 @@ export function Card({
       {head && (
         <div
           style={{
-            padding: '10px 16px',
+            padding: 'calc(var(--card-pad) - 4px) var(--card-pad)',
             borderBottom: '1px solid var(--line)',
             background: 'var(--bg-soft)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 12,
+            gap: 'var(--gap-lg)',
           }}
         >
           {head}
         </div>
       )}
-      <div style={{ padding: padded ? '18px 22px' : 0 }}>{children}</div>
+      <div style={{ padding: padded ? 'calc(var(--card-pad) + 4px) calc(var(--card-pad) + 4px)' : 0 }}>{children}</div>
     </section>
   );
 }
@@ -432,13 +432,13 @@ export function PageHead({
   return (
     <header
       style={{
-        marginBottom: 24,
-        paddingBottom: 16,
+        marginBottom: 'calc(var(--gap-lg) * 2)',
+        paddingBottom: 'var(--gap-lg)',
         borderBottom: '1px solid var(--line)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
-        gap: 24,
+        gap: 'calc(var(--gap-lg) * 2)',
         ...style,
       }}
     >

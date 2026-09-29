@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
@@ -9,25 +9,41 @@ import { Today } from './screens/Today';
 import { Atelier } from './screens/Atelier';
 import { Glean } from './screens/Glean';
 import { Plan } from './screens/Plan';
+import { Radar } from './screens/Radar';
 import { Insights } from './screens/Insights';
+import { Review } from './screens/Review';
 import { Publish } from './screens/Publish';
 import { Thoughts } from './screens/Thoughts';
+import { Mail } from './screens/Mail';
+import { Health } from './screens/Health';
 import { LLMSetup } from './screens/LLMSetup';
+import type { PaneId } from './components/Tweaks';
+import { Onboarding, checkOnboardingDone } from './screens/Onboarding';
 import { SearchPalette } from './components/SearchPalette';
 import { QuickEntry, type QuickKind } from './components/QuickEntry';
+import { ClipboardHistoryPanel } from './components/ClipboardHistoryPanel';
 import { Tweaks } from './components/Tweaks';
 import { IcalDialog } from './screens/Plan/IcalDialog';
-import { SummaryModal } from './components/SummaryModal';
+import { ContextMenu } from './components/ContextMenu';
 import { useAutoSummary } from './lib/useAutoSummary';
+import { logError } from './lib/errorLog';
+import { Toaster, useToasts } from './components/NotifToast';
+import { useCheckinReminder } from './lib/useCheckinReminder';
 import {
+  applyGlobalShortcuts,
   appSetupStatus,
   llmStatus,
   macosCalImport,
+  macosCalList,
   macosCalStatus,
+  migrateTaskNotesToEventNotes,
+  migrateBlockNotesToEventNotes,
+  readGlobalKeybindingsFromDisk,
   showQuick,
   syncIcalFeeds,
   type AppSetupStatus,
 } from './lib/tauri';
+import { matchesBinding, readKeybindings } from './lib/keybindings';
 import { countThoughts } from './lib/thoughts';
 import {
   intervalMs,
@@ -35,21 +51,20 @@ import {
   readLastAutoSyncAt,
   readMacosCalAutoConfig,
   writeLastAutoSyncAt,
+  writeMacosCalAutoConfig,
 } from './lib/icalSync';
 
-const QUICK_KINDS: ReadonlySet<QuickKind> = new Set<QuickKind>([
-  'thought',
-  'glean',
-  'blog',
-  'task',
+type QuickWindowKind = QuickKind | 'clipboard';
+const ALL_QUICK_WINDOW_KINDS: ReadonlySet<string> = new Set<string>([
+  'thought', 'glean', 'blog', 'task', 'clipboard',
 ]);
 
-function readQuickKindFromHash(): QuickKind | null {
+function readQuickKindFromHash(): QuickWindowKind | null {
   const hash = (typeof window !== 'undefined' && window.location.hash) || '';
   const m = /^#quick=([a-z]+)$/.exec(hash);
   if (!m) return null;
-  const k = m[1] as QuickKind;
-  return QUICK_KINDS.has(k) ? k : null;
+  const k = m[1] as QuickWindowKind;
+  return ALL_QUICK_WINDOW_KINDS.has(k) ? k : null;
 }
 
 const SCREENS: Record<ScreenId, () => JSX.Element> = {
@@ -57,9 +72,13 @@ const SCREENS: Record<ScreenId, () => JSX.Element> = {
   atelier: Atelier,
   glean: Glean,
   plan: Plan,
+  radar: Radar,
+  health: Health,
   insights: Insights,
+  review: Review,
   publish: Publish,
   thoughts: Thoughts,
+  mail: Mail,
 };
 
 const LLM_SETUP_DISMISS_KEY = 'bento.llmSetup.dismissed';
@@ -72,7 +91,9 @@ export function App() {
   return <RootApp />;
 }
 
+
 function RootApp() {
+  const [onboardingDone, setOnboardingDone] = useState(checkOnboardingDone);
   const [status, setStatus] = useState<AppSetupStatus | null>(null);
 
   useEffect(() => {
@@ -101,6 +122,10 @@ function RootApp() {
     };
   }, []);
 
+  if (!onboardingDone) {
+    return <Onboarding onDone={() => setOnboardingDone(true)} />;
+  }
+
   if (!status) return null;
   return <FullApp blogEnabled={status.blogEnabled} />;
 }
@@ -123,10 +148,101 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
   const [showLLMSetup, setShowLLMSetup] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showTweaks, setShowTweaks] = useState(false);
+  const [tweaksInitialPane, setTweaksInitialPane] = useState<PaneId | undefined>();
   const [showIcal, setShowIcal] = useState(false);
   const [thoughtsCount, setThoughtsCount] = useState<number | undefined>(() => countThoughts());
   const { pendingModal, dismiss: dismissSummary } = useAutoSummary();
-  const ScreenComp = SCREENS[active];
+  const { toasts, addToast, removeToast } = useToasts();
+  const lastSummaryIdRef = useRef<string | null>(null);
+  const [mounted, setMounted] = useState<Set<ScreenId>>(() => new Set<ScreenId>(['today']));
+
+  useEffect(() => {
+    migrateTaskNotesToEventNotes().catch(() => {});
+    migrateBlockNotesToEventNotes().catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!pendingModal) return;
+    if (lastSummaryIdRef.current === pendingModal.id) return;
+    lastSummaryIdRef.current = pendingModal.id;
+    const title = pendingModal.kind === 'weekly' ? '지난 주 리포트 도착' : '지난 달 리포트 도착';
+    addToast({
+      id: `summary-${pendingModal.id}`,
+      title,
+      body: '자동 정리가 생성됐어요.',
+      duration: 0,
+      cta: {
+        label: '회고 탭으로',
+        onClick: () => {
+          removeToast(`summary-${pendingModal.id}`);
+          void dismissSummary();
+          setActive('review');
+        },
+      },
+    });
+  }, [pendingModal, addToast]);
+
+  useCheckinReminder({
+    onCheckinNeeded: useCallback(() => {
+      addToast({
+        id: 'checkin-reminder',
+        title: '컨디션 체크',
+        body: '오늘 에너지와 기분을 기록해보세요.',
+        cta: { label: '오늘로', onClick: () => setActive('today') },
+      });
+    }, [addToast]),
+    onRetroNeeded: useCallback(() => {
+      addToast({
+        id: 'retro-reminder',
+        title: '오늘 회고',
+        body: '저녁 회고를 써볼 시간이에요.',
+        cta: { label: '오늘로', onClick: () => setActive('today') },
+      });
+    }, [addToast]),
+  });
+
+  useEffect(() => {
+    const onAdd = (e: Event) => addToast((e as CustomEvent<Parameters<typeof addToast>[0]>).detail);
+    const onRemove = (e: Event) => removeToast((e as CustomEvent<string>).detail);
+    window.addEventListener('bento:toast', onAdd);
+    window.addEventListener('bento:toast-remove', onRemove);
+    return () => {
+      window.removeEventListener('bento:toast', onAdd);
+      window.removeEventListener('bento:toast-remove', onRemove);
+    };
+  }, [addToast, removeToast]);
+
+  useEffect(() => {
+    const onError = (event: ErrorEvent) => {
+      const message = event.message || '알 수 없는 오류';
+      void logError(message, {
+        stack: (event.error as Error | undefined)?.stack,
+        source: event.filename,
+      });
+      addToast({ title: '오류 발생', body: message.slice(0, 120) });
+    };
+    const onUnhandled = (event: PromiseRejectionEvent) => {
+      const err = event.reason as unknown;
+      const message = err instanceof Error ? err.message : String(err ?? '알 수 없는 오류');
+      void logError(message, { stack: err instanceof Error ? err.stack : undefined });
+      addToast({ title: '오류 발생', body: message.slice(0, 120) });
+    };
+    window.addEventListener('error', onError);
+    window.addEventListener('unhandledrejection', onUnhandled);
+    return () => {
+      window.removeEventListener('error', onError);
+      window.removeEventListener('unhandledrejection', onUnhandled);
+    };
+  }, [addToast]);
+
+  useEffect(() => {
+    setMounted((prev) => {
+      if (prev.has(active)) return prev;
+      const next = new Set(prev);
+      next.add(active);
+      return next;
+    });
+  }, [active]);
 
   useEffect(() => {
     if (!blogEnabled && (active === 'atelier' || active === 'publish')) {
@@ -135,10 +251,19 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
   }, [blogEnabled, active]);
 
   useEffect(() => {
-    if (sessionStorage.getItem(LLM_SETUP_DISMISS_KEY) === '1') return;
+    readGlobalKeybindingsFromDisk()
+      .then((kb) => applyGlobalShortcuts(kb))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
     llmStatus()
       .then((s) => {
-        if (!s.binPresent || s.models.length === 0) setShowLLMSetup(true);
+        if (!s.binPresent || s.models.length === 0) {
+          if (sessionStorage.getItem(LLM_SETUP_DISMISS_KEY) !== '1') {
+            setShowLLMSetup(true);
+          }
+        }
       })
       .catch(() => {});
   }, []);
@@ -189,8 +314,21 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
         try {
           const status = await macosCalStatus();
           if (!status.available) return;
+          let calendarsToSync = macCfg.calendars;
+          if (calendarsToSync.length > 0) {
+            try {
+              const allCals = await macosCalList();
+              const newCals = allCals.filter(c => !calendarsToSync.includes(c));
+              if (newCals.length > 0) {
+                calendarsToSync = [...calendarsToSync, ...newCals];
+                writeMacosCalAutoConfig({ ...macCfg, calendars: calendarsToSync });
+              }
+            } catch {
+              // 목록 조회 실패 시 기존 설정 유지
+            }
+          }
           await macosCalImport({
-            calendars: macCfg.calendars,
+            calendars: calendarsToSync,
             daysBack: macCfg.daysBack,
             daysForward: macCfg.daysForward,
           });
@@ -233,25 +371,23 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const isMeta = e.metaKey || e.ctrlKey;
-      if (!isMeta) return;
-      const k = e.key.toLowerCase();
-      if (k === 'k') {
+      const kb = readKeybindings();
+      if (matchesBinding(e, kb.search)) {
         e.preventDefault();
         setShowSearch(true);
         return;
       }
-      if (k === 'n' && e.metaKey && !e.ctrlKey) {
+      if (matchesBinding(e, kb.quickThought)) {
         e.preventDefault();
         void showQuick('thought');
         return;
       }
-      if (k === 't' && e.metaKey && !e.ctrlKey) {
+      if (matchesBinding(e, kb.quickTask)) {
         e.preventDefault();
         void showQuick('task');
         return;
       }
-      if (e.key === ',') {
+      if (matchesBinding(e, kb.tweaks)) {
         e.preventDefault();
         setShowTweaks((v) => !v);
       }
@@ -271,14 +407,24 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
       <Shell
         active={active}
         onSelect={setActive}
-        onOpenLLMSetup={() => setShowLLMSetup(true)}
+        onOpenLLMSetup={() => {
+          setTweaksInitialPane('integrations');
+          setShowTweaks(true);
+        }}
         onOpenSearch={() => setShowSearch(true)}
         onOpenQuick={(kind) => void showQuick(kind)}
         onOpenTweaks={() => setShowTweaks(true)}
         thoughtsCount={thoughtsCount}
         blogEnabled={blogEnabled}
       >
-        <ScreenComp />
+        {(Object.entries(SCREENS) as [ScreenId, () => JSX.Element][]).map(([id, Comp]) => {
+          if (!mounted.has(id)) return null;
+          return (
+            <div key={id} style={{ display: id === active ? 'contents' : 'none' }}>
+              <Comp />
+            </div>
+          );
+        })}
       </Shell>
       {showLLMSetup && <LLMSetup onDismiss={dismissLLMSetup} />}
       <SearchPalette
@@ -288,46 +434,31 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
       />
       <Tweaks
         open={showTweaks}
-        onClose={() => setShowTweaks(false)}
+        onClose={() => {
+          setShowTweaks(false);
+          setTweaksInitialPane(undefined);
+        }}
         onOpenIcal={() => {
           setShowTweaks(false);
           setShowIcal(true);
         }}
-        onOpenLLMSetup={() => {
-          setShowTweaks(false);
-          setShowLLMSetup(true);
-        }}
+        initialPane={tweaksInitialPane}
       />
       <IcalDialog
         open={showIcal}
         onClose={() => setShowIcal(false)}
         onSynced={() => window.dispatchEvent(new CustomEvent('bento:ical-synced'))}
       />
-      {pendingModal && !showLLMSetup && (
-        <SummaryModal summary={pendingModal} onClose={dismissSummary} />
-      )}
+      <Toaster toasts={toasts} onRemove={removeToast} />
+      <ContextMenu currentScreen={active} onOpenTweaks={() => setShowTweaks(true)} />
       </BlogContext.Provider>
     </NavContext.Provider>
   );
 }
 
-function QuickWindow({ initialKind }: { initialKind: QuickKind }) {
-  const [kind, setKind] = useState<QuickKind>(initialKind);
+function QuickWindow({ initialKind }: { initialKind: QuickWindowKind }) {
+  const [kind, setKind] = useState<QuickWindowKind>(initialKind);
   const [version, setVersion] = useState(0);
-  const [blogEnabled, setBlogEnabled] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    appSetupStatus()
-      .then((s) => {
-        if (!cancelled) setBlogEnabled(s.blogEnabled);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   useEffect(() => {
     const root = document.documentElement;
     const body = document.body;
@@ -348,8 +479,8 @@ function QuickWindow({ initialKind }: { initialKind: QuickKind }) {
   useEffect(() => {
     let unlisten: UnlistenFn | null = null;
     listen<string>('bento:quick-shortcut', (event) => {
-      const payload = event.payload as QuickKind;
-      if (QUICK_KINDS.has(payload)) {
+      const payload = event.payload as QuickWindowKind;
+      if (ALL_QUICK_WINDOW_KINDS.has(payload)) {
         setKind(payload);
         setVersion((v) => v + 1);
       }
@@ -387,14 +518,33 @@ function QuickWindow({ initialKind }: { initialKind: QuickKind }) {
     return () => window.removeEventListener('keydown', onKey, true);
   }, []);
 
+  useEffect(() => {
+    // 창이 열린 직후 spurious blur 방지를 위해 한 틱 뒤에 등록
+    let timer: number;
+    let onBlur: (() => void) | null = null;
+    timer = window.setTimeout(() => {
+      onBlur = () => close();
+      window.addEventListener('blur', onBlur);
+    }, 150);
+    return () => {
+      window.clearTimeout(timer);
+      if (onBlur) window.removeEventListener('blur', onBlur);
+    };
+  }, []);
+
+  if (kind === 'clipboard') {
+    return (
+      <ClipboardHistoryPanel key={version} popup open onClose={close} />
+    );
+  }
+
   return (
     <QuickEntry
       key={version}
-      popup
       open
-      initialKind={kind}
+      popup
+      initialKind={kind as QuickKind}
       onClose={close}
-      blogEnabled={blogEnabled}
     />
   );
 }

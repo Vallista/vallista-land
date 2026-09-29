@@ -41,18 +41,29 @@ export function SearchPalette({
     if (!open) return;
     setQuery('');
     setActive(0);
+    setGlean([]);
     Promise.all([
       listDocs().catch(() => [] as DocSummary[]),
       listTasks().catch(() => [] as Task[]),
-      listGlean().catch(() => [] as GleanItem[]),
-    ]).then(([d, t, g]) => {
+    ]).then(([d, t]) => {
       setDocs(d);
       setTasks(t);
-      setGlean(g);
     });
     const id = window.setTimeout(() => inputRef.current?.focus(), 30);
     return () => window.clearTimeout(id);
   }, [open]);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) { setGlean([]); return; }
+    let cancelled = false;
+    const id = window.setTimeout(() => {
+      listGlean({ offset: 0, limit: 500 })
+        .then((p) => { if (!cancelled) setGlean(p.items); })
+        .catch(() => { if (!cancelled) setGlean([]); });
+    }, 200);
+    return () => { cancelled = true; window.clearTimeout(id); };
+  }, [query]);
 
   const hits = useMemo<Hit[]>(() => {
     const q = query.trim().toLowerCase();
@@ -252,7 +263,7 @@ export function SearchPalette({
           {hits.length === 0 ? (
             <li
               style={{
-                padding: '24px 16px',
+                padding: 'calc(var(--card-pad) + 8px) var(--card-pad)',
                 color: 'var(--ink-mute)',
                 fontSize: 13,
                 textAlign: 'center',

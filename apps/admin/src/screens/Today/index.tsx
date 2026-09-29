@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Block, GleanItem, Mood, Task } from '@vallista/content-core';
 import {
   getMood,
@@ -8,24 +8,27 @@ import {
   listGlean,
   listMoodInRange,
   listTasks,
+  mailListAllAccountsMessages,
+  mailUnreadCountAll,
   setMood,
   setRetrospective,
   updateTask,
   type EventNote,
+  type MailMessage,
 } from '../../lib/tauri';
 import {
   Button,
   Card,
   CardTitle,
   Eyebrow,
-  Input,
   Mono,
   Tag,
-  Textarea,
 } from '../../components/atoms/Atoms';
-import { StreakIcon } from '../../components/atoms/Icons';
+import { DayLogIcon, StreakIcon } from '../../components/atoms/Icons';
 import { useNavigate } from '../../shell/nav';
 import { Timeline } from './Timeline';
+import { RitualSlot } from './RitualSlot';
+import { buildTimeStats, fmtMin, type TimeStats } from '../../lib/timeStats';
 
 type Tone = 'ink' | 'blue' | 'violet' | 'ok' | 'rose';
 
@@ -39,7 +42,12 @@ export function Today() {
   const [moodRange, setMoodRange] = useState<Mood[] | null>(null);
   const [routineBlocks, setRoutineBlocks] = useState<Block[] | null>(null);
   const [eventNotes, setEventNotes] = useState<EventNote[] | null>(null);
+  const [mailUnreadCount, setMailUnreadCount] = useState<number | null>(null);
+  const [mailMessages, setMailMessages] = useState<MailMessage[] | null>(null);
+  const [mailKey, setMailKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [ritualFabOpen, setRitualFabOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<EventNote | null>(null);
 
   const today = todayKey(now);
 
@@ -47,14 +55,17 @@ export function Today() {
     const tick = () => setNow(new Date());
     const id = setInterval(tick, 60_000);
     const onVis = () => {
-      if (document.visibilityState === 'visible') tick();
+      if (document.visibilityState === 'visible') {
+        tick();
+        setMailKey((k) => k + 1);
+      }
     };
     document.addEventListener('visibilitychange', onVis);
-    window.addEventListener('focus', tick);
+    window.addEventListener('focus', onVis);
     return () => {
       clearInterval(id);
       document.removeEventListener('visibilitychange', onVis);
-      window.removeEventListener('focus', tick);
+      window.removeEventListener('focus', onVis);
     };
   }, []);
 
@@ -65,8 +76,8 @@ export function Today() {
     listTasks()
       .then(setTasks)
       .catch((e: unknown) => setError(String(e)));
-    listGlean()
-      .then(setGlean)
+    listGlean({ offset: 0, limit: 10000 })
+      .then((p) => setGlean(p.items))
       .catch((e: unknown) => setError(String(e)));
     getMood(today)
       .then(setTodayMood)
@@ -83,6 +94,28 @@ export function Today() {
       .catch(() => setEventNotes([]));
   }, [today]);
 
+  useEffect(() => {
+    const onTasksChanged = () => {
+      listTasks().then(setTasks).catch(() => {});
+    };
+    window.addEventListener('bento:tasks-changed', onTasksChanged);
+    return () => window.removeEventListener('bento:tasks-changed', onTasksChanged);
+  }, []);
+
+  // 메일은 별도 effect — 앱 포커스/가시성 회복 시 항상 null→로딩→결과 흐름
+  useEffect(() => {
+    let cancelled = false;
+    setMailMessages(null);
+    setMailUnreadCount(null);
+    mailUnreadCountAll()
+      .then((n) => { if (!cancelled) setMailUnreadCount(n); })
+      .catch(() => { if (!cancelled) setMailUnreadCount(0); });
+    mailListAllAccountsMessages(0)
+      .then((msgs) => { if (!cancelled) setMailMessages(msgs); })
+      .catch(() => { if (!cancelled) setMailMessages([]); });
+    return () => { cancelled = true; };
+  }, [mailKey]);
+
   const sortedBlocks = useMemo(() => {
     if (!blocks) return [];
     return blocks.slice().sort((a, b) => a.start.localeCompare(b.start));
@@ -94,6 +127,8 @@ export function Today() {
     const remaining = total - done;
     return { total, done, remaining };
   }, [sortedBlocks, now]);
+
+  const timeStats = useMemo(() => buildTimeStats(sortedBlocks), [sortedBlocks]);
 
   const todayTasks = useMemo(() => {
     if (!tasks) return [];
@@ -172,6 +207,16 @@ export function Today() {
     return merged;
   }, [eventNotes, today]);
 
+  const timeMode = getTimeMode(now);
+  const isEveningMode = timeMode === 'evening' || timeMode === 'late';
+  const moodRecorded = !!todayMood && todayMood.energy !== undefined && todayMood.mood !== undefined;
+  const retroRecorded = !!todayMood?.retrospectiveNote;
+  const showRitualFab = todayMood !== undefined && !(moodRecorded && (!isEveningMode || retroRecorded));
+
+  useEffect(() => {
+    if (!showRitualFab) setRitualFabOpen(false);
+  }, [showRitualFab]);
+
   const upsertTask = useCallback((task: Task) => {
     setTasks((prev) => {
       if (!prev) return [task];
@@ -233,11 +278,11 @@ export function Today() {
 
   return (
     <div style={{ height: '100%', overflowY: 'auto', background: 'var(--bg)' }}>
-      <div style={{ padding: '32px 48px 80px', maxWidth: 1120, margin: '0 auto' }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3) 80px', maxWidth: 1120, margin: '0 auto' }}>
         <header
           style={{
-            marginBottom: 28,
-            paddingBottom: 22,
+            marginBottom: 'calc(var(--gap-lg) * 1.5)',
+            paddingBottom: 'calc(var(--gap-lg) * 1.2)',
             borderBottom: '1px solid var(--line)',
           }}
         >
@@ -245,8 +290,8 @@ export function Today() {
             style={{
               display: 'flex',
               alignItems: 'flex-end',
-              gap: 16,
-              marginBottom: 10,
+              gap: 'var(--gap-lg)',
+              marginBottom: 'var(--gap)',
               flexWrap: 'nowrap',
               overflow: 'hidden',
             }}
@@ -300,83 +345,131 @@ export function Today() {
           </p>
         </header>
 
+        {/* 통계 한 줄 */}
+        <StatBar
+          blockStats={blockStats}
+          taskCounts={taskCounts}
+          unreadGleanCount={unreadGleanCount}
+          mailUnreadCount={mailUnreadCount}
+          todayMood={todayMood}
+          nextBlock={nextBlock}
+          glean={glean}
+        />
+
+        {/* ATF: 일정 타임라인 + 사람 */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-            gap: 12,
-            marginBottom: 24,
+            gridTemplateColumns: '1.65fr 1fr',
+            gap: 'var(--gap-lg)',
+            marginBottom: 'var(--gap-lg)',
           }}
         >
-          <LifeStat
-            label="오늘 일정"
-            value={String(blockStats.total)}
-            unit="블록"
-            sub={
-              blockStats.total > 0
-                ? `${blockStats.done}개 끝, ${blockStats.remaining}개 남음`
-                : '비어 있음'
-            }
-            tone="ink"
-          />
-          <LifeStat
-            label="할 일"
-            value={String(taskCounts.total - taskCounts.done)}
-            unit={taskCounts.total > 0 ? `/${taskCounts.total}` : ''}
-            sub={
-              taskCounts.overdue > 0
-                ? `연체 ${taskCounts.overdue}개`
-                : nextBlock
-                  ? `다음 ${nextBlock.start}`
-                  : '여유'
-            }
-            tone="blue"
-          />
-          <LifeStat
-            label="수신함"
-            value={String(unreadGleanCount)}
-            unit="새"
-            sub={
-              glean === null
-                ? '읽는 중…'
-                : `${glean.filter((g) => g.status === 'promoted').length} 발아`
-            }
-            tone="violet"
-          />
-          <MoodStat mood={todayMood} />
+          <Card padded={false}>
+            <div
+              style={{
+                padding: '14px 18px',
+                borderBottom: '1px solid var(--line)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <CardTitle>오늘의 흐름</CardTitle>
+              <div style={{ display: 'flex', gap: 'var(--gap-lg)', alignItems: 'center' }}>
+                <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+                  {blockStats.total}블록 · {durationLabel(sortedBlocks)}
+                </Mono>
+                <Button sm ghost onClick={() => navigate('plan')}>
+                  플랜으로
+                </Button>
+              </div>
+            </div>
+            <div style={{ padding: '16px 0' }}>
+              {sortedBlocks.length === 0 ? (
+                <EmptyTimeline onPlan={() => navigate('plan')} />
+              ) : (
+                <Timeline
+                  blocks={sortedBlocks}
+                  now={now}
+                  notes={todayNotes.map((n) => ({ title: n.eventTitleSnapshot, body: n.body }))}
+                />
+              )}
+            </div>
+            {sortedBlocks.length > 0 && (
+              <div
+                style={{
+                  padding: '8px 18px 10px',
+                  borderTop: '1px solid var(--line)',
+                  display: 'flex',
+                  gap: 6,
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={() =>
+                    document
+                      .getElementById('today-tasks')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                  style={shortcutPillStyle(taskCounts.total > 0)}
+                >
+                  ↓ 할 일{' '}
+                  {taskCounts.total - taskCounts.done > 0
+                    ? `${taskCounts.total - taskCounts.done}개`
+                    : '완료'}
+                </button>
+                <button
+                  onClick={() =>
+                    document
+                      .getElementById('today-notes')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                  style={shortcutPillStyle(todayNotes.length > 0)}
+                >
+                  ↓ 일정 메모{' '}
+                  {todayNotes.length > 0 ? `${todayNotes.length}건` : '없음'}
+                </button>
+              </div>
+            )}
+          </Card>
+          <PeopleCard people={peopleRows} loading={blocks === null} />
         </div>
 
-        <Card padded={false} style={{ marginBottom: 20 }}>
-          <div
-            style={{
-              padding: '14px 18px',
-              borderBottom: '1px solid var(--line)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <CardTitle>오늘의 흐름</CardTitle>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
-                {blockStats.total}블록 · {durationLabel(sortedBlocks)}
-              </Mono>
-              <Button sm ghost onClick={() => navigate('plan')}>
-                플랜으로
-              </Button>
-            </div>
+        {/* ATF: 할 일 + 일정 메모 */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 'var(--gap-lg)',
+            marginBottom: 'calc(var(--gap-lg) * 2)',
+          }}
+        >
+          <div id="today-tasks">
+            <TasksCard
+              tasks={todayTasks}
+              loading={tasks === null}
+              onToggle={async (id, done) => {
+                const updated = await updateTask(id, { done });
+                upsertTask(updated);
+                window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
+              }}
+              onAll={() => navigate('plan')}
+            />
           </div>
-          <div style={{ padding: '16px 0' }}>
-            {sortedBlocks.length === 0 ? (
-              <EmptyTimeline onPlan={() => navigate('plan')} />
-            ) : (
-              <Timeline blocks={sortedBlocks} now={now} />
-            )}
+          <div id="today-notes">
+            <NotesCard notes={todayNotes} loading={eventNotes === null} onSelect={setSelectedNote} />
           </div>
-        </Card>
+        </div>
+
+        {/* Below fold */}
+        {sortedBlocks.length > 0 && (
+          <TimeBudgetCard stats={timeStats} doneCount={blockStats.done} totalCount={blockStats.total} />
+        )}
 
         {routineSummary.length > 0 && (
-          <Card padded={false} style={{ marginBottom: 20 }}>
+          <Card padded={false} style={{ marginBottom: 'var(--gap-lg)' }}>
             <div
               style={{
                 padding: '14px 18px',
@@ -398,9 +491,9 @@ export function Today() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.15fr 0.85fr',
-            gap: 20,
-            marginBottom: 20,
+            gridTemplateColumns: '1fr 1fr',
+            gap: 'var(--gap-lg)',
+            marginBottom: 'var(--gap-lg)',
           }}
         >
           <InboxCard
@@ -409,112 +502,250 @@ export function Today() {
             loading={glean === null}
             onAll={() => navigate('glean')}
           />
-          <PeopleCard people={peopleRows} loading={blocks === null} />
+          <MailInboxCard
+            messages={mailMessages}
+            unread={mailUnreadCount ?? 0}
+            onAll={() => navigate('mail')}
+          />
         </div>
 
+        <MoodCard series={moodSeries} loading={moodRange === null} />
+      </div>
+
+      {/* 체크인 FAB */}
+      {showRitualFab && (
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: '0.85fr 1.15fr',
-            gap: 20,
-            marginBottom: 20,
+            position: 'fixed',
+            bottom: 24,
+            right: 24,
+            zIndex: 200,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: 8,
           }}
         >
-          <TasksCard
-            tasks={todayTasks}
-            loading={tasks === null}
-            onToggle={async (id, done) => {
-              const updated = await updateTask(id, { done });
-              upsertTask(updated);
+          {ritualFabOpen && (
+            <div
+              style={{
+                width: 360,
+                background: 'var(--bg)',
+                border: '1px solid var(--line)',
+                borderRadius: 12,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderBottom: '1px solid var(--line)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Mono style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
+                  하루 기록
+                </Mono>
+                <button
+                  onClick={() => setRitualFabOpen(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--ink-mute)',
+                    fontSize: 16,
+                    lineHeight: 1,
+                    padding: '2px 4px',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+              <div style={{ padding: '14px 16px', overflow: 'hidden' }}>
+                <RitualSlot
+                  today={todayMood}
+                  now={now}
+                  onMoodSubmit={handleMoodSubmit}
+                  onRetrospectiveSubmit={handleRetrospectiveSubmit}
+                />
+              </div>
+            </div>
+          )}
+          <button
+            onClick={() => setRitualFabOpen((o) => !o)}
+            title="체크인 · 기록"
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 999,
+              background: ritualFabOpen ? 'var(--blue)' : 'var(--bg)',
+              border: `1.5px solid ${ritualFabOpen ? 'var(--blue)' : 'var(--line-strong)'}`,
+              boxShadow: '0 2px 14px rgba(0,0,0,0.15)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 0.15s, border-color 0.15s',
             }}
-            onAll={() => navigate('plan')}
-          />
-          <MoodCard
-            today={todayMood}
-            series={moodSeries}
-            loading={moodRange === null}
-            onSubmit={handleMoodSubmit}
-          />
+          >
+            <DayLogIcon size={18} color={ritualFabOpen ? 'white' : 'var(--ink)'} strokeWidth={1.6} />
+          </button>
         </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <NotesCard notes={todayNotes} loading={eventNotes === null} />
-        </div>
-
-        <div style={{ marginBottom: 20 }}>
-          <RetrospectCard today={todayMood} onSubmit={handleRetrospectiveSubmit} />
-        </div>
-      </div>
+      )}
+      {selectedNote && (
+        <EventNoteDetailModal note={selectedNote} onClose={() => setSelectedNote(null)} />
+      )}
     </div>
   );
 }
 
-function LifeStat({
-  label,
-  value,
-  unit,
-  sub,
-  tone,
+function StatBar({
+  blockStats,
+  taskCounts,
+  unreadGleanCount,
+  mailUnreadCount,
+  todayMood,
+  nextBlock,
+  glean,
 }: {
-  label: string;
-  value: string;
-  unit?: string;
-  sub?: string;
-  tone: Tone;
+  blockStats: { total: number; done: number; remaining: number };
+  taskCounts: { done: number; total: number; overdue: number };
+  unreadGleanCount: number;
+  mailUnreadCount: number | null;
+  todayMood: Mood | null | undefined;
+  nextBlock: Block | undefined;
+  glean: GleanItem[] | null;
 }) {
-  const c = toneColor(tone);
+  const moodRecorded = !!todayMood && todayMood.energy !== undefined && todayMood.mood !== undefined;
+  const energyPct = moodRecorded ? Math.round((todayMood!.energy ?? 0) * 100) : null;
+  const moodPct = moodRecorded ? Math.round((todayMood!.mood ?? 0) * 100) : null;
+
   return (
     <div
       style={{
-        padding: '20px 22px',
-        border: '1px solid var(--line)',
-        borderRadius: 12,
-        background: 'var(--bg)',
-        minWidth: 0,
-        overflow: 'hidden',
+        display: 'flex',
+        gap: 8,
+        marginBottom: 'var(--gap-lg)',
+        flexWrap: 'wrap',
+        alignItems: 'center',
       }}
     >
-      <Eyebrow>{label}</Eyebrow>
-      <div
+      <StatPill
+        label="일정"
+        value={blockStats.total > 0 ? `${blockStats.done}/${blockStats.total}` : '비어 있음'}
+        sub={blockStats.remaining > 0 ? `${blockStats.remaining}개 남음` : undefined}
+        tone="ink"
+      />
+      <StatPill
+        label="할일"
+        value={`${taskCounts.total - taskCounts.done}/${taskCounts.total}`}
+        sub={
+          taskCounts.overdue > 0
+            ? `연체 ${taskCounts.overdue}`
+            : nextBlock
+              ? `다음 ${nextBlock.start}`
+              : undefined
+        }
+        tone="blue"
+        warn={taskCounts.overdue > 0}
+      />
+      <StatPill
+        label="수신함"
+        value={mailUnreadCount === null ? <DotLoader color="var(--hl-rose)" /> : `새 메일 ${mailUnreadCount}개`}
+        tone="rose"
+      />
+      <StatPill
+        label="줍기"
+        value={`${unreadGleanCount} 미읽음`}
+        sub={
+          glean !== null
+            ? `${glean.filter((g) => g.status === 'promoted').length} 발행됨`
+            : undefined
+        }
+        tone="violet"
+      />
+      <StatPill
+        label="컨디션"
+        value={
+          todayMood === undefined
+            ? '…'
+            : energyPct !== null
+              ? `에너지 ${energyPct}`
+              : '—'
+        }
+        sub={moodPct !== null ? `기분 ${moodPct}` : '미기록'}
+        tone="ok"
+      />
+    </div>
+  );
+}
+
+function DotLoader({ color }: { color: string }) {
+  return (
+    <span style={{ display: 'inline-flex', gap: 3, alignItems: 'center' }}>
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          style={{
+            width: 4,
+            height: 4,
+            borderRadius: '50%',
+            background: color,
+            animation: `psm-pulse 1.1s ease-in-out ${i * 0.2}s infinite`,
+          }}
+        />
+      ))}
+    </span>
+  );
+}
+
+function StatPill({
+  label,
+  value,
+  sub,
+  tone,
+  warn,
+}: {
+  label: string;
+  value: ReactNode;
+  sub?: string;
+  tone: Tone;
+  warn?: boolean;
+}) {
+  const c = warn ? 'var(--err)' : toneColor(tone);
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '5px 12px',
+        border: `1px solid ${warn ? 'var(--err-soft)' : 'var(--line)'}`,
+        borderRadius: 999,
+        background: warn ? 'var(--err-soft)' : 'var(--bg)',
+        minWidth: 0,
+      }}
+    >
+      <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)', whiteSpace: 'nowrap' }}>
+        {label}
+      </Mono>
+      <span
         style={{
-          marginTop: 10,
-          fontSize: 30,
-          fontWeight: 700,
-          letterSpacing: '-0.6px',
+          fontSize: 13,
+          fontWeight: 600,
           color: c,
-          lineHeight: 1.05,
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: 6,
           whiteSpace: 'nowrap',
+          letterSpacing: '-0.2px',
         }}
       >
         {value}
-        {unit && (
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: 'var(--ink-soft)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {unit}
-          </span>
-        )}
-      </div>
+      </span>
       {sub && (
-        <Mono
-          style={{
-            marginTop: 6,
-            fontSize: 11,
-            color: 'var(--ink-mute)',
-            display: 'block',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
+        <Mono style={{ fontSize: 10.5, color: 'var(--ink-faint)', whiteSpace: 'nowrap' }}>
           {sub}
         </Mono>
       )}
@@ -522,23 +753,187 @@ function LifeStat({
   );
 }
 
-function MoodStat({ mood }: { mood: Mood | null | undefined }) {
-  if (mood === undefined) {
-    return <LifeStat label="컨디션" value="…" sub="읽는 중" tone="ok" />;
-  }
-  if (!mood || mood.energy === undefined || mood.mood === undefined) {
-    return <LifeStat label="컨디션" value="—" sub="아직 기록 안 함" tone="ok" />;
-  }
-  const energyPct = Math.round(mood.energy * 100);
-  const moodPct = Math.round(mood.mood * 100);
+function TimeBudgetCard({
+  stats,
+  doneCount,
+  totalCount,
+}: {
+  stats: TimeStats;
+  doneCount: number;
+  totalCount: number;
+}) {
+  const { plannedMin, actualMin, driftMin, byCategory, hasActual } = stats;
+  const adherencePct =
+    plannedMin > 0
+      ? Math.max(0, Math.min(200, Math.round((actualMin / plannedMin) * 100)))
+      : 0;
+  const totalCat = byCategory.meet + byCategory.focus + byCategory.life;
+  const meetPct = totalCat > 0 ? (byCategory.meet / totalCat) * 100 : 0;
+  const focusPct = totalCat > 0 ? (byCategory.focus / totalCat) * 100 : 0;
+  const lifePct = totalCat > 0 ? (byCategory.life / totalCat) * 100 : 0;
+  const driftAbs = Math.abs(driftMin);
+  const driftWithinFive = driftAbs <= 5;
+  const driftColor = !hasActual
+    ? 'var(--ink-mute)'
+    : driftWithinFive
+      ? 'var(--ok)'
+      : driftMin > 0
+        ? 'var(--hl-amber)'
+        : 'var(--hl-rose)';
+  const driftLabel = !hasActual
+    ? '미기록'
+    : driftMin === 0
+      ? '0'
+      : `${driftMin > 0 ? '+' : '−'}${fmtMin(driftAbs)}`;
+  const completionPct =
+    totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
   return (
-    <LifeStat
-      label="컨디션"
-      value={`${energyPct}`}
-      unit="에너지"
-      sub={`기분 ${moodPct}`}
-      tone="ok"
-    />
+    <Card padded={false} style={{ marginBottom: 20 }}>
+      <div
+        style={{
+          padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
+          borderBottom: '1px solid var(--line)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <CardTitle>오늘의 시간 · 예산 대 실제</CardTitle>
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+          완료 {doneCount}/{totalCount} · {completionPct}%
+        </Mono>
+      </div>
+      <div
+        style={{
+          padding: '16px 18px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+          gap: 14,
+          borderBottom: totalCat > 0 ? '1px solid var(--line)' : 'none',
+        }}
+      >
+        <BudgetMetric
+          label="계획"
+          value={fmtMin(plannedMin)}
+          sub={`${totalCount}블록`}
+          color="var(--ink)"
+        />
+        <BudgetMetric
+          label="실제"
+          value={hasActual ? fmtMin(actualMin) : '—'}
+          sub={hasActual ? `진행 ${adherencePct}%` : '실제 미기록'}
+          color="var(--blue)"
+        />
+        <BudgetMetric
+          label="차이"
+          value={driftLabel}
+          sub={hasActual ? '계획 대비' : '실제 입력 후 표시'}
+          color={driftColor}
+        />
+      </div>
+      {totalCat > 0 && (
+        <div style={{ padding: '12px 18px 16px' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: 8,
+              alignItems: 'center',
+              marginBottom: 8,
+              flexWrap: 'wrap',
+            }}
+          >
+            <Eyebrow>카테고리 분포</Eyebrow>
+            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              회의 {fmtMin(byCategory.meet)} · 집중 {fmtMin(byCategory.focus)} ·
+              생활 {fmtMin(byCategory.life)}
+            </Mono>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              height: 8,
+              borderRadius: 4,
+              overflow: 'hidden',
+              background: 'var(--bg-shade)',
+            }}
+          >
+            {meetPct > 0 && (
+              <div
+                style={{
+                  flex: meetPct,
+                  background: 'var(--hl-violet)',
+                  opacity: 0.75,
+                }}
+                title={`회의 ${Math.round(meetPct)}%`}
+              />
+            )}
+            {focusPct > 0 && (
+              <div
+                style={{ flex: focusPct, background: 'var(--ok)', opacity: 0.75 }}
+                title={`집중 ${Math.round(focusPct)}%`}
+              />
+            )}
+            {lifePct > 0 && (
+              <div
+                style={{
+                  flex: lifePct,
+                  background: 'var(--ink-mute)',
+                  opacity: 0.55,
+                }}
+                title={`생활 ${Math.round(lifePct)}%`}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function BudgetMetric({
+  label,
+  value,
+  sub,
+  color,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  color: string;
+}) {
+  return (
+    <div style={{ minWidth: 0 }}>
+      <Eyebrow>{label}</Eyebrow>
+      <div
+        style={{
+          marginTop: 8,
+          fontSize: 22,
+          fontWeight: 700,
+          letterSpacing: '-0.4px',
+          color,
+          lineHeight: 1.1,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {value}
+      </div>
+      <Mono
+        style={{
+          marginTop: 4,
+          fontSize: 10.5,
+          color: 'var(--ink-mute)',
+          display: 'block',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {sub}
+      </Mono>
+    </div>
   );
 }
 
@@ -557,7 +952,7 @@ function InboxCard({
     <Card padded={false}>
       <div
         style={{
-          padding: '14px 18px',
+          padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
           borderBottom: '1px solid var(--line)',
           display: 'flex',
           alignItems: 'center',
@@ -581,8 +976,8 @@ function InboxCard({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
-                padding: '10px 12px',
+                gap: 'var(--gap-lg)',
+                padding: 'var(--gap) var(--gap-lg)',
                 borderRadius: 6,
                 background:
                   it.status === 'unread' ? 'rgba(96,165,250,0.04)' : 'transparent',
@@ -639,10 +1034,10 @@ function InboxCard({
       )}
       <div
         style={{
-          padding: '8px 14px 12px',
+          padding: 'var(--gap) var(--gap-lg) var(--gap-lg)',
           borderTop: '1px solid var(--line)',
           display: 'flex',
-          gap: 6,
+          gap: 'var(--gap)',
           alignItems: 'center',
         }}
       >
@@ -651,6 +1046,181 @@ function InboxCard({
         </Mono>
         <Button sm ghost onClick={onAll}>
           전부 보기
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function parseSender(from: string): string {
+  const m = /^(.+?)\s*</.exec(from);
+  if (m?.[1]) return m[1].trim().replace(/^["']|["']$/g, '');
+  return from.split('@')[0] ?? from;
+}
+
+function MailInboxCard({
+  messages,
+  unread,
+  onAll,
+}: {
+  messages: MailMessage[] | null;
+  unread: number;
+  onAll: () => void;
+}) {
+  const loading = messages === null;
+  const items = messages ? messages.slice(0, 7) : [];
+  const hasAccounts = messages !== null;
+
+  return (
+    <Card padded={false}>
+      <div
+        style={{
+          padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
+          borderBottom: '1px solid var(--line)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <CardTitle>수신함 · 이메일</CardTitle>
+        <Mono style={{ fontSize: 11, color: unread > 0 ? 'var(--hl-rose)' : 'var(--ink-mute)' }}>
+          {loading ? '…' : unread > 0 ? `새 메일 ${unread}개` : '모두 읽음'}
+        </Mono>
+      </div>
+
+      {loading ? (
+        <div style={{ padding: '6px 0' }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '9px 18px',
+              }}
+            >
+              <div
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 999,
+                  background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <div
+                  style={{
+                    height: 12,
+                    borderRadius: 4,
+                    width: `${55 + (i % 3) * 15}%`,
+                    background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
+                  }}
+                />
+                <div
+                  style={{
+                    height: 10,
+                    borderRadius: 4,
+                    width: `${35 + (i % 4) * 10}%`,
+                    background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
+                    backgroundSize: '200% 100%',
+                    animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  height: 10,
+                  width: 36,
+                  borderRadius: 4,
+                  background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
+                  flexShrink: 0,
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      ) : !hasAccounts || items.length === 0 ? (
+        <EmptyState text={hasAccounts ? '새 메일이 없습니다' : '메일 계정을 추가하면 여기에 표시됩니다'} />
+      ) : (
+        <ul style={{ listStyle: 'none', margin: 0, padding: 6 }}>
+          {items.map((msg) => (
+            <li
+              key={`${msg.accountId}-${msg.uid}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '7px 12px',
+                borderRadius: 6,
+                background: !msg.seen ? 'rgba(96,165,250,0.04)' : 'transparent',
+              }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 999,
+                  background: !msg.seen ? 'var(--blue)' : 'transparent',
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: !msg.seen ? 'var(--ink)' : 'var(--ink-2)',
+                    fontWeight: !msg.seen ? 500 : 400,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {msg.subject || '(제목 없음)'}
+                </div>
+                <Mono
+                  style={{
+                    fontSize: 10.5,
+                    color: 'var(--ink-mute)',
+                    marginTop: 2,
+                    display: 'block',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {parseSender(msg.from)}
+                </Mono>
+              </div>
+              <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {formatRel(msg.date)}
+              </Mono>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div
+        style={{
+          padding: 'var(--gap) var(--gap-lg) var(--gap-lg)',
+          borderTop: '1px solid var(--line)',
+          display: 'flex',
+          gap: 'var(--gap)',
+          alignItems: 'center',
+        }}
+      >
+        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', flex: 1 }}>
+          메일 · 모든 계정 통합
+        </Mono>
+        <Button sm ghost onClick={onAll}>
+          메일함으로
         </Button>
       </div>
     </Card>
@@ -666,7 +1236,7 @@ interface PersonRow {
 function PeopleCard({ people, loading }: { people: PersonRow[]; loading: boolean }) {
   return (
     <Card padded={false}>
-      <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--line)' }}>
+      <div style={{ padding: 'calc(var(--card-pad) - 2px) var(--card-pad)', borderBottom: '1px solid var(--line)' }}>
         <CardTitle>오늘 만날·기억할 사람</CardTitle>
       </div>
       {loading ? (
@@ -681,8 +1251,8 @@ function PeopleCard({ people, loading }: { people: PersonRow[]; loading: boolean
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
-                padding: '10px 12px',
+                gap: 'var(--gap-lg)',
+                padding: 'var(--gap) var(--gap-lg)',
               }}
             >
               <span
@@ -703,20 +1273,23 @@ function PeopleCard({ people, loading }: { people: PersonRow[]; loading: boolean
                 {initial(p.name)}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13.5, color: 'var(--ink)' }}>{p.name}</div>
+                <div style={{ fontSize: 13.5, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                 <Mono
                   style={{
                     fontSize: 10.5,
                     color: p.next ? 'var(--hl-violet)' : 'var(--ink-mute)',
                     display: 'block',
                     marginTop: 2,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {p.next ?? '—'}
                 </Mono>
               </div>
               <Mono
-                style={{ fontSize: 10.5, color: 'var(--ink-mute)', textAlign: 'right' }}
+                style={{ fontSize: 10.5, color: 'var(--ink-mute)', textAlign: 'right', flexShrink: 0 }}
               >
                 {p.recent}
               </Mono>
@@ -743,7 +1316,7 @@ function TasksCard({
     <Card padded={false}>
       <div
         style={{
-          padding: '14px 18px',
+          padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
           borderBottom: '1px solid var(--line)',
           display: 'flex',
           alignItems: 'center',
@@ -766,10 +1339,10 @@ function TasksCard({
       )}
       <div
         style={{
-          padding: '8px 14px 12px',
+          padding: 'var(--gap) var(--gap-lg) var(--gap-lg)',
           borderTop: '1px solid var(--line)',
           display: 'flex',
-          gap: 6,
+          gap: 'var(--gap)',
           alignItems: 'center',
           justifyContent: 'flex-end',
         }}
@@ -806,8 +1379,9 @@ function TaskRow({
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 10,
-        padding: '8px 12px',
+        gap: 'var(--gap)',
+        padding: 'var(--gap) var(--gap-lg)',
+        minHeight: 'var(--row-h)',
       }}
     >
       <button
@@ -871,42 +1445,12 @@ interface MoodSeriesEntry {
 }
 
 function MoodCard({
-  today,
   series,
   loading,
-  onSubmit,
 }: {
-  today: Mood | null | undefined;
   series: MoodSeriesEntry[];
   loading: boolean;
-  onSubmit: (energy: number, mood: number, note?: string) => Promise<void>;
 }) {
-  const [energy, setEnergy] = useState<number>(() =>
-    today?.energy !== undefined ? today.energy : 0.6,
-  );
-  const [mood, setMood] = useState<number>(() =>
-    today?.mood !== undefined ? today.mood : 0.6,
-  );
-  const [note, setNote] = useState<string>(today?.note ?? '');
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (today) {
-      if (today.energy !== undefined) setEnergy(today.energy);
-      if (today.mood !== undefined) setMood(today.mood);
-      setNote(today.note ?? '');
-    }
-  }, [today]);
-
-  const submit = async () => {
-    setBusy(true);
-    try {
-      await onSubmit(energy, mood, note.trim() || undefined);
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <Card padded>
       <div
@@ -917,7 +1461,7 @@ function MoodCard({
           marginBottom: 14,
         }}
       >
-        <CardTitle>아침 컨디션 · 30일</CardTitle>
+        <CardTitle>컨디션 추이 · 30일</CardTitle>
         <div
           style={{
             display: 'flex',
@@ -963,7 +1507,6 @@ function MoodCard({
             display: 'grid',
             gridTemplateColumns: 'repeat(30, 1fr)',
             gap: 3,
-            marginBottom: 14,
           }}
         >
           {series.map((d) => (
@@ -998,90 +1541,26 @@ function MoodCard({
           ))}
         </div>
       )}
-
-      <div
-        style={{
-          paddingTop: 12,
-          borderTop: '1px solid var(--line)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
-        }}
-      >
-        <SliderRow
-          label="에너지"
-          value={energy}
-          onChange={setEnergy}
-          color="var(--ok)"
-        />
-        <SliderRow
-          label="기분"
-          value={mood}
-          onChange={setMood}
-          color="var(--blue)"
-        />
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Input
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="짧은 메모 (선택)"
-            style={{ flex: 1, padding: '6px 10px', fontSize: 12.5 }}
-          />
-          <Button sm onClick={submit} disabled={busy}>
-            {today ? '갱신' : '체크인'}
-          </Button>
-        </div>
-      </div>
     </Card>
-  );
-}
-
-function SliderRow({
-  label,
-  value,
-  onChange,
-  color,
-}: {
-  label: string;
-  value: number;
-  onChange: (v: number) => void;
-  color: string;
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <span style={{ fontSize: 12, color: 'var(--ink-soft)', minWidth: 44 }}>
-        {label}
-      </span>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        value={Math.round(value * 100)}
-        onChange={(e) => onChange(Number(e.target.value) / 100)}
-        style={{
-          flex: 1,
-          accentColor: color,
-        }}
-      />
-      <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', minWidth: 28 }}>
-        {Math.round(value * 100)}
-      </Mono>
-    </div>
   );
 }
 
 function NotesCard({
   notes,
   loading,
+  onSelect,
 }: {
   notes: EventNote[];
   loading: boolean;
+  onSelect: (note: EventNote) => void;
 }) {
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
     <Card padded={false}>
       <div
         style={{
-          padding: '14px 18px',
+          padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
           borderBottom: '1px solid var(--line)',
           display: 'flex',
           alignItems: 'center',
@@ -1098,16 +1577,23 @@ function NotesCard({
       ) : notes.length === 0 ? (
         <EmptyState text="오늘 일정에 남긴 메모가 없습니다" />
       ) : (
-        <ul style={{ listStyle: 'none', margin: 0, padding: 6 }}>
+        <ul style={{ listStyle: 'none', margin: 0, padding: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {notes.slice(0, 8).map((n) => (
             <li
               key={n.id}
+              onClick={() => onSelect(n)}
+              onMouseEnter={() => setHovered(n.id)}
+              onMouseLeave={() => setHovered(null)}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 4,
+                gap: 6,
                 padding: '10px 12px',
-                borderRadius: 6,
+                borderRadius: 8,
+                border: '1px solid var(--line)',
+                background: hovered === n.id ? 'var(--bg-shade)' : 'transparent',
+                cursor: 'pointer',
+                transition: 'background 120ms ease',
               }}
             >
               <div
@@ -1115,17 +1601,16 @@ function NotesCard({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
-                  fontSize: 11,
-                  color: 'var(--ink-mute)',
                 }}
               >
-                <Mono style={{ fontSize: 10, color: 'var(--blue)' }}>
+                <Mono style={{ fontSize: 10, color: 'var(--blue)', flexShrink: 0 }}>
                   {n.eventDateSnapshot}
                 </Mono>
                 <span
                   style={{
-                    color: 'var(--ink-soft)',
+                    color: 'var(--ink)',
                     fontSize: 12,
+                    fontWeight: 500,
                     flex: 1,
                     minWidth: 0,
                     whiteSpace: 'nowrap',
@@ -1135,18 +1620,21 @@ function NotesCard({
                 >
                   {n.eventTitleSnapshot || '(제목 없음)'}
                 </span>
-                <Mono style={{ fontSize: 10, color: 'var(--ink-faint)' }}>
+                <Mono style={{ fontSize: 10, color: 'var(--ink-faint)', flexShrink: 0 }}>
                   {formatRel(n.updatedAt)}
                 </Mono>
               </div>
               <div
                 style={{
-                  fontSize: 12.5,
-                  color: 'var(--ink)',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
+                  fontSize: 12,
+                  color: 'var(--ink-soft)',
                   lineHeight: 1.5,
-                }}
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  wordBreak: 'break-word',
+                } as React.CSSProperties}
               >
                 {n.body}
               </div>
@@ -1158,97 +1646,84 @@ function NotesCard({
   );
 }
 
-function RetrospectCard({
-  today,
-  onSubmit,
-}: {
-  today: Mood | null | undefined;
-  onSubmit: (note: string) => Promise<void>;
-}) {
-  const [note, setNote] = useState<string>(today?.retrospectiveNote ?? '');
-  const [busy, setBusy] = useState(false);
-  const isEvening = new Date().getHours() >= 18;
-
+function EventNoteDetailModal({ note, onClose }: { note: EventNote; onClose: () => void }) {
   useEffect(() => {
-    if (today) {
-      setNote(today.retrospectiveNote ?? '');
-    }
-  }, [today]);
-
-  const submit = async () => {
-    setBusy(true);
-    try {
-      await onSubmit(note);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const recordedAt = today?.retrospectiveAt ? formatRel(today.retrospectiveAt) : null;
-  const dirty = note.trim() !== (today?.retrospectiveNote ?? '');
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   return (
-    <Card padded>
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(15,18,22,0.46)',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        paddingTop: '10vh',
+        zIndex: 220,
+      }}
+    >
       <div
+        onClick={(e) => e.stopPropagation()}
         style={{
+          width: 'min(560px, 92vw)',
+          maxHeight: '70vh',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 12,
-          gap: 12,
+          flexDirection: 'column',
+          background: 'var(--bg)',
+          borderRadius: 12,
+          border: '1px solid var(--line)',
+          boxShadow: '0 24px 56px rgba(0,0,0,0.28)',
+          overflow: 'hidden',
         }}
       >
-        <CardTitle>저녁 회고</CardTitle>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {isEvening && !today?.retrospectiveNote && (
-            <Mono
-              style={{
-                fontSize: 10.5,
-                color: 'var(--blue)',
-                letterSpacing: '0.06em',
-              }}
-            >
-              저녁 · 시작하기 좋은 시간
-            </Mono>
-          )}
-          {recordedAt && (
-            <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
-              {recordedAt}
-            </Mono>
-          )}
+        <div
+          style={{
+            padding: '14px 18px',
+            borderBottom: '1px solid var(--line)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 12,
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', marginBottom: 5 }}>
+              {note.eventTitleSnapshot || '(제목 없음)'}
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Mono style={{ fontSize: 10, color: 'var(--blue)' }}>{note.eventDateSnapshot}</Mono>
+              <Mono style={{ fontSize: 10, color: 'var(--ink-faint)' }}>{formatRel(note.updatedAt)}</Mono>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ink-mute)', fontSize: 18, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}
+            aria-label="닫기"
+          >
+            ×
+          </button>
+        </div>
+        <div style={{ padding: '16px 18px', overflowY: 'auto', flex: 1 }}>
+          <div
+            style={{
+              fontSize: 13,
+              color: 'var(--ink)',
+              whiteSpace: 'pre-wrap',
+              lineHeight: 1.7,
+              wordBreak: 'break-word',
+            }}
+          >
+            {note.body}
+          </div>
         </div>
       </div>
-      <Textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder={
-          isEvening ? '오늘 하루를 짧게 적어보세요' : '잠자기 전에 돌아보세요'
-        }
-        rows={5}
-        style={{
-          width: '100%',
-          fontSize: 13.5,
-          lineHeight: 1.65,
-          resize: 'vertical',
-        }}
-      />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          marginTop: 10,
-          gap: 8,
-          alignItems: 'center',
-        }}
-      >
-        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', flex: 1 }}>
-          {note.length > 0 ? `${note.length}자` : ' '}
-        </Mono>
-        <Button sm onClick={submit} disabled={busy || !dirty}>
-          {busy ? '저장 중…' : today?.retrospectiveNote ? '갱신' : '기록'}
-        </Button>
-      </div>
-    </Card>
+    </div>
   );
 }
 
@@ -1269,10 +1744,10 @@ function RoutineStreaks({ routines }: { routines: RoutineSummary[] }) {
         <li
           key={r.title}
           style={{
-            padding: '10px 12px',
+            padding: 'var(--gap) var(--gap-lg)',
             display: 'grid',
             gridTemplateColumns: '1fr auto',
-            gap: 10,
+            gap: 'var(--gap)',
             alignItems: 'center',
           }}
         >
@@ -1476,6 +1951,20 @@ function EmptyTimeline({ onPlan }: { onPlan: () => void }) {
   );
 }
 
+function shortcutPillStyle(active: boolean) {
+  return {
+    padding: '3px 10px',
+    fontSize: 11,
+    fontFamily: 'inherit',
+    border: `1px solid ${active ? 'var(--line-strong)' : 'var(--line)'}`,
+    background: 'transparent',
+    color: active ? 'var(--ink-soft)' : 'var(--ink-faint)',
+    borderRadius: 999,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap' as const,
+  } as const;
+}
+
 function toneColor(tone: Tone): string {
   switch (tone) {
     case 'blue':
@@ -1489,6 +1978,14 @@ function toneColor(tone: Tone): string {
     default:
       return 'var(--ink)';
   }
+}
+
+function getTimeMode(now: Date): 'morning' | 'afternoon' | 'evening' | 'late' {
+  const h = now.getHours();
+  if (h < 5) return 'late';
+  if (h < 14) return 'morning';
+  if (h < 18) return 'afternoon';
+  return 'evening';
 }
 
 function greetText(now: Date): string {

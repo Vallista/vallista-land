@@ -82,7 +82,7 @@ export function HourHeatmap({ blocks }: { blocks: Block[] }) {
   const stats = buildHeat(blocks);
 
   return (
-    <Card padded style={{ marginBottom: 20 }}>
+    <Card padded style={{ marginBottom: 'var(--gap-lg)' }}>
       <div
         style={{
           display: 'flex',

@@ -1,16 +1,41 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Block, KnownBlockKind, Task } from '@vallista/content-core';
+import { TimeSelect } from '../../components/TimeSelect';
+import type { Block, Task } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
+import { CheckIcon } from '../../components/atoms/Icons';
 import { BlockInfoView } from './BlockInfoView';
+import { eventNoteKeysFromBlock } from '../../lib/tauri';
 import {
-  EXTERNAL_COLOR,
-  KIND_COLOR,
   SOURCE_LABEL,
+  blockColor,
   dayOffset,
   isAllDayBlock,
   isLocal,
+  isUnscheduledBlock,
   spanDayCount,
 } from './blockMeta';
+
+const DAY_BUDGET_PREFIX = 'bento.plan.dayBudget.';
+const GLOBAL_ACTIVE_START_KEY = 'bento.plan.activeStart';
+const GLOBAL_ACTIVE_END_KEY = 'bento.plan.activeEnd';
+const GLOBAL_SLEEP_START_KEY = 'bento.plan.sleepStart';
+const GLOBAL_SLEEP_END_KEY = 'bento.plan.sleepEnd';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function getDayActive(date: string, globalStart?: string, globalEnd?: string, _tick?: number): { start: string; end: string } {
+  const raw = typeof window !== 'undefined' ? window.localStorage.getItem(DAY_BUDGET_PREFIX + date) : null;
+  if (raw) {
+    try {
+      const d = JSON.parse(raw) as Record<string, string>;
+      return { start: d['activeStart'] ?? globalStart ?? '09:00', end: d['activeEnd'] ?? globalEnd ?? '21:00' };
+    } catch { /* fall through */ }
+  }
+  return { start: globalStart ?? '09:00', end: globalEnd ?? '21:00' };
+}
+
+function hasDayCustomBudget(date: string): boolean {
+  return typeof window !== 'undefined' && !!window.localStorage.getItem(DAY_BUDGET_PREFIX + date);
+}
 
 const DEFAULT_HOUR_START = 0;
 const DEFAULT_HOUR_END = 23;
@@ -25,6 +50,7 @@ export interface CalendarDay {
   label: string;
   dayNumber: number;
   isToday: boolean;
+  isWeekend?: boolean;
 }
 
 type DragState =
@@ -68,6 +94,11 @@ export function WeekCalendar({
   onBlockMoveToInbox,
   onInboxHoverChange,
   onBlockDragChange,
+  onBlockDone,
+  activeStart,
+  activeEnd,
+  subtaskCounts,
+  excludedBlockKeys,
 }: {
   days: CalendarDay[];
   blocks: Block[];
@@ -86,6 +117,11 @@ export function WeekCalendar({
   onBlockMoveToInbox?: (blockId: string) => void;
   onInboxHoverChange?: (over: boolean) => void;
   onBlockDragChange?: (block: Block | null) => void;
+  onBlockDone?: (id: string, done: boolean) => void;
+  activeStart?: string;
+  activeEnd?: string;
+  subtaskCounts?: Map<string, { total: number; done: number }>;
+  excludedBlockKeys?: Set<string>;
 }) {
   const HOUR_START = hourStart;
   const HOUR_END = hourEnd;
@@ -141,6 +177,17 @@ export function WeekCalendar({
     y: number;
   } | null>(null);
   const dragActive = !!drag || !!allDayDrag;
+  const [budgetPopover, setBudgetPopover] = useState<{ date: string; left: number; top: number } | null>(null);
+  const [budgetTick, setBudgetTick] = useState(0);
+  useEffect(() => {
+    const onBudget = () => setBudgetTick((t) => t + 1);
+    window.addEventListener('bento:budget-changed', onBudget);
+    window.addEventListener('storage', onBudget);
+    return () => {
+      window.removeEventListener('bento:budget-changed', onBudget);
+      window.removeEventListener('storage', onBudget);
+    };
+  }, []);
   useEffect(() => {
     if (dragActive && hover) setHover(null);
   }, [dragActive, hover]);
@@ -309,7 +356,7 @@ export function WeekCalendar({
     allDayByDate.set(
       d.date,
       blocks.filter(
-        (b) => spansDay(b, d.date) && isAllDayBlock(b),
+        (b) => spansDay(b, d.date) && (isAllDayBlock(b) || isUnscheduledBlock(b)),
       ),
     );
   }
@@ -319,7 +366,7 @@ export function WeekCalendar({
 
   return (
     <>
-    <div ref={scrollRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+    <div ref={scrollRef} onMouseDown={(e) => e.stopPropagation()} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       {hasAnyAllDay && (
         <div
           style={{
@@ -439,7 +486,7 @@ export function WeekCalendar({
       <div style={{ flex: 1, display: 'flex', minWidth: 0 }}>
         {days.map((d) => {
           const dayAll = blocks.filter((b) => spansDay(b, d.date));
-          const dayBlocks = dayAll.filter((b) => !isAllDayBlock(b));
+          const dayBlocks = dayAll.filter((b) => !isAllDayBlock(b) && !isUnscheduledBlock(b));
           const showNow = d.date === todayKey;
           const ghost = buildGhost(drag, d.date, HOUR_START, HOUR_END);
           const dropGhost =
@@ -564,6 +611,15 @@ export function WeekCalendar({
                 });
               }}
               onBlockHoverLeave={() => setHover(null)}
+              onBlockDone={onBlockDone}
+              activeStart={getDayActive(d.date, activeStart, activeEnd, budgetTick).start}
+              activeEnd={getDayActive(d.date, activeStart, activeEnd, budgetTick).end}
+              hasCustomBudget={hasDayCustomBudget(d.date)}
+              onHeaderClick={(date, rect) =>
+                setBudgetPopover({ date, left: rect.left, top: rect.bottom + 4 })
+              }
+              subtaskCounts={subtaskCounts}
+              excludedBlockKeys={excludedBlockKeys}
               registerRef={(el) => {
                 if (el) dayRefs.current.set(d.date, el);
                 else dayRefs.current.delete(d.date);
@@ -591,6 +647,14 @@ export function WeekCalendar({
         y={hover.y}
       />
     )}
+    {budgetPopover && (
+      <DayBudgetPopover
+        date={budgetPopover.date}
+        left={budgetPopover.left}
+        top={budgetPopover.top}
+        onClose={() => setBudgetPopover(null)}
+      />
+    )}
     </>
   );
 }
@@ -606,7 +670,7 @@ function FloatingTicket({
   y: number;
   toInbox: boolean;
 }) {
-  const c = KIND_COLOR[block.kind as KnownBlockKind] ?? KIND_COLOR.life;
+  const c = blockColor(block);
   return (
     <div
       style={{
@@ -726,9 +790,16 @@ function DayColumn({
   onBlockMouseDown,
   onBlockHover,
   onBlockHoverLeave,
+  onBlockDone,
   onTaskDragOver,
   onTaskDragLeave,
   onTaskDrop,
+  activeStart,
+  activeEnd,
+  hasCustomBudget,
+  onHeaderClick,
+  subtaskCounts,
+  excludedBlockKeys,
   registerRef,
 }: {
   day: CalendarDay;
@@ -750,9 +821,16 @@ function DayColumn({
     ev: React.MouseEvent,
   ) => void;
   onBlockHoverLeave: () => void;
+  onBlockDone?: (id: string, done: boolean) => void;
   onTaskDragOver?: (date: string, y: number, ev: React.DragEvent) => void;
   onTaskDragLeave?: () => void;
   onTaskDrop?: (date: string, y: number, ev: React.DragEvent) => void;
+  activeStart?: string;
+  activeEnd?: string;
+  hasCustomBudget?: boolean;
+  onHeaderClick?: (date: string, rect: DOMRect) => void;
+  subtaskCounts?: Map<string, { total: number; done: number }>;
+  excludedBlockKeys?: Set<string>;
   registerRef: (el: HTMLDivElement | null) => void;
 }) {
   return (
@@ -763,27 +841,30 @@ function DayColumn({
         borderRight: '1px solid var(--line)',
         display: 'flex',
         flexDirection: 'column',
+        background: day.isWeekend ? 'color-mix(in srgb, var(--bg-shade) 40%, transparent)' : undefined,
       }}
     >
       <div
+        onClick={onHeaderClick ? (e) => onHeaderClick(day.date, e.currentTarget.getBoundingClientRect()) : undefined}
         style={{
           padding: '10px 12px',
           height: HEADER_HEIGHT,
           borderBottom: '1px solid var(--line)',
-          background: 'var(--bg-soft)',
+          background: day.isWeekend ? 'var(--bg-shade)' : 'var(--bg-soft)',
           display: 'flex',
           alignItems: 'baseline',
           gap: 8,
           position: 'sticky',
           top: 0,
           zIndex: 1,
+          cursor: onHeaderClick ? 'pointer' : 'default',
         }}
       >
         <span
           style={{
             fontSize: 11,
             fontWeight: 600,
-            color: 'var(--ink-soft)',
+            color: day.isWeekend ? 'var(--ink-mute)' : 'var(--ink-soft)',
             letterSpacing: '0.05em',
             textTransform: 'uppercase',
           }}
@@ -794,11 +875,24 @@ function DayColumn({
           style={{
             fontSize: 13,
             fontWeight: 700,
-            color: day.isToday ? 'var(--blue)' : 'var(--ink)',
+            color: day.isToday ? 'var(--blue)' : day.isWeekend ? 'var(--ink-mute)' : 'var(--ink)',
           }}
         >
           {day.dayNumber}
         </Mono>
+        {hasCustomBudget && (
+          <span
+            title="하루 예산 커스텀"
+            style={{
+              fontSize: 7,
+              color: 'var(--blue)',
+              lineHeight: 1,
+              marginBottom: 2,
+            }}
+          >
+            ●
+          </span>
+        )}
         {day.isToday && (
           <span
             style={{
@@ -858,6 +952,45 @@ function DayColumn({
           userSelect: 'none',
         }}
       >
+        {(() => {
+          if (!activeStart && !activeEnd) return null;
+          const parseH = (s: string) => {
+            const m = /^(\d{1,2}):(\d{2})$/.exec(s);
+            return m ? Number(m[1]) + Number(m[2]) / 60 : null;
+          };
+          const sh = activeStart ? parseH(activeStart) : null;
+          const eh = activeEnd ? parseH(activeEnd) : null;
+          return (
+            <>
+              {sh !== null && sh > hourStart && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: (sh - hourStart) * HOUR_HEIGHT,
+                  background: 'repeating-linear-gradient(45deg, var(--cal-inactive-stripe) 0, var(--cal-inactive-stripe) 1.5px, var(--cal-inactive-fill) 0, var(--cal-inactive-fill) 50%)',
+                  backgroundSize: '7px 7px',
+                  pointerEvents: 'none',
+                  zIndex: 1,
+                }} />
+              )}
+              {eh !== null && eh < hourEnd + 1 && (
+                <div style={{
+                  position: 'absolute',
+                  top: (eh - hourStart) * HOUR_HEIGHT,
+                  left: 0,
+                  right: 0,
+                  height: (hourEnd + 1 - eh) * HOUR_HEIGHT,
+                  background: 'repeating-linear-gradient(45deg, var(--cal-inactive-stripe) 0, var(--cal-inactive-stripe) 1.5px, var(--cal-inactive-fill) 0, var(--cal-inactive-fill) 50%)',
+                  backgroundSize: '7px 7px',
+                  pointerEvents: 'none',
+                  zIndex: 1,
+                }} />
+              )}
+            </>
+          );
+        })()}
         {hours.map((_, i) =>
           i === 0 ? null : (
             <div
@@ -903,6 +1036,8 @@ function DayColumn({
         {layoutDayBlocks(blocks, dayDate, hourStart, hourEnd, hidingBlockId).map((it) => {
           const fading = it.block.id === fadingBlockId;
           const external = !isLocal(it.block);
+          const eventKey = eventNoteKeysFromBlock(it.block, dayDate).eventKey;
+          const statsExcluded = excludedBlockKeys?.has(eventKey) ?? false;
           return (
             <BlockBar
               key={it.block.id}
@@ -915,9 +1050,12 @@ function DayColumn({
               fading={fading}
               external={external}
               hourStart={hourStart}
+              subtaskCount={subtaskCounts?.get(eventKey)}
+              statsExcluded={statsExcluded}
               onMouseDown={(ev, gridY) => onBlockMouseDown(it.block, ev, gridY)}
               onHover={(ev) => onBlockHover(it.block, it.segment, ev)}
               onHoverLeave={onBlockHoverLeave}
+              onDone={statsExcluded ? undefined : onBlockDone}
             />
           );
         })}
@@ -1027,17 +1165,20 @@ function ExternalChip({
   const totalDays = spanDayCount(block);
   const dayIndex = totalDays > 1 ? dayOffset(block.date, dayDate) + 1 : 1;
   const allDay = isAllDayBlock(block);
-  const timeLabel = !seg
-    ? block.start
-    : totalDays > 1
-      ? allDay
-        ? '종일'
-        : seg.start === '00:00' && seg.end === '24:00'
+  const unscheduled = isUnscheduledBlock(block);
+  const timeLabel = unscheduled
+    ? '미정'
+    : !seg
+      ? block.start
+      : totalDays > 1
+        ? allDay
           ? '종일'
-          : `${seg.start}–${seg.end === '24:00' ? '24:00' : seg.end}`
-      : allDay
-        ? '종일'
-        : block.start;
+          : seg.start === '00:00' && seg.end === '24:00'
+            ? '종일'
+            : `${seg.start}–${seg.end === '24:00' ? '24:00' : seg.end}`
+        : allDay
+          ? '종일'
+          : block.start;
   return (
     <button
       data-allday-chip="1"
@@ -1123,9 +1264,12 @@ function BlockBar({
   fading,
   external,
   hourStart,
+  subtaskCount,
   onMouseDown,
   onHover,
   onHoverLeave,
+  onDone,
+  statsExcluded = false,
 }: {
   block: Block;
   segment: { start: string; end: string; isMulti: boolean };
@@ -1136,15 +1280,16 @@ function BlockBar({
   fading: boolean;
   external: boolean;
   hourStart: number;
+  subtaskCount?: { total: number; done: number };
+  statsExcluded?: boolean;
   onMouseDown: (ev: React.MouseEvent, gridY: number) => void;
   onHover: (ev: React.MouseEvent) => void;
   onHoverLeave: () => void;
+  onDone?: (id: string, done: boolean) => void;
 }) {
   const top = (startFrac - hourStart) * HOUR_HEIGHT;
   const h = Math.max(20, (endFrac - startFrac) * HOUR_HEIGHT - 4);
-  const c = external
-    ? EXTERNAL_COLOR
-    : (KIND_COLOR[block.kind as KnownBlockKind] ?? KIND_COLOR.life);
+  const c = blockColor(block);
   const sourceTag =
     external && block.source && block.source !== 'local'
       ? SOURCE_LABEL[block.source]
@@ -1191,10 +1336,41 @@ function BlockBar({
         cursor: external ? 'pointer' : 'grab',
         textAlign: 'left',
         fontFamily: 'inherit',
-        opacity: fading ? 0.25 : block.done ? 0.55 : external ? 0.92 : 1,
+        opacity: statsExcluded ? 0.3 : fading ? 0.25 : block.done ? 0.55 : external ? 0.92 : 1,
+        filter: statsExcluded ? 'grayscale(0.75)' : undefined,
         userSelect: 'none',
       }}
     >
+      {onDone && (
+        <button
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDone(block.id, !block.done);
+          }}
+          title={block.done ? '완료 취소' : '완료'}
+          style={{
+            position: 'absolute',
+            top: 3,
+            right: 3,
+            width: 16,
+            height: 16,
+            border: `1px solid ${block.done ? c.ink : c.border}`,
+            borderRadius: 3,
+            background: block.done ? c.ink : 'transparent',
+            color: block.done ? 'var(--on-accent, #fff)' : c.ink,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            opacity: block.done ? 0.85 : 0.5,
+            zIndex: 2,
+          }}
+        >
+          {block.done && <CheckIcon size={10} />}
+        </button>
+      )}
       <div
         style={{
           fontSize: 11.5,
@@ -1204,6 +1380,7 @@ function BlockBar({
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           textDecoration: block.done ? 'line-through' : 'none',
+          paddingRight: onDone ? 20 : 0,
         }}
       >
         {block.title}
@@ -1231,6 +1408,21 @@ function BlockBar({
           >
             {block.attendees.join(', ')}
           </span>
+        )}
+        {subtaskCount && subtaskCount.total > 0 && (
+          <Mono
+            style={{
+              fontSize: 9,
+              color:
+                subtaskCount.done === subtaskCount.total
+                  ? 'var(--ok)'
+                  : 'var(--ink-mute)',
+              flexShrink: 0,
+            }}
+            title="체크리스트"
+          >
+            ☐ {subtaskCount.done}/{subtaskCount.total}
+          </Mono>
         )}
         {sourceTag && (
           <Mono
@@ -1265,7 +1457,7 @@ function HoverCard({
   y: number;
 }) {
   const W = 320;
-  const H_EST = 200;
+  const H_EST = 260;
   const margin = 12;
   const winW = typeof window !== 'undefined' ? window.innerWidth : 1200;
   const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
@@ -1283,11 +1475,179 @@ function HoverCard({
         zIndex: 9998,
         pointerEvents: 'none',
         width: W,
+        maxHeight: H_EST,
+        overflow: 'hidden',
+        borderRadius: 6,
         boxShadow:
           '0 10px 30px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14)',
       }}
     >
-      <BlockInfoView block={block} dayDate={dayDate} segment={segment} />
+      <BlockInfoView block={block} dayDate={dayDate} segment={segment} compact />
+    </div>
+  );
+}
+
+function DayBudgetPopover({
+  date,
+  left,
+  top,
+  onClose,
+}: {
+  date: string;
+  left: number;
+  top: number;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  const gs = (key: string, def: string) =>
+    typeof window !== 'undefined' ? (window.localStorage.getItem(key) ?? def) : def;
+
+  const getDayVal = (field: string, globalKey: string, def: string) => {
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(DAY_BUDGET_PREFIX + date) : null;
+    if (raw) {
+      try {
+        return (JSON.parse(raw) as Record<string, string>)[field] ?? gs(globalKey, def);
+      } catch { /* fall through */ }
+    }
+    return gs(globalKey, def);
+  };
+
+  const [sleepEnd, setSleepEnd] = useState(() => getDayVal('sleepEnd', GLOBAL_SLEEP_END_KEY, '07:00'));
+  const [sleepStart, setSleepStart] = useState(() => getDayVal('sleepStart', GLOBAL_SLEEP_START_KEY, '23:00'));
+  const [activeStart, setActiveStart] = useState(() => getDayVal('activeStart', GLOBAL_ACTIVE_START_KEY, '09:00'));
+  const [activeEnd, setActiveEnd] = useState(() => getDayVal('activeEnd', GLOBAL_ACTIVE_END_KEY, '21:00'));
+  const [isCustom, setIsCustom] = useState(
+    () => typeof window !== 'undefined' && !!window.localStorage.getItem(DAY_BUDGET_PREFIX + date),
+  );
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (e.target instanceof Node && ref.current.contains(e.target)) return;
+      onClose();
+    };
+    document.addEventListener('mousedown', onDown, true);
+    return () => document.removeEventListener('mousedown', onDown, true);
+  }, [onClose]);
+
+  const save = (next: { sleepStart: string; sleepEnd: string; activeStart: string; activeEnd: string }) => {
+    window.localStorage.setItem(DAY_BUDGET_PREFIX + date, JSON.stringify(next));
+    setIsCustom(true);
+    window.dispatchEvent(new CustomEvent('bento:budget-changed'));
+  };
+
+  const reset = () => {
+    window.localStorage.removeItem(DAY_BUDGET_PREFIX + date);
+    setSleepEnd(gs(GLOBAL_SLEEP_END_KEY, '07:00'));
+    setSleepStart(gs(GLOBAL_SLEEP_START_KEY, '23:00'));
+    setActiveStart(gs(GLOBAL_ACTIVE_START_KEY, '09:00'));
+    setActiveEnd(gs(GLOBAL_ACTIVE_END_KEY, '21:00'));
+    setIsCustom(false);
+    window.dispatchEvent(new CustomEvent('bento:budget-changed'));
+  };
+
+  const W = 240;
+  const winW = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
+  const clampedLeft = Math.min(left, winW - W - 8);
+  const clampedTop = Math.min(top, winH - 240);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: 'fixed',
+        left: clampedLeft,
+        top: clampedTop,
+        zIndex: 10000,
+        width: W,
+        background: 'var(--bg)',
+        border: '1px solid var(--line)',
+        borderRadius: 8,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12)',
+        padding: '12px 14px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Mono style={{ fontSize: 10.5, color: 'var(--ink-soft)', letterSpacing: '0.04em' }}>
+          {date} 예산
+        </Mono>
+        {isCustom && (
+          <Mono style={{ fontSize: 8.5, color: 'var(--blue)', letterSpacing: '0.04em' }}>
+            커스텀
+          </Mono>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>기상 / 취침</Mono>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <TimeSelect
+            value={sleepEnd}
+            onChange={(v) => {
+              setSleepEnd(v);
+              save({ sleepStart, sleepEnd: v, activeStart, activeEnd });
+            }}
+            style={{ flex: 1 }}
+          />
+          <Mono style={{ fontSize: 10, color: 'var(--ink-faint)' }}>–</Mono>
+          <TimeSelect
+            value={sleepStart}
+            onChange={(v) => {
+              setSleepStart(v);
+              save({ sleepStart: v, sleepEnd, activeStart, activeEnd });
+            }}
+            style={{ flex: 1 }}
+          />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>활동 시간</Mono>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <TimeSelect
+            value={activeStart}
+            onChange={(v) => {
+              setActiveStart(v);
+              save({ sleepStart, sleepEnd, activeStart: v, activeEnd });
+            }}
+            style={{ flex: 1 }}
+          />
+          <Mono style={{ fontSize: 10, color: 'var(--ink-faint)' }}>–</Mono>
+          <TimeSelect
+            value={activeEnd}
+            onChange={(v) => {
+              setActiveEnd(v);
+              save({ sleepStart, sleepEnd, activeStart, activeEnd: v });
+            }}
+            style={{ flex: 1 }}
+          />
+        </div>
+      </div>
+
+      {isCustom && (
+        <button
+          onClick={reset}
+          style={{
+            marginTop: 2,
+            padding: '5px 0',
+            background: 'transparent',
+            border: '1px solid var(--line)',
+            borderRadius: 4,
+            color: 'var(--ink-mute)',
+            fontSize: 11,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-mono)',
+            letterSpacing: '0.02em',
+          }}
+        >
+          기본값으로 초기화
+        </button>
+      )}
     </div>
   );
 }

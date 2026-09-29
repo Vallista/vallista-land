@@ -5,8 +5,8 @@ use tauri_plugin_dialog::DialogExt;
 use walkdir::WalkDir;
 
 use crate::repo::{
-    load_config, persist_content_root, save_config, validate_content_root, AppConfig, AppState,
-    BlogConfig,
+    load_config, persist_content_root, save_config, validate_content_root, AppConfig,
+    AppPersonalization, AppState, BlogConfig,
 };
 
 #[derive(Serialize)]
@@ -55,9 +55,10 @@ pub struct BlogConfigInput {
 
 #[tauri::command]
 pub fn vault_info(state: State<'_, AppState>) -> Result<VaultInfo, String> {
+    let cfg = load_config(&state.data_root);
     let root = state.content_root()?;
-    let article_count = count_md(&root.join("contents/articles"));
-    let note_count = count_md(&root.join("contents/notes"));
+    let article_count = count_md(&root.join(&cfg.app.articles_dir));
+    let note_count = count_md(&root.join(&cfg.app.notes_dir));
     Ok(VaultInfo {
         root: root.to_string_lossy().to_string(),
         article_count,
@@ -103,10 +104,7 @@ pub fn set_content_root(
 ) -> Result<(), String> {
     let buf = PathBuf::from(&path);
     if !validate_content_root(&buf) {
-        return Err(format!(
-            "선택한 디렉토리에 pnpm-workspace.yaml과 contents/가 없습니다: {}",
-            buf.display()
-        ));
+        return Err(format!("유효하지 않은 디렉토리입니다: {}", buf.display()));
     }
     persist_content_root(&state.data_root, &buf)?;
     state.set_content_root(buf);
@@ -163,6 +161,37 @@ fn status_from_config(cfg: &AppConfig) -> AppSetupStatus {
     }
 }
 
+#[derive(serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppPersonalizationInput {
+    pub app_name: String,
+    pub app_url: String,
+    pub keychain_service: String,
+    pub articles_dir: String,
+    pub notes_dir: String,
+}
+
+#[tauri::command]
+pub fn get_app_personalization(state: State<'_, AppState>) -> AppPersonalization {
+    load_config(&state.data_root).app
+}
+
+#[tauri::command]
+pub fn set_app_personalization(
+    state: State<'_, AppState>,
+    input: AppPersonalizationInput,
+) -> Result<(), String> {
+    let mut cfg = load_config(&state.data_root);
+    cfg.app = AppPersonalization {
+        app_name: input.app_name.trim().to_string(),
+        app_url: input.app_url.trim().to_string(),
+        keychain_service: input.keychain_service.trim().to_string(),
+        articles_dir: input.articles_dir.trim().to_string(),
+        notes_dir: input.notes_dir.trim().to_string(),
+    };
+    save_config(&state.data_root, &cfg)
+}
+
 fn nz(v: Option<String>) -> Option<String> {
     v.and_then(|s| {
         let t = s.trim().to_string();
@@ -172,6 +201,18 @@ fn nz(v: Option<String>) -> Option<String> {
             Some(t)
         }
     })
+}
+
+#[tauri::command]
+pub async fn open_url(url: String) -> Result<(), String> {
+    if !url.starts_with("http://") && !url.starts_with("https://") {
+        return Err("http/https URL만 열 수 있습니다".to_string());
+    }
+    std::process::Command::new("open")
+        .arg(&url)
+        .spawn()
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 fn count_md(dir: &Path) -> u64 {
@@ -184,4 +225,69 @@ fn count_md(dir: &Path) -> u64 {
         .filter(|e| e.file_type().is_file())
         .filter(|e| e.path().extension().map_or(false, |ext| ext == "md"))
         .count() as u64
+}
+
+// ── memory info ─────────────────────────────────────────────────────────────
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MemoryInfo {
+    pub process_rss_bytes: u64,
+    pub blocks_bytes: u64,
+    pub tasks_bytes: u64,
+    pub event_notes_bytes: u64,
+    pub glean_bytes: u64,
+    pub other_bytes: u64,
+}
+
+#[tauri::command]
+pub fn get_memory_info(state: State<'_, AppState>) -> MemoryInfo {
+    let root = &state.data_root;
+    let blocks_bytes = file_bytes(&root.join("blocks.json"));
+    let tasks_bytes = dir_bytes(&root.join("tasks"));
+    let event_notes_bytes = dir_bytes(&root.join("event_notes"));
+    let glean_bytes = dir_bytes(&root.join("glean"));
+    let total_data = dir_bytes(root);
+    let other_bytes = total_data.saturating_sub(blocks_bytes + tasks_bytes + event_notes_bytes + glean_bytes);
+    MemoryInfo {
+        process_rss_bytes: process_rss(),
+        blocks_bytes,
+        tasks_bytes,
+        event_notes_bytes,
+        glean_bytes,
+        other_bytes,
+    }
+}
+
+fn file_bytes(path: &PathBuf) -> u64 {
+    std::fs::metadata(path).map(|m| m.len()).unwrap_or(0)
+}
+
+fn dir_bytes(path: &Path) -> u64 {
+    if !path.exists() {
+        return 0;
+    }
+    WalkDir::new(path)
+        .max_depth(4)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter_map(|e| e.metadata().ok())
+        .filter(|m| m.is_file())
+        .map(|m| m.len())
+        .sum()
+}
+
+#[cfg(target_os = "macos")]
+fn process_rss() -> u64 {
+    unsafe {
+        let mut ru: libc::rusage = std::mem::zeroed();
+        libc::getrusage(libc::RUSAGE_SELF, &mut ru);
+        // macOS: ru_maxrss is in bytes (unlike Linux which uses KB)
+        ru.ru_maxrss as u64
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn process_rss() -> u64 {
+    0
 }

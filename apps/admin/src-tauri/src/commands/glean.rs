@@ -1,11 +1,12 @@
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
-use crate::repo::{ensure_inside, AppState};
+use crate::repo::{build_user_agent, ensure_inside, load_config, AppState};
 
 const GLEAN_DIR: &str = "glean";
 
@@ -37,6 +38,9 @@ pub struct GleanItem {
     pub feed_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub external_id: Option<String>,
+    /// 원본 콘텐츠의 발행일 (RSS pubDate, Atom published 등). 없으면 fetched_at 기준으로 정렬.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub published_at: Option<String>,
 }
 
 fn glean_dir(root: &Path) -> std::path::PathBuf {
@@ -110,13 +114,76 @@ pub fn list_items(root: &Path) -> Result<Vec<GleanItem>, String> {
             Err(_) => continue,
         }
     }
-    items.sort_by(|a, b| b.fetched_at.cmp(&a.fetched_at));
+    items.sort_by(|a, b| {
+        let ta = a.published_at.as_deref().unwrap_or(a.fetched_at.as_str());
+        let tb = b.published_at.as_deref().unwrap_or(b.fetched_at.as_str());
+        tb.cmp(ta)
+    });
     Ok(items)
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GleanPage {
+    pub items: Vec<GleanItem>,
+    pub total: usize,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GleanCounts {
+    pub total: usize,
+    pub by_source: HashMap<String, usize>,
+    pub by_status: HashMap<String, usize>,
+    pub today_rss_count: usize,
+    pub today_rss_titles: Vec<String>,
+    pub by_feed_id: HashMap<String, usize>,
+}
+
 #[tauri::command]
-pub fn list_glean(state: State<'_, AppState>) -> Result<Vec<GleanItem>, String> {
-    list_items(&state.data_root)
+pub fn list_glean(
+    status: Option<String>,
+    source: Option<String>,
+    offset: usize,
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<GleanPage, String> {
+    let all = list_items(&state.data_root)?;
+    let filtered: Vec<GleanItem> = all
+        .into_iter()
+        .filter(|it| {
+            status.as_deref().map_or(true, |s| it.status == s)
+                && source.as_deref().map_or(true, |s| it.source == s)
+        })
+        .collect();
+    let total = filtered.len();
+    let items = filtered.into_iter().skip(offset).take(limit).collect();
+    Ok(GleanPage { items, total })
+}
+
+#[tauri::command]
+pub fn glean_counts(state: State<'_, AppState>) -> Result<GleanCounts, String> {
+    let all = list_items(&state.data_root)?;
+    let total = all.len();
+    let today_prefix = now_iso();
+    let today = &today_prefix[..10];
+    let mut by_source: HashMap<String, usize> = HashMap::new();
+    let mut by_status: HashMap<String, usize> = HashMap::new();
+    let mut by_feed_id: HashMap<String, usize> = HashMap::new();
+    let mut today_rss_count = 0usize;
+    let mut today_rss_titles: Vec<String> = Vec::new();
+    for it in &all {
+        *by_source.entry(it.source.clone()).or_insert(0) += 1;
+        *by_status.entry(it.status.clone()).or_insert(0) += 1;
+        if let Some(fid) = &it.feed_id {
+            *by_feed_id.entry(fid.clone()).or_insert(0) += 1;
+        }
+        if it.source == "rss" && it.fetched_at.starts_with(today) {
+            today_rss_count += 1;
+            today_rss_titles.push(it.title.clone());
+        }
+    }
+    Ok(GleanCounts { total, by_source, by_status, today_rss_count, today_rss_titles, by_feed_id })
 }
 
 fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
@@ -166,6 +233,7 @@ pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanI
         digest: None,
         feed_id: input.feed_id,
         external_id: input.external_id,
+        published_at: None,
     };
     write_item(&state.data_root, &item)?;
     Ok(item)
@@ -243,13 +311,14 @@ pub struct FetchedContent {
 }
 
 #[tauri::command]
-pub async fn fetch_url(url: String) -> Result<FetchedContent, String> {
+pub async fn fetch_url(url: String, state: State<'_, AppState>) -> Result<FetchedContent, String> {
     let trimmed = url.trim().to_string();
     if !(trimmed.starts_with("http://") || trimmed.starts_with("https://")) {
         return Err("URL은 http:// 또는 https:// 로 시작해야 합니다".into());
     }
+    let ua = build_user_agent(&load_config(&state.data_root).app);
     let client = reqwest::Client::builder()
-        .user_agent("Bento/0.1 (+https://vallista.kr)")
+        .user_agent(ua)
         .timeout(Duration::from_secs(15))
         .redirect(reqwest::redirect::Policy::limited(5))
         .build()

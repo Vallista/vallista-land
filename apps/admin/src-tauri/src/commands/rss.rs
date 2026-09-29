@@ -8,7 +8,7 @@ use tauri::State;
 use tokio::sync::Mutex;
 
 use crate::commands::glean::{self, GleanItem};
-use crate::repo::{ensure_inside, load_config, save_config, AppState, RssConfig};
+use crate::repo::{build_user_agent, ensure_inside, load_config, save_config, AppState, RssConfig};
 
 const RSS_FEEDS_FILE: &str = "rss_feeds.json";
 
@@ -234,15 +234,16 @@ pub fn build_dedup_set(items: &[GleanItem]) -> HashSet<(String, String)> {
     set
 }
 
-struct ParsedEntry {
-    id: String,
-    title: String,
-    summary: String,
-    body: String,
-    url: String,
+pub struct ParsedEntry {
+    pub id: String,
+    pub title: String,
+    pub summary: String,
+    pub body: String,
+    pub url: String,
+    pub published_at: Option<String>,
 }
 
-enum FetchOutcome {
+pub enum FetchOutcome {
     NotModified,
     Parsed {
         entries: Vec<ParsedEntry>,
@@ -258,10 +259,14 @@ pub struct SyncOutcome {
     pub added_keys: Vec<(String, String)>,
 }
 
-async fn fetch_and_parse_feed(feed: &RssFeed, cfg: &RssConfig) -> Result<FetchOutcome, String> {
+async fn fetch_and_parse_feed(
+    feed: &RssFeed,
+    cfg: &RssConfig,
+    user_agent: &str,
+) -> Result<FetchOutcome, String> {
     let timeout_sec = cfg.timeout_sec.max(1) as u64;
     let client = reqwest::Client::builder()
-        .user_agent("Bento/0.1 (+https://vallista.kr)")
+        .user_agent(user_agent)
         .timeout(Duration::from_secs(timeout_sec))
         .redirect(reqwest::redirect::Policy::limited(5))
         .build()
@@ -317,12 +322,17 @@ async fn fetch_and_parse_feed(feed: &RssFeed, cfg: &RssConfig) -> Result<FetchOu
         } else {
             e.id.clone()
         };
+        let published_at = e.published.or(e.updated).map(|dt| {
+            let utc = dt.with_timezone(&chrono::Utc);
+            utc.format("%Y-%m-%dT%H:%M:%SZ").to_string()
+        });
         entries.push(ParsedEntry {
             id,
             title,
             summary,
             body: body_text,
             url,
+            published_at,
         });
     }
     Ok(FetchOutcome::Parsed {
@@ -352,6 +362,7 @@ fn entry_to_glean_item(feed: &RssFeed, entry: &ParsedEntry, seq: u64) -> GleanIt
         digest: None,
         feed_id: Some(feed.id.clone()),
         external_id: Some(entry.id.clone()),
+        published_at: entry.published_at.clone(),
     }
 }
 
@@ -365,13 +376,27 @@ fn truncate(s: &str, max: usize) -> String {
     out
 }
 
+async fn fetch_for_feed(
+    feed: &RssFeed,
+    cfg: &RssConfig,
+    user_agent: &str,
+) -> Result<FetchOutcome, String> {
+    if feed.source_kind == "headless" {
+        crate::commands::headless::fetch_feed(feed, cfg).await
+    } else {
+        fetch_and_parse_feed(feed, cfg, user_agent).await
+    }
+}
+
 pub async fn sync_one(
     data_root: &Path,
     feed: &RssFeed,
     cfg: &RssConfig,
     dedup: &HashSet<(String, String)>,
 ) -> SyncOutcome {
-    match fetch_and_parse_feed(feed, cfg).await {
+    let app_cfg = load_config(data_root);
+    let ua = build_user_agent(&app_cfg.app);
+    match fetch_for_feed(feed, cfg, &ua).await {
         Ok(FetchOutcome::NotModified) => SyncOutcome {
             summary: RssSyncResult {
                 added: 0,
@@ -594,10 +619,9 @@ pub async fn start_poller(app: tauri::AppHandle) {
             continue;
         }
 
+        let _ = app.emit("bento:rss-syncing", ());
         let summaries = run_due_sync(data_root, cfg).await;
-        if !summaries.is_empty() {
-            let _ = app.emit("bento:rss-synced", &summaries);
-        }
+        let _ = app.emit("bento:rss-synced", &summaries);
     }
 }
 

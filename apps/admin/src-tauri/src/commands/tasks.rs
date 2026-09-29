@@ -37,6 +37,10 @@ pub struct Task {
     pub notes: Option<String>,
     #[serde(default)]
     pub subtasks: Vec<Subtask>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub kind: Option<String>,
     pub created_at: String,
 }
 
@@ -123,6 +127,10 @@ pub struct TaskInput {
     pub notes: Option<String>,
     #[serde(default)]
     pub subtasks: Option<Vec<Subtask>>,
+    #[serde(default)]
+    pub color: Option<String>,
+    #[serde(default)]
+    pub kind: Option<String>,
 }
 
 #[tauri::command]
@@ -148,6 +156,8 @@ pub fn add_task(input: TaskInput, state: State<'_, AppState>) -> Result<Task, St
             .collect(),
         notes: input.notes.filter(|s| !s.is_empty()),
         subtasks: input.subtasks.unwrap_or_default(),
+        color: input.color.filter(|s| !s.is_empty()),
+        kind: input.kind.filter(|s| !s.is_empty()),
         created_at: now_iso(),
     };
     all.push(task.clone());
@@ -176,6 +186,10 @@ pub struct TaskPatch {
     pub notes: Option<Option<String>>,
     #[serde(default)]
     pub subtasks: Option<Vec<Subtask>>,
+    #[serde(default)]
+    pub color: Option<Option<String>>,
+    #[serde(default)]
+    pub kind: Option<Option<String>>,
 }
 
 #[tauri::command]
@@ -222,6 +236,12 @@ pub fn update_task(
             .into_iter()
             .filter(|s| !s.title.trim().is_empty())
             .collect();
+    }
+    if let Some(color) = patch.color {
+        all[idx].color = color.filter(|s| !s.is_empty());
+    }
+    if let Some(kind) = patch.kind {
+        all[idx].kind = kind.filter(|s| !s.is_empty());
     }
     let updated = all[idx].clone();
     save_all(&state.data_root, &all)?;

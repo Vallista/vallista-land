@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import CodeMirror from '@uiw/react-codemirror';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import CodeMirror, { type ReactCodeMirrorRef, type Statistics } from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { EditorView, keymap } from '@codemirror/view';
 import { Mono } from '../../components/atoms/Atoms';
 import { useDoc, type DocStatus } from './state';
 import { createWysiwyg } from './wysiwyg';
 import { PreviewPanel } from './PreviewPanel';
+import { WritingAssistPanel } from './WritingAssistPanel';
 
 type Mode = 'edit' | 'preview';
 
@@ -32,6 +33,27 @@ export function Editor({
 }: EditorProps) {
   const { path, status, error, savedAt, body, frontmatter, setBody, flush } = useDoc();
   const [mode, setMode] = useState<Mode>('edit');
+  const [showAssist, setShowAssist] = useState(false);
+  const [selection, setSelection] = useState('');
+  const cmRef = useRef<ReactCodeMirrorRef>(null);
+
+  function handleStats(stats: Statistics) {
+    setSelection(stats.selectionCode ?? '');
+  }
+
+  function applyAssist(text: string, applyMode: 'replace-all' | 'append' | 'replace-selection') {
+    const view = cmRef.current?.view;
+    if (!view) return;
+    if (applyMode === 'replace-all') {
+      view.dispatch({ changes: { from: 0, to: view.state.doc.length, insert: text } });
+    } else if (applyMode === 'append') {
+      const end = view.state.doc.length;
+      view.dispatch({ changes: { from: end, insert: '\n\n' + text } });
+    } else {
+      const sel = view.state.selection.main;
+      view.dispatch({ changes: { from: sel.from, to: sel.to, insert: text } });
+    }
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -40,6 +62,9 @@ export function Editor({
       if (e.key.toLowerCase() === 'p' && !e.shiftKey && !e.altKey) {
         e.preventDefault();
         setMode((m) => (m === 'edit' ? 'preview' : 'edit'));
+      } else if (e.key.toLowerCase() === 'a' && e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        setShowAssist((v) => !v);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -136,30 +161,44 @@ export function Editor({
         onToggleLeft={onToggleLeft}
         onToggleRight={onToggleRight}
         onToggleFocus={onToggleFocus}
+        onToggleAssist={() => setShowAssist((v) => !v)}
         leftCollapsed={leftCollapsed}
         rightCollapsed={rightCollapsed}
+        assistActive={showAssist}
         focusMode={focusMode}
         leftForced={leftForced}
         rightForced={rightForced}
       />
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex' }}>
-        {mode === 'edit' ? (
-          <CodeMirror
-            value={body}
-            onChange={setBody}
-            extensions={cmExtensions}
-            basicSetup={{
-              lineNumbers: false,
-              foldGutter: false,
-              highlightActiveLine: false,
-              highlightActiveLineGutter: false,
-              highlightSelectionMatches: false,
-            }}
-            theme="none"
-            style={{ height: '100%', flex: 1, minWidth: 0 }}
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          {mode === 'edit' ? (
+            <CodeMirror
+              ref={cmRef}
+              value={body}
+              onChange={setBody}
+              onStatistics={handleStats}
+              extensions={cmExtensions}
+              basicSetup={{
+                lineNumbers: false,
+                foldGutter: false,
+                highlightActiveLine: false,
+                highlightActiveLineGutter: false,
+                highlightSelectionMatches: false,
+              }}
+              theme="none"
+              style={{ height: '100%', flex: 1, minWidth: 0 }}
+            />
+          ) : (
+            <PreviewPanel />
+          )}
+        </div>
+        {showAssist && (
+          <WritingAssistPanel
+            body={body}
+            selection={selection}
+            onApply={applyAssist}
+            onClose={() => setShowAssist(false)}
           />
-        ) : (
-          <PreviewPanel />
         )}
       </div>
     </div>
@@ -187,8 +226,10 @@ function Header({
   onToggleLeft,
   onToggleRight,
   onToggleFocus,
+  onToggleAssist,
   leftCollapsed,
   rightCollapsed,
+  assistActive,
   focusMode,
   leftForced,
   rightForced,
@@ -203,8 +244,10 @@ function Header({
   onToggleLeft?: () => void;
   onToggleRight?: () => void;
   onToggleFocus?: () => void;
+  onToggleAssist?: () => void;
   leftCollapsed?: boolean;
   rightCollapsed?: boolean;
+  assistActive?: boolean;
   focusMode?: boolean;
   leftForced?: boolean;
   rightForced?: boolean;
@@ -242,6 +285,15 @@ function Header({
           {path}
         </Mono>
         <ModeToggle mode={mode} onChange={onModeChange} />
+        {onToggleAssist && (
+          <PaneButton
+            active={assistActive}
+            title={assistActive ? 'AI 보조 닫기 (⌘⇧A)' : 'AI 글쓰기 보조 (⌘⇧A)'}
+            onClick={onToggleAssist}
+          >
+            <AiSparkIcon />
+          </PaneButton>
+        )}
         <PaneToggles
           onToggleLeft={onToggleLeft}
           onToggleRight={onToggleRight}
@@ -266,7 +318,7 @@ function Header({
         {title}
       </h1>
       <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)' }}>
-        ⌘S · 1.5s 디바운스 자동 저장 · ⌘P 미리보기 토글 · 복구 = git 만 (백업 없음)
+        ⌘S · 1.5s 디바운스 자동 저장 · ⌘P 미리보기 토글 · ⌘⇧A AI 보조 · 복구 = git 만 (백업 없음)
       </Mono>
     </div>
   );
@@ -480,6 +532,18 @@ function FocusIcon() {
   );
 }
 
+function AiSparkIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M8 2l1.2 3.8L13 7l-3.8 1.2L8 12l-1.2-3.8L3 7l3.8-1.2L8 2z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function SaveIndicator({
   status,
   savedAt,
@@ -535,6 +599,27 @@ const wysiwygCss = `
   font-size: 14.5px;
   font-weight: 600;
   color: var(--ink-soft);
+}
+
+.cm-content .cm-strong { font-weight: 700; color: var(--ink); }
+.cm-content .cm-em { font-style: italic; color: var(--ink-2); }
+.cm-content .cm-strikethrough { text-decoration: line-through; color: var(--ink-mute); }
+.cm-content .cm-monospace {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--bg-shade);
+  color: var(--hl-cyan);
+  padding: 0 4px;
+  border-radius: 3px;
+}
+.cm-content .cm-link { color: var(--blue); }
+.cm-content .cm-url { color: var(--ink-mute); font-size: 0.875em; }
+
+.cm-content .cm-bq {
+  border-left: 3px solid var(--line-strong);
+  padding-left: 16px;
+  color: var(--ink-soft);
+  font-style: italic;
 }
 
 .cm-img-widget {

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import type { Block } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
+import { BlockInfoView } from './BlockInfoView';
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
@@ -14,6 +16,7 @@ export function MonthGrid({
   blocks: Block[];
   onDayClick: (date: string) => void;
 }) {
+  const [hover, setHover] = useState<{ block: Block; x: number; y: number } | null>(null);
   const grid = buildGrid(anchor);
   const todayKey = isoKey(now);
   const byDate = new Map<string, Block[]>();
@@ -35,9 +38,10 @@ export function MonthGrid({
     <div
       style={{
         flex: 1,
+        minHeight: 0,
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'auto',
+        overflow: 'hidden',
         background: 'var(--bg)',
       }}
     >
@@ -59,7 +63,7 @@ export function MonthGrid({
               color: 'var(--ink-soft)',
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
-              textAlign: 'right',
+              textAlign: 'center',
             }}
           >
             {l}
@@ -69,6 +73,8 @@ export function MonthGrid({
       <div
         style={{
           flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
           display: 'grid',
           gridTemplateColumns: 'repeat(7, 1fr)',
           gridAutoRows: 'minmax(110px, 1fr)',
@@ -100,6 +106,7 @@ export function MonthGrid({
                 textAlign: 'left',
                 opacity: dim ? 0.4 : 1,
                 minHeight: 110,
+                overflow: 'hidden',
               }}
               title={`${cell.dateKey} · ${items.length}개 블록`}
             >
@@ -130,6 +137,9 @@ export function MonthGrid({
                 {items.slice(0, 3).map((b) => (
                   <div
                     key={b.id}
+                    onMouseEnter={(e) => { e.stopPropagation(); setHover({ block: b, x: e.clientX, y: e.clientY }); }}
+                    onMouseMove={(e) => setHover({ block: b, x: e.clientX, y: e.clientY })}
+                    onMouseLeave={() => setHover(null)}
                     style={{
                       fontSize: 10.5,
                       color: 'var(--ink-soft)',
@@ -154,6 +164,37 @@ export function MonthGrid({
           );
         })}
       </div>
+      {hover && <MonthHoverCard block={hover.block} x={hover.x} y={hover.y} />}
+    </div>
+  );
+}
+
+function MonthHoverCard({ block, x, y }: { block: Block; x: number; y: number }) {
+  const W = 320;
+  const H_EST = 260;
+  const margin = 12;
+  const winW = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const winH = typeof window !== 'undefined' ? window.innerHeight : 800;
+  let left = x + 14;
+  let top = y + 14;
+  if (left + W + margin > winW) left = Math.max(margin, x - W - 14);
+  if (top + H_EST + margin > winH) top = Math.max(margin, y - H_EST - 14);
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        left,
+        top,
+        zIndex: 9998,
+        pointerEvents: 'none',
+        width: W,
+        maxHeight: H_EST,
+        overflow: 'hidden',
+        borderRadius: 6,
+        boxShadow: '0 10px 30px rgba(0,0,0,0.22), 0 3px 8px rgba(0,0,0,0.14)',
+      }}
+    >
+      <BlockInfoView block={block} dayDate={block.date} compact />
     </div>
   );
 }

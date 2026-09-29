@@ -139,7 +139,7 @@ pub fn git_commit_push(
             .filter(|s| !s.is_empty())
             .or_else(|| current_branch(&root).ok())
             .unwrap_or_else(|| "main".to_string());
-        let token = require_token(&remote)?;
+        let token = require_token(&remote, &state.data_root)?;
         let url = token_url(&remote, &token)?;
         let refspec = format!("HEAD:{}", branch);
         let mut push_cmd = Command::new("git");
@@ -369,8 +369,8 @@ fn token_url(remote: &str, token: &str) -> Result<String, String> {
     ))
 }
 
-fn require_token(remote: &str) -> Result<String, String> {
-    keychain::read_token(remote)?
+fn require_token(remote: &str, data_root: &std::path::Path) -> Result<String, String> {
+    keychain::read_token(remote, data_root)?
         .ok_or_else(|| "키체인에 토큰이 저장되지 않았습니다".to_string())
 }
 
@@ -499,7 +499,7 @@ pub fn blog_setup_workspace(state: State<'_, AppState>) -> Result<String, String
                 existing, s.remote
             ));
         }
-        let token = require_token(&s.remote)?;
+        let token = require_token(&s.remote, &state.data_root)?;
         let url = token_url(&s.remote, &token)?;
         let mut fetch_cmd = Command::new("git");
         fetch_cmd
@@ -529,7 +529,7 @@ pub fn blog_setup_workspace(state: State<'_, AppState>) -> Result<String, String
         fs::create_dir_all(&target).map_err(|e| format!("폴더 생성: {}", e))?;
     }
 
-    let token = require_token(&s.remote)?;
+    let token = require_token(&s.remote, &state.data_root)?;
     let url = token_url(&s.remote, &token)?;
     let mut clone_cmd = Command::new("git");
     clone_cmd
@@ -542,7 +542,7 @@ pub fn blog_setup_workspace(state: State<'_, AppState>) -> Result<String, String
     run_git_token(&mut clone_cmd, &token)?;
 
     if !validate_content_root(&target) {
-        return Err("clone은 성공했으나 pnpm-workspace.yaml/contents/가 없습니다".to_string());
+        return Err("clone은 성공했으나 유효한 콘텐츠 루트를 확인할 수 없습니다".to_string());
     }
 
     ensure_clean_origin(&target, &s.remote)?;
@@ -562,7 +562,7 @@ pub fn blog_pull(state: State<'_, AppState>) -> Result<String, String> {
     if has_unmerged(&root)? {
         return Err("머지 충돌이 남아있습니다. 먼저 해결하세요.".to_string());
     }
-    let token = require_token(&s.remote)?;
+    let token = require_token(&s.remote, &state.data_root)?;
     let url = token_url(&s.remote, &token)?;
     let mut fetch_cmd = Command::new("git");
     fetch_cmd

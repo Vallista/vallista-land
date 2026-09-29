@@ -1,16 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import type { GleanItem, GleanStatus } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
+import { useLLMWake } from '../../components/LLMWakeModal';
 import {
   deleteGlean,
+  fetchUrl,
   llmChat,
-  llmStatus,
+  openUrl,
+  startWindowDrag,
   updateGleanDigest,
   updateGleanHighlights,
   updateGleanStatus,
 } from '../../lib/tauri';
 import { buildSegments, getTextOffset, mergeHighlight, removeHighlight } from './highlight';
 import { PromoteDialog } from './PromoteDialog';
+import { RssArticleCard } from './RssArticleCard';
+import { ThreadsPostCard } from './ThreadsPostCard';
 
 type Props = {
   item: GleanItem;
@@ -89,8 +94,16 @@ export function GleanDetail({ item, onChange, onDelete }: Props) {
     [item.id, item.highlights, onChange],
   );
 
+  const handleMouseDown = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.psm-selectable')) return;
+    startWindowDrag(e);
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, position: 'relative' }}>
+    <div
+      onMouseDown={handleMouseDown}
+      style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, minWidth: 0, position: 'relative' }}
+    >
       <Header
         item={item}
         busy={busy}
@@ -112,17 +125,23 @@ export function GleanDetail({ item, onChange, onDelete }: Props) {
           {error}
         </div>
       )}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 36px' }}>
+      <div className="psm-selectable" style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 36px' }}>
         <DigestCard item={item} onChange={onChange} />
-        <Body
-          item={item}
-          bodyRef={bodyRef}
-          onSelectionChange={setPending}
-          onRemoveHighlight={dropHighlight}
-          disabled={busy || item.status === 'promoted'}
-        />
+        {item.source === 'threads' ? (
+          <ThreadsPostCard item={item} />
+        ) : item.source === 'rss' ? (
+          <RssArticleCard item={item} />
+        ) : (
+          <Body
+            item={item}
+            bodyRef={bodyRef}
+            onSelectionChange={setPending}
+            onRemoveHighlight={dropHighlight}
+            disabled={busy || !!item.promotedDocId}
+          />
+        )}
       </div>
-      {pending && item.status !== 'promoted' && (
+      {pending && !item.promotedDocId && (
         <HighlightAction pending={pending} onConfirm={addHighlight} onCancel={() => setPending(null)} />
       )}
       {promoteOpen && (
@@ -152,7 +171,25 @@ function Header({
   onDelete: () => void;
   onPromote: () => void;
 }) {
-  const promoted = item.status === 'promoted';
+  const promoted = !!item.promotedDocId;
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!item.url) return;
+    try {
+      await navigator.clipboard.writeText(item.url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+
+  const handleOpen = async () => {
+    if (!item.url) return;
+    try {
+      await openUrl(item.url);
+    } catch {}
+  };
+
   return (
     <div
       style={{
@@ -165,19 +202,45 @@ function Header({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }}>
-        <Mono
-          style={{
-            fontSize: 10.5,
-            color: 'var(--ink-mute)',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            flex: 1,
-            minWidth: 0,
-          }}
-        >
-          {item.url || `paste/${item.id}`}
-        </Mono>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, minWidth: 0 }}>
+          <Mono
+            onClick={item.url ? handleCopy : undefined}
+            title={item.url ? '클릭하면 URL 복사' : undefined}
+            style={{
+              fontSize: 10.5,
+              color: copied ? 'var(--ok)' : 'var(--ink-mute)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              flex: 1,
+              minWidth: 0,
+              cursor: item.url ? 'pointer' : 'default',
+              transition: 'color 0.15s',
+            }}
+          >
+            {copied ? '복사됨' : (item.url || `paste/${item.id}`)}
+          </Mono>
+          {item.url && (
+            <button
+              onClick={handleOpen}
+              title="원본 링크 열기"
+              style={{
+                flexShrink: 0,
+                padding: '2px 6px',
+                border: '1px solid var(--line)',
+                background: 'transparent',
+                color: 'var(--ink-mute)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: 10,
+                borderRadius: 3,
+                cursor: 'pointer',
+                lineHeight: 1,
+              }}
+            >
+              ↗
+            </button>
+          )}
+        </div>
         <StatusToggle status={item.status} disabled={busy} onChange={onSetStatus} />
         <button
           onClick={onPromote}
@@ -223,12 +286,14 @@ function Header({
           fontWeight: 600,
           color: 'var(--ink)',
           letterSpacing: '-0.2px',
+          overflowWrap: 'break-word',
+          wordBreak: 'break-all',
         }}
       >
         {item.title || '(제목 없음)'}
       </h1>
-      <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)' }}>
-        {item.source.toUpperCase()} · {formatTime(item.fetchedAt)}
+      <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {item.source.toUpperCase()} · {formatTime(item.publishedAt ?? item.fetchedAt)}
         {item.highlights.length > 0 ? ` · 하이라이트 ${item.highlights.length}` : ''}
         {promoted && item.promotedDocId ? ` · → ${item.promotedDocId}` : ''}
       </Mono>
@@ -250,7 +315,8 @@ function StatusToggle({
     { id: 'read', label: '읽음' },
     { id: 'archived', label: '보관' },
   ];
-  const locked = disabled || status === 'promoted';
+  const locked = disabled;
+  const displayStatus = status === 'promoted' ? 'read' : status;
   return (
     <div
       style={{
@@ -271,13 +337,13 @@ function StatusToggle({
             padding: '3px 9px',
             borderRadius: 3,
             border: 'none',
-            background: status === o.id ? 'var(--bg-shade)' : 'transparent',
-            color: status === o.id ? 'var(--ink)' : 'var(--ink-mute)',
+            background: displayStatus === o.id ? 'var(--bg-shade)' : 'transparent',
+            color: displayStatus === o.id ? 'var(--ink)' : 'var(--ink-mute)',
             fontFamily: 'var(--font-mono)',
             fontSize: 9.5,
             letterSpacing: '0.06em',
             cursor: locked ? 'not-allowed' : 'pointer',
-            fontWeight: status === o.id ? 600 : 500,
+            fontWeight: displayStatus === o.id ? 600 : 500,
             opacity: locked ? 0.6 : 1,
           }}
         >
@@ -354,6 +420,8 @@ function Body({
         wordBreak: 'keep-all',
         overflowWrap: 'break-word',
         maxWidth: 720,
+        userSelect: 'text',
+        WebkitUserSelect: 'text',
       }}
     >
       {item.excerpt && (
@@ -469,7 +537,9 @@ function DigestCard({
   item: GleanItem;
   onChange: (item: GleanItem) => void;
 }) {
+  const wake = useLLMWake();
   const [busy, setBusy] = useState(false);
+  const [busyMsg, setBusyMsg] = useState('생각 중…');
   const [error, setError] = useState<string | null>(null);
   const lines = (item.digest ?? '')
     .split('\n')
@@ -478,39 +548,51 @@ function DigestCard({
 
   const summarize = async () => {
     if (busy) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const status = await llmStatus();
-      if (!status.binPresent || status.models.length === 0) {
-        throw new Error('로컬 LLM이 준비되지 않았습니다');
+    await wake.run(async () => {
+      setBusy(true);
+      setError(null);
+      try {
+        let source = (item.body || item.excerpt || '').trim();
+        if (!source && item.url) {
+          setBusyMsg('본문 가져오는 중…');
+          const fetched = await fetchUrl(item.url);
+          source = (fetched.body || fetched.excerpt || '').trim();
+        }
+        if (!source) throw new Error('요약할 본문이 없습니다');
+
+        setBusyMsg('요약 중…');
+        const trimmed = source.length > 6000 ? source.slice(0, 6000) : source;
+        const isYoutube =
+          item.source === 'youtube' ||
+          (item.url || '').includes('youtube.com') ||
+          (item.url || '').includes('youtu.be');
+        const contentLabel = isYoutube ? '영상 설명' : '본문';
+
+        const out = await llmChat({
+          messages: [
+            {
+              role: 'system',
+              content:
+                '한국어로 핵심을 정확히 3줄로 요약한다. 각 줄은 "- "로 시작하고 80자 이내. 부연·인사·메타발화 금지.',
+            },
+            {
+              role: 'user',
+              content: `제목: ${item.title || '(없음)'}\n${contentLabel}:\n${trimmed}`,
+            },
+          ],
+          temperature: 0.2,
+          maxTokens: 320,
+        });
+        const cleaned = cleanDigest(out);
+        const updated = await updateGleanDigest(item.id, cleaned);
+        onChange(updated);
+      } catch (e) {
+        setError(String(e));
+      } finally {
+        setBusy(false);
+        setBusyMsg('생각 중…');
       }
-      const source = (item.body || item.excerpt || '').trim();
-      if (!source) throw new Error('요약할 본문이 없습니다');
-      const trimmed = source.length > 6000 ? source.slice(0, 6000) : source;
-      const out = await llmChat({
-        messages: [
-          {
-            role: 'system',
-            content:
-              '한국어로 핵심을 정확히 3줄로 요약한다. 각 줄은 "- "로 시작하고 80자 이내. 부연·인사·메타발화 금지.',
-          },
-          {
-            role: 'user',
-            content: `제목: ${item.title || '(없음)'}\n본문:\n${trimmed}`,
-          },
-        ],
-        temperature: 0.2,
-        maxTokens: 320,
-      });
-      const cleaned = cleanDigest(out);
-      const updated = await updateGleanDigest(item.id, cleaned);
-      onChange(updated);
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setBusy(false);
-    }
+    });
   };
 
   const clear = async () => {
@@ -528,15 +610,17 @@ function DigestCard({
   };
 
   return (
-    <section
-      style={{
-        marginBottom: 20,
-        padding: '14px 16px',
-        border: '1px solid var(--line)',
-        borderRadius: 8,
-        background: 'var(--bg-soft)',
-      }}
-    >
+    <>
+      {wake.modal}
+      <section
+        style={{
+          marginBottom: 20,
+          padding: '14px 16px',
+          border: '1px solid var(--line)',
+          borderRadius: 8,
+          background: 'var(--bg-soft)',
+        }}
+      >
       <div
         style={{
           display: 'flex',
@@ -564,7 +648,7 @@ function DigestCard({
             cursor: busy ? 'wait' : 'pointer',
           }}
         >
-          {busy ? '생각 중…' : lines.length > 0 ? '다시' : '요약'}
+          {busy ? busyMsg : lines.length > 0 ? '다시' : '요약'}
         </button>
         {lines.length > 0 && !busy && (
           <button
@@ -597,7 +681,31 @@ function DigestCard({
           {error}
         </Mono>
       )}
-      {lines.length > 0 ? (
+      {busy ? (
+        <div>
+          {lines.length > 0 && (
+            <ul style={{ margin: '0 0 8px', padding: 0, listStyle: 'none', opacity: 0.25 }}>
+              {lines.slice(0, 3).map((l, i) => (
+                <li
+                  key={i}
+                  style={{
+                    fontSize: 13,
+                    lineHeight: 1.55,
+                    color: 'var(--ink)',
+                    padding: '4px 0',
+                    display: 'flex',
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ color: 'var(--ink-mute)', flex: '0 0 auto' }}>—</span>
+                  <span>{l}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>{busyMsg}</Mono>
+        </div>
+      ) : lines.length > 0 ? (
         <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
           {lines.slice(0, 3).map((l, i) => (
             <li
@@ -618,10 +726,11 @@ function DigestCard({
         </ul>
       ) : (
         <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', fontStyle: 'italic' }}>
-          {busy ? '본문에서 핵심을 뽑는 중…' : '아직 요약이 없습니다'}
+          아직 요약이 없습니다
         </Mono>
       )}
     </section>
+    </>
   );
 }
 

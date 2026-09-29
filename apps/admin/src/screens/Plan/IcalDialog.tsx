@@ -13,7 +13,7 @@ import {
   removeIcalFeed,
   syncIcalFeeds,
 } from '../../lib/tauri';
-import { Button, Input, Mono, Select, type SelectOption } from '../../components/atoms/Atoms';
+import { Button, Checkbox, Input, Mono, Select, type SelectOption } from '../../components/atoms/Atoms';
 import {
   ICAL_SYNC_INTERVALS,
   type IcalSyncInterval,
@@ -72,6 +72,11 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
         try {
           const cals = await macosCalList();
           setMacCalendars(cals);
+          setSelectedCals(prev => {
+            if (prev.length === 0) return prev;
+            const newCals = cals.filter(c => !prev.includes(c));
+            return newCals.length > 0 ? [...prev, ...newCals] : prev;
+          });
         } catch (e) {
           setMacError(String(e));
         }
@@ -229,16 +234,16 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
       <div
         onMouseDown={(e) => e.stopPropagation()}
         style={{
-          width: 560,
+          width: 880,
           maxWidth: 'calc(100vw - 48px)',
           maxHeight: 'calc(100vh - 80px)',
           background: 'var(--bg)',
           border: '1px solid var(--line)',
           borderRadius: 10,
-          padding: 22,
+          padding: 'calc(var(--card-pad) + 6px)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 16,
+          gap: 'var(--gap-lg)',
           color: 'var(--ink)',
           overflow: 'auto',
         }}
@@ -332,37 +337,48 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
 
         <div
           style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 20,
             borderTop: '1px solid var(--line)',
             paddingTop: 14,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 12, color: 'var(--ink-mute)' }}>
-              구독 {feeds.length}개
-            </span>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+            borderRight: '1px solid var(--line)',
+            paddingRight: 20,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+            <h3 style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>iCal 구독</h3>
+            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              {feeds.length}개
+            </Mono>
             <span style={{ flex: 1 }} />
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 11,
-                color: 'var(--ink-mute)',
-              }}
-            >
-              <span>자동 동기화</span>
-              <div style={{ width: 110 }}>
-                <Select<ActiveInterval>
-                  value={syncInterval === 'off' ? null : (syncInterval as ActiveInterval)}
-                  options={INTERVAL_OPTIONS}
-                  placeholder="꺼짐"
-                  onChange={(v) => handleIntervalChange(v ?? 'off')}
-                />
-              </div>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              fontSize: 11,
+              color: 'var(--ink-mute)',
+            }}
+          >
+            <span>자동</span>
+            <div style={{ width: 110 }}>
+              <Select<ActiveInterval>
+                value={syncInterval === 'off' ? null : (syncInterval as ActiveInterval)}
+                options={INTERVAL_OPTIONS}
+                placeholder="꺼짐"
+                onChange={(v) => handleIntervalChange(v ?? 'off')}
+              />
             </div>
+            <span style={{ flex: 1 }} />
             <Button sm onClick={handleSync} disabled={busy || feeds.length === 0}>
               {busy ? '동기화 중…' : '지금 동기화'}
             </Button>
@@ -373,11 +389,18 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
           ) : feeds.length === 0 ? (
             <Empty text="등록된 캘린더가 없습니다" />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <ul
+              style={{
+                listStyle: 'none',
+                margin: 0,
+                padding: 0,
+                borderTop: '1px solid var(--line)',
+              }}
+            >
               {feeds.map((f) => (
                 <FeedRow key={f.id} feed={f} onRemove={() => handleRemove(f.id)} />
               ))}
-            </div>
+            </ul>
           )}
         </div>
 
@@ -386,8 +409,6 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
             display: 'flex',
             flexDirection: 'column',
             gap: 10,
-            borderTop: '1px solid var(--line)',
-            paddingTop: 14,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -595,26 +616,14 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
                 </Button>
               </div>
 
-              <label
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: 11,
-                  color: 'var(--ink-soft)',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
+              <Checkbox
+                checked={macAutoEnabled}
+                onChange={handleMacAutoToggle}
                 title="iCal 구독과 같은 주기로 macOS 캘린더도 자동 동기화"
+                style={{ fontSize: 11, color: 'var(--ink-soft)' }}
               >
-                <input
-                  type="checkbox"
-                  checked={macAutoEnabled}
-                  onChange={(e) => handleMacAutoToggle(e.target.checked)}
-                  style={{ accentColor: 'var(--blue)' }}
-                />
                 자동 동기화 (iCal 구독과 같은 주기)
-              </label>
+              </Checkbox>
 
               {macError && (
                 <div
@@ -659,6 +668,7 @@ export function IcalDialog({ open, onClose, onSynced }: Props) {
             </>
           )}
         </div>
+        </div>
       </div>
     </div>
   );
@@ -689,70 +699,79 @@ function Empty({ text }: { text: string }) {
 function FeedRow({ feed, onRemove }: { feed: IcalFeed; onRemove: () => void }) {
   const r = feed.lastResult;
   return (
-    <div
+    <li
       style={{
-        padding: '10px 12px',
-        border: '1px solid var(--line)',
-        borderRadius: 6,
-        background: 'var(--bg-soft)',
         display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 0',
+        borderBottom: '1px solid var(--line)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
-          {feed.label}
-        </span>
-        <span style={{ flex: 1 }} />
-        <button
-          onClick={onRemove}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div
           style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--err)',
-            cursor: 'pointer',
-            fontSize: 11,
-            fontFamily: 'inherit',
-            padding: 0,
+            display: 'flex',
+            alignItems: 'baseline',
+            gap: 8,
           }}
         >
-          제거
-        </button>
-      </div>
-      <span title={feed.url} style={{ display: 'block' }}>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--ink)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: 140,
+            }}
+            title={feed.label}
+          >
+            {feed.label}
+          </span>
+          <Mono
+            style={{
+              fontSize: 10.5,
+              color: 'var(--ink-mute)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: 1,
+              minWidth: 0,
+            }}
+            title={feed.url}
+          >
+            {feed.url}
+          </Mono>
+        </div>
         <Mono
           style={{
-            fontSize: 10.5,
+            fontSize: 10,
             color: 'var(--ink-mute)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
             display: 'block',
+            marginTop: 2,
           }}
         >
-          {feed.url}
+          {feed.lastSyncedAt ? prettyTime(feed.lastSyncedAt) : '미동기화'}
+          {r && ` · +${r.added} ↻${r.updated} skip${r.skipped}/${r.total}`}
         </Mono>
-      </span>
-      <div
+      </div>
+      <button
+        onClick={onRemove}
         style={{
-          display: 'flex',
-          gap: 12,
-          fontSize: 10.5,
-          color: 'var(--ink-mute)',
+          background: 'transparent',
+          border: 'none',
+          color: 'var(--err)',
+          cursor: 'pointer',
+          fontSize: 11,
+          fontFamily: 'inherit',
+          padding: '4px 6px',
         }}
       >
-        <span>
-          마지막 동기화 ·{' '}
-          {feed.lastSyncedAt ? prettyTime(feed.lastSyncedAt) : '없음'}
-        </span>
-        {r && (
-          <span>
-            +{r.added} ↻{r.updated} skip{r.skipped}/{r.total}
-          </span>
-        )}
-      </div>
-    </div>
+        제거
+      </button>
+    </li>
   );
 }
 

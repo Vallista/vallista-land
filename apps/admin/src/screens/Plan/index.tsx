@@ -1,17 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Block, GleanItem, Subtask, Task } from '@vallista/content-core';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import type { Block, Task } from '@vallista/content-core';
 import {
   addBlock,
   addTask,
   deleteBlock,
   deleteTask,
+  listAllEventSubtaskCounts,
   listBlocksInRange,
-  listGlean,
+  listEventSubtasks,
   listTasks,
+  macosCalImport,
+  macosCalStatus,
+  purgeStaleBlocks,
+  syncIcalFeeds,
+  toggleEventSubtask,
   updateBlock,
   updateTask,
+  upsertEventNote,
+  eventNoteKeysFromBlock,
+  type EventSubtask,
+  type MacosCalStatus,
 } from '../../lib/tauri';
-import { Button, Eyebrow, IconBtn, Input, Mono } from '../../components/atoms/Atoms';
+import { CalPermissionModal } from './CalPermissionModal';
+import { readMacosCalAutoConfig } from '../../lib/icalSync';
+import { Button, Eyebrow, IconBtn, Mono } from '../../components/atoms/Atoms';
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -25,31 +37,28 @@ import { AddBlockDialog, blockToDraft, type AddBlockDraft } from './AddBlockDial
 import { MonthGrid } from './MonthGrid';
 import { TicketPlannerView } from './TicketPlannerView';
 import { TaskEditor } from './TaskEditor';
-import { TagInput } from '../../components/TagInput';
+import { WeekProgress } from './WeekProgress';
+import { NextWeekBriefing } from './NextWeekBriefing';
+import { resolveLabel } from './labelCatalog';
+import { isStatsExcluded, loadStatsExcluded, toggleStatsExcluded, STATS_EXCLUDED_EVENT, syncStatsExcludedFromFile } from './blockMeta';
 import { TimeSelect } from '../../components/TimeSelect';
-import { EstSelect } from '../../components/EstSelect';
-import { notifyTagsChanged } from '../../lib/tags';
+import { QuickEntry } from '../../components/QuickEntry';
+import { dispatchToast, dispatchRemoveToast } from '../../components/NotifToast';
 
 const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
-type ViewMode = 'day' | 'week' | '2week' | 'month';
+type ViewMode = 'day' | 'week' | 'week7' | '2week' | 'month';
 type DisplayMode = 'time' | 'ticket';
 
 const VIEW_OPTIONS: { id: ViewMode; label: string }[] = [
   { id: 'day', label: '일' },
-  { id: 'week', label: '주' },
+  { id: 'week', label: '5일' },
+  { id: 'week7', label: '7일' },
   { id: '2week', label: '2주' },
   { id: 'month', label: '월' },
 ];
 
 const TICKET_RANGE_DAYS = 60;
-
-const EST_OPTIONS: { min: number; label: string }[] = [
-  { min: 15, label: '15m' },
-  { min: 30, label: '30m' },
-  { min: 60, label: '1h' },
-  { min: 120, label: '2h' },
-];
 
 function estLabel(min?: number): string | null {
   if (!min || min <= 0) return null;
@@ -63,19 +72,41 @@ export function Plan() {
   const [now, setNow] = useState<Date>(() => new Date());
   const [view, setView] = useState<ViewMode>('week');
   const [displayMode, setDisplayMode] = useState<DisplayMode>('time');
-  const [anchor, setAnchor] = useState<Date>(() => mondayOf(new Date()));
+  const [anchor, setAnchor] = useState<Date>(() => new Date());
+
   const [blocks, setBlocks] = useState<Block[] | null>(null);
   const [tasks, setTasks] = useState<Task[] | null>(null);
-  const [glean, setGlean] = useState<GleanItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const loadedRef = useRef<{ tasks: boolean; blocks: boolean }>({ tasks: false, blocks: false });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogInitial, setDialogInitial] = useState<Partial<AddBlockDraft> | null>(null);
   const [editingBlock, setEditingBlock] = useState<Block | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [taskDialogDate, setTaskDialogDate] = useState<string | undefined>(undefined);
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<Block | null>(null);
   const [inboxDropOver, setInboxDropOver] = useState(false);
+  const [activeHours, setActiveHours] = useState<{ start: string; end: string }>(() => ({
+    start: typeof window !== 'undefined' ? (window.localStorage.getItem(ACTIVE_START_KEY) ?? '09:00') : '09:00',
+    end: typeof window !== 'undefined' ? (window.localStorage.getItem(ACTIVE_END_KEY) ?? '21:00') : '21:00',
+  }));
   const inboxRef = useRef<HTMLDivElement>(null);
+  const [subtaskCounts, setSubtaskCounts] = useState<Map<string, { total: number; done: number }>>(new Map());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isPurging, setIsPurging] = useState(false);
+  const [calPermStatus, setCalPermStatus] = useState<MacosCalStatus | null>(null);
+  const [showBriefing, setShowBriefing] = useState(false);
+  const [excludedCalendars, setExcludedCalendars] = useState<Set<string>>(() => {
+    try {
+      const stored = window.localStorage.getItem(EXCLUDED_CALS_KEY);
+      if (stored) return new Set(JSON.parse(stored) as string[]);
+    } catch {}
+    return new Set();
+  });
+
+  const [statsExcludedVersion, setStatsExcludedVersion] = useState(0);
 
   const range = useMemo(() => buildRange(view, anchor, now), [view, anchor, now]);
   const days = range.days;
@@ -101,9 +132,76 @@ export function Plan() {
 
   const refreshBlocks = useCallback(() => {
     listBlocksInRange(startKey, endKey)
-      .then(setBlocks)
+      .then((data) => {
+        setBlocks(data);
+        loadedRef.current.blocks = true;
+        if (loadedRef.current.tasks) setIsLoading(false);
+      })
       .catch((e: unknown) => setError(String(e)));
   }, [startKey, endKey]);
+
+  const handleCalRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    dispatchToast({ id: 'cal-refresh', title: '캘린더 동기화 중…', duration: 0 });
+    try {
+      const macCfg = readMacosCalAutoConfig();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const viewStart = new Date(startKey);
+      const viewEnd = new Date(endKey);
+      const msPerDay = 86_400_000;
+      const daysBack = Math.max(macCfg.daysBack, Math.ceil((today.getTime() - viewStart.getTime()) / msPerDay));
+      const daysForward = Math.max(macCfg.daysForward, Math.ceil((viewEnd.getTime() - today.getTime()) / msPerDay));
+      const macReport = await macosCalImport({
+        calendars: macCfg.calendars,
+        daysBack,
+        daysForward,
+      }).catch(async (e: unknown) => {
+        const status = await macosCalStatus().catch(() => null);
+        if (status && !status.available) {
+          dispatchRemoveToast('cal-refresh');
+          setIsRefreshing(false);
+          setCalPermStatus(status);
+          return null;
+        }
+        dispatchToast({ title: 'macOS 캘린더 오류', body: String(e), duration: 6000 });
+        return null;
+      });
+      await syncIcalFeeds().catch(() => {});
+      const data = await listBlocksInRange(startKey, endKey);
+      setBlocks(data);
+      dispatchRemoveToast('cal-refresh');
+      const summary = macReport
+        ? `macOS: ${macReport.total}개 조회 / 추가 ${macReport.added} / 갱신 ${macReport.updated} / 스킵 ${macReport.skipped}`
+        : 'macOS: 권한 없음 또는 오류';
+      dispatchToast({ title: '캘린더 업데이트됨', body: summary, duration: 6000 });
+    } catch (e: unknown) {
+      setError(String(e));
+      dispatchRemoveToast('cal-refresh');
+      dispatchToast({ title: '캘린더 동기화 실패', body: String(e), duration: 5000 });
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [startKey, endKey, isRefreshing]);
+
+  const handlePurge = useCallback(async () => {
+    if (isPurging) return;
+    setIsPurging(true);
+    try {
+      const removed = await purgeStaleBlocks();
+      if (removed > 0) {
+        await refreshBlocks();
+        dispatchToast({ title: `오래된 일정 ${removed}건 정리됨`, duration: 4000 });
+      } else {
+        dispatchToast({ title: '정리할 오래된 일정 없음', duration: 3000 });
+      }
+    } catch (e: unknown) {
+      dispatchToast({ title: '정리 실패', body: String(e), duration: 4000 });
+    } finally {
+      setIsPurging(false);
+    }
+  }, [isPurging, refreshBlocks]);
 
   useEffect(() => {
     refreshBlocks();
@@ -116,12 +214,57 @@ export function Plan() {
   }, [refreshBlocks]);
 
   useEffect(() => {
+    const onBudget = () => {
+      setActiveHours({
+        start: window.localStorage.getItem(ACTIVE_START_KEY) ?? '09:00',
+        end: window.localStorage.getItem(ACTIVE_END_KEY) ?? '21:00',
+      });
+    };
+    window.addEventListener('bento:budget-changed', onBudget);
+    return () => window.removeEventListener('bento:budget-changed', onBudget);
+  }, []);
+
+  useEffect(() => {
     listTasks()
-      .then(setTasks)
+      .then((data) => {
+        setTasks(data);
+        loadedRef.current.tasks = true;
+        if (loadedRef.current.blocks) setIsLoading(false);
+      })
       .catch((e: unknown) => setError(String(e)));
-    listGlean()
-      .then(setGlean)
-      .catch(() => setGlean([]));
+  }, []);
+
+  useEffect(() => {
+    const refresh = () => listTasks().then(setTasks).catch(() => {});
+    window.addEventListener('bento:tasks-changed', refresh);
+    return () => window.removeEventListener('bento:tasks-changed', refresh);
+  }, []);
+
+  const refreshSubtaskCounts = useCallback(() => {
+    listAllEventSubtaskCounts()
+      .then((counts) =>
+        setSubtaskCounts(new Map(counts.map((c) => [c.eventKey, { total: c.total, done: c.done }]))),
+      )
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    refreshSubtaskCounts();
+  }, [refreshSubtaskCounts]);
+
+  useEffect(() => {
+    window.addEventListener('bento:subtasks-changed', refreshSubtaskCounts);
+    return () => window.removeEventListener('bento:subtasks-changed', refreshSubtaskCounts);
+  }, [refreshSubtaskCounts]);
+
+  useEffect(() => {
+    const onChanged = () => setStatsExcludedVersion((v) => v + 1);
+    window.addEventListener(STATS_EXCLUDED_EVENT, onChanged);
+    return () => window.removeEventListener(STATS_EXCLUDED_EVENT, onChanged);
+  }, []);
+
+  useEffect(() => {
+    syncStatsExcludedFromFile();
   }, []);
 
   const upsertBlock = useCallback((b: Block) => {
@@ -133,10 +276,12 @@ export function Plan() {
       next[idx] = b;
       return next;
     });
+    window.dispatchEvent(new CustomEvent('bento:blocks-changed'));
   }, []);
 
   const removeBlock = useCallback((id: string) => {
     setBlocks((prev) => (prev ? prev.filter((b) => b.id !== id) : prev));
+    window.dispatchEvent(new CustomEvent('bento:blocks-changed'));
   }, []);
 
   const openAddAt = useCallback((date: string, hour: number) => {
@@ -182,6 +327,12 @@ export function Plan() {
           kind: draft.kind,
           customLabel: draft.customLabel ?? null,
           attendees: draft.attendees,
+          actualStart: draft.actualStart ?? null,
+          actualEnd: draft.actualEnd ?? null,
+          done: draft.done,
+          notes: draft.notes ?? null,
+          color: draft.color ?? null,
+          tags: draft.tags ?? [],
         });
         upsertBlock(updated);
       } else {
@@ -195,11 +346,80 @@ export function Plan() {
           kind: draft.kind,
           customLabel: draft.customLabel,
           attendees: draft.attendees,
+          notes: draft.notes,
+          color: draft.color,
+          tags: draft.tags,
         });
-        upsertBlock(created);
+        let final = created;
+        if (draft.actualStart || draft.actualEnd || draft.done) {
+          final = await updateBlock(created.id, {
+            actualStart: draft.actualStart ?? null,
+            actualEnd: draft.actualEnd ?? null,
+            done: draft.done,
+          });
+        }
+        upsertBlock(final);
+        if (draft.notes?.trim()) {
+          const { eventKey, seriesKey } = eventNoteKeysFromBlock(final);
+          await upsertEventNote({
+            eventKey,
+            seriesKey,
+            eventTitleSnapshot: final.title,
+            eventDateSnapshot: final.date,
+            body: draft.notes.trim(),
+          }).catch(() => {});
+        }
       }
     },
     [editingBlock, upsertBlock],
+  );
+
+  const upsertTaskInState = useCallback((updated: Task) => {
+    setTasks((prev) => {
+      if (!prev) return [updated];
+      const idx = prev.findIndex((t) => t.id === updated.id);
+      if (idx === -1) return [...prev, updated];
+      const next = prev.slice();
+      next[idx] = updated;
+      return next;
+    });
+  }, []);
+
+  const handleBlockDone = useCallback(
+    async (id: string, done: boolean) => {
+      if (id.startsWith('task:')) {
+        const taskId = id.slice(5);
+        try {
+          const updated = await updateTask(taskId, { done });
+          upsertTaskInState(updated);
+          window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
+        } catch (e) {
+          setError(String(e));
+        }
+        return;
+      }
+      const target = blocks?.find((x) => x.id === id);
+      try {
+        const patch: Parameters<typeof updateBlock>[1] = { done };
+        if (done && target && !target.actualEnd) {
+          const isMultiDay = !!(target.endDate && target.endDate !== target.date);
+          const isAllDay =
+            target.start === '00:00' &&
+            (target.end === '00:00' || target.end === '23:59');
+          if (!isMultiDay && !isAllDay) {
+            const now = currentHHMM();
+            // planned end가 이미 지났으면 현재시각 대신 planned end로 cap
+            patch.actualEnd = now > target.end ? target.end : now;
+            if (!target.actualStart) patch.actualStart = target.start;
+          }
+        }
+        const updated = await updateBlock(id, patch);
+        upsertBlock(updated);
+      } catch (e) {
+        setError(String(e));
+      }
+    },
+    [blocks, upsertBlock, upsertTaskInState],
   );
 
   const handleDelete = useCallback(async () => {
@@ -223,8 +443,30 @@ export function Plan() {
       .slice(0, 8);
   }, [tasks]);
 
+  const calendarNames = useMemo<string[]>(() => {
+    if (!blocks) return [];
+    const names = new Set<string>();
+    for (const b of blocks) {
+      if (b.calendarName) names.add(b.calendarName);
+    }
+    return [...names].sort();
+  }, [blocks]);
+
+  const toggleCalendar = useCallback((name: string) => {
+    setExcludedCalendars((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      window.localStorage.setItem(EXCLUDED_CALS_KEY, JSON.stringify([...next]));
+      window.dispatchEvent(new CustomEvent('bento:calendar-filter-changed'));
+      return next;
+    });
+  }, []);
+
   const displayBlocks = useMemo<Block[]>(() => {
-    const real = blocks ?? [];
+    const real = (blocks ?? []).filter(
+      (b) => !b.calendarName || !excludedCalendars.has(b.calendarName),
+    );
     if (!tasks) return real;
     const linkedTaskIds = new Set<string>();
     for (const b of real) {
@@ -232,13 +474,13 @@ export function Plan() {
     }
     const virtual: Block[] = [];
     for (const t of tasks) {
-      if (t.done) continue;
       if (linkedTaskIds.has(t.id)) continue;
       const date = dateOf(t.startAt);
       if (!date) continue;
-      const start = timeOf(t.startAt) ?? '09:00';
+      const explicitTime = timeOf(t.startAt);
+      const start = explicitTime ?? '';
       const dur = t.estMin && t.estMin > 0 ? t.estMin : 60;
-      const end = addMinutesHHMM(start, dur);
+      const end = explicitTime ? addMinutesHHMM(explicitTime, dur) : '';
       virtual.push({
         id: `task:${t.id}`,
         date,
@@ -247,54 +489,58 @@ export function Plan() {
         title: t.title,
         kind: 'write',
         attendees: [],
-        done: false,
+        done: t.done,
         source: 'local',
         taskId: t.id,
         createdAt: t.createdAt,
       });
     }
     return virtual.length === 0 ? real : [...real, ...virtual];
-  }, [blocks, tasks]);
+  }, [blocks, tasks, excludedCalendars]);
 
-  const readQueue = useMemo(() => {
-    if (!glean) return [];
-    return glean
-      .filter((g) => g.status === 'unread')
-      .sort((a, b) => (a.fetchedAt < b.fetchedAt ? 1 : -1))
-      .slice(0, 6);
-  }, [glean]);
+  const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(() => new Set());
+  const taskTree = useMemo(() => buildTaskTree(taskInbox), [taskInbox]);
+  const toggleFolder = useCallback((path: string) => {
+    setCollapsedFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+  }, []);
 
   const rangeLabel = useMemo(() => formatRangeLabel(range), [range]);
   const weekNumber = useMemo(() => isoWeekNumber(anchor), [anchor]);
 
-  const upsertTaskInState = useCallback((updated: Task) => {
-    setTasks((prev) => {
-      if (!prev) return [updated];
-      const idx = prev.findIndex((t) => t.id === updated.id);
-      if (idx === -1) return [...prev, updated];
-      const next = prev.slice();
-      next[idx] = updated;
-      return next;
-    });
-  }, []);
+  const dialogExcludedFromStats = useMemo(
+    () => (editingBlock ? isStatsExcluded(editingBlock) : false),
+    // statsExcludedVersion triggers recompute when exclusion list changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [editingBlock, statsExcludedVersion],
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const excludedBlockKeys = useMemo(() => loadStatsExcluded(), [statsExcludedVersion]);
 
   const upsertTaskDone = useCallback(
     async (id: string, done: boolean) => {
       const updated = await updateTask(id, { done });
       upsertTaskInState(updated);
+      window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
     },
     [upsertTaskInState],
   );
 
   const saveEditingTask = useCallback(
-    async (patch: { title: string; notes: string | null; subtasks: Subtask[] }) => {
+    async (patch: { title: string; done?: boolean; color?: string | null; kind?: string | null }) => {
       if (!editingTask) return;
       const updated = await updateTask(editingTask.id, {
         title: patch.title,
-        notes: patch.notes,
-        subtasks: patch.subtasks,
+        color: patch.color,
+        kind: patch.kind,
       });
       upsertTaskInState(updated);
+      window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
     },
     [editingTask, upsertTaskInState],
   );
@@ -361,7 +607,7 @@ export function Plan() {
       if (blockId.startsWith('task:')) {
         const taskId = blockId.slice(5);
         try {
-          const updated = await updateTask(taskId, { startAt: null });
+          const updated = await updateTask(taskId, { startAt: '' });
           upsertTaskInState(updated);
         } catch (e) {
           setError(String(e));
@@ -373,7 +619,7 @@ export function Plan() {
       if (b.source && b.source !== 'local') return;
       try {
         if (b.taskId) {
-          const updated = await updateTask(b.taskId, { startAt: null });
+          const updated = await updateTask(b.taskId, { startAt: '' });
           upsertTaskInState(updated);
         } else {
           const startM = hhmmToMin(b.start);
@@ -398,36 +644,6 @@ export function Plan() {
     [blocks, upsertTaskInState, removeBlock],
   );
 
-  const createTask = useCallback(
-    async (input: {
-      title: string;
-      startDate?: string;
-      startTime?: string;
-      dueDate?: string;
-      dueTime?: string;
-      estMin?: number;
-      tags?: string[];
-    }) => {
-      const id = `t_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      const startAt = input.startDate
-        ? makeIso(input.startDate, input.startTime)
-        : input.startTime && /^\d{1,2}:\d{2}$/.test(input.startTime)
-          ? input.startTime
-          : undefined;
-      const due = input.dueDate ? makeIso(input.dueDate, input.dueTime) : undefined;
-      const created = await addTask({
-        id,
-        title: input.title,
-        due: due || undefined,
-        estMin: input.estMin,
-        startAt: startAt || undefined,
-        tags: input.tags && input.tags.length > 0 ? input.tags : undefined,
-      });
-      setTasks((prev) => (prev ? [...prev, created] : [created]));
-    },
-    [],
-  );
-
   if (error && !blocks) {
     return (
       <div style={{ padding: 32 }}>
@@ -448,6 +664,10 @@ export function Plan() {
     );
   }
 
+  if (isLoading) {
+    return <PlanSkeleton />;
+  }
+
   return (
     <div
       style={{
@@ -457,6 +677,16 @@ export function Plan() {
         overflow: 'hidden',
       }}
     >
+      {calPermStatus && (
+        <CalPermissionModal
+          status={calPermStatus}
+          onClose={() => setCalPermStatus(null)}
+          onGranted={() => {
+            setCalPermStatus(null);
+            void handleCalRefresh();
+          }}
+        />
+      )}
       <aside
         style={{
           flex: '0 0 280px',
@@ -464,10 +694,10 @@ export function Plan() {
           background: 'var(--bg-soft)',
           display: 'flex',
           flexDirection: 'column',
-          overflowY: 'auto',
+          overflow: 'hidden',
         }}
       >
-        <div style={{ padding: '16px 18px 12px', borderBottom: '1px solid var(--line)' }}>
+        <div style={{ padding: 'var(--card-pad) var(--card-pad) calc(var(--card-pad) - 4px)', borderBottom: '1px solid var(--line)' }}>
           <Eyebrow>{view === 'day' ? '오늘' : view === 'month' ? '이번 달' : '이번 주'}</Eyebrow>
           <div
             style={{
@@ -496,6 +726,16 @@ export function Plan() {
           </div>
         </div>
 
+        <WeekProgress now={now} />
+
+        <DayBudget />
+
+        <CalendarFilter
+          calendarNames={calendarNames}
+          excluded={excludedCalendars}
+          onToggle={toggleCalendar}
+        />
+
         <div
           ref={inboxRef}
           onDragOver={(e) => {
@@ -518,6 +758,9 @@ export function Plan() {
             void handleBlockToInbox(blockId);
           }}
           style={{
+            flex: '1 1 0',
+            minHeight: 0,
+            overflowY: 'auto',
             padding: '16px 18px 8px',
             background: inboxDropOver
               ? 'repeating-linear-gradient(45deg, transparent 0 8px, rgba(96,165,250,0.18) 8px 14px)'
@@ -547,7 +790,27 @@ export function Plan() {
               {taskInbox.length}
             </Mono>
           </div>
-          <TaskQuickAdd onAdd={createTask} />
+          <button
+            onClick={() => {
+              setTaskDialogDate(undefined);
+              setTaskDialogOpen(true);
+            }}
+            style={{
+              marginBottom: 8,
+              padding: '7px 10px',
+              fontSize: 12.5,
+              border: '1px dashed var(--line)',
+              background: 'transparent',
+              color: 'var(--ink-mute)',
+              borderRadius: 6,
+              fontFamily: 'inherit',
+              textAlign: 'left',
+              cursor: 'pointer',
+              width: '100%',
+            }}
+          >
+            + 할 일 추가
+          </button>
           {taskInbox.length === 0 ? (
             <SidebarEmpty
               text={
@@ -559,11 +822,12 @@ export function Plan() {
               }
             />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {taskInbox.map((t) => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {taskTree.tasks.map((t) => (
                 <TaskInboxRow
                   key={t.id}
                   task={t}
+                  displayTitle={t.leafTitle}
                   onDone={(done) => upsertTaskDone(t.id, done)}
                   onEdit={() => setEditingTask(t)}
                   onDragStartTask={(task) => setDraggingTask(task)}
@@ -585,48 +849,40 @@ export function Plan() {
                   }}
                 />
               ))}
-            </div>
-          )}
-        </div>
-
-        <div style={{ padding: '16px 18px 8px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 8,
-            }}
-          >
-            <Eyebrow>읽기 큐 → 시간에 꽂기</Eyebrow>
-            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
-              {readQueue.length}
-            </Mono>
-          </div>
-          {readQueue.length === 0 ? (
-            <SidebarEmpty text="안 읽은 캡처가 없습니다" />
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {readQueue.map((g) => (
-                <ClipRow
-                  key={g.id}
-                  item={g}
-                  onSchedule={() => {
-                    setEditingBlock(null);
-                    setDialogInitial({
-                      date: firstDayKey,
-                      start: '14:00',
-                      end: '15:00',
-                      title: g.title || hostname(g.url),
-                      kind: 'read',
-                    });
-                    setDialogOpen(true);
+              {taskTree.children.map((node) => (
+                <TaskInboxFolder
+                  key={node.path}
+                  node={node}
+                  collapsed={collapsedFolders}
+                  onToggle={toggleFolder}
+                  depth={0}
+                  rowProps={{
+                    onDone: (id, done) => upsertTaskDone(id, done),
+                    onEdit: (t) => setEditingTask(t),
+                    onSchedule: (t) => {
+                      setEditingBlock(null);
+                      const startStr = timeOf(t.startAt) ?? timeOf(t.due) ?? '09:00';
+                      const dur = t.estMin && t.estMin > 0 ? t.estMin : 60;
+                      const dateStr =
+                        dateOf(t.startAt) ?? dateOf(t.due) ?? firstDayKey;
+                      setDialogInitial({
+                        date: dateStr,
+                        start: startStr,
+                        end: addMinutesHHMM(startStr, dur),
+                        title: t.title,
+                        kind: 'write',
+                      });
+                      setDialogOpen(true);
+                    },
+                    onDragStartTask: (task) => setDraggingTask(task),
+                    onDragEndTask: () => setDraggingTask(null),
                   }}
                 />
               ))}
             </div>
           )}
         </div>
+
       </aside>
 
       <div
@@ -639,13 +895,13 @@ export function Plan() {
       >
         <div
           style={{
-            height: 48,
+            height: 'calc(var(--row-h) + 16px)',
             borderBottom: '1px solid var(--line)',
             background: 'var(--bg-soft)',
             display: 'flex',
             alignItems: 'center',
-            padding: '0 18px',
-            gap: 12,
+            padding: '0 var(--card-pad)',
+            gap: 'var(--gap-lg)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -701,6 +957,64 @@ export function Plan() {
             />
           )}
           <span style={{ flex: 1 }} />
+          <button
+            onClick={() => setShowBriefing((v) => !v)}
+            style={{
+              padding: '4px 10px',
+              border: `1px solid ${showBriefing ? 'var(--ink-mute)' : 'var(--line)'}`,
+              borderRadius: 5,
+              background: showBriefing ? 'var(--bg-shade)' : 'transparent',
+              color: showBriefing ? 'var(--ink)' : 'var(--ink-mute)',
+              fontSize: 11,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            차주 브리핑
+          </button>
+          {isRefreshing && (
+            <style>{`@keyframes plan-cal-spin { to { transform: rotate(360deg); } }`}</style>
+          )}
+          <button
+            onClick={handleCalRefresh}
+            disabled={isRefreshing}
+            title="캘린더 새로 가져오기"
+            style={{
+              padding: '4px 6px',
+              border: 'none',
+              borderRadius: 4,
+              background: 'transparent',
+              color: 'var(--ink-mute)',
+              fontSize: 14,
+              lineHeight: 1,
+              cursor: isRefreshing ? 'default' : 'pointer',
+              opacity: isRefreshing ? 0.45 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              animation: isRefreshing ? 'plan-cal-spin 0.7s linear infinite' : 'none',
+            }}
+          >
+            ↻
+          </button>
+          <button
+            onClick={handlePurge}
+            disabled={isPurging}
+            title="60일 이상 지난 외부 캘린더 일정 정리 (메모 없는 항목만)"
+            style={{
+              padding: '4px 6px',
+              border: 'none',
+              borderRadius: 4,
+              background: 'transparent',
+              color: 'var(--ink-mute)',
+              fontSize: 11,
+              lineHeight: 1,
+              cursor: isPurging ? 'default' : 'pointer',
+              opacity: isPurging ? 0.45 : 1,
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            정리
+          </button>
           <Button
             sm
             onClick={() => {
@@ -717,7 +1031,9 @@ export function Plan() {
           </Button>
         </div>
 
-        {displayMode === 'ticket' ? (
+        {showBriefing ? (
+          <NextWeekBriefing blocks={blocks ?? []} now={now} />
+        ) : displayMode === 'ticket' ? (
           <TicketPlannerView
             anchor={anchor}
             now={now}
@@ -738,12 +1054,12 @@ export function Plan() {
             onInboxHoverChange={setInboxDropOver}
             onBlockDragChange={setDraggingBlock}
             onCreateForDay={(date) => {
-              setEditingBlock(null);
-              setDialogInitial({ date, start: '09:00', end: '10:00' });
-              setDialogOpen(true);
+              setTaskDialogDate(date);
+              setTaskDialogOpen(true);
             }}
             onTaskClick={(t) => setEditingTask(t)}
             onTaskDone={(id, done) => upsertTaskDone(id, done)}
+            onBlockDone={handleBlockDone}
           />
         ) : view === 'month' ? (
           <MonthGrid
@@ -763,6 +1079,9 @@ export function Plan() {
             now={now}
             draggingTask={draggingTask}
             inboxRef={inboxRef}
+            activeStart={activeHours.start}
+            activeEnd={activeHours.end}
+            subtaskCounts={subtaskCounts}
             onSlotClick={openAddAt}
             onBlockClick={openEdit}
             onRangeSelect={(date, start, end) => {
@@ -785,6 +1104,8 @@ export function Plan() {
             onBlockMoveToInbox={handleBlockToInbox}
             onInboxHoverChange={setInboxDropOver}
             onBlockDragChange={setDraggingBlock}
+            onBlockDone={handleBlockDone}
+            excludedBlockKeys={excludedBlockKeys}
           />
         )}
       </div>
@@ -798,6 +1119,12 @@ export function Plan() {
         onSubmit={handleSubmit}
         onClose={closeDialog}
         onDelete={editingBlock ? handleDelete : undefined}
+        excludedFromStats={dialogExcludedFromStats}
+        onToggleExcludeFromStats={
+          editingBlock
+            ? () => { toggleStatsExcluded(editingBlock); }
+            : undefined
+        }
       />
 
       <TaskEditor
@@ -807,299 +1134,303 @@ export function Plan() {
         onSave={saveEditingTask}
         onDelete={removeEditingTask}
       />
+
+      <QuickEntry
+        open={taskDialogOpen}
+        initialKind="task"
+        initialStartDate={taskDialogDate}
+        onClose={() => setTaskDialogOpen(false)}
+      />
     </div>
   );
 }
 
-function TaskQuickAdd({
-  onAdd,
-}: {
-  onAdd: (input: {
-    title: string;
-    startDate?: string;
-    startTime?: string;
-    dueDate?: string;
-    dueTime?: string;
-    estMin?: number;
-    tags?: string[];
-  }) => Promise<void>;
-}) {
-  const [title, setTitle] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [dueTime, setDueTime] = useState('');
-  const [estMin, setEstMin] = useState<number | null>(null);
-  const [tags, setTags] = useState<string[]>([]);
-  const [busy, setBusy] = useState(false);
-  const [open, setOpen] = useState(false);
+const SLEEP_START_KEY = 'bento.plan.sleepStart';
+const SLEEP_END_KEY = 'bento.plan.sleepEnd';
+const ACTIVE_START_KEY = 'bento.plan.activeStart';
+const ACTIVE_END_KEY = 'bento.plan.activeEnd';
+const EXCLUDED_CALS_KEY = 'bento.plan.excludedCalendars';
 
-  const cancel = () => {
-    setTitle('');
-    setStartDate('');
-    setStartTime('');
-    setDueDate('');
-    setDueTime('');
-    setEstMin(null);
-    setTags([]);
-    setOpen(false);
+function readSleepTime(): { start: string; end: string } {
+  if (typeof window === 'undefined') return { start: '23:00', end: '07:00' };
+  return {
+    start: window.localStorage.getItem(SLEEP_START_KEY) ?? '23:00',
+    end: window.localStorage.getItem(SLEEP_END_KEY) ?? '07:00',
+  };
+}
+
+function sleepMinutes(start: string, end: string): number {
+  const toMin = (hhmm: string) => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm);
+    if (!m || !m[1] || !m[2]) return 0;
+    return Number(m[1]) * 60 + Number(m[2]);
+  };
+  const s = toMin(start);
+  const e = toMin(end);
+  return e > s ? e - s : 24 * 60 - s + e;
+}
+
+function readActiveTime(): { start: string; end: string } {
+  if (typeof window === 'undefined') return { start: '09:00', end: '21:00' };
+  return {
+    start: window.localStorage.getItem(ACTIVE_START_KEY) ?? '09:00',
+    end: window.localStorage.getItem(ACTIVE_END_KEY) ?? '21:00',
+  };
+}
+
+function activeMinutes(start: string, end: string): number {
+  const toMin = (hhmm: string) => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm);
+    if (!m || !m[1] || !m[2]) return 0;
+    return Number(m[1]) * 60 + Number(m[2]);
+  };
+  const s = toMin(start);
+  const e = toMin(end);
+  return e > s ? e - s : 0;
+}
+
+function DayBudget() {
+  const [sleep, setSleep] = useState(readSleepTime);
+  const [active, setActive] = useState(readActiveTime);
+  const [editing, setEditing] = useState(false);
+
+  const sleepMin = sleepMinutes(sleep.start, sleep.end);
+  const availMin = 24 * 60 - sleepMin;
+  const activeMin = activeMinutes(active.start, active.end);
+
+  const saveSleep = (next: { start: string; end: string }) => {
+    window.localStorage.setItem(SLEEP_START_KEY, next.start);
+    window.localStorage.setItem(SLEEP_END_KEY, next.end);
+    setSleep(next);
   };
 
-  const submit = async () => {
-    const text = title.trim();
-    if (!text) return;
-    setBusy(true);
-    try {
-      await onAdd({
-        title: text,
-        startDate: startDate || undefined,
-        startTime: startTime || undefined,
-        dueDate: dueDate || undefined,
-        dueTime: dueTime || undefined,
-        estMin: estMin ?? undefined,
-        tags: tags.length > 0 ? tags : undefined,
-      });
-      notifyTagsChanged('tasks');
-      cancel();
-    } finally {
-      setBusy(false);
-    }
+  const saveActive = (next: { start: string; end: string }) => {
+    window.localStorage.setItem(ACTIVE_START_KEY, next.start);
+    window.localStorage.setItem(ACTIVE_END_KEY, next.end);
+    setActive(next);
+    window.dispatchEvent(new CustomEvent('bento:budget-changed'));
   };
 
   return (
-    <>
+    <div
+      style={{
+        padding: '10px 18px 12px',
+        borderBottom: '1px solid var(--line)',
+        background: 'var(--bg-soft)',
+      }}
+    >
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => setEditing((v) => !v)}
         style={{
-          marginBottom: 8,
-          padding: '7px 10px',
-          fontSize: 12.5,
-          border: '1px dashed var(--line)',
-          background: 'transparent',
-          color: 'var(--ink-mute)',
-          borderRadius: 6,
-          fontFamily: 'inherit',
-          textAlign: 'left',
-          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           width: '100%',
+          border: 'none',
+          background: 'transparent',
+          padding: 0,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
         }}
       >
-        + 할 일 추가
+        <Eyebrow>하루 예산</Eyebrow>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.2px' }}>
+            {fmtBudget(availMin)}
+          </span>
+          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+            활동 {fmtBudget(activeMin)}
+          </Mono>
+          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+            수면 {fmtBudget(sleepMin)}
+          </Mono>
+          <Mono style={{ fontSize: 10, color: editing ? 'var(--ink)' : 'var(--ink-mute)' }}>
+            {editing ? '▲' : '▼'}
+          </Mono>
+        </div>
       </button>
-      {open && (
-        <div
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) cancel();
-          }}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 100,
-            padding: 16,
-          }}
-        >
-          <div
-            onMouseDown={(e) => e.stopPropagation()}
-            style={{
-              width: 'min(460px, 92vw)',
-              background: 'var(--bg-soft)',
-              border: '1px solid var(--line)',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-pop)',
-              padding: '18px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Eyebrow>새 할 일</Eyebrow>
-              <button
-                onClick={cancel}
-                title="닫기 (ESC)"
-                style={{
-                  width: 22,
-                  height: 22,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--ink-mute)',
-                  borderRadius: 4,
-                  cursor: 'pointer',
-                  fontSize: 16,
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
+
+      {editing && (
+        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 36, flexShrink: 0 }}>
+              취침
+            </Mono>
+            <div style={{ width: 100 }}>
+              <TimeSelect
+                value={sleep.start}
+                onChange={(v) => saveSleep({ ...sleep, start: v })}
+                title="취침 시각"
+              />
             </div>
-            <Input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  submit();
-                }
-                if (e.key === 'Escape') {
-                  e.preventDefault();
-                  cancel();
-                }
-              }}
-              placeholder="할 일 제목"
-              style={{ padding: '8px 10px', background: 'var(--bg)' }}
-            />
-            <DateTimeRow
-              label="시작"
-              date={startDate}
-              time={startTime}
-              onDateChange={setStartDate}
-              onTimeChange={setStartTime}
-            />
-            <DateTimeRow
-              label="마감"
-              date={dueDate}
-              time={dueTime}
-              onDateChange={setDueDate}
-              onTimeChange={setDueTime}
-            />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 28, flexShrink: 0 }}>
-                est
-              </Mono>
-              {EST_OPTIONS.map((o) => {
-                const sel = estMin === o.min;
-                return (
-                  <button
-                    key={o.min}
-                    onClick={() => setEstMin(sel ? null : o.min)}
-                    style={{
-                      padding: '3px 8px',
-                      fontSize: 10.5,
-                      fontFamily: 'inherit',
-                      border: '1px solid var(--line)',
-                      background: sel ? 'var(--ink)' : 'transparent',
-                      color: sel ? 'var(--on-accent)' : 'var(--ink-soft)',
-                      borderRadius: 4,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {o.label}
-                  </button>
-                );
-              })}
-              <div style={{ flex: 1, minWidth: 90 }}>
-                <EstSelect value={estMin} onChange={setEstMin} />
-              </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 36, flexShrink: 0 }}>
+              기상
+            </Mono>
+            <div style={{ width: 100 }}>
+              <TimeSelect
+                value={sleep.end}
+                onChange={(v) => saveSleep({ ...sleep, end: v })}
+                title="기상 시각"
+              />
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 28, flexShrink: 0 }}>
-                tags
-              </Mono>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <TagInput value={tags} onChange={setTags} size="sm" />
-              </div>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+              → 가용 {fmtBudget(availMin)}
+            </Mono>
+          </div>
+          <div style={{ height: 1, background: 'var(--line)', margin: '2px 0' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 36, flexShrink: 0 }}>
+              활동↑
+            </Mono>
+            <div style={{ width: 100 }}>
+              <TimeSelect
+                value={active.start}
+                onChange={(v) => saveActive({ ...active, start: v })}
+                title="활동 시작"
+              />
             </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 8,
-                marginTop: 4,
-              }}
-            >
-              <button
-                onClick={cancel}
-                style={{
-                  padding: '7px 14px',
-                  fontSize: 12,
-                  border: '1px solid var(--line)',
-                  background: 'transparent',
-                  color: 'var(--ink-soft)',
-                  borderRadius: 6,
-                  fontFamily: 'inherit',
-                  cursor: 'pointer',
-                }}
-              >
-                취소
-              </button>
-              <button
-                onClick={submit}
-                disabled={busy || !title.trim()}
-                style={{
-                  padding: '7px 14px',
-                  fontSize: 12,
-                  border: 'none',
-                  background: title.trim() ? 'var(--ink)' : 'var(--bg-shade)',
-                  color: title.trim() ? 'var(--on-accent)' : 'var(--ink-mute)',
-                  borderRadius: 6,
-                  cursor: title.trim() && !busy ? 'pointer' : 'default',
-                  fontFamily: 'inherit',
-                  fontWeight: 500,
-                }}
-              >
-                {busy ? '…' : '담기'}
-              </button>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 36, flexShrink: 0 }}>
+              활동↓
+            </Mono>
+            <div style={{ width: 100 }}>
+              <TimeSelect
+                value={active.end}
+                onChange={(v) => saveActive({ ...active, end: v })}
+                title="활동 종료"
+              />
             </div>
+            <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+              → 활동 {fmtBudget(activeMin)}
+            </Mono>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
-function DateTimeRow({
-  label,
-  date,
-  time,
-  onDateChange,
-  onTimeChange,
+function fmtBudget(min: number): string {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (m === 0) return `${h}h`;
+  return `${h}h${m}m`;
+}
+
+function CalendarFilter({
+  calendarNames,
+  excluded,
+  onToggle,
 }: {
-  label: string;
-  date: string;
-  time: string;
-  onDateChange: (v: string) => void;
-  onTimeChange: (v: string) => void;
+  calendarNames: string[];
+  excluded: Set<string>;
+  onToggle: (name: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  if (calendarNames.length === 0) return null;
+  const hiddenCount = calendarNames.filter((n) => excluded.has(n)).length;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 28, flexShrink: 0 }}>
-        {label}
-      </Mono>
-      <Input
-        sm
-        type="date"
-        value={date}
-        onChange={(e) => onDateChange(e.target.value)}
+    <div
+      style={{
+        padding: '10px 18px 12px',
+        borderBottom: '1px solid var(--line)',
+        background: 'var(--bg-soft)',
+      }}
+    >
+      <button
+        onClick={() => setOpen((v) => !v)}
         style={{
-          flex: 1,
-          minWidth: 0,
-          border: `1px ${date === '' ? 'dashed' : 'solid'} var(--line)`,
-          color: date === '' ? 'var(--ink-mute)' : 'var(--ink)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+          border: 'none',
+          background: 'transparent',
+          padding: 0,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
         }}
-      />
-      <div style={{ width: 96, flexShrink: 0 }}>
-        <TimeSelect value={time} onChange={onTimeChange} title={`${label} 시간`} />
-      </div>
+      >
+        <Eyebrow>캘린더 필터</Eyebrow>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {hiddenCount > 0 && (
+            <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>
+              {hiddenCount}개 숨김
+            </Mono>
+          )}
+          <Mono style={{ fontSize: 10, color: open ? 'var(--ink)' : 'var(--ink-mute)' }}>
+            {open ? '▲' : '▼'}
+          </Mono>
+        </div>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {calendarNames.map((name) => {
+            const visible = !excluded.has(name);
+            return (
+              <button
+                key={name}
+                onClick={() => onToggle(name)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  background: 'transparent',
+                  border: 'none',
+                  padding: '3px 0',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  textAlign: 'left',
+                  width: '100%',
+                }}
+              >
+                <span
+                  style={{
+                    flexShrink: 0,
+                    width: 13,
+                    height: 13,
+                    border: `1.5px solid ${visible ? 'var(--blue)' : 'var(--line)'}`,
+                    borderRadius: 3,
+                    background: visible ? 'var(--blue)' : 'transparent',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {visible && (
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                      <path d="M1.5 4L3.2 5.8L6.5 2.2" stroke="var(--bg)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    fontSize: 11.5,
+                    color: visible ? 'var(--ink)' : 'var(--ink-mute)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    textDecoration: visible ? 'none' : 'line-through',
+                  }}
+                >
+                  {name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 function TaskInboxRow({
   task,
+  displayTitle,
   onDone,
   onSchedule,
   onEdit,
@@ -1107,14 +1438,38 @@ function TaskInboxRow({
   onDragEndTask,
 }: {
   task: Task;
+  displayTitle?: string;
   onDone: (done: boolean) => void;
   onSchedule: () => void;
   onEdit: () => void;
   onDragStartTask?: (task: Task) => void;
   onDragEndTask?: () => void;
 }) {
-  const subDone = (task.subtasks ?? []).filter((s) => s.done).length;
-  const subTotal = (task.subtasks ?? []).length;
+  const [eventSubtasks, setEventSubtasks] = useState<EventSubtask[]>([]);
+  const eventKey = `task:${task.id}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      listEventSubtasks(eventKey).then((items) => {
+        if (!cancelled) setEventSubtasks(items);
+      });
+    };
+    load();
+    window.addEventListener('bento:subtasks-changed', load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('bento:subtasks-changed', load);
+    };
+  }, [eventKey]);
+
+  const handleSubtaskToggle = async (id: string, done: boolean) => {
+    const updated = await toggleEventSubtask(eventKey, id, done);
+    setEventSubtasks((prev) => prev.map((s) => s.id === updated.id ? updated : s));
+  };
+
+  const subDone = eventSubtasks.filter((s) => s.done).length;
+  const subTotal = eventSubtasks.length;
   const hasNotes = !!(task.notes && task.notes.trim().length > 0);
   return (
     <div
@@ -1134,6 +1489,7 @@ function TaskInboxRow({
       style={{
         padding: '10px 12px',
         border: '1px solid var(--line)',
+        borderLeft: `3px solid ${resolveLabel(task.kind, task.color).color}`,
         background: 'var(--bg)',
         borderRadius: 6,
         display: 'flex',
@@ -1152,7 +1508,7 @@ function TaskInboxRow({
           textOverflow: 'ellipsis',
         }}
       >
-        {task.title}
+        {displayTitle ?? task.title}
       </div>
       <div
         style={{
@@ -1216,10 +1572,17 @@ function TaskInboxRow({
         )}
         {hasNotes && (
           <Mono
-            style={{ fontSize: 10, color: 'var(--ink-mute)' }}
+            style={{
+              fontSize: 10,
+              color: 'var(--ink-soft)',
+              background: 'var(--bg-shade)',
+              border: '1px solid var(--line)',
+              padding: '1px 5px',
+              borderRadius: 3,
+            }}
             title="메모 있음"
           >
-            ✎
+            ✎ 메모
           </Mono>
         )}
         <span style={{ flex: 1 }} />
@@ -1259,62 +1622,210 @@ function TaskInboxRow({
           <ArrowRightIcon size={11} /> 시간
         </button>
       </div>
+      {subTotal > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {eventSubtasks.slice(0, 5).map((s) => (
+            <button
+              key={s.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                void handleSubtaskToggle(s.id, !s.done);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                fontSize: 12,
+                color: s.done ? 'var(--ink-mute)' : 'var(--ink)',
+                textDecoration: s.done ? 'line-through' : 'none',
+                background: 'transparent',
+                border: 'none',
+                padding: '2px 0',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                textAlign: 'left',
+                width: '100%',
+              }}
+            >
+              <span style={{
+                flexShrink: 0,
+                width: 14,
+                height: 14,
+                border: `1.5px solid ${s.done ? 'var(--ok)' : 'var(--line-strong, var(--line))'}`,
+                borderRadius: 3,
+                background: s.done ? 'var(--ok)' : 'transparent',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {s.done && <CheckIcon size={9} style={{ color: 'var(--bg)' }} />}
+              </span>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {s.title}
+              </span>
+            </button>
+          ))}
+          {subTotal > 5 && (
+            <div style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              +{subTotal - 5}개 더
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ClipRow({
-  item,
-  onSchedule,
+interface TaskTreeNode {
+  name: string;
+  path: string;
+  isSystem: boolean; // [Bracket] 으로 시작하는 시스템 그룹
+  children: TaskTreeNode[];
+  tasks: Array<Task & { leafTitle: string }>;
+}
+
+function isSystemSegment(seg: string): boolean {
+  return /^\[.+\]$/.test(seg.trim());
+}
+
+function buildTaskTree(tasks: Task[]): TaskTreeNode {
+  const root: TaskTreeNode = { name: '', path: '', isSystem: false, children: [], tasks: [] };
+  for (const task of tasks) {
+    const segments = task.title.split('/').map((s) => s.trim()).filter(Boolean);
+    if (segments.length <= 1) {
+      root.tasks.push({ ...task, leafTitle: task.title });
+      continue;
+    }
+    let node = root;
+    for (let i = 0; i < segments.length - 1; i++) {
+      const seg = segments[i]!;
+      const nodePath = segments.slice(0, i + 1).join('/');
+      let child = node.children.find((c) => c.name === seg);
+      if (!child) {
+        child = {
+          name: seg,
+          path: nodePath,
+          isSystem: i === 0 && isSystemSegment(seg),
+          children: [],
+          tasks: [],
+        };
+        node.children.push(child);
+      }
+      node = child;
+    }
+    node.tasks.push({ ...task, leafTitle: segments[segments.length - 1]! });
+  }
+  return root;
+}
+
+function countTreeTasks(node: TaskTreeNode): number {
+  let n = node.tasks.length;
+  for (const child of node.children) n += countTreeTasks(child);
+  return n;
+}
+
+interface TaskFolderRowProps {
+  onDone: (id: string, done: boolean) => void;
+  onEdit: (t: Task) => void;
+  onSchedule: (t: Task) => void;
+  onDragStartTask: (t: Task) => void;
+  onDragEndTask: () => void;
+}
+
+function TaskInboxFolder({
+  node,
+  collapsed,
+  onToggle,
+  depth,
+  rowProps,
 }: {
-  item: GleanItem;
-  onSchedule: () => void;
+  node: TaskTreeNode;
+  collapsed: Set<string>;
+  onToggle: (path: string) => void;
+  depth: number;
+  rowProps: TaskFolderRowProps;
 }) {
+  const isCollapsed = collapsed.has(node.path);
+  const count = countTreeTasks(node);
+  const sys = node.isSystem;
   return (
-    <button
-      onClick={onSchedule}
-      style={{
-        padding: '10px 12px',
-        border: '1px dashed var(--line-strong)',
-        borderRadius: 6,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 5,
-        textAlign: 'left',
-        background: 'transparent',
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-      }}
-    >
-      <div
+    <div style={{ paddingLeft: depth > 0 ? 10 : 0 }}>
+      <button
+        onClick={() => onToggle(node.path)}
         style={{
-          fontSize: 12.5,
-          color: 'var(--ink)',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 5,
+          padding: '4px 6px',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+          borderRadius: 4,
+          opacity: sys ? 0.7 : 1,
         }}
       >
-        {item.title || '(제목 없음)'}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
-          {hostname(item.url)}
+        <Mono style={{ fontSize: 9, color: 'var(--ink-mute)', width: 10 }}>
+          {isCollapsed ? '▶' : '▼'}
         </Mono>
-        <Mono
+        <span
           style={{
-            fontSize: 10,
-            color: 'var(--blue)',
-            marginLeft: 'auto',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 3,
+            flex: 1,
+            fontSize: sys ? 10 : 11,
+            fontWeight: sys ? 400 : 600,
+            color: sys ? 'var(--ink-mute)' : 'var(--ink-soft)',
+            letterSpacing: sys ? '0.04em' : '0.03em',
+            textAlign: 'left',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            fontFamily: sys ? 'var(--font-mono)' : 'inherit',
           }}
         >
-          <ArrowRightIcon size={11} /> 꽂기
-        </Mono>
-      </div>
-    </button>
+          {sys ? node.name.replace(/^\[(.+)\]$/, '$1') : node.name}
+        </span>
+        <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>{count}</Mono>
+      </button>
+      {!isCollapsed && (
+        <div
+          style={{
+            paddingLeft: 8,
+            borderLeft: `1px ${sys ? 'dashed' : 'solid'} var(--line)`,
+            marginLeft: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            marginTop: 2,
+            marginBottom: 2,
+            opacity: sys ? 0.85 : 1,
+          }}
+        >
+          {node.tasks.map((t) => (
+            <TaskInboxRow
+              key={t.id}
+              task={t}
+              displayTitle={t.leafTitle}
+              onDone={(done) => rowProps.onDone(t.id, done)}
+              onEdit={() => rowProps.onEdit(t)}
+              onSchedule={() => rowProps.onSchedule(t)}
+              onDragStartTask={rowProps.onDragStartTask}
+              onDragEndTask={rowProps.onDragEndTask}
+            />
+          ))}
+          {node.children.map((child) => (
+            <TaskInboxFolder
+              key={child.path}
+              node={child}
+              collapsed={collapsed}
+              onToggle={onToggle}
+              depth={depth + 1}
+              rowProps={rowProps}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1505,16 +2016,18 @@ function buildRange(view: ViewMode, anchor: Date, now: Date): CalendarRange {
       view,
     };
   }
-  const span = view === '2week' ? 10 : 5;
+  const span = view === '2week' ? 14 : view === 'week7' ? 7 : 5;
   const start = mondayOf(anchor);
   const days: CalendarDay[] = [];
   for (let i = 0; i < span; i++) {
     const d = addDays(start, i);
+    const dow = d.getDay();
     days.push({
       date: isoKey(d),
-      label: DAY_LABELS[(d.getDay() + 6) % 7] ?? '',
+      label: DAY_LABELS[(dow + 6) % 7] ?? '',
       dayNumber: d.getDate(),
       isToday: isoKey(d) === todayK,
+      isWeekend: dow === 0 || dow === 6,
     });
   }
   const last = addDays(start, span - 1);
@@ -1549,7 +2062,7 @@ function formatRangeLabel(range: CalendarRange): string {
 
 function shiftAnchor(view: ViewMode, anchor: Date, dir: 1 | -1): Date {
   if (view === 'day') return addDays(anchor, dir);
-  if (view === 'week') return addDays(anchor, 7 * dir);
+  if (view === 'week' || view === 'week7') return addDays(anchor, 7 * dir);
   if (view === '2week') return addDays(anchor, 14 * dir);
   const next = new Date(anchor.getFullYear(), anchor.getMonth() + dir, 1);
   return next;
@@ -1591,15 +2104,6 @@ function toDateKey(iso: string): string | null {
   return isoKey(d);
 }
 
-function hostname(url: string): string {
-  if (!url) return '';
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return '';
-  }
-}
-
 function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
@@ -1626,6 +2130,11 @@ function newId(): string {
   return `b_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function currentHHMM(): string {
+  const d = new Date();
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function timeOf(s: string | undefined | null): string | null {
   if (!s) return null;
   const hhmm = /^(\d{1,2}):(\d{2})$/.exec(s);
@@ -1646,5 +2155,146 @@ function makeIso(date: string, time?: string | null): string {
   const m = /^(\d{1,2}):(\d{2})$/.exec(time);
   if (!m || !m[1] || !m[2]) return date;
   return `${date}T${pad(Number(m[1]))}:${m[2]}:00`;
+}
+
+function Skel({ w, h, r = 4, style }: { w?: string | number; h: number; r?: number; style?: CSSProperties }) {
+  return (
+    <div
+      style={{
+        width: w ?? '100%',
+        height: h,
+        borderRadius: r,
+        background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
+        flexShrink: 0,
+        ...style,
+      }}
+    />
+  );
+}
+
+function PlanSkeleton() {
+  const COL_COUNT = 5;
+  return (
+    <div style={{ height: '100%', display: 'flex', background: 'var(--bg)', overflow: 'hidden' }}>
+      {/* 사이드바 */}
+      <aside
+        style={{
+          flex: '0 0 280px',
+          borderRight: '1px solid var(--line)',
+          background: 'var(--bg-soft)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'hidden',
+        }}
+      >
+        {/* 헤더 */}
+        <div style={{ padding: 'var(--card-pad)', borderBottom: '1px solid var(--line)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <Skel w={60} h={10} />
+          <Skel w={140} h={18} />
+          <Skel w={100} h={10} />
+        </div>
+        {/* WeekProgress 자리 */}
+        <div style={{ padding: '8px var(--card-pad)', borderBottom: '1px solid var(--line)' }}>
+          <Skel h={6} r={3} />
+        </div>
+        {/* DayBudget 자리 */}
+        <div style={{ padding: '10px var(--card-pad)', borderBottom: '1px solid var(--line)' }}>
+          <Skel h={20} />
+        </div>
+        {/* 인박스 */}
+        <div style={{ padding: '16px 18px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Skel w={80} h={10} />
+            <Skel w={16} h={10} />
+          </div>
+          <Skel h={30} r={6} />
+          {[0, 1, 2].map((i) => (
+            <div key={i} style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <Skel w="80%" h={13} />
+              <Skel w="50%" h={10} />
+            </div>
+          ))}
+        </div>
+        {/* 읽기큐 */}
+        <div style={{ padding: '0 var(--card-pad) var(--gap-lg)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Skel w={100} h={10} />
+            <Skel w={16} h={10} />
+          </div>
+          {[0, 1].map((i) => (
+            <div key={i} style={{ padding: '10px 12px', border: '1px dashed var(--line-strong)', borderRadius: 6, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <Skel w="70%" h={13} />
+              <Skel w="40%" h={10} />
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      {/* 메인 */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* 툴바 */}
+        <div
+          style={{
+            height: 'calc(var(--row-h) + 16px)',
+            borderBottom: '1px solid var(--line)',
+            background: 'var(--bg-soft)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 var(--card-pad)',
+            gap: 8,
+          }}
+        >
+          <Skel w={44} h={24} r={6} />
+          <Skel w={24} h={24} r={6} />
+          <Skel w={24} h={24} r={6} />
+          <Skel w={160} h={14} r={4} style={{ marginLeft: 8 }} />
+          <div style={{ flex: 1 }} />
+          <Skel w={60} h={24} r={6} />
+        </div>
+        {/* 그리드 */}
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+          {/* 시간 레이블 열 */}
+          <div style={{ width: 44, flexShrink: 0, borderRight: '1px solid var(--line)', padding: '8px 4px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skel key={i} w={28} h={10} style={{ marginLeft: 'auto' }} />
+            ))}
+          </div>
+          {/* 날짜 컬럼들 */}
+          {Array.from({ length: COL_COUNT }).map((_, col) => (
+            <div
+              key={col}
+              style={{
+                flex: 1,
+                borderRight: col < COL_COUNT - 1 ? '1px solid var(--line)' : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {/* 날짜 헤더 */}
+              <div style={{ padding: '6px 8px', borderBottom: '1px solid var(--line)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                <Skel w={16} h={10} />
+                <Skel w={24} h={16} r={12} />
+              </div>
+              {/* 시간 슬롯 영역 */}
+              <div style={{ flex: 1, padding: 6, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {col === 0 && (
+                  <div style={{ borderRadius: 6, overflow: 'hidden' }}>
+                    <Skel h={48} />
+                  </div>
+                )}
+                {col === 2 && (
+                  <div style={{ borderRadius: 6, overflow: 'hidden', marginTop: 24 }}>
+                    <Skel h={72} />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 

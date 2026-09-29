@@ -80,6 +80,7 @@ class ImageLineWidget extends WidgetType {
 
 const HEADING_RE = /^(#{1,6})\s/;
 const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(\s*([^)\s]+)(?:\s+"([^"]*)")?\s*\)\s*$/;
+const BLOCKQUOTE_RE = /^>\s?/;
 
 function computeDecorations(state: EditorState, ctx: WysiwygCtx): DecorationSet {
   const ranges: Range<Decoration>[] = [];
@@ -99,6 +100,11 @@ function computeDecorations(state: EditorState, ctx: WysiwygCtx): DecorationSet 
       if (!onLine) {
         ranges.push(Decoration.replace({}).range(line.from, line.from + h[0].length));
       }
+      continue;
+    }
+
+    if (BLOCKQUOTE_RE.test(text)) {
+      ranges.push(Decoration.line({ class: 'cm-bq' }).range(line.from));
       continue;
     }
 

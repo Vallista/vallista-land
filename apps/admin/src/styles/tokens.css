@@ -65,24 +65,43 @@
   --shadow-3: 0 16px 36px rgba(0, 0, 0, 0.45);
   --shadow-pop: 0 24px 56px rgba(0, 0, 0, 0.55);
 
+  --cal-inactive-stripe: rgba(255,255,255,0.07);
+  --cal-inactive-fill: rgba(255,255,255,0.025);
+
   --sidebar-w: 222px;
   --topbar-h: 44px;
 
   --pad-y: 12px;
   --pad-x: 14px;
   --row-h: 28px;
+  --gap: 6px;
+  --gap-lg: 12px;
+  --card-pad: 12px;
+  --btn-h: 28px;
 }
 
 [data-density='cozy'] {
+  --sidebar-w: 240px;
+  --topbar-h: 48px;
   --pad-y: 16px;
   --pad-x: 18px;
   --row-h: 32px;
+  --gap: 8px;
+  --gap-lg: 16px;
+  --card-pad: 16px;
+  --btn-h: 32px;
 }
 
 [data-density='spacious'] {
+  --sidebar-w: 258px;
+  --topbar-h: 52px;
   --pad-y: 20px;
   --pad-x: 22px;
   --row-h: 36px;
+  --gap: 10px;
+  --gap-lg: 20px;
+  --card-pad: 20px;
+  --btn-h: 36px;
 }
 
 [data-theme='light'] {
@@ -130,6 +149,9 @@
   --seed: #5b8a14;
   --sprout: #3f7d3f;
   --bloom: #a3791b;
+
+  --cal-inactive-stripe: rgba(0,0,0,0.07);
+  --cal-inactive-fill: rgba(0,0,0,0.025);
 
   --shadow-1: 0 1px 0 rgba(60, 50, 30, 0.04);
   --shadow-2: 0 2px 8px rgba(60, 50, 30, 0.06);

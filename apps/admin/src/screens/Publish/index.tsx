@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DocSummary } from '@vallista/content-core';
-import { listDocs, readDoc } from '../../lib/tauri';
+import { listDocs, readDoc, getAppPersonalization } from '../../lib/tauri';
 import {
   Button,
   Card,
@@ -32,11 +32,25 @@ export function Publish() {
   const [range, setRange] = useState<Range>('30d');
   const [deployOpen, setDeployOpen] = useState(false);
   const [enriched, setEnriched] = useState<PublishedDoc[] | null>(null);
+  const [host, setHost] = useState<string>('');
 
   useEffect(() => {
     listDocs()
       .then(setDocs)
       .catch((e: unknown) => setError(String(e)));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    getAppPersonalization()
+      .then((p) => {
+        if (cancelled) return;
+        setHost(extractHost(p.appUrl) || p.appName || '');
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -86,7 +100,7 @@ export function Publish() {
 
   if (error && !docs) {
     return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3)', maxWidth: 1120 }}>
         <PageHead title="발행" sub="docs 읽기 실패" />
         <div
           style={{
@@ -107,7 +121,7 @@ export function Publish() {
 
   if (!docs || enriched === null) {
     return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3)', maxWidth: 1120 }}>
         <PageHead title="발행" sub="발행된 글 읽는 중…" />
       </div>
     );
@@ -124,10 +138,10 @@ export function Publish() {
       }}
     >
       <div style={{ flex: 1, overflowY: 'auto' }}>
-        <div style={{ padding: '32px 48px 80px', maxWidth: 1180, margin: '0 auto' }}>
+        <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3) 80px', maxWidth: 1180, margin: '0 auto' }}>
           <PageHead
             title="발행"
-            sub={`vallista.kr · ${rangeLabel(range)}`}
+            sub={host ? `${host} · ${rangeLabel(range)}` : rangeLabel(range)}
             right={
               <>
                 <div
@@ -776,6 +790,17 @@ interface Frontmatter {
   date?: string;
   updated?: string;
   slug?: string;
+}
+
+function extractHost(url: string): string {
+  const trimmed = (url ?? '').trim();
+  if (!trimmed) return '';
+  try {
+    const u = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`);
+    return u.host;
+  } catch {
+    return trimmed.replace(/^https?:\/\//, '').split('/')[0] || '';
+  }
 }
 
 function parseFrontmatter(raw: string): Frontmatter {

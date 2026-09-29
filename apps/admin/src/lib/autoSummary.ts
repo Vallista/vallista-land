@@ -210,7 +210,11 @@ export async function generateWeeklySummary(
 ): Promise<Summary | null> {
   const range = previousWeekRange(now, weekStartDay);
   if (!opts.force) {
-    if (!(await shouldGenerate('weekly', range.key))) return null;
+    try {
+      if (!(await shouldGenerate('weekly', range.key))) return null;
+    } catch {
+      return null;
+    }
     if (isBackoffActive('weekly', range.key, Date.now())) return null;
   }
   const status = await llmStatus();
@@ -288,7 +292,11 @@ export async function generateMonthlySummary(
 ): Promise<Summary | null> {
   const range = previousMonthRange(now);
   if (!opts.force) {
-    if (!(await shouldGenerate('monthly', range.key))) return null;
+    try {
+      if (!(await shouldGenerate('monthly', range.key))) return null;
+    } catch {
+      return null;
+    }
     if (isBackoffActive('monthly', range.key, Date.now())) return null;
   }
   const status = await llmStatus();

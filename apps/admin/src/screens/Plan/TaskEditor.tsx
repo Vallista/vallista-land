@@ -1,7 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Subtask, Task } from '@vallista/content-core';
-import { Eyebrow, Input, Mono, Textarea } from '../../components/atoms/Atoms';
+import { useEffect, useState } from 'react';
+import type { Task } from '@vallista/content-core';
+import {
+  addEventSubtask,
+  deleteEventSubtask,
+  listEventSubtasks,
+  toggleEventSubtask,
+  type EventSubtask,
+} from '../../lib/tauri';
+import { Eyebrow, Input, Mono } from '../../components/atoms/Atoms';
 import { CheckIcon } from '../../components/atoms/Icons';
+import { LabelPicker } from '../../components/LabelPicker';
+import { EventNotesPanel } from './EventNotesPanel';
 
 interface Props {
   open: boolean;
@@ -9,28 +18,34 @@ interface Props {
   onClose: () => void;
   onSave: (patch: {
     title: string;
-    notes: string | null;
-    subtasks: Subtask[];
     done?: boolean;
+    color?: string | null;
+    kind?: string | null;
   }) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
 export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
   const [title, setTitle] = useState('');
-  const [notes, setNotes] = useState('');
-  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [eventSubtasks, setEventSubtasks] = useState<EventSubtask[]>([]);
   const [draftSub, setDraftSub] = useState('');
+  const [color, setColor] = useState('');
+  const [taskKind, setTaskKind] = useState('write');
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (!open || !task) return;
     setTitle(task.title);
-    setNotes(task.notes ?? '');
-    setSubtasks(task.subtasks ?? []);
     setDraftSub('');
+    setColor(task.color ?? '');
+    setTaskKind(task.kind ?? 'write');
     setConfirmDelete(false);
+    let cancelled = false;
+    listEventSubtasks(`task:${task.id}`).then((items) => {
+      if (!cancelled) setEventSubtasks(items);
+    });
+    return () => { cancelled = true; };
   }, [open, task]);
 
   useEffect(() => {
@@ -39,48 +54,55 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
     return () => window.clearTimeout(timer);
   }, [confirmDelete]);
 
-  const progress = useMemo(() => {
-    if (subtasks.length === 0) return null;
-    const done = subtasks.filter((s) => s.done).length;
-    return { done, total: subtasks.length };
-  }, [subtasks]);
+  const progress = eventSubtasks.length > 0
+    ? { done: eventSubtasks.filter((s) => s.done).length, total: eventSubtasks.length }
+    : null;
 
   if (!open || !task) return null;
 
-  const addSubtask = () => {
+  const eventKey = `task:${task.id}`;
+
+  const notify = () => window.dispatchEvent(new CustomEvent('bento:subtasks-changed'));
+
+  const addSubtask = async () => {
     const t = draftSub.trim();
-    if (!t) return;
-    setSubtasks((prev) => [
-      ...prev,
-      { id: makeSubId(), title: t, done: false },
-    ]);
+    if (!t || !task) return;
     setDraftSub('');
+    const created = await addEventSubtask({
+      eventKey,
+      seriesKey: eventKey,
+      eventTitleSnapshot: task.title,
+      eventDateSnapshot: '',
+      title: t,
+    });
+    setEventSubtasks((prev) => [...prev, created]);
+    notify();
   };
 
-  const toggleSub = (id: string) =>
-    setSubtasks((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s)),
-    );
+  const toggleSub = async (id: string, done: boolean) => {
+    const updated = await toggleEventSubtask(eventKey, id, done);
+    setEventSubtasks((prev) => prev.map((s) => s.id === updated.id ? updated : s));
+    notify();
+  };
 
-  const removeSub = (id: string) =>
-    setSubtasks((prev) => prev.filter((s) => s.id !== id));
-
-  const updateSubTitle = (id: string, next: string) =>
-    setSubtasks((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, title: next } : s)),
-    );
+  const removeSub = async (id: string) => {
+    await deleteEventSubtask(eventKey, id);
+    setEventSubtasks((prev) => prev.filter((s) => s.id !== id));
+    notify();
+  };
 
   const submit = async () => {
     const t = title.trim();
     if (!t) return;
     setBusy(true);
     try {
+      if (draftSub.trim()) {
+        await addSubtask();
+      }
       await onSave({
         title: t,
-        notes: notes.trim() || null,
-        subtasks: subtasks
-          .map((s) => ({ ...s, title: s.title.trim() }))
-          .filter((s) => s.title.length > 0),
+        color: color || null,
+        kind: taskKind,
       });
       onClose();
     } finally {
@@ -171,22 +193,21 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
           }}
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>메모</Mono>
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="메모를 적어두세요"
-            rows={4}
-            style={{
-              padding: '9px 11px',
-              fontSize: 12.5,
-              background: 'var(--bg)',
-              resize: 'vertical',
-              minHeight: 80,
-            }}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>종류 · 색상</Mono>
+          <LabelPicker
+            kind={taskKind}
+            color={color}
+            onChange={(k, c) => { setTaskKind(k); setColor(c); }}
           />
         </div>
+
+        <EventNotesPanel
+          eventKey={eventKey}
+          seriesKey={eventKey}
+          titleSnapshot={task.title}
+          dateSnapshot={''}
+        />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div
@@ -197,7 +218,7 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
             }}
           >
             <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
-              세부 작업
+              체크리스트
             </Mono>
             {progress && (
               <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
@@ -206,13 +227,12 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
             )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {subtasks.map((s) => (
+            {eventSubtasks.map((s) => (
               <SubRow
                 key={s.id}
                 sub={s}
-                onToggle={() => toggleSub(s.id)}
-                onChange={(t) => updateSubTitle(s.id, t)}
-                onRemove={() => removeSub(s.id)}
+                onToggle={() => void toggleSub(s.id, !s.done)}
+                onRemove={() => void removeSub(s.id)}
               />
             ))}
           </div>
@@ -223,10 +243,10 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  addSubtask();
+                  void addSubtask();
                 }
               }}
-              placeholder="+ 세부 작업 추가"
+              placeholder="+ 체크리스트 추가"
               style={{
                 flex: 1,
                 padding: '6px 10px',
@@ -237,7 +257,7 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
               }}
             />
             <button
-              onClick={addSubtask}
+              onClick={() => void addSubtask()}
               disabled={!draftSub.trim()}
               style={{
                 padding: '6px 10px',
@@ -326,12 +346,10 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
 function SubRow({
   sub,
   onToggle,
-  onChange,
   onRemove,
 }: {
-  sub: Subtask;
+  sub: EventSubtask;
   onToggle: () => void;
-  onChange: (t: string) => void;
   onRemove: () => void;
 }) {
   return (
@@ -365,20 +383,20 @@ function SubRow({
       >
         {sub.done && <CheckIcon size={10} />}
       </button>
-      <Input
-        value={sub.title}
-        onChange={(e) => onChange(e.target.value)}
+      <span
         style={{
           flex: 1,
           padding: '3px 4px',
           fontSize: 12,
-          border: 'none',
-          background: 'transparent',
-          borderRadius: 0,
           textDecoration: sub.done ? 'line-through' : 'none',
           opacity: sub.done ? 0.6 : 1,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
         }}
-      />
+      >
+        {sub.title}
+      </span>
       <button
         onClick={onRemove}
         title="삭제"
@@ -409,7 +427,3 @@ const iconBtnStyle: React.CSSProperties = {
   fontSize: 16,
   lineHeight: 1,
 };
-
-function makeSubId(): string {
-  return `s_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
-}

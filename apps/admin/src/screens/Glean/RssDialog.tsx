@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   addRssFeed,
+  checkChrome,
+  type ChromeStatus,
   type RssConfig,
   type RssFeed,
   getRssConfig,
@@ -11,13 +13,12 @@ import {
   syncRssFeeds,
   updateRssFeed,
 } from '../../lib/tauri';
-import { Button, Input, Mono, Select, type SelectOption } from '../../components/atoms/Atoms';
+import { Button, Checkbox, Empty, Input, Mono, Select, type SelectOption } from '../../components/atoms/Atoms';
 
-interface Props {
-  open: boolean;
-  onClose: () => void;
-  onSynced?: () => void;
-}
+const SOURCE_KIND_OPTIONS: SelectOption<string>[] = [
+  { value: 'rss', label: 'RSS / Atom / JSON' },
+  { value: 'headless', label: '헤드리스 브라우저' },
+];
 
 const INTERVAL_OPTIONS: SelectOption<string>[] = [
   { value: '0', label: '기본값 사용' },
@@ -36,21 +37,28 @@ const DEFAULT_INTERVAL_OPTIONS: SelectOption<string>[] = INTERVAL_OPTIONS.filter
   (o) => o.value !== '0',
 );
 
-export function RssDialog({ open, onClose, onSynced }: Props) {
+export function RssFeedPanel({ onSynced }: { onSynced?: () => void }) {
   const [feeds, setFeeds] = useState<RssFeed[]>([]);
   const [config, setConfig] = useState<RssConfig | null>(null);
+  const [chrome, setChrome] = useState<ChromeStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState('');
   const [url, setUrl] = useState('');
+  const [sourceKind, setSourceKind] = useState<string>('rss');
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, cfg] = await Promise.all([listRssFeeds(), getRssConfig()]);
+      const [list, cfg, ch] = await Promise.all([
+        listRssFeeds(),
+        getRssConfig(),
+        checkChrome().catch(() => null),
+      ]);
       setFeeds(list);
       setConfig(cfg);
+      setChrome(ch);
     } catch (e) {
       setError(String(e));
     } finally {
@@ -59,20 +67,26 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!open) return;
     setError(null);
     refresh();
-  }, [open, refresh]);
-
-  if (!open) return null;
+  }, [refresh]);
 
   const handleAdd = async () => {
     const u = url.trim();
     if (!u) return;
+    if (sourceKind === 'headless' && chrome && !chrome.found) {
+      setError('Chrome/Chromium이 설치되어 있지 않습니다. 아래 안내에서 설치 후 다시 시도하세요.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      await addRssFeed({ label: label.trim() || 'RSS', url: u });
+      const fallbackLabel = sourceKind === 'headless' ? '헤드리스' : 'RSS';
+      await addRssFeed({
+        label: label.trim() || fallbackLabel,
+        url: u,
+        sourceKind,
+      });
       setLabel('');
       setUrl('');
       await refresh();
@@ -163,45 +177,7 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.32)',
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div
-        onMouseDown={(e) => e.stopPropagation()}
-        style={{
-          width: 560,
-          maxWidth: 'calc(100vw - 48px)',
-          maxHeight: 'calc(100vh - 80px)',
-          background: 'var(--bg)',
-          border: '1px solid var(--line)',
-          borderRadius: 10,
-          padding: 22,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-          color: 'var(--ink)',
-          overflow: 'auto',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>RSS 구독</h2>
-          <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>RSS · Atom · JSON Feed</Mono>
-          <span style={{ flex: 1 }} />
-          <Button sm ghost onClick={onClose}>
-            닫기
-          </Button>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         <details style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
           <summary style={{ cursor: 'pointer', listStyle: 'none', padding: '6px 0' }}>
@@ -223,16 +199,14 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
             }}
           >
             <li>
-              <strong>RSSHub</strong> — <Mono>https://rsshub.app/</Mono> 같은 변환기를 통해 Threads /
-              X / Instagram 등 RSS가 없는 사이트도 RSS URL을 만들 수 있습니다. 가용성은 인스턴스에
-              따라 다르며 차단될 수 있습니다.
+              <strong>헤드리스 브라우저</strong> — RSS가 없는 페이지도 백그라운드에서 Chrome을 띄워
+              가져올 수 있습니다. 소스를 <Mono>헤드리스 브라우저</Mono>로 선택하고 페이지 URL을
+              그대로 등록하세요. 창은 뜨지 않고 결과만 줍기로 적립됩니다.
             </li>
             <li style={{ marginTop: 4 }}>
-              <strong>Threads</strong> — <Mono>https://rsshub.app/threads/&lt;username&gt;</Mono>
-            </li>
-            <li style={{ marginTop: 4 }}>
-              <strong>X / Twitter</strong> — Nitter나 RSSHub 인스턴스. 대부분 차단됨, 자체 호스팅
-              권장.
+              <strong>Threads</strong> —
+              <Mono>https://www.threads.net/@&lt;username&gt;</Mono> 같은 프로필 URL을 헤드리스로
+              등록.
             </li>
             <li style={{ marginTop: 4 }}>
               <strong>일반 RSS</strong> — 대부분 블로그는 <Mono>/rss</Mono>, <Mono>/feed</Mono>,
@@ -244,23 +218,82 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
           </ul>
         </details>
 
+        {sourceKind === 'headless' && chrome && !chrome.found && (
+          <div
+            style={{
+              padding: '10px 12px',
+              border: '1px solid var(--err-soft)',
+              background: 'var(--err-soft)',
+              borderRadius: 6,
+              fontSize: 12,
+              color: 'var(--ink)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6,
+            }}
+          >
+            <div>
+              헤드리스 브라우저 모드를 쓰려면 <strong>Chrome / Chromium</strong>이 설치되어
+              있어야 합니다.
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+              Chrome · Chrome Beta · Chromium · Edge · Brave · Arc 중 하나면 됩니다.
+            </div>
+            <div>
+              <a
+                href={chrome.downloadUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'var(--blue)' }}
+              >
+                Chrome 다운로드 →
+              </a>
+            </div>
+          </div>
+        )}
+
+        {sourceKind === 'headless' && chrome && chrome.found && (
+          <div
+            style={{
+              padding: '8px 10px',
+              border: '1px solid var(--line)',
+              background: 'var(--bg-soft)',
+              borderRadius: 6,
+              fontSize: 11.5,
+              color: 'var(--ink-mute)',
+            }}
+          >
+            <Mono style={{ color: 'var(--ink)', fontSize: 11 }}>{chrome.name ?? 'Chrome'}</Mono>{' '}
+            발견 — 헤드리스로 사용합니다.
+          </div>
+        )}
+
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '160px 1fr auto',
+            gridTemplateColumns: '140px 140px 1fr auto',
             gap: 8,
           }}
         >
+          <Select<string>
+            value={sourceKind}
+            options={SOURCE_KIND_OPTIONS}
+            onChange={(v) => v && setSourceKind(v)}
+          />
           <Input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="라벨 (예: overreacted)"
+            placeholder="라벨"
             style={{ background: 'var(--bg)' }}
           />
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com/rss.xml"
+            placeholder={
+              sourceKind === 'headless'
+                ? 'https://www.threads.net/@username'
+                : 'https://example.com/rss.xml'
+            }
             style={{ background: 'var(--bg)' }}
           />
           <Button sm onClick={handleAdd} disabled={busy || !url.trim()}>
@@ -299,28 +332,15 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
               <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>auto sync</Mono>
             </div>
 
-            <label
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                fontSize: 12,
-                color: 'var(--ink)',
-                cursor: 'pointer',
-                userSelect: 'none',
-              }}
+            <Checkbox
+              checked={config.autoSyncEnabled}
+              onChange={(v) => updateConfig({ autoSyncEnabled: v })}
             >
-              <input
-                type="checkbox"
-                checked={config.autoSyncEnabled}
-                onChange={(e) => updateConfig({ autoSyncEnabled: e.target.checked })}
-                style={{ accentColor: 'var(--blue)' }}
-              />
               <span>자동 동기화 활성화</span>
               <span style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
                 — 끄면 백그라운드 폴링이 멈춥니다 (수동 동기화는 가능)
               </span>
-            </label>
+            </Checkbox>
 
             <div
               style={{
@@ -397,9 +417,9 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
           </div>
 
           {loading && feeds.length === 0 ? (
-            <Empty text="불러오는 중…" />
+            <Empty>불러오는 중…</Empty>
           ) : feeds.length === 0 ? (
-            <Empty text="등록된 RSS 구독이 없습니다" />
+            <Empty>등록된 RSS 구독이 없습니다</Empty>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {feeds.map((f) => (
@@ -416,23 +436,6 @@ export function RssDialog({ open, onClose, onSynced }: Props) {
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return (
-    <div
-      style={{
-        padding: '16px 0',
-        color: 'var(--ink-mute)',
-        fontSize: 12,
-        textAlign: 'center',
-        fontStyle: 'italic',
-      }}
-    >
-      {text}
     </div>
   );
 }
@@ -462,14 +465,27 @@ function FeedRow({ feed, busy, onRemove, onSync, onToggle, onInterval }: FeedRow
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <input
-          type="checkbox"
+        <Checkbox
           checked={feed.enabled}
-          onChange={(e) => onToggle(e.target.checked)}
-          style={{ accentColor: 'var(--blue)' }}
+          onChange={onToggle}
           title={feed.enabled ? '비활성화' : '활성화'}
         />
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{feed.label}</span>
+        {feed.sourceKind === 'headless' && (
+          <Mono
+            style={{
+              fontSize: 9.5,
+              color: 'var(--blue)',
+              border: '1px solid var(--line)',
+              borderRadius: 3,
+              padding: '1px 5px',
+              background: 'var(--bg)',
+            }}
+            title="헤드리스 브라우저로 가져옴"
+          >
+            HL
+          </Mono>
+        )}
         <span style={{ flex: 1 }} />
         <button
           onClick={onSync}

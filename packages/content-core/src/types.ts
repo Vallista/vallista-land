@@ -43,7 +43,7 @@ export interface GleanHighlight {
   note?: string;
 }
 
-export type GleanSource = 'web' | 'rss' | 'youtube' | 'paste';
+export type GleanSource = 'web' | 'rss' | 'youtube' | 'paste' | 'threads';
 export type GleanStatus = 'unread' | 'read' | 'archived' | 'promoted';
 
 export interface GleanItem {
@@ -60,6 +60,7 @@ export interface GleanItem {
   digest?: string;
   feedId?: string;
   externalId?: string;
+  publishedAt?: string;
 }
 
 export interface Subtask {
@@ -79,6 +80,8 @@ export interface Task {
   tags?: string[];
   notes?: string;
   subtasks?: Subtask[];
+  color?: string;
+  kind?: string;
   createdAt: string;
 }
 
@@ -147,8 +150,14 @@ export interface Block {
   notes?: string;
   location?: string;
   calendarName?: string;
+  organizer?: string;
   url?: string;
   recurring?: boolean;
+  actualStart?: string;
+  actualEnd?: string;
+  doneAt?: string;
+  color?: string;
+  tags?: string[];
   createdAt: string;
 }
 
@@ -190,4 +199,44 @@ export interface ReportSummary {
 export interface Report extends ReportSummary {
   body: string;
   metrics?: Record<string, unknown>;
+}
+
+export interface ExerciseEntry {
+  name: string;
+  category: 'cardio' | 'strength' | 'flexibility' | 'sports' | 'other';
+  duration?: number;
+  sets?: number;
+  reps?: number;
+  weight?: number;
+  distance?: number;
+  memo?: string;
+}
+
+export interface MealEntry {
+  time?: string;
+  name: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+}
+
+export interface BodyLog {
+  date: string;
+  weight?: number;
+  bodyFat?: number;
+  sleepAt?: string;
+  wakeAt?: string;
+  exercises?: ExerciseEntry[];
+  meals?: MealEntry[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BodySpec {
+  height: number;
+  birthYear?: number;
+  gender?: 'male' | 'female';
+  targetWeight?: number;
+  activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
 }

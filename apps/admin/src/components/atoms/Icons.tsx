@@ -131,3 +131,12 @@ export function PinIcon(p: IconProps = {}) {
     </svg>
   );
 }
+
+export function DayLogIcon(p: IconProps = {}) {
+  return (
+    <svg {...baseProps(p)}>
+      <circle cx="8" cy="8" r="5.4" />
+      <path d="M5.4 8.2l1.8 1.8 3.4-3.4" />
+    </svg>
+  );
+}

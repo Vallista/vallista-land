@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 use tauri::State;
 
 use crate::commands::blocks::{
-    upsert_sourced_blocks, BlockSource, IcalImportResult, SourcedBlockInput,
+    purge_stale_sourced_blocks, upsert_sourced_blocks, BlockSource, IcalImportResult,
+    SourcedBlockInput,
 };
 use crate::repo::AppState;
 
@@ -30,6 +31,10 @@ pub struct ImportedEvent {
     pub url: Option<String>,
     #[serde(default)]
     pub recurring: bool,
+    #[serde(default)]
+    pub organizer: Option<String>,
+    #[serde(default)]
+    pub attendees: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -90,12 +95,34 @@ mod platform {
     use objc2::runtime::Bool;
     use objc2::Message;
     use objc2_event_kit::{
-        EKAuthorizationStatus, EKCalendar, EKEntityType, EKEvent, EKEventStore,
+        EKAuthorizationStatus, EKCalendar, EKEntityType, EKEvent, EKEventStore, EKParticipant,
     };
     use objc2_foundation::{NSArray, NSDate, NSError, NSPredicate};
 
     fn auth_status() -> EKAuthorizationStatus {
         unsafe { EKEventStore::authorizationStatusForEntityType(EKEntityType::Event) }
+    }
+
+    fn participant_label(p: &EKParticipant) -> Option<String> {
+        if let Some(name) = unsafe { p.name() }
+            .map(|s| s.to_string())
+            .filter(|s| !s.trim().is_empty())
+        {
+            return Some(name);
+        }
+        let url = unsafe { p.URL() };
+        let raw = url.absoluteString().map(|s| s.to_string())?;
+        let trimmed = raw
+            .strip_prefix("mailto:")
+            .or_else(|| raw.strip_prefix("MAILTO:"))
+            .unwrap_or(&raw)
+            .trim()
+            .to_string();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed)
+        }
     }
 
     fn auth_string(s: EKAuthorizationStatus) -> &'static str {
@@ -187,6 +214,8 @@ mod platform {
             return Err("캘린더 권한이 없습니다. 권한 요청 후 다시 시도하세요.".into());
         }
         let store = unsafe { EKEventStore::new() };
+        unsafe { store.reset() };
+        unsafe { store.refreshSourcesIfNecessary() };
 
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -259,6 +288,18 @@ mod platform {
 
             let (date_s, start_s, end_s) = format_event_times(start_secs, end_secs, all_day);
 
+            let organizer = unsafe { ev.organizer() }
+                .and_then(|p| participant_label(&p))
+                .filter(|s| !s.trim().is_empty());
+            let attendees: Vec<String> = unsafe { ev.attendees() }
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|p| participant_label(&p))
+                        .filter(|s| !s.trim().is_empty())
+                        .collect()
+                })
+                .unwrap_or_default();
+
             out.push(ImportedEvent {
                 title,
                 date: date_s,
@@ -271,6 +312,8 @@ mod platform {
                 all_day,
                 url,
                 recurring,
+                organizer,
+                attendees,
             });
         }
         Ok(out)
@@ -344,6 +387,30 @@ pub fn macos_cal_open_privacy() -> Result<(), String> {
 }
 
 #[tauri::command]
+pub fn open_privacy_security() -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        use std::process::Command;
+        let new_url = "x-apple.systempreferences:com.apple.settings.PrivacySecurity";
+        let old_url = "x-apple.systempreferences:com.apple.preference.security";
+        if let Ok(status) = Command::new("open").arg(new_url).status() {
+            if status.success() {
+                return Ok(());
+            }
+        }
+        Command::new("open")
+            .arg(old_url)
+            .spawn()
+            .map_err(|e| format!("시스템 설정을 열 수 없습니다: {e}"))?;
+        return Ok(());
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        Err("macOS에서만 사용 가능합니다.".to_string())
+    }
+}
+
+#[tauri::command]
 pub fn macos_cal_import(
     args: MacosCalImportArgs,
     state: State<'_, AppState>,
@@ -375,10 +442,11 @@ pub fn macos_cal_import(
             },
             kind: "meet".to_string(),
             source: BlockSource::Applecal,
-            attendees: Vec::new(),
+            attendees: ev.attendees.clone(),
             notes: ev.notes.clone(),
             location: ev.location.clone(),
             calendar_name: ev.calendar.clone(),
+            organizer: ev.organizer.clone(),
             url: ev.url.clone(),
             recurring: ev.recurring,
         })
@@ -386,6 +454,28 @@ pub fn macos_cal_import(
 
     let report: IcalImportResult =
         upsert_sourced_blocks(&state.data_root, &records, "applecal")?;
+
+    // Purge applecal blocks within the synced window that are no longer in the calendar.
+    {
+        use chrono::{Duration, Local};
+        let active_ids: std::collections::HashSet<String> =
+            records.iter().map(|r| r.external_id.clone()).collect();
+        let days_back = args.days_back.max(1) as i64;
+        let days_fwd = args.days_forward.max(1) as i64;
+        let date_from = (Local::now() - Duration::days(days_back))
+            .format("%Y-%m-%d")
+            .to_string();
+        let date_to = (Local::now() + Duration::days(days_fwd))
+            .format("%Y-%m-%d")
+            .to_string();
+        let _ = purge_stale_sourced_blocks(
+            &state.data_root,
+            &BlockSource::Applecal,
+            &active_ids,
+            &date_from,
+            &date_to,
+        );
+    }
 
     Ok(MacosCalImportReport {
         total: events.len(),
@@ -398,6 +488,11 @@ pub fn macos_cal_import(
 
 fn build_external_id(ev: &ImportedEvent) -> String {
     if let Some(uid) = ev.uid.as_ref().filter(|s| !s.trim().is_empty()) {
+        // Recurring events share the same base UID across all occurrences.
+        // Append the occurrence date so each occurrence gets its own block.
+        if ev.recurring {
+            return format!("applecal:{}_{}", uid, ev.date);
+        }
         return format!("applecal:{}", uid);
     }
     let cal = ev.calendar.clone().unwrap_or_default();

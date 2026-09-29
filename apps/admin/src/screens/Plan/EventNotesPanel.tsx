@@ -1,25 +1,26 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Block } from '@vallista/content-core';
-import { Button, Mono, Textarea } from '../../components/atoms/Atoms';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Checkbox, Mono, Textarea } from '../../components/atoms/Atoms';
 import {
+  addEventSubtask,
   deleteEventNote,
-  eventNoteKeysFromBlock,
+  deleteEventSubtask,
   listEventNotesByEvent,
   listEventNotesBySeries,
+  listEventSubtasks,
+  toggleEventSubtask,
   upsertEventNote,
   type EventNote,
+  type EventSubtask,
 } from '../../lib/tauri';
 
 interface Props {
-  block: Block;
-  occurrenceDate?: string;
+  eventKey: string;
+  seriesKey: string;
+  titleSnapshot: string;
+  dateSnapshot: string;
 }
 
-export function EventNotesPanel({ block, occurrenceDate }: Props) {
-  const { eventKey, seriesKey } = useMemo(
-    () => eventNoteKeysFromBlock(block, occurrenceDate),
-    [block, occurrenceDate],
-  );
+export function EventNotesPanel({ eventKey, seriesKey, titleSnapshot, dateSnapshot }: Props) {
   const isSeries = eventKey !== seriesKey;
 
   const [current, setCurrent] = useState<EventNote[]>([]);
@@ -32,6 +33,11 @@ export function EventNotesPanel({ block, occurrenceDate }: Props) {
   const [busy, setBusy] = useState(false);
   const [showPrev, setShowPrev] = useState(false);
 
+  const [subtasks, setSubtasks] = useState<EventSubtask[]>([]);
+  const [subDraft, setSubDraft] = useState('');
+  const [subBusy, setSubBusy] = useState(false);
+  const subInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     let alive = true;
     setLoading(true);
@@ -40,9 +46,13 @@ export function EventNotesPanel({ block, occurrenceDate }: Props) {
     setShowPrev(false);
     (async () => {
       try {
-        const here = await listEventNotesByEvent(eventKey);
+        const [here, subs] = await Promise.all([
+          listEventNotesByEvent(eventKey),
+          listEventSubtasks(eventKey),
+        ]);
         if (!alive) return;
         setCurrent(here.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
+        setSubtasks(subs);
         if (isSeries) {
           const series = await listEventNotesBySeries(seriesKey);
           if (!alive) return;
@@ -70,7 +80,55 @@ export function EventNotesPanel({ block, occurrenceDate }: Props) {
     }
   };
 
-  const occurrence = occurrenceDate ?? block.date;
+  const notifySubtaskChanged = () =>
+    window.dispatchEvent(new CustomEvent('bento:subtasks-changed'));
+
+  const addSub = async () => {
+    const title = subDraft.trim();
+    if (!title || subBusy) return;
+    setSubBusy(true);
+    try {
+      const sub = await addEventSubtask({
+        eventKey,
+        seriesKey,
+        eventTitleSnapshot: titleSnapshot || '(제목 없음)',
+        eventDateSnapshot: dateSnapshot,
+        title,
+      });
+      setSubtasks((prev) => [...prev, sub]);
+      setSubDraft('');
+      notifySubtaskChanged();
+      subInputRef.current?.focus();
+    } catch (e: unknown) {
+      setError(String(e));
+    } finally {
+      setSubBusy(false);
+    }
+  };
+
+  const toggleSub = async (id: string, done: boolean) => {
+    setSubtasks((prev) => prev.map((s) => (s.id === id ? { ...s, done } : s)));
+    try {
+      await toggleEventSubtask(eventKey, id, done);
+      notifySubtaskChanged();
+    } catch (e: unknown) {
+      setSubtasks((prev) => prev.map((s) => (s.id === id ? { ...s, done: !done } : s)));
+      setError(String(e));
+    }
+  };
+
+  const removeSub = async (id: string) => {
+    if (subBusy) return;
+    setSubtasks((prev) => prev.filter((s) => s.id !== id));
+    try {
+      await deleteEventSubtask(eventKey, id);
+      notifySubtaskChanged();
+    } catch (e: unknown) {
+      const subs = await listEventSubtasks(eventKey);
+      setSubtasks(subs);
+      setError(String(e));
+    }
+  };
 
   const addNote = async () => {
     const body = draft.trim();
@@ -81,8 +139,8 @@ export function EventNotesPanel({ block, occurrenceDate }: Props) {
       await upsertEventNote({
         eventKey,
         seriesKey,
-        eventTitleSnapshot: block.title || '(제목 없음)',
-        eventDateSnapshot: occurrence,
+        eventTitleSnapshot: titleSnapshot || '(제목 없음)',
+        eventDateSnapshot: dateSnapshot,
         body,
       });
       setDraft('');
@@ -111,8 +169,8 @@ export function EventNotesPanel({ block, occurrenceDate }: Props) {
         id: editingId,
         eventKey: target?.eventKey ?? eventKey,
         seriesKey: target?.seriesKey ?? seriesKey,
-        eventTitleSnapshot: target?.eventTitleSnapshot ?? block.title,
-        eventDateSnapshot: target?.eventDateSnapshot ?? occurrence,
+        eventTitleSnapshot: target?.eventTitleSnapshot ?? titleSnapshot,
+        eventDateSnapshot: target?.eventDateSnapshot ?? dateSnapshot,
         body,
       });
       setEditingId(null);
@@ -150,13 +208,92 @@ export function EventNotesPanel({ block, occurrenceDate }: Props) {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 10,
-        padding: '12px 14px',
+        gap: 'var(--gap)',
+        padding: 'var(--card-pad)',
         border: '1px solid var(--line)',
         borderRadius: 8,
         background: 'var(--bg-soft)',
       }}
     >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Mono
+            style={{
+              fontSize: 9.5,
+              color: 'var(--ink-mute)',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+            }}
+          >
+            체크리스트
+          </Mono>
+          {subtasks.length > 0 && (
+            <Mono style={{ fontSize: 9.5, color: 'var(--ink-soft)' }}>
+              · {subtasks.filter((s) => s.done).length}/{subtasks.length}
+            </Mono>
+          )}
+        </div>
+        {subtasks.map((sub) => (
+          <div
+            key={sub.id}
+            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <Checkbox
+              checked={sub.done}
+              onChange={(v) => toggleSub(sub.id, v)}
+              style={{ flexShrink: 0 }}
+            />
+            <span
+              style={{
+                flex: 1,
+                fontSize: 12,
+                color: sub.done ? 'var(--ink-mute)' : 'var(--ink)',
+                textDecoration: sub.done ? 'line-through' : 'none',
+                lineHeight: 1.4,
+              }}
+            >
+              {sub.title}
+            </span>
+            <button
+              onClick={() => removeSub(sub.id)}
+              disabled={subBusy}
+              style={btnLink('var(--ink-mute)')}
+            >
+              ×
+            </button>
+          </div>
+        ))}
+        <div style={{ display: 'flex', gap: 6 }}>
+          <input
+            ref={subInputRef}
+            type="text"
+            value={subDraft}
+            onChange={(e) => setSubDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') addSub();
+            }}
+            placeholder="항목 추가 후 Enter"
+            disabled={subBusy}
+            style={{
+              flex: 1,
+              fontSize: 11.5,
+              padding: '4px 6px',
+              borderRadius: 4,
+              border: '1px solid var(--line)',
+              background: 'var(--bg)',
+              color: 'var(--ink)',
+              fontFamily: 'inherit',
+              outline: 'none',
+            }}
+          />
+          <Button sm onClick={addSub} disabled={subBusy || subDraft.trim().length === 0}>
+            추가
+          </Button>
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px solid var(--line)' }} />
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <Mono
           style={{

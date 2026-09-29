@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Input, Mono, Textarea } from './atoms/Atoms';
+import { emit } from '@tauri-apps/api/event';
+import CodeMirror from '@uiw/react-codemirror';
+import { Button, Input, Mono, Textarea } from './atoms/Atoms';
 import { TagInput } from './TagInput';
-import { TimeSelect } from './TimeSelect';
-import { EstSelect } from './EstSelect';
-import { addTask } from '../lib/tauri';
+import { LabelPicker } from './LabelPicker';
+import { addTask, upsertEventNote, startWindowDrag } from '../lib/tauri';
 import { notifyTagsChanged } from '../lib/tags';
+import { DialogLayout } from './DialogLayout';
 import {
   LABEL_PALETTE,
   TYPE_META,
@@ -14,6 +16,7 @@ import {
   type ThoughtLabel,
   type ThoughtType,
 } from '../lib/thoughts';
+import { mdExtensions, mdBasicSetup } from '../lib/mdEditorConfig';
 
 const EST_OPTIONS: { min: number; label: string }[] = [
   { min: 15, label: '15m' },
@@ -36,7 +39,7 @@ function makeIso(date: string, time?: string | null): string {
 
 export type QuickKind = ThoughtType | 'task';
 
-export const KIND_ORDER: QuickKind[] = ['thought', 'glean', 'blog', 'task'];
+export const KIND_ORDER: QuickKind[] = ['thought', 'task'];
 
 export const KIND_META: Record<QuickKind, { label: string; glyph: string; tone: string; placeholder: string }> = {
   thought: {
@@ -61,7 +64,7 @@ export const KIND_META: Record<QuickKind, { label: string; glyph: string; tone: 
     label: '할 일',
     glyph: '▦',
     tone: 'var(--warn)',
-    placeholder: '무엇을 해야 하나요?',
+    placeholder: '할 일 제목',
   },
 };
 
@@ -70,7 +73,7 @@ interface Props {
   onClose: () => void;
   initialKind?: QuickKind;
   popup?: boolean;
-  blogEnabled?: boolean;
+  initialStartDate?: string;
 }
 
 export function QuickEntry({
@@ -78,11 +81,9 @@ export function QuickEntry({
   onClose,
   initialKind = 'thought',
   popup = false,
-  blogEnabled = true,
+  initialStartDate,
 }: Props) {
-  const visibleKinds: QuickKind[] = blogEnabled
-    ? KIND_ORDER
-    : KIND_ORDER.filter((k) => k !== 'blog');
+  const visibleKinds: QuickKind[] = KIND_ORDER;
   const safeInitial = visibleKinds.includes(initialKind) ? initialKind : 'thought';
   const [kind, setKind] = useState<QuickKind>(safeInitial);
   const [title, setTitle] = useState('');
@@ -94,9 +95,11 @@ export function QuickEntry({
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('');
   const [estMin, setEstMin] = useState<number | null>(null);
+  const [color, setColor] = useState('');
+  const [taskKind, setTaskKind] = useState('write');
+  const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [bodyOpen, setBodyOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -106,16 +109,18 @@ export function QuickEntry({
     setBody('');
     setTags([]);
     setLabel(undefined);
-    setStartDate('');
+    setStartDate(initialStartDate ?? '');
     setStartTime('');
     setDueDate('');
     setDueTime('');
     setEstMin(null);
+    setColor('');
+    setTaskKind('write');
+    setNotes('');
     setError(null);
-    setBodyOpen(false);
     const id = window.setTimeout(() => inputRef.current?.focus(), 30);
     return () => window.clearTimeout(id);
-  }, [open, initialKind]);
+  }, [open, initialKind, initialStartDate]);
 
   useEffect(() => {
     if (!open) return;
@@ -148,14 +153,26 @@ export function QuickEntry({
             ? startTime
             : undefined;
         const due = dueDate ? makeIso(dueDate, dueTime) : undefined;
-        await addTask({
+        const created = await addTask({
           id: `t_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
           title: text,
           due: due || undefined,
           estMin: estMin ?? undefined,
           startAt: startAt || undefined,
           tags: tags.length > 0 ? tags : undefined,
+          color: color || undefined,
+          kind: taskKind,
+          notes: notes.trim() || undefined,
         });
+        if (notes.trim()) {
+          await upsertEventNote({
+            eventKey: `task:${created.id}`,
+            seriesKey: `task:${created.id}`,
+            eventTitleSnapshot: text,
+            eventDateSnapshot: '',
+            body: notes.trim(),
+          }).catch(() => {});
+        }
         notifyTagsChanged('tasks');
       } else {
         const item = newThought({
@@ -168,6 +185,7 @@ export function QuickEntry({
         const next = [item, ...loadThoughts()];
         saveThoughts(next);
         window.dispatchEvent(new CustomEvent('bento:thoughts-changed'));
+        void emit('bento:thoughts-changed');
       }
       onClose();
     } catch (e: unknown) {
@@ -177,59 +195,19 @@ export function QuickEntry({
     }
   };
 
-  if (!open) return null;
   const meta = KIND_META[kind];
   const isTask = kind === 'task';
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      onClick={popup ? undefined : onClose}
-      data-tauri-drag-region={popup ? '' : undefined}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: popup ? 'transparent' : 'rgba(15,18,22,0.42)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: popup ? 24 : '14vh',
-        zIndex: 200,
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          position: 'relative',
-          width: popup ? 'min(560px, calc(100vw - 80px))' : 'min(560px, 92vw)',
-          background: 'var(--bg)',
-          border: '1px solid var(--line-strong)',
-          borderRadius: 12,
-          boxShadow: popup
-            ? '0 12px 40px rgba(0,0,0,0.28)'
-            : '0 18px 50px rgba(0,0,0,0.32)',
-          padding: popup ? '10px 12px 12px' : 14,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: popup ? 8 : 10,
-        }}
-      >
-        {popup && (
-          <div
-            data-tauri-drag-region
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 12,
-              cursor: 'grab',
-              zIndex: 1,
-            }}
-          />
-        )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+    <DialogLayout
+      open={open}
+      popup={popup}
+      dragRegion={popup}
+      onClose={onClose}
+      eyebrow={isTask ? '할 일 추가' : meta.label}
+      title={isTask ? '새 TODO 등록' : meta.placeholder}
+      headerRight={
+        <div style={{ display: 'flex', gap: 4 }} onMouseDown={popup ? startWindowDrag : undefined}>
           {visibleKinds.map((k, i) => {
             const m = KIND_META[k];
             const active = kind === k;
@@ -259,249 +237,271 @@ export function QuickEntry({
               </button>
             );
           })}
-          <span style={{ flex: 1 }} />
-          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
-            ⌘1–4 전환 · esc 닫기 · ↵ 등록
-          </Mono>
         </div>
+      }
+      leftPane={
+        isTask ? (
+          <>
+            <Field label="제목">
+              <Input
+                ref={inputRef}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    submit();
+                  }
+                }}
+                placeholder="예: 주간 리뷰 작성"
+                sm
+              />
+            </Field>
 
-        <Input
-          ref={inputRef}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              submit();
-            }
-          }}
-          placeholder={meta.placeholder}
-          style={{
-            padding: popup ? '7px 10px' : '10px 12px',
-            fontSize: popup ? 13.5 : 15,
-            borderRadius: popup ? 6 : 8,
-          }}
-        />
-
-        {!isTask && bodyOpen && (
-          <Textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="설명 · 메모 (선택)"
-            rows={3}
-            style={{
-              lineHeight: 1.55,
-            }}
-          />
-        )}
-
-        {!isTask && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>라벨</Mono>
-            <button
-              onClick={() => setLabel(undefined)}
-              title="라벨 없음"
-              style={{
-                width: 18,
-                height: 18,
-                borderRadius: 999,
-                border: !label ? '2px solid var(--ink)' : '1px dashed var(--line-strong)',
-                background: 'transparent',
-                cursor: 'pointer',
-              }}
-            />
-            {(Object.keys(LABEL_PALETTE) as ThoughtLabel[]).map((c) => {
-              const p = LABEL_PALETTE[c];
-              const active = label === c;
-              return (
-                <button
-                  key={c}
-                  onClick={() => setLabel(c)}
-                  title={p.name}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 999,
-                    border: active ? `2px solid ${p.fg}` : '1px solid transparent',
-                    background: p.bg,
-                    cursor: 'pointer',
-                  }}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <Field label="시작 날짜 (선택)">
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  sm
                 />
-              );
-            })}
-            <span style={{ flex: 1 }} />
-            <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+              </Field>
+              <Field label="마감 날짜 (선택)">
+                <Input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  min={startDate || undefined}
+                  sm
+                />
+              </Field>
+              <Field label="시작 시간 (선택)">
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  step={300}
+                  sm
+                />
+              </Field>
+              <Field label="마감 시간 (선택)">
+                <Input
+                  type="time"
+                  value={dueTime}
+                  onChange={(e) => setDueTime(e.target.value)}
+                  step={300}
+                  sm
+                />
+              </Field>
+            </div>
+
+            <Field label="라벨">
+              <LabelPicker
+                kind={taskKind}
+                color={color}
+                onChange={(k, c) => { setTaskKind(k); setColor(c); }}
+              />
+            </Field>
+
+            <Field label="태그 (쉼표로 구분, 선택)">
               <TagInput value={tags} onChange={setTags} size="sm" placeholder="태그" />
-            </div>
-          </div>
-        )}
+            </Field>
 
-        {isTask && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            <TaskDateTimeRow
-              label="시작"
-              date={startDate}
-              time={startTime}
-              onDateChange={setStartDate}
-              onTimeChange={setStartTime}
-            />
-            <TaskDateTimeRow
-              label="마감"
-              date={dueDate}
-              time={dueTime}
-              onDateChange={setDueDate}
-              onTimeChange={setDueTime}
-            />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 28, flexShrink: 0 }}>
-                est
-              </Mono>
-              {EST_OPTIONS.map((o) => {
-                const sel = estMin === o.min;
-                return (
-                  <button
-                    key={o.min}
-                    onClick={() => setEstMin(sel ? null : o.min)}
-                    style={{
-                      padding: '3px 8px',
-                      fontSize: 10.5,
-                      fontFamily: 'inherit',
-                      border: '1px solid var(--line)',
-                      background: sel ? 'var(--ink)' : 'transparent',
-                      color: sel ? 'var(--on-accent)' : 'var(--ink-soft)',
-                      borderRadius: 4,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {o.label}
-                  </button>
-                );
-              })}
-              <div style={{ flex: 1, minWidth: 90 }}>
-                <EstSelect value={estMin} onChange={setEstMin} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 28, flexShrink: 0 }}>
-                tags
-              </Mono>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <TagInput value={tags} onChange={setTags} size="sm" />
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {!isTask && (
-            <button
-              onClick={() => setBodyOpen((v) => !v)}
+            <div
               style={{
-                padding: '4px 8px',
-                fontSize: 11,
-                fontFamily: 'inherit',
-                border: '1px solid var(--line)',
-                background: 'transparent',
-                color: 'var(--ink-soft)',
-                borderRadius: 5,
-                cursor: 'pointer',
-                lineHeight: 1.2,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                padding: '10px 12px',
+                background: 'var(--bg-soft)',
+                border: '1px dashed var(--line)',
+                borderRadius: 6,
               }}
             >
-              {bodyOpen ? '본문 닫기' : '본문 열기'}
-            </button>
-          )}
-          <span style={{ flex: 1 }} />
-          <button
-            onClick={onClose}
-            style={{
-              padding: '5px 11px',
-              border: '1px solid var(--line-strong)',
-              background: 'transparent',
-              color: 'var(--ink)',
-              fontFamily: 'inherit',
-              fontSize: 12,
-              borderRadius: 5,
-              cursor: 'pointer',
-              lineHeight: 1.2,
-            }}
-          >
-            취소
-          </button>
-          <button
-            onClick={submit}
-            disabled={busy || !title.trim()}
-            style={{
-              padding: '5px 13px',
-              border: '1px solid var(--ink)',
-              background: 'var(--ink)',
-              color: 'var(--on-accent)',
-              fontFamily: 'inherit',
-              fontSize: 12,
-              fontWeight: 600,
-              borderRadius: 5,
-              cursor: busy ? 'wait' : 'pointer',
-              opacity: !title.trim() ? 0.6 : 1,
-              lineHeight: 1.2,
-            }}
-          >
-            {busy ? '저장 중…' : '등록 ↵'}
-          </button>
-        </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Mono
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--ink-mute)',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  예상 소요시간
+                </Mono>
+                <span style={{ flex: 1 }} />
+                <Mono
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--ink-faint)',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  비우면 미정
+                </Mono>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {EST_OPTIONS.map((o) => {
+                  const sel = estMin === o.min;
+                  return (
+                    <button
+                      key={o.min}
+                      onClick={() => setEstMin(sel ? null : o.min)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                        border: '1px solid transparent',
+                        background: sel ? 'var(--ink)' : 'var(--bg)',
+                        color: sel ? 'var(--on-accent)' : 'var(--ink-soft)',
+                        fontSize: 11.5,
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      {o.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-        {error && (
+            {error && (
+              <Mono style={{ fontSize: 11, color: 'var(--err)' }}>{error}</Mono>
+            )}
+          </>
+        ) : (
+          <>
+            <Input
+              ref={inputRef}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  submit();
+                }
+              }}
+              placeholder={meta.placeholder}
+              sm
+            />
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>라벨</Mono>
+              <button
+                onClick={() => setLabel(undefined)}
+                title="라벨 없음"
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 999,
+                  border: !label ? '2px solid var(--ink)' : '1px dashed var(--line-strong)',
+                  background: 'transparent',
+                  cursor: 'pointer',
+                }}
+              />
+              {(Object.keys(LABEL_PALETTE) as ThoughtLabel[]).map((c) => {
+                const p = LABEL_PALETTE[c];
+                const active = label === c;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setLabel(c)}
+                    title={p.name}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      borderRadius: 999,
+                      border: active ? `2px solid ${p.fg}` : '1px solid transparent',
+                      background: p.bg,
+                      cursor: 'pointer',
+                    }}
+                  />
+                );
+              })}
+              <span style={{ flex: 1 }} />
+              <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                <TagInput value={tags} onChange={setTags} size="sm" placeholder="태그" />
+              </div>
+            </div>
+          </>
+        )
+      }
+      rightPane={
+        isTask ? (
           <div
             style={{
-              padding: '7px 10px',
-              border: '1px solid var(--err-soft)',
-              background: 'var(--err-soft)',
-              color: 'var(--err)',
-              borderRadius: 6,
-              fontFamily: 'var(--font-mono)',
-              fontSize: 11,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              padding: '4px 0',
             }}
           >
-            {error}
+            <Mono style={{ fontSize: 10.5, letterSpacing: '0.06em', color: 'var(--ink-mute)' }}>
+              메모 (선택)
+            </Mono>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="할 일에 대한 메모를 미리 적어두세요"
+              style={{
+                flex: 1,
+                fontSize: 12.5,
+                lineHeight: 1.65,
+                resize: 'none',
+                minHeight: 120,
+              }}
+            />
           </div>
-        )}
-      </div>
-    </div>
+        ) : (
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CodeMirror
+              value={body}
+              onChange={setBody}
+              extensions={mdExtensions}
+              theme="none"
+              placeholder="본문을 마크다운으로 쓰세요… (선택)"
+              height="100%"
+              basicSetup={mdBasicSetup}
+              style={{ height: '100%', fontSize: 13, fontFamily: 'var(--font-sans)' }}
+            />
+          </div>
+        )
+      }
+      footerLeft={undefined}
+      footerRight={
+        <>
+          <Button sm ghost onClick={onClose} disabled={busy}>취소</Button>
+          <Button sm onClick={submit} disabled={busy || !title.trim()}>
+            {busy ? '…' : isTask ? '추가' : '등록 ↵'}
+          </Button>
+        </>
+      }
+    />
   );
 }
 
-function TaskDateTimeRow({
+function Field({
   label,
-  date,
-  time,
-  onDateChange,
-  onTimeChange,
+  children,
 }: {
   label: string;
-  date: string;
-  time: string;
-  onDateChange: (v: string) => void;
-  onTimeChange: (v: string) => void;
+  children: React.ReactNode;
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-      <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', width: 28, flexShrink: 0 }}>
-        {label}
-      </Mono>
-      <Input
-        sm
-        type="date"
-        value={date}
-        onChange={(e) => onDateChange(e.target.value)}
+    <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <span
         style={{
-          flex: 1,
-          minWidth: 0,
-          border: `1px ${date === '' ? 'dashed' : 'solid'} var(--line)`,
-          color: date === '' ? 'var(--ink-mute)' : 'var(--ink)',
+          fontSize: 10.5,
+          color: 'var(--ink-mute)',
+          letterSpacing: '0.04em',
         }}
-      />
-      <div style={{ width: 96, flexShrink: 0 }}>
-        <TimeSelect value={time} onChange={onTimeChange} title={`${label} 시간`} />
-      </div>
-    </div>
+      >
+        {label}
+      </span>
+      {children}
+    </label>
   );
 }
+

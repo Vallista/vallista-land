@@ -1,13 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  keychainHasToken,
+  keychainSetToken,
   llmDownloadModel,
   llmDownloadServer,
+  llmGetApiKey,
+  llmGetSettings,
   llmOpenDataDir,
+  llmSaveSettings,
   llmStatus,
-  type LlmStatus,
   type LlmDownloadEvent,
+  type LlmSettings,
+  type LlmStatus,
 } from '../../lib/tauri';
+import { loadLLMProvider, resetLLMProvider } from '../../lib/llm';
 import { Button, Eyebrow, Mono, StatusDot, Tag } from '../../components/atoms/Atoms';
+
+type ProviderTab = 'local' | 'claude' | 'openai' | 'gemini';
 
 interface ModelEntry {
   name: string;
@@ -41,6 +50,10 @@ const CATALOG: ModelEntry[] = [
   },
 ];
 
+const CLAUDE_MODELS = ['claude-opus-4-7', 'claude-sonnet-4-6', 'claude-haiku-4-5'];
+const OPENAI_MODELS = ['gpt-4o', 'gpt-4o-mini', 'o1-mini'];
+const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-1.5-pro'];
+
 interface DownloadState {
   fileName: string;
   downloaded: number;
@@ -49,37 +62,104 @@ interface DownloadState {
   message?: string;
 }
 
-interface LLMSetupProps {
-  onDismiss?: () => void;
-}
+export function LLMSetupContent() {
+  const [activeTab, setActiveTab] = useState<ProviderTab>('local');
+  const [settings, setSettings] = useState<LlmSettings | null>(null);
+  const [activeProvider, setActiveProvider] = useState<ProviderTab>('local');
 
-export function LLMSetup({ onDismiss }: LLMSetupProps) {
-  const [status, setStatus] = useState<LlmStatus | null>(null);
+  const [localStatus, setLocalStatus] = useState<LlmStatus | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [download, setDownload] = useState<DownloadState | null>(null);
   const [serverDownload, setServerDownload] = useState<DownloadState | null>(null);
+  const [selectedLocalModel, setSelectedLocalModel] = useState<string | null>(null);
 
-  const refresh = useCallback(async () => {
+  const [apiKey, setApiKey] = useState<Record<ProviderTab, string>>({
+    local: '',
+    claude: '',
+    openai: '',
+    gemini: '',
+  });
+  const [hasKey, setHasKey] = useState<Record<ProviderTab, boolean>>({
+    local: false,
+    claude: false,
+    openai: false,
+    gemini: false,
+  });
+  const [selectedModel, setSelectedModel] = useState<Record<ProviderTab, string>>({
+    local: '',
+    claude: 'claude-sonnet-4-6',
+    openai: 'gpt-4o',
+    gemini: 'gemini-2.0-flash',
+  });
+  const [testResult, setTestResult] = useState<Record<ProviderTab, string | null>>({
+    local: null,
+    claude: null,
+    openai: null,
+    gemini: null,
+  });
+  const [testRunning, setTestRunning] = useState<Record<ProviderTab, boolean>>({
+    local: false,
+    claude: false,
+    openai: false,
+    gemini: false,
+  });
+  const [activating, setActivating] = useState(false);
+  const [savingKey, setSavingKey] = useState(false);
+
+  const refreshLocal = useCallback(async () => {
     try {
       const s = await llmStatus();
-      setStatus(s);
+      setLocalStatus(s);
       setLoadError(null);
     } catch (e: unknown) {
       setLoadError(String(e));
     }
   }, []);
 
+  const refreshSettings = useCallback(async () => {
+    try {
+      const s = await llmGetSettings();
+      setSettings(s);
+      setActiveProvider(s.provider as ProviderTab);
+      setSelectedModel((prev) => ({
+        ...prev,
+        claude: s.claudeModel ?? 'claude-sonnet-4-6',
+        openai: s.openaiModel ?? 'gpt-4o',
+        gemini: s.geminiModel ?? 'gemini-2.0-flash',
+        local: s.localModel ?? prev.local,
+      }));
+    } catch {}
+  }, []);
+
+  const refreshHasKey = useCallback(async (tab: ProviderTab) => {
+    if (tab === 'local') return;
+    try {
+      const ok = await keychainHasToken(`llm-apikey-${tab}`);
+      setHasKey((prev) => ({ ...prev, [tab]: ok }));
+    } catch {}
+  }, []);
+
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    refreshLocal();
+    refreshSettings();
+  }, [refreshLocal, refreshSettings]);
+
+  useEffect(() => {
+    refreshHasKey(activeTab);
+  }, [activeTab, refreshHasKey]);
 
   const installedNames = useMemo(
-    () => new Set(status?.models.map((m) => m.name) ?? []),
-    [status],
+    () => new Set(localStatus?.models.map((m) => m.name) ?? []),
+    [localStatus],
   );
 
   const beginServerDownload = useCallback(async () => {
-    if (serverDownload && serverDownload.status !== 'failed' && serverDownload.status !== 'finished') return;
+    if (
+      serverDownload &&
+      serverDownload.status !== 'failed' &&
+      serverDownload.status !== 'finished'
+    )
+      return;
     setServerDownload({ fileName: 'llama-server', downloaded: 0, total: null, status: 'started' });
     try {
       await llmDownloadServer((event: LlmDownloadEvent) => {
@@ -90,12 +170,7 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
         } else if (event.kind === 'progress') {
           setServerDownload((prev) =>
             prev
-              ? {
-                  ...prev,
-                  downloaded: event.data.downloaded,
-                  total: event.data.total,
-                  status: 'progress',
-                }
+              ? { ...prev, downloaded: event.data.downloaded, total: event.data.total, status: 'progress' }
               : prev,
           );
         } else if (event.kind === 'finished') {
@@ -106,13 +181,13 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
           );
         }
       });
-      await refresh();
+      await refreshLocal();
     } catch (e: unknown) {
       setServerDownload((prev) =>
         prev ? { ...prev, status: 'failed', message: String(e) } : prev,
       );
     }
-  }, [serverDownload, refresh]);
+  }, [serverDownload, refreshLocal]);
 
   const beginDownload = useCallback(
     async (entry: ModelEntry) => {
@@ -129,12 +204,7 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
           } else if (event.kind === 'progress') {
             setDownload((prev) =>
               prev && prev.fileName === entry.fileName
-                ? {
-                    ...prev,
-                    downloaded: event.data.downloaded,
-                    total: event.data.total,
-                    status: 'progress',
-                  }
+                ? { ...prev, downloaded: event.data.downloaded, total: event.data.total, status: 'progress' }
                 : prev,
             );
           } else if (event.kind === 'finished') {
@@ -149,7 +219,7 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
             );
           }
         });
-        await refresh();
+        await refreshLocal();
       } catch (e: unknown) {
         setDownload((prev) =>
           prev && prev.fileName === entry.fileName
@@ -158,9 +228,513 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
         );
       }
     },
-    [download, refresh],
+    [download, refreshLocal],
   );
 
+  const handleSaveApiKey = useCallback(
+    async (tab: ProviderTab) => {
+      const key = apiKey[tab].trim();
+      if (!key) return;
+      setSavingKey(true);
+      try {
+        await keychainSetToken(`llm-apikey-${tab}`, key);
+        setApiKey((prev) => ({ ...prev, [tab]: '' }));
+        await refreshHasKey(tab);
+      } catch (e: unknown) {
+        alert(String(e));
+      } finally {
+        setSavingKey(false);
+      }
+    },
+    [apiKey, refreshHasKey],
+  );
+
+  const handleTestConnection = useCallback(
+    async (tab: ProviderTab) => {
+      setTestRunning((prev) => ({ ...prev, [tab]: true }));
+      setTestResult((prev) => ({ ...prev, [tab]: null }));
+      try {
+        const key = await llmGetApiKey(tab);
+        if (!key) throw new Error('API 키가 없습니다. 먼저 저장하세요.');
+        const model = selectedModel[tab];
+        let result = '';
+        if (tab === 'claude') {
+          const res = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'x-api-key': key,
+              'anthropic-version': '2023-06-01',
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: 5,
+              messages: [{ role: 'user', content: 'ping' }],
+            }),
+          });
+          if (!res.ok) {
+            const err = await res.text().catch(() => res.statusText);
+            throw new Error(`Claude API error ${res.status}: ${err}`);
+          }
+          result = '연결됨';
+        } else if (tab === 'openai') {
+          const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+            body: JSON.stringify({
+              model,
+              messages: [{ role: 'user', content: 'ping' }],
+              max_tokens: 5,
+            }),
+          });
+          if (!res.ok) {
+            const err = await res.text().catch(() => res.statusText);
+            throw new Error(`OpenAI API error ${res.status}: ${err}`);
+          }
+          result = '연결됨';
+        } else if (tab === 'gemini') {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+            {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: 'ping' }] }],
+                generationConfig: { maxOutputTokens: 5 },
+              }),
+            },
+          );
+          if (!res.ok) {
+            const err = await res.text().catch(() => res.statusText);
+            throw new Error(`Gemini API error ${res.status}: ${err}`);
+          }
+          result = '연결됨';
+        }
+        setTestResult((prev) => ({ ...prev, [tab]: result }));
+      } catch (e: unknown) {
+        setTestResult((prev) => ({ ...prev, [tab]: `오류: ${String(e)}` }));
+      } finally {
+        setTestRunning((prev) => ({ ...prev, [tab]: false }));
+      }
+    },
+    [selectedModel],
+  );
+
+  const handleActivate = useCallback(
+    async (tab: ProviderTab) => {
+      setActivating(true);
+      try {
+        const newSettings: LlmSettings = {
+          provider: tab,
+          localModel: tab === 'local' ? (selectedLocalModel ?? settings?.localModel ?? null) : (settings?.localModel ?? null),
+          claudeModel: tab === 'claude' ? selectedModel.claude : (settings?.claudeModel ?? 'claude-sonnet-4-6'),
+          openaiModel: tab === 'openai' ? selectedModel.openai : (settings?.openaiModel ?? 'gpt-4o'),
+          geminiModel: tab === 'gemini' ? selectedModel.gemini : (settings?.geminiModel ?? 'gemini-2.0-flash'),
+        };
+        await llmSaveSettings(newSettings);
+        resetLLMProvider();
+        await loadLLMProvider();
+        await refreshSettings();
+      } catch (e: unknown) {
+        alert(String(e));
+      } finally {
+        setActivating(false);
+      }
+    },
+    [selectedLocalModel, selectedModel, settings, refreshSettings],
+  );
+
+  const tabs: { id: ProviderTab; label: string }[] = [
+    { id: 'local', label: '로컬 LLM' },
+    { id: 'claude', label: 'Claude' },
+    { id: 'openai', label: 'OpenAI' },
+    { id: 'gemini', label: 'Gemini' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* 현재 활성 공급자 */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 12px',
+          background: 'var(--bg-soft)',
+          border: '1px solid var(--line)',
+          borderRadius: 8,
+        }}
+      >
+        <StatusDot tone="ok" />
+        <span style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>현재 활성 공급자:</span>
+        <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink)' }}>
+          {activeProvider === 'local'
+            ? '로컬 LLM'
+            : activeProvider === 'claude'
+              ? 'Claude'
+              : activeProvider === 'openai'
+                ? 'OpenAI'
+                : 'Gemini'}
+        </span>
+      </div>
+
+      {/* 탭 버튼 */}
+      <div style={{ display: 'flex', gap: 4 }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 6,
+              border: '1px solid transparent',
+              background: activeTab === tab.id ? 'var(--ink)' : 'var(--bg-soft)',
+              color: activeTab === tab.id ? 'var(--on-accent)' : 'var(--ink-soft)',
+              fontSize: 12.5,
+              fontWeight: activeTab === tab.id ? 600 : 400,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              transition: 'background 120ms',
+            }}
+          >
+            {tab.label}
+            {activeProvider === tab.id && (
+              <span
+                style={{
+                  marginLeft: 5,
+                  fontSize: 10,
+                  color: activeTab === tab.id ? 'var(--on-accent)' : 'var(--ok)',
+                }}
+              >
+                ●
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* 탭 컨텐츠 */}
+      {activeTab === 'local' && (
+        <LocalTab
+          localStatus={localStatus}
+          loadError={loadError}
+          serverDownload={serverDownload}
+          download={download}
+          installedNames={installedNames}
+          selectedLocalModel={selectedLocalModel}
+          onSelectModel={setSelectedLocalModel}
+          onRefresh={refreshLocal}
+          onServerDownload={beginServerDownload}
+          onModelDownload={beginDownload}
+          onActivate={() => handleActivate('local')}
+          activating={activating}
+          isActive={activeProvider === 'local'}
+        />
+      )}
+
+      {activeTab !== 'local' && (
+        <ApiTab
+          tab={activeTab}
+          models={
+            activeTab === 'claude'
+              ? CLAUDE_MODELS
+              : activeTab === 'openai'
+                ? OPENAI_MODELS
+                : GEMINI_MODELS
+          }
+          apiKey={apiKey[activeTab]}
+          hasKey={hasKey[activeTab]}
+          selectedModel={selectedModel[activeTab]}
+          testResult={testResult[activeTab]}
+          testRunning={testRunning[activeTab]}
+          savingKey={savingKey}
+          activating={activating}
+          isActive={activeProvider === activeTab}
+          onApiKeyChange={(v) => setApiKey((prev) => ({ ...prev, [activeTab]: v }))}
+          onModelChange={(v) => setSelectedModel((prev) => ({ ...prev, [activeTab]: v }))}
+          onSaveKey={() => handleSaveApiKey(activeTab)}
+          onTest={() => handleTestConnection(activeTab)}
+          onActivate={() => handleActivate(activeTab)}
+        />
+      )}
+    </div>
+  );
+}
+
+interface LocalTabProps {
+  localStatus: LlmStatus | null;
+  loadError: string | null;
+  serverDownload: DownloadState | null;
+  download: DownloadState | null;
+  installedNames: Set<string>;
+  selectedLocalModel: string | null;
+  onSelectModel: (name: string) => void;
+  onRefresh: () => void;
+  onServerDownload: () => void;
+  onModelDownload: (entry: ModelEntry) => void;
+  onActivate: () => void;
+  activating: boolean;
+  isActive: boolean;
+}
+
+function LocalTab({
+  localStatus,
+  loadError,
+  serverDownload,
+  download,
+  installedNames,
+  selectedLocalModel,
+  onSelectModel,
+  onRefresh,
+  onServerDownload,
+  onModelDownload,
+  onActivate,
+  activating,
+  isActive,
+}: LocalTabProps) {
+  const installedModels = localStatus?.models ?? [];
+  const effectiveSelected = selectedLocalModel ?? installedModels[0]?.name ?? null;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {loadError && (
+        <div
+          style={{
+            padding: 10,
+            borderRadius: 6,
+            background: 'var(--err-soft)',
+            color: 'var(--err)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 11.5,
+          }}
+        >
+          {loadError}
+        </div>
+      )}
+
+      <BinarySection
+        status={localStatus}
+        download={serverDownload}
+        onDownload={onServerDownload}
+        onRefresh={onRefresh}
+      />
+
+      <div>
+        <Eyebrow>2 — 모델 선택</Eyebrow>
+        <p style={{ margin: '6px 0 10px', color: 'var(--ink-soft)', fontSize: 12.5 }}>
+          하나만 받아도 동작합니다. 나중에 여러 개 추가 가능.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {CATALOG.map((entry) => (
+            <ModelRow
+              key={entry.fileName}
+              entry={entry}
+              installed={installedNames.has(entry.fileName)}
+              download={download && download.fileName === entry.fileName ? download : null}
+              onDownload={() => onModelDownload(entry)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {installedModels.length > 0 && (
+        <div>
+          <Eyebrow style={{ marginBottom: 8 }}>3 — 사용할 모델</Eyebrow>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {installedModels.map((m) => (
+              <label
+                key={m.name}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '8px 10px',
+                  border: `1px solid ${effectiveSelected === m.name ? 'var(--ink)' : 'var(--line)'}`,
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  background: effectiveSelected === m.name ? 'var(--bg-soft)' : 'var(--bg)',
+                }}
+              >
+                <input
+                  type="radio"
+                  name="local-model"
+                  value={m.name}
+                  checked={effectiveSelected === m.name}
+                  onChange={() => onSelectModel(m.name)}
+                  style={{ accentColor: 'var(--ink)', margin: 0 }}
+                />
+                <span style={{ fontSize: 12.5, color: 'var(--ink)', flex: 1 }}>{m.name}</span>
+                <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+                  {formatBytes(m.size)}
+                </Mono>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Button
+          onClick={onActivate}
+          disabled={activating || installedModels.length === 0 || !localStatus?.binPresent}
+        >
+          {activating ? '적용 중…' : isActive ? '활성됨' : '활성화'}
+        </Button>
+        {isActive && <StatusDot tone="ok" />}
+        {isActive && (
+          <span style={{ fontSize: 12, color: 'var(--ok)' }}>현재 이 공급자가 사용 중입니다</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface ApiTabProps {
+  tab: ProviderTab;
+  models: string[];
+  apiKey: string;
+  hasKey: boolean;
+  selectedModel: string;
+  testResult: string | null;
+  testRunning: boolean;
+  savingKey: boolean;
+  activating: boolean;
+  isActive: boolean;
+  onApiKeyChange: (v: string) => void;
+  onModelChange: (v: string) => void;
+  onSaveKey: () => void;
+  onTest: () => void;
+  onActivate: () => void;
+}
+
+function ApiTab({
+  tab,
+  models,
+  apiKey,
+  hasKey,
+  selectedModel,
+  testResult,
+  testRunning,
+  savingKey,
+  activating,
+  isActive,
+  onApiKeyChange,
+  onModelChange,
+  onSaveKey,
+  onTest,
+  onActivate,
+}: ApiTabProps) {
+  const providerLabel =
+    tab === 'claude' ? 'Claude' : tab === 'openai' ? 'OpenAI' : 'Gemini';
+  const isTestOk = testResult === '연결됨';
+  const isTestErr = testResult !== null && testResult !== '연결됨';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div>
+        <Eyebrow style={{ marginBottom: 8 }}>1 — API 키</Eyebrow>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {hasKey && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <StatusDot tone="ok" />
+              <span style={{ fontSize: 12, color: 'var(--ok)' }}>API 키 저장됨</span>
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input
+            type="password"
+            placeholder={hasKey ? '새 키로 교체하려면 입력' : `${providerLabel} API 키 입력`}
+            value={apiKey}
+            onChange={(e) => onApiKeyChange(e.target.value)}
+            style={{
+              flex: 1,
+              padding: '7px 10px',
+              borderRadius: 5,
+              border: '1px solid var(--line)',
+              background: 'var(--bg-input)',
+              color: 'var(--ink)',
+              fontSize: 12.5,
+              fontFamily: 'var(--font-mono)',
+              outline: 'none',
+            }}
+          />
+          <Button sm onClick={onSaveKey} disabled={savingKey || !apiKey.trim()}>
+            {savingKey ? '저장 중…' : '저장'}
+          </Button>
+        </div>
+      </div>
+
+      <div>
+        <Eyebrow style={{ marginBottom: 8 }}>2 — 모델</Eyebrow>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {models.map((m) => (
+            <label
+              key={m}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '7px 10px',
+                border: `1px solid ${selectedModel === m ? 'var(--ink)' : 'var(--line)'}`,
+                borderRadius: 6,
+                cursor: 'pointer',
+                background: selectedModel === m ? 'var(--bg-soft)' : 'var(--bg)',
+              }}
+            >
+              <input
+                type="radio"
+                name={`${tab}-model`}
+                value={m}
+                checked={selectedModel === m}
+                onChange={() => onModelChange(m)}
+                style={{ accentColor: 'var(--ink)', margin: 0 }}
+              />
+              <span style={{ fontSize: 12.5, color: 'var(--ink)', flex: 1, fontFamily: 'var(--font-mono)' }}>
+                {m}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <Eyebrow style={{ marginBottom: 8 }}>3 — 연결 테스트</Eyebrow>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Button sm ghost onClick={onTest} disabled={testRunning || !hasKey}>
+            {testRunning ? '테스트 중…' : '연결 테스트'}
+          </Button>
+          {isTestOk && (
+            <span style={{ fontSize: 12, color: 'var(--ok)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <StatusDot tone="ok" /> 연결됨
+            </span>
+          )}
+          {isTestErr && (
+            <span style={{ fontSize: 11.5, color: 'var(--err)', fontFamily: 'var(--font-mono)' }}>
+              {testResult}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Button onClick={onActivate} disabled={activating || !hasKey}>
+          {activating ? '적용 중…' : isActive ? '활성됨' : '활성화'}
+        </Button>
+        {isActive && <StatusDot tone="ok" />}
+        {isActive && (
+          <span style={{ fontSize: 12, color: 'var(--ok)' }}>현재 이 공급자가 사용 중입니다</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface LLMSetupProps {
+  onDismiss?: () => void;
+}
+
+export function LLMSetup({ onDismiss }: LLMSetupProps) {
   return (
     <div
       style={{
@@ -171,7 +745,7 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 32,
+        padding: 'calc(var(--gap-lg) * 2.5)',
       }}
     >
       <div
@@ -198,9 +772,9 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
           }}
         >
           <div>
-            <Eyebrow style={{ marginBottom: 4 }}>로컬 LLM 설정</Eyebrow>
+            <Eyebrow style={{ marginBottom: 4 }}>LLM 설정</Eyebrow>
             <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: 'var(--ink)' }}>
-              내 디바이스에서 보고서 생성
+              AI 공급자 선택
             </h2>
           </div>
           {onDismiss && (
@@ -211,46 +785,7 @@ export function LLMSetup({ onDismiss }: LLMSetupProps) {
         </header>
 
         <div style={{ padding: '18px 22px', overflowY: 'auto' }}>
-          {loadError && (
-            <div
-              style={{
-                padding: 10,
-                borderRadius: 6,
-                background: 'var(--err-soft)',
-                color: 'var(--err)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 11.5,
-                marginBottom: 14,
-              }}
-            >
-              {loadError}
-            </div>
-          )}
-
-          <BinarySection
-            status={status}
-            download={serverDownload}
-            onDownload={beginServerDownload}
-            onRefresh={refresh}
-          />
-
-          <div style={{ marginTop: 24 }}>
-            <Eyebrow>2 — 모델 선택</Eyebrow>
-            <p style={{ margin: '6px 0 14px', color: 'var(--ink-soft)', fontSize: 12.5 }}>
-              하나만 받아도 동작합니다. 나중에 여러 개 추가 가능.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {CATALOG.map((entry) => (
-                <ModelRow
-                  key={entry.fileName}
-                  entry={entry}
-                  installed={installedNames.has(entry.fileName)}
-                  download={download && download.fileName === entry.fileName ? download : null}
-                  onDownload={() => beginDownload(entry)}
-                />
-              ))}
-            </div>
-          </div>
+          <LLMSetupContent />
         </div>
       </div>
     </div>

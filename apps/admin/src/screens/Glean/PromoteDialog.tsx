@@ -53,7 +53,7 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
       const docId = `note_${cleanSlug}`;
       const md = buildSeedMarkdown(item, docId);
       await writeDoc(path, md);
-      const updated = await updateGleanStatus(item.id, 'promoted', docId);
+      const updated = await updateGleanStatus(item.id, 'read', docId);
       onPromoted(updated);
       onClose();
     } catch (e) {

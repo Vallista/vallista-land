@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { Button, Mono, PageHead } from '../../components/atoms/Atoms';
-import { addTask } from '../../lib/tauri';
+import { ThoughtEditor } from '../../components/ThoughtEditor';
+import { addTask, showQuick } from '../../lib/tauri';
 import { useNavigate } from '../../shell/nav';
 import {
   LABEL_PALETTE,
@@ -39,6 +41,8 @@ export function Thoughts() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [stateFilter, setStateFilter] = useState<StateFilter>('open');
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const editingItem = items.find((t) => t.id === editingId) ?? null;
 
   useEffect(() => {
     saveThoughts(items);
@@ -47,7 +51,14 @@ export function Thoughts() {
   useEffect(() => {
     const refresh = () => setItems(loadThoughts());
     window.addEventListener('bento:thoughts-changed', refresh);
-    return () => window.removeEventListener('bento:thoughts-changed', refresh);
+    let unlisten: UnlistenFn | null = null;
+    listen('bento:thoughts-changed', refresh)
+      .then((fn) => { unlisten = fn; })
+      .catch(() => {});
+    return () => {
+      window.removeEventListener('bento:thoughts-changed', refresh);
+      unlisten?.();
+    };
   }, []);
 
   const counts = useMemo(() => {
@@ -111,15 +122,27 @@ export function Thoughts() {
   );
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', background: 'var(--bg)' }}>
-      <div style={{ padding: '32px 48px 80px', maxWidth: 980, margin: '0 auto' }}>
+    <div style={{ height: '100%', overflowY: 'auto', background: 'var(--bg)', position: 'relative' }}>
+      {editingItem && (
+        <ThoughtEditor
+          thought={editingItem}
+          onSave={(patch) => update(editingItem.id, patch)}
+          onClose={() => setEditingId(null)}
+        />
+      )}
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3) 80px', maxWidth: 980, margin: '0 auto' }}>
         <PageHead
           title="생각"
           sub="머리에서 흘러나온 한 줄을 분류·라벨로 정리하는 백로그"
           right={
-            <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
-              ⌘N 빠른 생각 · ⌘T 빠른 할 일
-            </Mono>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>
+                ⌘N 빠른 생각 · ⌘T 빠른 할 일
+              </Mono>
+              <Button sm onClick={() => void showQuick('thought')}>
+                + 생각 추가
+              </Button>
+            </div>
           }
         />
 
@@ -239,6 +262,7 @@ export function Thoughts() {
                 onRemove={() => remove(t.id)}
                 onPromoteTask={() => toTask(t)}
                 onPromoteNote={() => toNote(t)}
+                onEdit={() => setEditingId(t.id)}
               />
             ))}
           </ul>
@@ -254,12 +278,14 @@ function BacklogRow({
   onRemove,
   onPromoteTask,
   onPromoteNote,
+  onEdit,
 }: {
   item: Thought;
   onUpdate: (patch: Partial<Thought>) => void;
   onRemove: () => void;
   onPromoteTask: () => void;
   onPromoteNote: () => void;
+  onEdit: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const typeMeta = TYPE_META[item.type];
@@ -436,6 +462,9 @@ function BacklogRow({
               <Mono style={{ fontSize: 10, color: 'var(--hl-violet)' }}>→ 글방으로 이동됨</Mono>
             )}
             <span style={{ flex: 1 }} />
+            <Button sm ghost onClick={onEdit}>
+              편집
+            </Button>
             <Button sm ghost onClick={onPromoteTask}>
               할 일로
             </Button>

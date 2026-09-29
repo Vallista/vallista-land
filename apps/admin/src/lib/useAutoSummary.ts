@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Summary } from '@vallista/content-core';
 import { latestUnreadSummary, markSummaryRead } from './tauri';
 import {
@@ -8,6 +8,16 @@ import {
 } from './autoSummary';
 
 const POLL_INTERVAL_MS = 60 * 60 * 1000;
+
+// 모듈 레벨 lock — useAutoSummary tick과 SummaryReview.regenerate가 공유
+let _inFlight = false;
+export function isAutoSummaryBusy(): boolean { return _inFlight; }
+export function acquireAutoSummaryLock(): boolean {
+  if (_inFlight) return false;
+  _inFlight = true;
+  return true;
+}
+export function releaseAutoSummaryLock(): void { _inFlight = false; }
 
 const WEEK_START_KEY = 'bento.summary.weekStartDay';
 const AUTO_ENABLED_KEY = 'bento.summary.autoEnabled';
@@ -38,7 +48,6 @@ export interface UseAutoSummaryResult {
 
 export function useAutoSummary(): UseAutoSummaryResult {
   const [pendingModal, setPendingModal] = useState<Summary | null>(null);
-  const inFlightRef = useRef(false);
 
   const refreshUnread = useCallback(async () => {
     try {
@@ -50,12 +59,12 @@ export function useAutoSummary(): UseAutoSummaryResult {
   }, []);
 
   const tick = useCallback(async () => {
-    if (inFlightRef.current) return;
+    if (!acquireAutoSummaryLock()) return;
     if (!readAutoEnabled()) {
+      releaseAutoSummaryLock();
       await refreshUnread();
       return;
     }
-    inFlightRef.current = true;
     try {
       const now = new Date();
       const weekStartDay = readWeekStartDay();
@@ -63,7 +72,7 @@ export function useAutoSummary(): UseAutoSummaryResult {
       await generateMonthlySummary(now, weekStartDay);
       await refreshUnread();
     } finally {
-      inFlightRef.current = false;
+      releaseAutoSummaryLock();
     }
   }, [refreshUnread]);
 

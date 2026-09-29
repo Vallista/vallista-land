@@ -101,7 +101,7 @@ export function SummaryModal({ summary, onClose, onRegenerate }: SummaryModalPro
         <div
           className="psm-selectable"
           style={{
-            padding: '20px 24px',
+            padding: 'var(--card-pad) calc(var(--card-pad) + 4px)',
             overflowY: 'auto',
             fontSize: 14,
             lineHeight: 1.78,

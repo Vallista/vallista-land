@@ -18,10 +18,14 @@ import { MoodPanel } from './MoodPanel';
 import { HourHeatmap } from './HourHeatmap';
 import { PeoplePanel } from './PeoplePanel';
 import { ClusterPanel } from './ClusterPanel';
-import { WeeklyReview, MonthlyReview, type WeeklyReviewInput } from './WeeklyReview';
+import { type WeeklyReviewInput } from './WeeklyReview';
+import { WeeklyTable, KindGrid } from './WeeklyTable';
+import { SummaryTimeline } from './SummaryTimeline';
 import { saveReport, type ReportInput } from './exportReport';
 import { avgMoodStats, filterThisWeek, filterThisMonth } from '../../lib/moodStats';
 import type { WeekStartDay } from '../../lib/autoSummary';
+import { buildTimeStats, fmtMin } from '../../lib/timeStats';
+import { filterStatsBlocks, STATS_EXCLUDED_EVENT } from '../Plan/blockMeta';
 
 const WEEK_START_KEY = 'bento.summary.weekStartDay';
 
@@ -56,6 +60,13 @@ const RANGE_DAYS: Record<RangeKey, number> = {
   '1y': 365,
 };
 
+const DELTA_LABEL: Record<RangeKey, string> = {
+  '7d': '전주',
+  '30d': '전달',
+  '12w': '전전 12주',
+  '1y': '전년',
+};
+
 const DEEP_KINDS = new Set(['deep', 'write', 'build']);
 
 export function Insights() {
@@ -69,6 +80,7 @@ export function Insights() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [exportState, setExportState] = useState<ExportState>({ kind: 'idle' });
+  const [prevBlocks, setPrevBlocks] = useState<Block[]>([]);
 
   useEffect(() => {
     const today = new Date();
@@ -78,6 +90,20 @@ export function Insights() {
       .then(setMonthlyMoods)
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    let alive = true;
+    const days = RANGE_DAYS[range];
+    const today = new Date();
+    const prevEnd = new Date(today);
+    prevEnd.setDate(prevEnd.getDate() - days);
+    const prevStart = new Date(prevEnd);
+    prevStart.setDate(prevStart.getDate() - (days - 1));
+    listBlocksInRange(isoKey(prevStart), isoKey(prevEnd))
+      .then((bs) => { if (alive) setPrevBlocks(bs); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [range]);
 
   useEffect(() => {
     let alive = true;
@@ -135,12 +161,59 @@ export function Insights() {
     };
   }, [monthlyMoods, today]);
 
-  const stats = useMemo(() => {
-    const totalH = blocks.reduce(
+  const [statsExcludedVersion, setStatsExcludedVersion] = useState(0);
+
+  useEffect(() => {
+    const onChanged = () => setStatsExcludedVersion((v) => v + 1);
+    window.addEventListener(STATS_EXCLUDED_EVENT, onChanged);
+    return () => window.removeEventListener(STATS_EXCLUDED_EVENT, onChanged);
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const statsBlocks = useMemo(
+    () => filterStatsBlocks(blocks),
+    [blocks, statsExcludedVersion],
+  );
+
+  const efficiency = useMemo(() => buildTimeStats(statsBlocks), [statsBlocks]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const statsPrevBlocks = useMemo(
+    () => filterStatsBlocks(prevBlocks),
+    [prevBlocks, statsExcludedVersion],
+  );
+
+  const prevStats = useMemo(() => {
+    const totalH = statsPrevBlocks.reduce(
       (a, b) => a + Math.max(0, durationHours(b.start, b.end)),
       0,
     );
-    const deepH = blocks
+    const deepH = statsPrevBlocks
+      .filter((b) => DEEP_KINDS.has(b.kind))
+      .reduce((a, b) => a + Math.max(0, durationHours(b.start, b.end)), 0);
+    const meetMin = statsPrevBlocks
+      .filter((b) => b.kind === 'meet')
+      .reduce((a, b) => a + Math.max(0, durationHours(b.start, b.end)) * 60, 0);
+    const focusMin = statsPrevBlocks
+      .filter((b) => DEEP_KINDS.has(b.kind))
+      .reduce((a, b) => a + Math.max(0, durationHours(b.start, b.end)) * 60, 0);
+    return {
+      totalH,
+      deepH,
+      deepRatio: totalH > 0 ? deepH / totalH : 0,
+      meetH: meetMin / 60,
+      focusH: focusMin / 60,
+    };
+  }, [statsPrevBlocks]);
+
+  const deltaLabel = DELTA_LABEL[range];
+
+  const stats = useMemo(() => {
+    const totalH = statsBlocks.reduce(
+      (a, b) => a + Math.max(0, durationHours(b.start, b.end)),
+      0,
+    );
+    const deepH = statsBlocks
       .filter((b) => DEEP_KINDS.has(b.kind))
       .reduce((a, b) => a + Math.max(0, durationHours(b.start, b.end)), 0);
 
@@ -160,11 +233,11 @@ export function Insights() {
       seedCount: seedDocs.length,
       sproutCount: sproutDocs.length,
     };
-  }, [blocks, docs, range]);
+  }, [statsBlocks, docs, range]);
 
   const reviewInput: WeeklyReviewInput | null = useMemo(() => {
     if (!docs) return null;
-    const buckets = bucketBlocks(blocks);
+    const buckets = bucketBlocks(statsBlocks);
     const start = new Date();
     start.setDate(start.getDate() - (RANGE_DAYS[range] - 1));
     const startKey = isoKey(start);
@@ -172,7 +245,7 @@ export function Insights() {
       (d) => d.state === 'published' && d.updatedAt.slice(0, 10) >= startKey,
     );
     const peopleMap = new Map<string, number>();
-    for (const b of blocks) {
+    for (const b of statsBlocks) {
       for (const p of b.attendees ?? []) {
         peopleMap.set(p, (peopleMap.get(p) ?? 0) + 1);
       }
@@ -185,7 +258,7 @@ export function Insights() {
     }
     return {
       rangeLabel: rangeLabelText(range),
-      blocks,
+      blocks: statsBlocks,
       moods,
       publishedDocs: publishedThisRange,
       totalDocs: docs,
@@ -199,7 +272,7 @@ export function Insights() {
         .map(([tag, n]) => ({ tag, n }))
         .sort((a, b) => b.n - a.n),
     };
-  }, [blocks, docs, moods, range, stats]);
+  }, [statsBlocks, docs, moods, range, stats]);
 
   const handleExport = async () => {
     if (!docs || !reviewInput) return;
@@ -239,7 +312,7 @@ export function Insights() {
 
   if (error && !data) {
     return (
-      <div style={{ padding: '32px 48px', maxWidth: 1120 }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3)', maxWidth: 1120 }}>
         <PageHead title="돌아보기" sub="insights 계산 실패" />
         <div
           style={{
@@ -266,7 +339,7 @@ export function Insights() {
         background: 'var(--bg)',
       }}
     >
-      <div style={{ padding: '32px 48px 80px', maxWidth: 1120 }}>
+      <div style={{ padding: 'calc(var(--gap-lg) * 2) calc(var(--gap-lg) * 3) 80px', maxWidth: 1120 }}>
         <PageHead
           title="돌아보기"
           sub={
@@ -376,6 +449,7 @@ export function Insights() {
             value={stats.totalH.toFixed(1)}
             unit="h"
             sub={`${blocks.length}개 블록`}
+            delta={makeDelta(stats.totalH, prevStats.totalH, deltaLabel)}
           />
           <Kpi
             label="딥워크 비율"
@@ -383,6 +457,7 @@ export function Insights() {
             unit="%"
             sub={`${stats.deepH.toFixed(1)}h / ${stats.totalH.toFixed(1)}h`}
             tone="ok"
+            delta={makeDelta(stats.deepRatio * 100, prevStats.deepRatio * 100, deltaLabel)}
           />
           {blogEnabled && (
             <>
@@ -428,17 +503,74 @@ export function Insights() {
           />
         </div>
 
-        {/* AI weekly review */}
-        {reviewInput && <WeeklyReview input={reviewInput} />}
-        <MonthlyReview />
+        {/* Efficiency KPI */}
+        {efficiency.totalCount > 0 && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 12,
+              marginBottom: 24,
+            }}
+          >
+            <Kpi
+              label="완료율"
+              value={`${
+                efficiency.totalCount > 0
+                  ? Math.round((efficiency.doneCount / efficiency.totalCount) * 100)
+                  : 0
+              }`}
+              unit="%"
+              sub={`${efficiency.doneCount}/${efficiency.totalCount} 블록`}
+              tone="ok"
+            />
+            <Kpi
+              label="시간 정확도"
+              value={
+                efficiency.meanAbsDriftMin !== null
+                  ? `±${Math.round(efficiency.meanAbsDriftMin)}`
+                  : '—'
+              }
+              unit={efficiency.meanAbsDriftMin !== null ? '분' : ''}
+              sub={
+                efficiency.hasActual
+                  ? `계획 ${fmtMin(efficiency.plannedMin)} · 실제 ${fmtMin(efficiency.actualMin)}`
+                  : '실제 시간 미기록'
+              }
+            />
+            <Kpi
+              label="회의 시간"
+              value={(efficiency.byCategory.meet / 60).toFixed(1)}
+              unit="h"
+              sub={`전체 중 ${
+                efficiency.plannedMin > 0
+                  ? Math.round((efficiency.byCategory.meet / efficiency.plannedMin) * 100)
+                  : 0
+              }%`}
+              delta={makeDelta(efficiency.byCategory.meet / 60, prevStats.meetH, deltaLabel, false)}
+            />
+            <Kpi
+              label="집중 시간"
+              value={(efficiency.byCategory.focus / 60).toFixed(1)}
+              unit="h"
+              sub={`전체 중 ${
+                efficiency.plannedMin > 0
+                  ? Math.round((efficiency.byCategory.focus / efficiency.plannedMin) * 100)
+                  : 0
+              }%`}
+              tone="ok"
+              delta={makeDelta(efficiency.byCategory.focus / 60, prevStats.focusH, deltaLabel)}
+            />
+          </div>
+        )}
 
         {/* Two-col: focus / mood */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: '1.1fr 0.9fr',
-            gap: 20,
-            marginBottom: 20,
+            gap: 'var(--gap-lg)',
+            marginBottom: 'var(--gap-lg)',
           }}
         >
           <FocusDistribution blocks={blocks} />
@@ -448,18 +580,50 @@ export function Insights() {
         {/* Heatmap */}
         <HourHeatmap blocks={blocks} />
 
+        {/* 날짜별 상세 + 종류×날짜 그리드 (7일 범위) */}
+        {range === '7d' && (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 'var(--gap-lg)',
+              marginTop: 'var(--gap-lg)',
+            }}
+          >
+            <WeeklyTable blocks={blocks} />
+            <KindGrid blocks={blocks} />
+          </div>
+        )}
+
         {/* People + clusters */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: blogEnabled ? '1fr 1fr' : '1fr',
-            gap: 20,
-            marginBottom: 24,
+            gap: 'var(--gap-lg)',
+            marginBottom: 'calc(var(--gap-lg) + 4px)',
           }}
         >
           <PeoplePanel blocks={blocks} today={today} />
           {blogEnabled && <ClusterPanel docs={docs ?? []} />}
         </div>
+
+        {/* 회고 타임라인 */}
+        <section style={{ marginTop: 8, marginBottom: 32 }}>
+          <header
+            style={{
+              marginBottom: 20,
+              paddingBottom: 6,
+              borderBottom: '1px solid var(--line)',
+            }}
+          >
+            <Eyebrow>회고 타임라인</Eyebrow>
+            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+              주간 · 월간 자동 정리 · 최신순
+            </Mono>
+          </header>
+          <SummaryTimeline />
+        </section>
 
         {/* Vault patterns (legacy section preserved at bottom) */}
         {data && (
@@ -523,21 +687,55 @@ export function Insights() {
   );
 }
 
+interface KpiDelta {
+  diff: number;
+  pct: number;
+  label: string;
+  higherIsBetter?: boolean;
+}
+
 function Kpi({
   label,
   value,
   unit,
   sub,
   tone,
+  delta,
 }: {
   label: string;
   value: string;
   unit?: string;
   sub?: string;
   tone?: 'ok' | 'blue';
+  delta?: KpiDelta;
 }) {
   const valueColor =
     tone === 'ok' ? 'var(--ok)' : tone === 'blue' ? 'var(--blue)' : 'var(--ink)';
+
+  const deltaEl = (() => {
+    if (!delta || delta.diff === 0 || delta.pct === 0) return null;
+    const up = delta.diff > 0;
+    const good = delta.higherIsBetter === false ? !up : up;
+    const color = good ? 'var(--ok)' : 'var(--hl-rose)';
+    const arrow = up ? '↑' : '↓';
+    const absPct = Math.abs(delta.pct).toFixed(0);
+    return (
+      <Mono
+        style={{
+          marginTop: 5,
+          fontSize: 10.5,
+          color,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 3,
+        }}
+      >
+        {arrow} {delta.label} 대비 {up ? '+' : ''}{delta.diff.toFixed(1)}{unit ?? ''}
+        <span style={{ color: 'var(--ink-mute)', marginLeft: 2 }}>({up ? '+' : '-'}{absPct}%)</span>
+      </Mono>
+    );
+  })();
+
   return (
     <div
       style={{
@@ -581,6 +779,7 @@ function Kpi({
           {sub}
         </Mono>
       )}
+      {deltaEl}
     </div>
   );
 }
@@ -628,6 +827,12 @@ function Section({
       {children}
     </section>
   );
+}
+
+function makeDelta(curr: number, prev: number, label: string, higherIsBetter = true): KpiDelta {
+  const diff = curr - prev;
+  const pct = prev > 0 ? (diff / prev) * 100 : 0;
+  return { diff, pct, label, higherIsBetter };
 }
 
 function durationHours(start: string, end: string): number {

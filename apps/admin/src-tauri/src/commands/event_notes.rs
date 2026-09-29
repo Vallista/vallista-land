@@ -223,3 +223,137 @@ pub fn delete_event_note(id: String, state: State<'_, AppState>) -> Result<(), S
     }
     Ok(())
 }
+
+#[tauri::command]
+pub fn migrate_task_notes_to_event_notes(
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
+    let tasks_path = state.data_root.join("tasks.json");
+    if !tasks_path.is_file() {
+        return Ok(0);
+    }
+    let raw = fs::read_to_string(&tasks_path).map_err(|e| e.to_string())?;
+    if raw.trim().is_empty() {
+        return Ok(0);
+    }
+    let mut tasks: Vec<serde_json::Value> =
+        serde_json::from_str(&raw).map_err(|e| e.to_string())?;
+
+    let existing = read_all(&state.data_root)?;
+
+    let mut count = 0usize;
+    for task in tasks.iter_mut() {
+        let notes_str = match task.get("notes") {
+            Some(serde_json::Value::String(s)) if !s.trim().is_empty() => s.clone(),
+            _ => continue,
+        };
+        let id = match task.get("id").and_then(|v| v.as_str()) {
+            Some(s) => s.to_string(),
+            None => continue,
+        };
+        let title = task
+            .get("title")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        let event_key = format!("task:{}", id);
+        if existing.iter().any(|n| n.event_key == event_key) {
+            task["notes"] = serde_json::Value::Null;
+            continue;
+        }
+        let now = now_iso();
+        let note = EventNote {
+            id: new_id(),
+            event_key: event_key.clone(),
+            series_key: event_key,
+            event_title_snapshot: title,
+            event_date_snapshot: String::new(),
+            body: notes_str,
+            tags: vec![],
+            created_at: now.clone(),
+            updated_at: now,
+        };
+        write_note(&state.data_root, &note)?;
+        task["notes"] = serde_json::Value::Null;
+        count += 1;
+    }
+
+    if count > 0 {
+        let updated = serde_json::to_string_pretty(&tasks).map_err(|e| e.to_string())?;
+        fs::write(&tasks_path, updated).map_err(|e| e.to_string())?;
+    }
+
+    Ok(count)
+}
+
+#[tauri::command]
+pub fn migrate_block_notes_to_event_notes(
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
+    let blocks_path = state.data_root.join("blocks.json");
+    if !blocks_path.is_file() {
+        return Ok(0);
+    }
+    let raw = fs::read_to_string(&blocks_path).map_err(|e| e.to_string())?;
+    if raw.trim().is_empty() {
+        return Ok(0);
+    }
+    let mut blocks: Vec<serde_json::Value> =
+        serde_json::from_str(&raw).map_err(|e| e.to_string())?;
+
+    let existing = read_all(&state.data_root)?;
+
+    let mut count = 0usize;
+    for block in blocks.iter_mut() {
+        // 외부 캘린더(applecal/gcal)의 notes는 calendar description — 마이그레이션 제외
+        let source = block.get("source").and_then(|v| v.as_str()).unwrap_or("local");
+        if source != "local" {
+            continue;
+        }
+        let notes_str = match block.get("notes") {
+            Some(serde_json::Value::String(s)) if !s.trim().is_empty() => s.clone(),
+            _ => continue,
+        };
+        let id = match block.get("id").and_then(|v| v.as_str()) {
+            Some(s) => s.to_string(),
+            None => continue,
+        };
+        let title = block
+            .get("title")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        let date = block
+            .get("date")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string();
+        let event_key = format!("local:{}", id);
+        if existing.iter().any(|n| n.event_key == event_key) {
+            block["notes"] = serde_json::Value::Null;
+            continue;
+        }
+        let now = now_iso();
+        let note = EventNote {
+            id: new_id(),
+            event_key: event_key.clone(),
+            series_key: event_key,
+            event_title_snapshot: title,
+            event_date_snapshot: date,
+            body: notes_str,
+            tags: vec![],
+            created_at: now.clone(),
+            updated_at: now,
+        };
+        write_note(&state.data_root, &note)?;
+        block["notes"] = serde_json::Value::Null;
+        count += 1;
+    }
+
+    if count > 0 {
+        let updated = serde_json::to_string_pretty(&blocks).map_err(|e| e.to_string())?;
+        fs::write(&blocks_path, updated).map_err(|e| e.to_string())?;
+    }
+
+    Ok(count)
+}
