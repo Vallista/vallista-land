@@ -7,6 +7,9 @@
 ## 아키텍처 결정
 
 - 2026-09-29: `pnpm-lock.yaml`을 CI와 같은 pnpm 9로 v9.0 재생성(기존 923개 패키지 버전 변경 없음, recharts만 추가). 이유: 로컬 전역 pnpm 12가 v6 lockfile을 "broken"으로 보고 자동 install에서 의존성 전체를 최신으로 재해석해 버림. 버린 대안: pnpm 12가 만든 lockfile 유지(배포 의존성 통째 변경 리스크), v6 유지(pnpm 12로 로컬 작업 불가). 로컬 실행은 `npx -y pnpm@9 <cmd>`.
+- 2026-09-29: 주 시작일 설정을 `apps/admin/src/lib/weekStart.ts` 단일 모듈(훅 + `bento:week-start-changed` 이벤트)로 통합. Plan 5일 '주' 뷰는 업무 주라 설정과 무관하게 월–금 고정, 월/티켓/WeekProgress만 설정을 따름. 버린 대안: 화면마다 localStorage 직접 읽기(변경 전파 안 됨, 기존 버그 원인).
+- 2026-09-29: 티켓 모드 미완료 보기는 오른쪽 380px 패널의 [타임라인 | 미완료] 전환으로 구현(`Plan/IncompletePanel.tsx`). 날짜별(지연→오늘→예정→미정) / 할 일별(부모 Task + 연결 블록 + 서브태스크 진행률). 행 클릭 = 해당 날짜로 이동(날짜 없는 할 일만 편집기). 외부 캘린더 이벤트는 제외, 블록은 로드된 ±60일만·할 일은 전체. 버린 대안: 스트립 안 인라인 그룹핑(가로 스크롤과 충돌), 별도 화면(맥락 단절).
+- apps/admin 코드는 루트 `.prettierrc`(semi false)와 달리 세미콜론·trailing comma 스타일이며 루트 설정으로 포맷된 적 없음. admin 새 파일은 `prettier --no-config --semi --single-quote --trailing-comma all --print-width 100 --arrow-parens always`로 포맷하고, 기존 파일 전체 재포맷은 하지 않는다.
 
 <!-- 기술 선택 이유, 대안을 버린 근거 등 -->
 

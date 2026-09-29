@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Block, BlockSource, Task } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
-import { CheckIcon, ClockIcon, PlusIcon } from '../../components/atoms/Icons';
+import { CheckIcon, ClockIcon, PlusIcon, TimelineIcon } from '../../components/atoms/Icons';
 import { WeekCalendar, type CalendarDay } from './WeekCalendar';
+import { IncompletePanel, SegmentedToggle, collectIncomplete } from './IncompletePanel';
 import { blockColor, isLocal, isUnscheduledBlock } from './blockMeta';
 import { resolveLabel } from './labelCatalog';
 import { eventNoteKeysFromBlock, listEventSubtasks, toggleEventSubtask, type EventSubtask } from '../../lib/tauri';
@@ -37,7 +38,11 @@ interface Props {
   onTaskClick?: (task: Task) => void;
   onTaskDone?: (taskId: string, done: boolean) => void;
   onBlockDone?: (id: string, done: boolean) => void;
+  /** 스트립 범위 밖 날짜로 이동해야 할 때 호출. 부모가 anchor를 옮긴다. */
+  onJumpToDate?: (date: string) => void;
 }
+
+type PaneMode = 'timeline' | 'incomplete';
 
 export function TicketPlannerView({
   anchor,
@@ -59,9 +64,11 @@ export function TicketPlannerView({
   onTaskClick,
   onTaskDone,
   onBlockDone,
+  onJumpToDate,
 }: Props) {
   const todayKey = isoKey(now);
   const [selectedKey, setSelectedKey] = useState<string>(todayKey);
+  const [paneMode, setPaneMode] = useState<PaneMode>('timeline');
   const stripRef = useRef<HTMLDivElement | null>(null);
 
   const stripDays = useMemo(
@@ -110,17 +117,20 @@ export function TicketPlannerView({
     return map;
   }, [tasks, blocks]);
 
+  const incomplete = useMemo(() => collectIncomplete(blocks, tasks ?? []), [blocks, tasks]);
+
   useEffect(() => {
     const container = stripRef.current;
     if (!container) return;
-    const key = isoKey(anchor);
-    const target = container.querySelector<HTMLElement>(`[data-day="${key}"]`);
-    if (!target) return;
-    const rect = target.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-    const left = container.scrollLeft + (rect.left - containerRect.left);
-    container.scrollTo({ left, behavior: 'smooth' });
+    scrollStripTo(container, isoKey(anchor));
   }, [anchor]);
+
+  const jumpToDate = (date: string) => {
+    setSelectedKey(date);
+    const container = stripRef.current;
+    if (container && scrollStripTo(container, date)) return;
+    onJumpToDate?.(date);
+  };
 
   const selectedDay = useMemo<CalendarDay>(() => {
     const d = parseKey(selectedKey) ?? now;
@@ -201,7 +211,7 @@ export function TicketPlannerView({
             padding: 'var(--gap) var(--card-pad)',
             borderBottom: '1px solid var(--line)',
             display: 'flex',
-            alignItems: 'baseline',
+            alignItems: 'center',
             gap: 'var(--gap)',
             background: 'var(--bg-soft)',
           }}
@@ -215,42 +225,79 @@ export function TicketPlannerView({
               textTransform: 'uppercase',
             }}
           >
-            {selectedDay.label}
+            {paneMode === 'timeline' ? selectedDay.label : '미완료'}
           </span>
           <Mono
             style={{
               fontSize: 14,
               fontWeight: 700,
-              color: selectedDay.isToday ? 'var(--blue)' : 'var(--ink)',
+              color:
+                paneMode === 'timeline'
+                  ? selectedDay.isToday
+                    ? 'var(--blue)'
+                    : 'var(--ink)'
+                  : incomplete.count > 0
+                    ? 'var(--ink)'
+                    : 'var(--ink-mute)',
             }}
           >
-            {selectedDay.date}
+            {paneMode === 'timeline' ? selectedDay.date : `${incomplete.count}건`}
           </Mono>
           <span style={{ flex: 1 }} />
-          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
-            00:00 — 23:59
-          </Mono>
+          <SegmentedToggle<PaneMode>
+            compact
+            value={paneMode}
+            onChange={setPaneMode}
+            options={[
+              {
+                value: 'timeline',
+                label: (
+                  <>
+                    <TimelineIcon size={11} /> 타임라인
+                  </>
+                ),
+                title: '선택한 날짜의 타임라인',
+              },
+              {
+                value: 'incomplete',
+                label: incomplete.count > 0 ? `미완료 · ${incomplete.count}` : '미완료',
+                title: '완료되지 않은 티켓을 날짜별·할 일별로 모아 보기',
+              },
+            ]}
+          />
         </div>
 
-        <WeekCalendar
-          days={[selectedDay]}
-          blocks={selectedBlocks}
-          tasks={tasks}
-          now={now}
-          hourStart={0}
-          hourEnd={23}
-          draggingTask={draggingTask}
-          inboxRef={inboxRef}
-          onSlotClick={onSlotClick}
-          onBlockClick={onBlockClick}
-          onRangeSelect={onRangeSelect}
-          onBlockMove={onBlockMove}
-          onTaskDrop={onTaskDrop}
-          onBlockMoveToInbox={onBlockMoveToInbox}
-          onInboxHoverChange={onInboxHoverChange}
-          onBlockDragChange={onBlockDragChange}
-          onBlockDone={onBlockDone}
-        />
+        {paneMode === 'incomplete' ? (
+          <IncompletePanel
+            items={incomplete}
+            todayKey={todayKey}
+            rangeDays={STRIP_RADIUS_DAYS}
+            onJumpToDate={jumpToDate}
+            onTaskClick={onTaskClick}
+            onTaskDone={onTaskDone}
+            onBlockDone={onBlockDone}
+          />
+        ) : (
+          <WeekCalendar
+            days={[selectedDay]}
+            blocks={selectedBlocks}
+            tasks={tasks}
+            now={now}
+            hourStart={0}
+            hourEnd={23}
+            draggingTask={draggingTask}
+            inboxRef={inboxRef}
+            onSlotClick={onSlotClick}
+            onBlockClick={onBlockClick}
+            onRangeSelect={onRangeSelect}
+            onBlockMove={onBlockMove}
+            onTaskDrop={onTaskDrop}
+            onBlockMoveToInbox={onBlockMoveToInbox}
+            onInboxHoverChange={onInboxHoverChange}
+            onBlockDragChange={onBlockDragChange}
+            onBlockDone={onBlockDone}
+          />
+        )}
       </div>
     </div>
   );
@@ -1058,6 +1105,17 @@ function buildStrip(
     });
   }
   return out;
+}
+
+/** 해당 날짜 컬럼을 스트립 왼쪽 끝으로 스크롤. 컬럼이 없으면 false. */
+function scrollStripTo(container: HTMLElement, key: string): boolean {
+  const target = container.querySelector<HTMLElement>(`[data-day="${key}"]`);
+  if (!target) return false;
+  const rect = target.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const left = container.scrollLeft + (rect.left - containerRect.left);
+  container.scrollTo({ left, behavior: 'smooth' });
+  return true;
 }
 
 function addDays(d: Date, days: number): Date {

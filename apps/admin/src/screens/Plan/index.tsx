@@ -1070,6 +1070,7 @@ export function Plan() {
             onTaskClick={(t) => setEditingTask(t)}
             onTaskDone={(id, done) => upsertTaskDone(id, done)}
             onBlockDone={handleBlockDone}
+            onJumpToDate={(date) => setAnchor(parseKey(date) ?? anchor)}
           />
         ) : view === 'month' ? (
           <MonthGrid
