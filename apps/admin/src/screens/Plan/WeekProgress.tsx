@@ -11,6 +11,7 @@ import {
 import { LABELS_CHANGED_EVENT } from './labelCatalog';
 import { filterStatsBlocks, STATS_EXCLUDED_EVENT } from './blockMeta';
 import { Eyebrow, Mono } from '../../components/atoms/Atoms';
+import { startOfWeek, useWeekStartDay, type WeekStartDay } from '../../lib/weekStart';
 
 const ACTIVE_START_KEY = 'bento.plan.activeStart';
 const ACTIVE_END_KEY = 'bento.plan.activeEnd';
@@ -41,7 +42,8 @@ interface Props {
 }
 
 export function WeekProgress({ now }: Props) {
-  const range = useMemo(() => weekRange(now), [now]);
+  const weekStartDay = useWeekStartDay();
+  const range = useMemo(() => weekRange(now, weekStartDay), [now, weekStartDay]);
   const [blocks, setBlocks] = useState<Block[] | null>(null);
   const [dailyBudgetMin, setDailyBudgetMin] = useState(readDailyBudgetMin);
   const [excludedCalendars, setExcludedCalendars] = useState<Set<string>>(() => readExcludedCals());
@@ -367,16 +369,13 @@ export function WeekProgress({ now }: Props) {
   );
 }
 
-function weekRange(now: Date): { startKey: string; endKey: string } {
-  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const day = monday.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  monday.setDate(monday.getDate() + diff);
-  const sunday = new Date(monday);
-  sunday.setDate(sunday.getDate() + 6);
+function weekRange(now: Date, weekStartDay: WeekStartDay): { startKey: string; endKey: string } {
+  const start = startOfWeek(now, weekStartDay);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
   return {
-    startKey: isoKey(monday),
-    endKey: isoKey(sunday),
+    startKey: isoKey(start),
+    endKey: isoKey(end),
   };
 }
 

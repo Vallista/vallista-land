@@ -7,23 +7,12 @@ import {
   generateWeeklySummary,
   previousMonthRange,
   previousWeekRange,
-  type WeekStartDay,
 } from '../../lib/autoSummary';
 import { acquireAutoSummaryLock, releaseAutoSummaryLock } from '../../lib/useAutoSummary';
+import { readWeekStartDay } from '../../lib/weekStart';
 import { Button, Eyebrow, Mono } from '../../components/atoms/Atoms';
 import { FocusDistribution } from './FocusDistribution';
 import { MoodPanel } from './MoodPanel';
-
-const WEEK_START_KEY = 'bento.summary.weekStartDay';
-
-function readWeekStartDay(): WeekStartDay {
-  try {
-    const v = localStorage.getItem(WEEK_START_KEY);
-    return v === 'sun' ? 'sun' : 'mon';
-  } catch {
-    return 'mon';
-  }
-}
 
 export interface WeeklyReviewInput {
   rangeLabel: string;

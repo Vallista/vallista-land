@@ -6,6 +6,7 @@ import { WeekCalendar, type CalendarDay } from './WeekCalendar';
 import { blockColor, isLocal, isUnscheduledBlock } from './blockMeta';
 import { resolveLabel } from './labelCatalog';
 import { eventNoteKeysFromBlock, listEventSubtasks, toggleEventSubtask, type EventSubtask } from '../../lib/tauri';
+import { weekdayIndex, weekdayLabel, type WeekStartDay } from '../../lib/weekStart';
 
 const SOURCE_LABEL: Record<BlockSource, string> = {
   local: '내 블록',
@@ -15,11 +16,11 @@ const SOURCE_LABEL: Record<BlockSource, string> = {
 
 const STRIP_RADIUS_DAYS = 60;
 const COLUMN_WIDTH = 220;
-const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
 
 interface Props {
   anchor: Date;
   now: Date;
+  weekStartDay: WeekStartDay;
   blocks: Block[];
   tasks?: Task[];
   draggingTask?: { id: string; title: string; estMin?: number } | null;
@@ -41,6 +42,7 @@ interface Props {
 export function TicketPlannerView({
   anchor,
   now,
+  weekStartDay,
   blocks,
   tasks,
   draggingTask,
@@ -62,7 +64,10 @@ export function TicketPlannerView({
   const [selectedKey, setSelectedKey] = useState<string>(todayKey);
   const stripRef = useRef<HTMLDivElement | null>(null);
 
-  const stripDays = useMemo(() => buildStrip(anchor, todayKey), [anchor, todayKey]);
+  const stripDays = useMemo(
+    () => buildStrip(anchor, todayKey, weekStartDay),
+    [anchor, todayKey, weekStartDay],
+  );
 
   const blocksByDate = useMemo(() => {
     const map = new Map<string, Block[]>();
@@ -121,7 +126,7 @@ export function TicketPlannerView({
     const d = parseKey(selectedKey) ?? now;
     return {
       date: isoKey(d),
-      label: DAY_LABELS[(d.getDay() + 6) % 7] ?? '',
+      label: weekdayLabel(d),
       dayNumber: d.getDate(),
       isToday: isoKey(d) === todayKey,
     };
@@ -1036,16 +1041,17 @@ function TicketCard({
 function buildStrip(
   anchor: Date,
   todayKey: string,
+  weekStartDay: WeekStartDay,
 ): (CalendarDay & { isWeekStart: boolean })[] {
   const start = addDays(stripTime(anchor), -STRIP_RADIUS_DAYS);
   const total = STRIP_RADIUS_DAYS * 2 + 1;
   const out: (CalendarDay & { isWeekStart: boolean })[] = [];
   for (let i = 0; i < total; i++) {
     const d = addDays(start, i);
-    const wd = (d.getDay() + 6) % 7;
+    const wd = weekdayIndex(d, weekStartDay);
     out.push({
       date: isoKey(d),
-      label: DAY_LABELS[wd] ?? '',
+      label: weekdayLabel(d),
       dayNumber: d.getDate(),
       isToday: isoKey(d) === todayKey,
       isWeekStart: wd === 0,

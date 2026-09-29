@@ -44,8 +44,7 @@ import { isStatsExcluded, loadStatsExcluded, toggleStatsExcluded, STATS_EXCLUDED
 import { TimeSelect } from '../../components/TimeSelect';
 import { QuickEntry } from '../../components/QuickEntry';
 import { dispatchToast, dispatchRemoveToast } from '../../components/NotifToast';
-
-const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+import { startOfWeek, useWeekStartDay, weekdayLabel, type WeekStartDay } from '../../lib/weekStart';
 
 type ViewMode = 'day' | 'week' | 'week7' | '2week' | 'month';
 type DisplayMode = 'time' | 'ticket';
@@ -108,7 +107,11 @@ export function Plan() {
 
   const [statsExcludedVersion, setStatsExcludedVersion] = useState(0);
 
-  const range = useMemo(() => buildRange(view, anchor, now), [view, anchor, now]);
+  const weekStartDay = useWeekStartDay();
+  const range = useMemo(
+    () => buildRange(view, anchor, now, weekStartDay),
+    [view, anchor, now, weekStartDay],
+  );
   const days = range.days;
   const ticketRange = useMemo(() => buildTicketRange(anchor), [anchor]);
   const startKey = displayMode === 'ticket' ? ticketRange.startKey : range.startKey;
@@ -510,7 +513,13 @@ export function Plan() {
   }, []);
 
   const rangeLabel = useMemo(() => formatRangeLabel(range), [range]);
-  const weekNumber = useMemo(() => isoWeekNumber(anchor), [anchor]);
+  const weekNumber = useMemo(
+    () =>
+      displayMode === 'ticket' || view === 'day'
+        ? isoWeekNumber(anchor)
+        : isoWeekNumber(addDays(range.start, 3)),
+    [displayMode, view, anchor, range.start],
+  );
 
   const dialogExcludedFromStats = useMemo(
     () => (editingBlock ? isStatsExcluded(editingBlock) : false),
@@ -912,7 +921,7 @@ export function Plan() {
                 setAnchor(
                   displayMode === 'ticket'
                     ? stripTime(new Date())
-                    : anchorForToday(view, new Date()),
+                    : anchorForToday(view, new Date(), weekStartDay),
                 )
               }
             >
@@ -952,7 +961,7 @@ export function Plan() {
               value={view}
               onChange={(next) => {
                 setView(next);
-                setAnchor(anchorForToday(next, anchor));
+                setAnchor(anchorForToday(next, anchor, weekStartDay));
               }}
             />
           )}
@@ -1037,6 +1046,7 @@ export function Plan() {
           <TicketPlannerView
             anchor={anchor}
             now={now}
+            weekStartDay={weekStartDay}
             blocks={displayBlocks}
             tasks={tasks ?? []}
             draggingTask={draggingTask}
@@ -1065,6 +1075,7 @@ export function Plan() {
           <MonthGrid
             anchor={anchor}
             now={now}
+            weekStartDay={weekStartDay}
             blocks={displayBlocks}
             onDayClick={(date) => {
               setView('day');
@@ -1961,12 +1972,9 @@ function SidebarEmpty({ text }: { text: string }) {
   );
 }
 
-function mondayOf(d: Date): Date {
-  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const day = x.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  x.setDate(x.getDate() + diff);
-  return x;
+/** 5일 뷰는 업무 주(월–금)라 주 시작일 설정과 무관하게 월요일부터 시작한다. */
+function rangeWeekStart(view: ViewMode, weekStartDay: WeekStartDay): WeekStartDay {
+  return view === 'week' ? 'mon' : weekStartDay;
 }
 
 function addDays(d: Date, days: number): Date {
@@ -1991,13 +1999,18 @@ function buildTicketRange(anchor: Date): { startKey: string; endKey: string } {
   return { startKey: isoKey(start), endKey: isoKey(end) };
 }
 
-function buildRange(view: ViewMode, anchor: Date, now: Date): CalendarRange {
+function buildRange(
+  view: ViewMode,
+  anchor: Date,
+  now: Date,
+  weekStartDay: WeekStartDay,
+): CalendarRange {
   const todayK = isoKey(now);
   if (view === 'day') {
     const d = stripTime(anchor);
     const day: CalendarDay = {
       date: isoKey(d),
-      label: DAY_LABELS[(d.getDay() + 6) % 7] ?? '',
+      label: weekdayLabel(d),
       dayNumber: d.getDate(),
       isToday: isoKey(d) === todayK,
     };
@@ -2017,14 +2030,14 @@ function buildRange(view: ViewMode, anchor: Date, now: Date): CalendarRange {
     };
   }
   const span = view === '2week' ? 14 : view === 'week7' ? 7 : 5;
-  const start = mondayOf(anchor);
+  const start = startOfWeek(anchor, rangeWeekStart(view, weekStartDay));
   const days: CalendarDay[] = [];
   for (let i = 0; i < span; i++) {
     const d = addDays(start, i);
     const dow = d.getDay();
     days.push({
       date: isoKey(d),
-      label: DAY_LABELS[(dow + 6) % 7] ?? '',
+      label: weekdayLabel(d),
       dayNumber: d.getDate(),
       isToday: isoKey(d) === todayK,
       isWeekend: dow === 0 || dow === 6,
@@ -2068,10 +2081,10 @@ function shiftAnchor(view: ViewMode, anchor: Date, dir: 1 | -1): Date {
   return next;
 }
 
-function anchorForToday(view: ViewMode, today: Date): Date {
+function anchorForToday(view: ViewMode, today: Date, weekStartDay: WeekStartDay): Date {
   if (view === 'day') return stripTime(today);
   if (view === 'month') return new Date(today.getFullYear(), today.getMonth(), 1);
-  return mondayOf(today);
+  return startOfWeek(today, rangeWeekStart(view, weekStartDay));
 }
 
 function stripTime(d: Date): Date {

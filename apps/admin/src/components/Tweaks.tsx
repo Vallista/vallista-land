@@ -33,13 +33,14 @@ import {
   writeGlobalKeybindingsToDisk,
   type MigrateReportsReport,
 } from '../lib/tauri';
+import { readWeekStartDay, writeWeekStartDay, type WeekStartDay } from '../lib/weekStart';
 import { LLMSetupContent } from '../screens/LLMSetup';
 import { useLabels } from '../screens/Plan/labelCatalog';
 import type { Label } from '../screens/Plan/labelCatalog';
 
 export type Theme = 'dark' | 'light';
 export type Density = 'compact' | 'cozy' | 'spacious';
-export type WeekStart = 'mon' | 'sun';
+export type WeekStart = WeekStartDay;
 export type AutoFlag = 'on' | 'off';
 export type ClipPollMs = '1000' | '2000' | '5000' | '10000';
 export type ClipMaxItems = '50' | '100' | '200' | '500';
@@ -47,7 +48,6 @@ export type ClipRetainDays = '0' | '1' | '7' | '30' | '90';
 
 const THEME_KEY = 'bento.theme';
 const DENSITY_KEY = 'bento.density';
-const WEEK_START_KEY = 'bento.summary.weekStartDay';
 const AUTO_ENABLED_KEY = 'bento.summary.autoEnabled';
 const LAST_PANE_KEY = 'bento.tweaks.lastPane';
 
@@ -93,12 +93,6 @@ function readDensity(): Density {
   if (typeof window === 'undefined') return 'compact';
   const v = window.localStorage.getItem(DENSITY_KEY);
   return v === 'cozy' || v === 'spacious' ? v : 'compact';
-}
-
-function readWeekStart(): WeekStart {
-  if (typeof window === 'undefined') return 'mon';
-  const v = window.localStorage.getItem(WEEK_START_KEY);
-  return v === 'sun' ? 'sun' : 'mon';
 }
 
 function readAutoEnabled(): AutoFlag {
@@ -186,7 +180,7 @@ export function Tweaks({ open, onClose, onOpenIcal, initialPane }: Props) {
   const [pane, setPane] = useState<PaneId>(readLastPane);
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [density, setDensity] = useState<Density>(readDensity);
-  const [weekStart, setWeekStart] = useState<WeekStart>(readWeekStart);
+  const [weekStart, setWeekStart] = useState<WeekStart>(readWeekStartDay);
   const [autoEnabled, setAutoEnabled] = useState<AutoFlag>(readAutoEnabled);
   const [clipEnabled, setClipEnabled] = useState<AutoFlag>(readClipEnabled);
   const [clipPollMs, setClipPollMs] = useState<ClipPollMs>(readClipPollMs);
@@ -215,7 +209,7 @@ export function Tweaks({ open, onClose, onOpenIcal, initialPane }: Props) {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    window.localStorage.setItem(WEEK_START_KEY, weekStart);
+    writeWeekStartDay(weekStart);
     window.localStorage.setItem(AUTO_ENABLED_KEY, autoEnabled === 'on' ? 'true' : 'false');
   }, [weekStart, autoEnabled]);
 

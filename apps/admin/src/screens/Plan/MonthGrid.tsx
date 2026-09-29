@@ -2,22 +2,23 @@ import { useState } from 'react';
 import type { Block } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
 import { BlockInfoView } from './BlockInfoView';
-
-const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'];
+import { weekdayIndex, weekdayLabels, type WeekStartDay } from '../../lib/weekStart';
 
 export function MonthGrid({
   anchor,
   now,
   blocks,
+  weekStartDay,
   onDayClick,
 }: {
   anchor: Date;
   now: Date;
   blocks: Block[];
+  weekStartDay: WeekStartDay;
   onDayClick: (date: string) => void;
 }) {
   const [hover, setHover] = useState<{ block: Block; x: number; y: number } | null>(null);
-  const grid = buildGrid(anchor);
+  const grid = buildGrid(anchor, weekStartDay);
   const todayKey = isoKey(now);
   const byDate = new Map<string, Block[]>();
   for (const b of blocks) {
@@ -53,7 +54,7 @@ export function MonthGrid({
           borderBottom: '1px solid var(--line)',
         }}
       >
-        {DAY_LABELS.map((l) => (
+        {weekdayLabels(weekStartDay).map((l) => (
           <div
             key={l}
             style={{
@@ -205,10 +206,10 @@ interface GridCell {
   inMonth: boolean;
 }
 
-function buildGrid(anchor: Date): GridCell[] {
+function buildGrid(anchor: Date, weekStartDay: WeekStartDay): GridCell[] {
   const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
   const last = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
-  const startOffset = (first.getDay() + 6) % 7;
+  const startOffset = weekdayIndex(first, weekStartDay);
   const start = new Date(first);
   start.setDate(start.getDate() - startOffset);
   const cells: GridCell[] = [];

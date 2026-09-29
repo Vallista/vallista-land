@@ -23,20 +23,9 @@ import { WeeklyTable, KindGrid } from './WeeklyTable';
 import { SummaryTimeline } from './SummaryTimeline';
 import { saveReport, type ReportInput } from './exportReport';
 import { avgMoodStats, filterThisWeek, filterThisMonth } from '../../lib/moodStats';
-import type { WeekStartDay } from '../../lib/autoSummary';
+import { useWeekStartDay } from '../../lib/weekStart';
 import { buildTimeStats, fmtMin } from '../../lib/timeStats';
 import { filterStatsBlocks, STATS_EXCLUDED_EVENT } from '../Plan/blockMeta';
-
-const WEEK_START_KEY = 'bento.summary.weekStartDay';
-
-function readWeekStartDay(): WeekStartDay {
-  try {
-    const v = localStorage.getItem(WEEK_START_KEY);
-    return v === 'sun' ? 'sun' : 'mon';
-  } catch {
-    return 'mon';
-  }
-}
 
 type RangeKey = '7d' | '30d' | '12w' | '1y';
 
@@ -151,15 +140,15 @@ export function Insights() {
 
   const today = useMemo(() => isoKey(new Date()), []);
 
+  const weekStartDay = useWeekStartDay();
   const conditionStats = useMemo(() => {
-    const ws = readWeekStartDay();
-    const week = filterThisWeek(monthlyMoods, today, ws);
+    const week = filterThisWeek(monthlyMoods, today, weekStartDay);
     const month = filterThisMonth(monthlyMoods, today);
     return {
       week: avgMoodStats(week),
       month: avgMoodStats(month),
     };
-  }, [monthlyMoods, today]);
+  }, [monthlyMoods, today, weekStartDay]);
 
   const [statsExcludedVersion, setStatsExcludedVersion] = useState(0);
 

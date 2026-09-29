@@ -10,8 +10,9 @@ import {
   upsertSummary,
 } from './tauri';
 import { buildSummaryPrompt } from './summaryPrompt';
+import type { WeekStartDay } from './weekStart';
 
-export type WeekStartDay = 'mon' | 'sun';
+export type { WeekStartDay };
 
 const DEEP_KINDS = new Set(['deep', 'write', 'build']);
 const BACKOFF_MS = 24 * 60 * 60 * 1000;

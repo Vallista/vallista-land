@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Summary } from '@vallista/content-core';
 import { latestUnreadSummary, markSummaryRead } from './tauri';
-import {
-  generateMonthlySummary,
-  generateWeeklySummary,
-  type WeekStartDay,
-} from './autoSummary';
+import { generateMonthlySummary, generateWeeklySummary } from './autoSummary';
+import { readWeekStartDay } from './weekStart';
 
 const POLL_INTERVAL_MS = 60 * 60 * 1000;
 
@@ -19,17 +16,7 @@ export function acquireAutoSummaryLock(): boolean {
 }
 export function releaseAutoSummaryLock(): void { _inFlight = false; }
 
-const WEEK_START_KEY = 'bento.summary.weekStartDay';
 const AUTO_ENABLED_KEY = 'bento.summary.autoEnabled';
-
-function readWeekStartDay(): WeekStartDay {
-  try {
-    const v = localStorage.getItem(WEEK_START_KEY);
-    return v === 'sun' ? 'sun' : 'mon';
-  } catch {
-    return 'mon';
-  }
-}
 
 function readAutoEnabled(): boolean {
   try {
