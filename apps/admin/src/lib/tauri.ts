@@ -12,7 +12,7 @@ const SILENT_COMMANDS = new Set([
   'set_global_shortcuts',
   'migrate_task_notes_to_event_notes',
   'migrate_block_notes_to_event_notes',
-  'migrate_task_titles_to_folders',
+  'migrate_task_groups',
   'sync_ical_feeds',
   'macos_cal_status',
   'macos_cal_list',
@@ -236,6 +236,7 @@ export interface TaskInput {
   color?: string;
   kind?: string;
   folderId?: string;
+  group?: string;
 }
 
 export interface TaskPatch {
@@ -251,6 +252,7 @@ export interface TaskPatch {
   color?: string | null;
   kind?: string | null;
   folderId?: string; // '' = 루트로 이동 (null은 serde에서 "변경 없음"으로 읽힘)
+  group?: string; // '' = 구분 해제
 }
 
 export async function listTasks(): Promise<Task[]> {
@@ -275,10 +277,10 @@ export interface TaskFolderInput {
   parentId?: string;
 }
 
-export interface TaskFolderMigration {
+export interface TaskGroupMigration {
   skipped: boolean;
   migrated: number;
-  createdFolders: number;
+  removedFolders: number;
   backupPath: string | null;
 }
 
@@ -298,8 +300,8 @@ export async function deleteTaskFolder(id: string): Promise<void> {
   await invoke('delete_task_folder', { id });
 }
 
-export async function migrateTaskTitlesToFolders(): Promise<TaskFolderMigration> {
-  return invoke<TaskFolderMigration>('migrate_task_titles_to_folders');
+export async function migrateTaskGroups(): Promise<TaskGroupMigration> {
+  return invoke<TaskGroupMigration>('migrate_task_groups');
 }
 
 export interface BlockInput {
@@ -1522,7 +1524,7 @@ if (typeof window !== 'undefined') {
     addTaskFolder,
     renameTaskFolder,
     deleteTaskFolder,
-    migrateTaskTitlesToFolders,
+    migrateTaskGroups,
     listBlocks,
     listBlocksByDate,
     listBlocksInRange,

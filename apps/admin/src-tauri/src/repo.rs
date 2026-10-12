@@ -57,6 +57,8 @@ pub struct AppConfig {
     pub reports_migrated: bool,
     #[serde(default, rename = "taskFoldersMigrated")]
     pub task_folders_migrated: bool,
+    #[serde(default, rename = "taskGroupsMigrated")]
+    pub task_groups_migrated: bool,
     #[serde(default)]
     pub app: AppPersonalization,
 }

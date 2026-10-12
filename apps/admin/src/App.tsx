@@ -38,7 +38,7 @@ import {
   macosCalStatus,
   migrateTaskNotesToEventNotes,
   migrateBlockNotesToEventNotes,
-  migrateTaskTitlesToFolders,
+  migrateTaskGroups,
   readGlobalKeybindingsFromDisk,
   showQuick,
   syncIcalFeeds,
@@ -158,19 +158,20 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
   const [mounted, setMounted] = useState<Set<ScreenId>>(() => new Set<ScreenId>(['today']));
 
   useEffect(() => {
-    // 노트 마이그레이션이 tasks.json을 다시 쓰므로 폴더 마이그레이션은 그 뒤에 순차 실행
+    // 노트 마이그레이션이 tasks.json을 다시 쓰므로 구분 마이그레이션은 그 뒤에 순차 실행
     void (async () => {
       await migrateTaskNotesToEventNotes().catch(() => 0);
       await migrateBlockNotesToEventNotes().catch(() => 0);
-      const r = await migrateTaskTitlesToFolders().catch(() => null);
-      if (r && r.migrated > 0) {
+      const r = await migrateTaskGroups().catch(() => null);
+      if (r && (r.migrated > 0 || r.removedFolders > 0)) {
         addToast({
-          id: 'task-folders-migrated',
-          title: '인박스 폴더 정리 완료',
-          body: `${r.migrated}개 할 일을 ${r.createdFolders}개 폴더로 옮겼어요. 백업: ${r.backupPath ?? '없음'}`,
+          id: 'task-groups-migrated',
+          title: '할 일 구분 정리 완료',
+          body: `${r.migrated}개 할 일의 구분을 복원하고 폴더 ${r.removedFolders}개를 정리했어요. 백업: ${r.backupPath ?? '없음'}`,
           duration: 0,
         });
         window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
+        window.dispatchEvent(new CustomEvent('bento:task-folders-changed'));
       }
     })();
   }, [addToast]);

@@ -283,7 +283,7 @@ pub fn run() {
             commands::task_folders::add_task_folder,
             commands::task_folders::rename_task_folder,
             commands::task_folders::delete_task_folder,
-            commands::task_folders::migrate_task_titles_to_folders,
+            commands::task_folders::migrate_task_groups,
             // === radar ===
             commands::radar::list_goals,
             commands::radar::add_goal,

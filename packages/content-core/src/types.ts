@@ -83,6 +83,7 @@ export interface Task {
   color?: string;
   kind?: string;
   folderId?: string;
+  group?: string;
   createdAt: string;
 }
 
