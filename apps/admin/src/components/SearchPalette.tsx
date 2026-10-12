@@ -12,7 +12,7 @@ type Hit =
 
 function taskSub(t: Task, folderName: string | undefined): string {
   const base = t.due ? `due ${t.due.slice(0, 10)}` : '할 일';
-  return folderName ? `${folderName} · ${base}` : base;
+  return [t.group, folderName, base].filter(Boolean).join(' · ');
 }
 
 const SCREEN_HITS: Hit[] = [
@@ -123,7 +123,7 @@ export function SearchPalette({
         doc: d,
       }));
     const taskHits: Hit[] = tasks
-      .filter((t) => `${t.title} ${folderOf(t) ?? ''}`.toLowerCase().includes(q))
+      .filter((t) => `${t.title} ${t.group ?? ''} ${folderOf(t) ?? ''}`.toLowerCase().includes(q))
       .slice(0, 8)
       .map((t) => ({
         kind: 'task',

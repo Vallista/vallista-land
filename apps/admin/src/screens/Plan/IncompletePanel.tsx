@@ -145,7 +145,7 @@ export function IncompletePanel({
     return (
       <IncompleteRow
         key={e.key}
-        meta={e.time ? `TODO · ${e.time}` : 'TODO'}
+        meta={['TODO', t.group, e.time].filter(Boolean).join(' · ')}
         metaColor="var(--blue)"
         accent={resolveLabel(t.kind, t.color).color}
         dashed
@@ -270,7 +270,9 @@ export function IncompletePanel({
                       style={{ display: 'flex', flexDirection: 'column', gap: 3 }}
                     >
                       <IncompleteRow
-                        meta={g.date ? formatDate(g.date, todayKey) : '미정'}
+                        meta={[g.date ? formatDate(g.date, todayKey) : '미정', g.task.group]
+                          .filter(Boolean)
+                          .join(' · ')}
                         metaColor={bucketColor(bucket)}
                         accent={resolveLabel(g.task.kind, g.task.color).color}
                         dashed

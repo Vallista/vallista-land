@@ -54,7 +54,7 @@ import { resolveLabel } from './labelCatalog';
 import { isStatsExcluded, loadStatsExcluded, toggleStatsExcluded, STATS_EXCLUDED_EVENT, syncStatsExcludedFromFile } from './blockMeta';
 import { TimeSelect } from '../../components/TimeSelect';
 import { QuickEntry } from '../../components/QuickEntry';
-import { GroupChip } from '../../components/TaskGroup';
+import { GroupChip, collectGroups } from '../../components/TaskGroup';
 import { dispatchToast, dispatchRemoveToast } from '../../components/NotifToast';
 import { startOfWeek, useWeekStartDay, weekdayLabel, type WeekStartDay } from '../../lib/weekStart';
 
@@ -577,6 +577,8 @@ export function Plan() {
     [upsertTaskInState],
   );
 
+  const groupSuggestions = useMemo(() => collectGroups(tasks ?? []), [tasks]);
+
   const saveEditingTask = useCallback(
     async (patch: {
       title: string;
@@ -584,6 +586,7 @@ export function Plan() {
       color?: string | null;
       kind?: string | null;
       folderId?: string;
+      group?: string;
     }) => {
       if (!editingTask) return;
       const updated = await updateTask(editingTask.id, {
@@ -591,6 +594,7 @@ export function Plan() {
         color: patch.color,
         kind: patch.kind,
         folderId: patch.folderId,
+        group: patch.group,
       });
       upsertTaskInState(updated);
       window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
@@ -1299,6 +1303,7 @@ export function Plan() {
         open={!!editingTask}
         task={editingTask}
         folders={folders}
+        groupSuggestions={groupSuggestions}
         onClose={() => setEditingTask(null)}
         onSave={saveEditingTask}
         onDelete={removeEditingTask}

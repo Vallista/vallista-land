@@ -25,6 +25,7 @@ import {
   Tag,
 } from '../../components/atoms/Atoms';
 import { DayLogIcon, StreakIcon } from '../../components/atoms/Icons';
+import { GroupChip } from '../../components/TaskGroup';
 import { useNavigate } from '../../shell/nav';
 import { Timeline } from './Timeline';
 import { RitualSlot } from './RitualSlot';
@@ -1406,6 +1407,7 @@ function TaskRow({
       >
         {task.done ? '✓' : ''}
       </button>
+      {task.group && <GroupChip group={task.group} />}
       <span
         style={{
           flex: 1,

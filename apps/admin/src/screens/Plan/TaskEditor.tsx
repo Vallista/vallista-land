@@ -12,11 +12,13 @@ import { CheckIcon } from '../../components/atoms/Icons';
 import { LabelPicker } from '../../components/LabelPicker';
 import { EventNotesPanel } from './EventNotesPanel';
 import { folderOptions } from './taskFolders';
+import { GroupInput } from '../../components/TaskGroup';
 
 interface Props {
   open: boolean;
   task: Task | null;
   folders: TaskFolder[];
+  groupSuggestions: string[];
   onClose: () => void;
   onSave: (patch: {
     title: string;
@@ -24,13 +26,23 @@ interface Props {
     color?: string | null;
     kind?: string | null;
     folderId?: string;
+    group?: string;
   }) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
-export function TaskEditor({ open, task, folders, onClose, onSave, onDelete }: Props) {
+export function TaskEditor({
+  open,
+  task,
+  folders,
+  groupSuggestions,
+  onClose,
+  onSave,
+  onDelete,
+}: Props) {
   const [title, setTitle] = useState('');
   const [folderId, setFolderId] = useState('');
+  const [group, setGroup] = useState('');
   const [eventSubtasks, setEventSubtasks] = useState<EventSubtask[]>([]);
   const [draftSub, setDraftSub] = useState('');
   const [color, setColor] = useState('');
@@ -42,6 +54,7 @@ export function TaskEditor({ open, task, folders, onClose, onSave, onDelete }: P
     if (!open || !task) return;
     setTitle(task.title);
     setFolderId(task.folderId ?? '');
+    setGroup(task.group ?? '');
     setDraftSub('');
     setColor(task.color ?? '');
     setTaskKind(task.kind ?? 'write');
@@ -109,6 +122,7 @@ export function TaskEditor({ open, task, folders, onClose, onSave, onDelete }: P
         color: color || null,
         kind: taskKind,
         folderId,
+        group,
       });
       onClose();
     } finally {
@@ -198,6 +212,11 @@ export function TaskEditor({ open, task, folders, onClose, onSave, onDelete }: P
             background: 'var(--bg)',
           }}
         />
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>구분</Mono>
+          <GroupInput value={group} onChange={setGroup} suggestions={groupSuggestions} sm />
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>폴더</Mono>

@@ -4,8 +4,9 @@ import CodeMirror from '@uiw/react-codemirror';
 import type { TaskFolder } from '@vallista/content-core';
 import { Button, Input, Mono, Select, Textarea } from './atoms/Atoms';
 import { TagInput } from './TagInput';
+import { GroupInput, collectGroups } from './TaskGroup';
 import { LabelPicker } from './LabelPicker';
-import { addTask, listTaskFolders, upsertEventNote, startWindowDrag } from '../lib/tauri';
+import { addTask, listTaskFolders, listTasks, upsertEventNote, startWindowDrag } from '../lib/tauri';
 import { folderOptions } from '../screens/Plan/taskFolders';
 import { notifyTagsChanged } from '../lib/tags';
 import { DialogLayout } from './DialogLayout';
@@ -103,6 +104,8 @@ export function QuickEntry({
   const [taskKind, setTaskKind] = useState('write');
   const [folderId, setFolderId] = useState('');
   const [folders, setFolders] = useState<TaskFolder[]>([]);
+  const [group, setGroup] = useState('');
+  const [groups, setGroups] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -123,6 +126,7 @@ export function QuickEntry({
     setColor('');
     setTaskKind('write');
     setFolderId(initialFolderId ?? '');
+    setGroup('');
     setNotes('');
     setError(null);
     const id = window.setTimeout(() => inputRef.current?.focus(), 30);
@@ -135,6 +139,11 @@ export function QuickEntry({
     listTaskFolders()
       .then((items) => {
         if (!cancelled) setFolders(items);
+      })
+      .catch(() => {});
+    listTasks()
+      .then((items) => {
+        if (!cancelled) setGroups(collectGroups(items));
       })
       .catch(() => {});
     return () => {
@@ -183,6 +192,7 @@ export function QuickEntry({
           color: color || undefined,
           kind: taskKind,
           folderId: folderId || undefined,
+          group: group || undefined,
           notes: notes.trim() || undefined,
         });
         if (notes.trim()) {
@@ -327,6 +337,10 @@ export function QuickEntry({
 
             <Field label="태그 (쉼표로 구분, 선택)">
               <TagInput value={tags} onChange={setTags} size="sm" placeholder="태그" />
+            </Field>
+
+            <Field label="구분 (선택)">
+              <GroupInput value={group} onChange={setGroup} suggestions={groups} sm />
             </Field>
 
             <Field label="폴더 (선택)">
