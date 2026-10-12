@@ -55,6 +55,8 @@ pub struct AppConfig {
     pub rss: RssConfig,
     #[serde(default, rename = "reportsMigrated")]
     pub reports_migrated: bool,
+    #[serde(default, rename = "taskFoldersMigrated")]
+    pub task_folders_migrated: bool,
     #[serde(default)]
     pub app: AppPersonalization,
 }

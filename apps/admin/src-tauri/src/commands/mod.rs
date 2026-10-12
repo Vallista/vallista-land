@@ -20,5 +20,6 @@ pub mod settings;
 pub mod stats_exclusions;
 pub mod summaries;
 pub mod tasks;
+pub mod task_folders;
 pub mod radar;
 pub mod radar_poller;

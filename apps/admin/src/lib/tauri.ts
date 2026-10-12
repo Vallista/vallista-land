@@ -12,6 +12,7 @@ const SILENT_COMMANDS = new Set([
   'set_global_shortcuts',
   'migrate_task_notes_to_event_notes',
   'migrate_block_notes_to_event_notes',
+  'migrate_task_titles_to_folders',
   'sync_ical_feeds',
   'macos_cal_status',
   'macos_cal_list',
@@ -101,6 +102,7 @@ import type {
   GleanSource,
   GleanStatus,
   Task,
+  TaskFolder,
 } from '@vallista/content-core';
 
 export type { BodyLog, BodySpec, ExerciseEntry, MealEntry };
@@ -233,6 +235,7 @@ export interface TaskInput {
   subtasks?: import('@vallista/content-core').Subtask[];
   color?: string;
   kind?: string;
+  folderId?: string;
 }
 
 export interface TaskPatch {
@@ -247,6 +250,7 @@ export interface TaskPatch {
   subtasks?: import('@vallista/content-core').Subtask[];
   color?: string | null;
   kind?: string | null;
+  folderId?: string; // '' = 루트로 이동 (null은 serde에서 "변경 없음"으로 읽힘)
 }
 
 export async function listTasks(): Promise<Task[]> {
@@ -263,6 +267,39 @@ export async function updateTask(id: string, patch: TaskPatch): Promise<Task> {
 
 export async function deleteTask(id: string): Promise<void> {
   await invoke('delete_task', { id });
+}
+
+export interface TaskFolderInput {
+  id: string;
+  name: string;
+  parentId?: string;
+}
+
+export interface TaskFolderMigration {
+  skipped: boolean;
+  migrated: number;
+  createdFolders: number;
+  backupPath: string | null;
+}
+
+export async function listTaskFolders(): Promise<TaskFolder[]> {
+  return invoke<TaskFolder[]>('list_task_folders');
+}
+
+export async function addTaskFolder(input: TaskFolderInput): Promise<TaskFolder> {
+  return invoke<TaskFolder>('add_task_folder', { input });
+}
+
+export async function renameTaskFolder(id: string, name: string): Promise<TaskFolder> {
+  return invoke<TaskFolder>('rename_task_folder', { id, name });
+}
+
+export async function deleteTaskFolder(id: string): Promise<void> {
+  await invoke('delete_task_folder', { id });
+}
+
+export async function migrateTaskTitlesToFolders(): Promise<TaskFolderMigration> {
+  return invoke<TaskFolderMigration>('migrate_task_titles_to_folders');
 }
 
 export interface BlockInput {
@@ -1481,6 +1518,11 @@ if (typeof window !== 'undefined') {
     addTask,
     updateTask,
     deleteTask,
+    listTaskFolders,
+    addTaskFolder,
+    renameTaskFolder,
+    deleteTaskFolder,
+    migrateTaskTitlesToFolders,
     listBlocks,
     listBlocksByDate,
     listBlocksInRange,

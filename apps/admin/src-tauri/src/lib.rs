@@ -278,6 +278,12 @@ pub fn run() {
             commands::tasks::add_task,
             commands::tasks::update_task,
             commands::tasks::delete_task,
+            // === life: task folders ===
+            commands::task_folders::list_task_folders,
+            commands::task_folders::add_task_folder,
+            commands::task_folders::rename_task_folder,
+            commands::task_folders::delete_task_folder,
+            commands::task_folders::migrate_task_titles_to_folders,
             // === radar ===
             commands::radar::list_goals,
             commands::radar::add_goal,

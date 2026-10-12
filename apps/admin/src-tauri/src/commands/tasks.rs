@@ -41,14 +41,16 @@ pub struct Task {
     pub color: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub kind: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub folder_id: Option<String>,
     pub created_at: String,
 }
 
-fn tasks_path(root: &Path) -> std::path::PathBuf {
+pub fn tasks_path(root: &Path) -> std::path::PathBuf {
     root.join(TASKS_FILE)
 }
 
-fn load_all(root: &Path) -> Result<Vec<Task>, String> {
+pub fn load_all(root: &Path) -> Result<Vec<Task>, String> {
     let p = tasks_path(root);
     if !p.is_file() {
         return Ok(Vec::new());
@@ -60,14 +62,14 @@ fn load_all(root: &Path) -> Result<Vec<Task>, String> {
     serde_json::from_str::<Vec<Task>>(&raw).map_err(|e| e.to_string())
 }
 
-fn save_all(root: &Path, tasks: &[Task]) -> Result<(), String> {
+pub fn save_all(root: &Path, tasks: &[Task]) -> Result<(), String> {
     let p = tasks_path(root);
     let safe = ensure_inside(root, &p)?;
     let json = serde_json::to_string_pretty(tasks).map_err(|e| e.to_string())?;
     fs::write(&safe, json).map_err(|e| e.to_string())
 }
 
-fn now_iso() -> String {
+pub fn now_iso() -> String {
     let secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
@@ -131,6 +133,8 @@ pub struct TaskInput {
     pub color: Option<String>,
     #[serde(default)]
     pub kind: Option<String>,
+    #[serde(default)]
+    pub folder_id: Option<String>,
 }
 
 #[tauri::command]
@@ -158,6 +162,7 @@ pub fn add_task(input: TaskInput, state: State<'_, AppState>) -> Result<Task, St
         subtasks: input.subtasks.unwrap_or_default(),
         color: input.color.filter(|s| !s.is_empty()),
         kind: input.kind.filter(|s| !s.is_empty()),
+        folder_id: input.folder_id.filter(|s| !s.is_empty()),
         created_at: now_iso(),
     };
     all.push(task.clone());
@@ -190,6 +195,8 @@ pub struct TaskPatch {
     pub color: Option<Option<String>>,
     #[serde(default)]
     pub kind: Option<Option<String>>,
+    #[serde(default)]
+    pub folder_id: Option<Option<String>>,
 }
 
 #[tauri::command]
@@ -242,6 +249,9 @@ pub fn update_task(
     }
     if let Some(kind) = patch.kind {
         all[idx].kind = kind.filter(|s| !s.is_empty());
+    }
+    if let Some(folder_id) = patch.folder_id {
+        all[idx].folder_id = folder_id.filter(|s| !s.is_empty());
     }
     let updated = all[idx].clone();
     save_all(&state.data_root, &all)?;

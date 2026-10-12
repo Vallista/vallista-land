@@ -82,6 +82,14 @@ export interface Task {
   subtasks?: Subtask[];
   color?: string;
   kind?: string;
+  folderId?: string;
+  createdAt: string;
+}
+
+export interface TaskFolder {
+  id: string;
+  name: string;
+  parentId?: string;
   createdAt: string;
 }
 
