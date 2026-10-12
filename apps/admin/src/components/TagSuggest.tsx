@@ -7,6 +7,8 @@ interface Props {
   onPick: (tag: string) => void;
   maxItems?: number;
   showOnEmpty?: boolean;
+  prefix?: string;
+  initialActive?: number;
   style?: React.CSSProperties;
 }
 
@@ -18,7 +20,17 @@ export interface TagSuggestHandle {
 }
 
 export const TagSuggest = forwardRef<TagSuggestHandle, Props>(function TagSuggest(
-  { query, allTags, exclude = [], onPick, maxItems = 6, showOnEmpty = false, style },
+  {
+    query,
+    allTags,
+    exclude = [],
+    onPick,
+    maxItems = 6,
+    showOnEmpty = false,
+    prefix = '#',
+    initialActive = 0,
+    style,
+  },
   ref,
 ) {
   const matches = useMemo(() => {
@@ -46,12 +58,12 @@ export const TagSuggest = forwardRef<TagSuggestHandle, Props>(function TagSugges
     return [...pre, ...sub].slice(0, maxItems);
   }, [query, allTags, exclude, maxItems, showOnEmpty]);
 
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(initialActive);
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setActive(0);
-  }, [query, matches.length]);
+    setActive(initialActive);
+  }, [query, matches.length, initialActive]);
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -137,7 +149,8 @@ export const TagSuggest = forwardRef<TagSuggestHandle, Props>(function TagSugges
               textOverflow: 'ellipsis',
             }}
           >
-            #{t}
+            {prefix}
+            {t}
           </button>
         );
       })}

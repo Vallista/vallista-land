@@ -54,6 +54,7 @@ import { resolveLabel } from './labelCatalog';
 import { isStatsExcluded, loadStatsExcluded, toggleStatsExcluded, STATS_EXCLUDED_EVENT, syncStatsExcludedFromFile } from './blockMeta';
 import { TimeSelect } from '../../components/TimeSelect';
 import { QuickEntry } from '../../components/QuickEntry';
+import { GroupChip } from '../../components/TaskGroup';
 import { dispatchToast, dispatchRemoveToast } from '../../components/NotifToast';
 import { startOfWeek, useWeekStartDay, weekdayLabel, type WeekStartDay } from '../../lib/weekStart';
 
@@ -802,7 +803,7 @@ export function Plan() {
       )}
       <aside
         style={{
-          flex: '0 0 280px',
+          flex: '0 0 300px',
           borderRight: '1px solid var(--line)',
           background: 'var(--bg-soft)',
           display: 'flex',
@@ -884,7 +885,7 @@ export function Plan() {
             flex: '1 1 0',
             minHeight: 0,
             overflowY: 'auto',
-            padding: '16px 18px 8px',
+            padding: '12px 16px 8px',
             background: inboxDropOver
               ? 'repeating-linear-gradient(45deg, transparent 0 8px, rgba(96,165,250,0.18) 8px 14px)'
               : draggingBlock
@@ -918,8 +919,8 @@ export function Plan() {
                 onClick={() => setCreatingFolder(true)}
                 title="폴더 만들기"
                 style={{
-                  padding: '2px 6px',
-                  fontSize: 10.5,
+                  padding: '4px 8px',
+                  fontSize: 11.5,
                   border: '1px solid var(--line)',
                   background: 'transparent',
                   color: 'var(--ink-mute)',
@@ -977,39 +978,13 @@ export function Plan() {
               }
             />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {taskTree.tasks.map((t) => (
-                <TaskInboxRow
-                  key={t.id}
-                  task={t}
-                  onDone={(done) => upsertTaskDone(t.id, done)}
-                  onEdit={() => setEditingTask(t)}
-                  onDragStartTask={(task) => setDraggingTask(task)}
-                  onDragEndTask={handleTaskDragEnd}
-                  onSchedule={() => {
-                    setEditingBlock(null);
-                    const startStr = timeOf(t.startAt) ?? timeOf(t.due) ?? '09:00';
-                    const dur = t.estMin && t.estMin > 0 ? t.estMin : 60;
-                    const dateStr =
-                      dateOf(t.startAt) ?? dateOf(t.due) ?? firstDayKey;
-                    setDialogInitial({
-                      date: dateStr,
-                      start: startStr,
-                      end: addMinutesHHMM(startStr, dur),
-                      title: t.title,
-                      kind: 'write',
-                    });
-                    setDialogOpen(true);
-                  }}
-                />
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {taskTree.children.map((node) => (
                 <TaskInboxFolder
                   key={node.id}
                   node={node}
                   collapsed={collapsedFolders}
                   onToggle={toggleFolder}
-                  depth={0}
                   dropOverId={dropOverFolderId}
                   onDragOverFolder={handleFolderDragOver}
                   onDragLeaveFolder={handleFolderDragLeave}
@@ -1041,6 +1016,31 @@ export function Plan() {
                     },
                     onDragStartTask: (task) => setDraggingTask(task),
                     onDragEndTask: handleTaskDragEnd,
+                  }}
+                />
+              ))}
+              {taskTree.tasks.map((t) => (
+                <TaskInboxRow
+                  key={t.id}
+                  task={t}
+                  onDone={(done) => upsertTaskDone(t.id, done)}
+                  onEdit={() => setEditingTask(t)}
+                  onDragStartTask={(task) => setDraggingTask(task)}
+                  onDragEndTask={handleTaskDragEnd}
+                  onSchedule={() => {
+                    setEditingBlock(null);
+                    const startStr = timeOf(t.startAt) ?? timeOf(t.due) ?? '09:00';
+                    const dur = t.estMin && t.estMin > 0 ? t.estMin : 60;
+                    const dateStr =
+                      dateOf(t.startAt) ?? dateOf(t.due) ?? firstDayKey;
+                    setDialogInitial({
+                      date: dateStr,
+                      start: startStr,
+                      end: addMinutesHHMM(startStr, dur),
+                      title: t.title,
+                      kind: 'write',
+                    });
+                    setDialogOpen(true);
                   }}
                 />
               ))}
@@ -1384,7 +1384,7 @@ function DayBudget() {
   return (
     <div
       style={{
-        padding: '10px 18px 12px',
+        padding: '6px 18px',
         borderBottom: '1px solid var(--line)',
         background: 'var(--bg-soft)',
       }}
@@ -1505,7 +1505,7 @@ function CalendarFilter({
   return (
     <div
       style={{
-        padding: '10px 18px 12px',
+        padding: '6px 18px',
         borderBottom: '1px solid var(--line)',
         background: 'var(--bg-soft)',
       }}
@@ -1666,17 +1666,22 @@ function TaskInboxRow({
         cursor: 'grab',
       }}
     >
-      <div
-        style={{
-          fontSize: 12.5,
-          color: 'var(--ink)',
-          lineHeight: 1.4,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {task.title}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+        {task.group && <GroupChip group={task.group} />}
+        <span
+          style={{
+            flex: 1,
+            minWidth: 0,
+            fontSize: 13,
+            color: 'var(--ink)',
+            lineHeight: 1.4,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {task.title}
+        </span>
       </div>
       <div
         style={{
@@ -1894,8 +1899,8 @@ function FolderNameInput({
 }
 
 const folderIconBtnStyle: CSSProperties = {
-  width: 22,
-  height: 22,
+  width: 24,
+  height: 24,
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -1906,7 +1911,7 @@ const folderIconBtnStyle: CSSProperties = {
   borderRadius: 4,
   cursor: 'pointer',
   fontFamily: 'inherit',
-  fontSize: 13,
+  fontSize: 14,
   lineHeight: 1,
 };
 
@@ -1914,7 +1919,6 @@ function TaskInboxFolder({
   node,
   collapsed,
   onToggle,
-  depth,
   rowProps,
   dropOverId,
   onDragOverFolder,
@@ -1927,7 +1931,6 @@ function TaskInboxFolder({
   node: TaskTreeNode;
   collapsed: Set<string>;
   onToggle: (id: string) => void;
-  depth: number;
   rowProps: TaskFolderRowProps;
   dropOverId: string | null;
   onDragOverFolder: (id: string) => void;
@@ -1955,7 +1958,6 @@ function TaskInboxFolder({
 
   return (
     <div
-      style={{ paddingLeft: depth > 0 ? 10 : 0 }}
       onDragOver={(e) => {
         if (!Array.from(e.dataTransfer.types).includes('application/x-bento-task')) return;
         e.preventDefault();
@@ -1979,22 +1981,50 @@ function TaskInboxFolder({
       }}
     >
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={!isCollapsed}
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest('button, input')) return;
+          onToggle(node.id);
+        }}
+        onKeyDown={(e) => {
+          if (e.target !== e.currentTarget) return;
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggle(node.id);
+          }
+        }}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         onFocus={() => setHover(true)}
-        onBlur={() => setHover(false)}
+        onBlur={(e) => {
+          const next = e.relatedTarget as Node | null;
+          if (next && e.currentTarget.contains(next)) return;
+          setHover(false);
+        }}
         style={{
           display: 'flex',
           alignItems: 'center',
-          borderRadius: 4,
+          gap: 8,
+          minHeight: 40,
+          padding: '8px 10px 8px 12px',
+          border: '1px solid var(--line-strong)',
+          borderRadius: 8,
+          background: isDropOver ? 'var(--blue-soft)' : 'var(--bg)',
           outline: isDropOver ? '1.5px dashed var(--blue)' : undefined,
-          outlineOffset: -2,
-          background: isDropOver ? 'var(--bg-shade)' : undefined,
+          outlineOffset: -3,
+          boxSizing: 'border-box',
+          cursor: 'pointer',
+          userSelect: 'none',
           transition: 'background 120ms',
         }}
       >
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', width: 10, flexShrink: 0 }}>
+          {isCollapsed ? '▸' : '▾'}
+        </Mono>
         {renaming ? (
-          <div style={{ flex: 1, padding: '2px 4px' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <FolderNameInput
               initial={node.name}
               onSubmit={(name) => {
@@ -2005,34 +2035,14 @@ function TaskInboxFolder({
             />
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => onToggle(node.id)}
-            style={{
-              flex: 1,
-              minWidth: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 5,
-              padding: '4px 6px',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              borderRadius: 4,
-            }}
-          >
-            <Mono style={{ fontSize: 9, color: 'var(--ink-mute)', width: 10 }}>
-              {isCollapsed ? '▶' : '▼'}
-            </Mono>
+          <>
             <span
               style={{
                 flex: 1,
-                fontSize: 11,
+                minWidth: 0,
+                fontSize: 13.5,
                 fontWeight: 600,
-                color: count === 0 ? 'var(--ink-mute)' : 'var(--ink-soft)',
-                letterSpacing: '0.03em',
-                textAlign: 'left',
+                color: count === 0 ? 'var(--ink-mute)' : 'var(--ink)',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -2040,70 +2050,95 @@ function TaskInboxFolder({
             >
               {node.name}
             </span>
-            <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>{count}</Mono>
-          </button>
-        )}
-        {!renaming && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              opacity: showActions ? 1 : 0,
-              pointerEvents: showActions ? 'auto' : 'none',
-              transition: 'opacity 120ms',
-            }}
-          >
-            <button
-              type="button"
-              title="이 폴더에 할 일 추가"
-              onClick={() => onAddTask(node.id)}
-              style={folderIconBtnStyle}
-            >
-              +
-            </button>
-            <button
-              type="button"
-              title="이름 변경"
-              onClick={() => setRenaming(true)}
-              style={folderIconBtnStyle}
-            >
-              ✎
-            </button>
-            <button
-              type="button"
-              title={confirmDelete ? '한 번 더 누르면 삭제 (할 일은 상위로 이동)' : '폴더 삭제'}
-              onClick={() => {
-                if (!confirmDelete) {
-                  setConfirmDelete(true);
-                  return;
-                }
-                setConfirmDelete(false);
-                onDelete(node.id);
-              }}
+            <div
               style={{
-                ...folderIconBtnStyle,
-                color: confirmDelete ? 'white' : 'var(--ink-mute)',
-                background: confirmDelete ? 'var(--err)' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                opacity: showActions ? 1 : 0,
+                pointerEvents: showActions ? 'auto' : 'none',
+                transition: 'opacity 120ms',
               }}
             >
-              ×
-            </button>
-          </div>
+              <button
+                type="button"
+                title="이 폴더에 할 일 추가"
+                onClick={() => onAddTask(node.id)}
+                style={folderIconBtnStyle}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                title="이름 변경"
+                onClick={() => setRenaming(true)}
+                style={folderIconBtnStyle}
+              >
+                ✎
+              </button>
+              <button
+                type="button"
+                title={confirmDelete ? '한 번 더 누르면 삭제 (할 일은 상위로 이동)' : '폴더 삭제'}
+                onClick={() => {
+                  if (!confirmDelete) {
+                    setConfirmDelete(true);
+                    return;
+                  }
+                  setConfirmDelete(false);
+                  onDelete(node.id);
+                }}
+                style={{
+                  ...folderIconBtnStyle,
+                  color: confirmDelete ? 'white' : 'var(--ink-mute)',
+                  background: confirmDelete ? 'var(--err)' : 'transparent',
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <Mono
+              style={{
+                fontSize: 10.5,
+                color: 'var(--ink-mute)',
+                background: 'var(--bg-shade)',
+                padding: '1px 7px',
+                borderRadius: 999,
+                flexShrink: 0,
+              }}
+            >
+              {count}
+            </Mono>
+          </>
         )}
       </div>
       {!isCollapsed && hasChildren && (
         <div
           style={{
-            paddingLeft: 8,
-            borderLeft: '1px solid var(--line)',
-            marginLeft: 4,
+            marginLeft: 10,
+            paddingLeft: 10,
+            borderLeft: '2px solid var(--line-strong)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 4,
-            marginTop: 2,
+            gap: 6,
+            marginTop: 6,
             marginBottom: 2,
           }}
         >
+          {node.children.map((child) => (
+            <TaskInboxFolder
+              key={child.id}
+              node={child}
+              collapsed={collapsed}
+              onToggle={onToggle}
+              rowProps={rowProps}
+              dropOverId={dropOverId}
+              onDragOverFolder={onDragOverFolder}
+              onDragLeaveFolder={onDragLeaveFolder}
+              onDropTask={onDropTask}
+              onRename={onRename}
+              onDelete={onDelete}
+              onAddTask={onAddTask}
+            />
+          ))}
           {node.tasks.map((t) => (
             <TaskInboxRow
               key={t.id}
@@ -2113,23 +2148,6 @@ function TaskInboxFolder({
               onSchedule={() => rowProps.onSchedule(t)}
               onDragStartTask={rowProps.onDragStartTask}
               onDragEndTask={rowProps.onDragEndTask}
-            />
-          ))}
-          {node.children.map((child) => (
-            <TaskInboxFolder
-              key={child.id}
-              node={child}
-              collapsed={collapsed}
-              onToggle={onToggle}
-              depth={depth + 1}
-              rowProps={rowProps}
-              dropOverId={dropOverId}
-              onDragOverFolder={onDragOverFolder}
-              onDragLeaveFolder={onDragLeaveFolder}
-              onDropTask={onDropTask}
-              onRename={onRename}
-              onDelete={onDelete}
-              onAddTask={onAddTask}
             />
           ))}
         </div>
@@ -2492,7 +2510,7 @@ function PlanSkeleton() {
       {/* 사이드바 */}
       <aside
         style={{
-          flex: '0 0 280px',
+          flex: '0 0 300px',
           borderRight: '1px solid var(--line)',
           background: 'var(--bg-soft)',
           display: 'flex',

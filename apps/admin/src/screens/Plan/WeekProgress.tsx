@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import type { Block } from '@vallista/content-core';
 import { listBlocksInRange } from '../../lib/tauri';
 import {
@@ -48,6 +48,7 @@ export function WeekProgress({ now }: Props) {
   const [dailyBudgetMin, setDailyBudgetMin] = useState(readDailyBudgetMin);
   const [excludedCalendars, setExcludedCalendars] = useState<Set<string>>(() => readExcludedCals());
   const [excludeExternal, setExcludeExternal] = useState(readExcludeExternal);
+  const [open, setOpen] = useState(false);
 
   const refresh = useCallback(() => {
     listBlocksInRange(range.startKey, range.endKey)
@@ -146,225 +147,250 @@ export function WeekProgress({ now }: Props) {
   return (
     <div
       style={{
-        padding: '14px 18px 14px',
+        padding: open ? '6px 18px 12px' : '6px 18px',
         borderBottom: '1px solid var(--line)',
         background: 'var(--bg-soft)',
       }}
     >
-      <div
+      <button
+        onClick={() => setOpen((v) => !v)}
+        title={open ? '접기' : '펼치기'}
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 8,
+          gap: 8,
+          width: '100%',
+          border: 'none',
+          background: 'transparent',
+          padding: 0,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
         }}
       >
-        <Eyebrow>이번 주 진행</Eyebrow>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button
-            onClick={toggleExcludeExternal}
-            title={excludeExternal ? '외부 일정 제외 중 (클릭하면 포함)' : '외부 일정 포함 중 (클릭하면 제외)'}
-            style={{
-              border: `1px solid ${excludeExternal ? 'var(--blue)' : 'var(--line)'}`,
-              borderRadius: 3,
-              background: excludeExternal ? 'var(--blue)' : 'transparent',
-              color: excludeExternal ? 'var(--bg)' : 'var(--ink-mute)',
-              fontSize: 9.5,
-              padding: '1px 5px',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-mono)',
-              lineHeight: 1.5,
-            }}
-          >
-            외부 제외
-          </button>
-          <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
-            {loading
-              ? '…'
-              : empty
-                ? '0'
-                : `${stats.doneCount}/${stats.totalCount}`}
-          </Mono>
-        </div>
-      </div>
-
-      {loading ? (
-        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>읽는 중…</Mono>
-      ) : empty ? (
-        <Mono
-          style={{
-            fontSize: 11.5,
-            color: 'var(--ink-mute)',
-            fontStyle: 'italic',
-          }}
-        >
-          이번 주 블록 없음
+        <Eyebrow style={{ flexShrink: 0 }}>이번 주 진행</Eyebrow>
+        {open || loading || empty ? (
+          <span style={{ flex: 1 }} />
+        ) : (
+          <ProgressBar height={4} plannedPct={plannedPct} donePct={donePct} style={{ flex: 1 }} />
+        )}
+        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+          {loading ? '…' : empty ? '0' : `${stats.doneCount}/${stats.totalCount}`}
         </Mono>
-      ) : (
-        <>
-          {/* 숫자 요약 */}
+        <Mono style={{ fontSize: 10, color: open ? 'var(--ink)' : 'var(--ink-mute)' }}>
+          {open ? '▲' : '▼'}
+        </Mono>
+      </button>
+
+      {open && (
+        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div
             style={{
               display: 'flex',
               alignItems: 'baseline',
               gap: 6,
-              marginBottom: 6,
               flexWrap: 'wrap',
             }}
           >
-            <span
-              style={{
-                fontSize: 16,
-                fontWeight: 700,
-                color: 'var(--ok)',
-                letterSpacing: '-0.3px',
-                lineHeight: 1.1,
-              }}
-            >
-              {fmtMin(stats.doneMin)}
-            </span>
-            <Mono style={{ fontSize: 10.5, color: 'var(--blue)' }}>
-              / {fmtMin(stats.plannedMin)}
-            </Mono>
-            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
-              · {fmtMin(weekBudgetMin)}
-            </Mono>
-          </div>
-
-          {/* 3단계 바: 회색 배경 → 파란 계획 → 초록 완료 */}
-          <div
-            style={{
-              height: 6,
-              borderRadius: 3,
-              background: 'var(--bg-shade)',
-              overflow: 'hidden',
-              marginBottom: 12,
-              position: 'relative',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: `${plannedPct}%`,
-                height: '100%',
-                background: 'var(--blue)',
-                opacity: 0.45,
-                transition: 'width 200ms',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                width: `${donePct}%`,
-                height: '100%',
-                background: 'var(--ok)',
-                transition: 'width 200ms',
-              }}
-            />
-          </div>
-
-          {/* 태그 섹션 헤더: 주 예산 설명 */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              marginBottom: 6,
-            }}
-          >
-            <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)', flexShrink: 0 }}>
-              주 예산
-            </Mono>
-            <div style={{ flex: 1, height: 1, background: 'var(--line-subtle)' }} />
-            <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)', flexShrink: 0 }}>
-              {fmtMin(dailyBudgetMin)}/일 × 7 = {fmtMin(weekBudgetMin)}
-            </Mono>
-          </div>
-
-          {/* 라벨별 행 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {topLabels.map((l) => {
-              const widthPct =
-                maxLabelMin > 0 ? (l.plannedMin / maxLabelMin) * 100 : 0;
-              const doneRatio =
-                l.plannedMin > 0 ? Math.min(1, l.doneMin / l.plannedMin) : 0;
-              return (
-                <div
-                  key={l.labelId}
+            {loading ? (
+              <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>읽는 중…</Mono>
+            ) : empty ? (
+              <Mono style={{ fontSize: 11.5, color: 'var(--ink-mute)', fontStyle: 'italic' }}>
+                이번 주 블록 없음
+              </Mono>
+            ) : (
+              <>
+                <span
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'minmax(0, 1fr) 60px auto',
-                    gap: 6,
-                    alignItems: 'center',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: 'var(--ok)',
+                    letterSpacing: '-0.3px',
+                    lineHeight: 1.1,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                    <span
+                  {fmtMin(stats.doneMin)}
+                </span>
+                <Mono style={{ fontSize: 10.5, color: 'var(--blue)' }}>
+                  / {fmtMin(stats.plannedMin)}
+                </Mono>
+                <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+                  · {fmtMin(weekBudgetMin)}
+                </Mono>
+              </>
+            )}
+            <span style={{ flex: 1 }} />
+            <button
+              onClick={toggleExcludeExternal}
+              title={excludeExternal ? '외부 일정 제외 중 (클릭하면 포함)' : '외부 일정 포함 중 (클릭하면 제외)'}
+              style={{
+                border: `1px solid ${excludeExternal ? 'var(--blue)' : 'var(--line)'}`,
+                borderRadius: 3,
+                background: excludeExternal ? 'var(--blue)' : 'transparent',
+                color: excludeExternal ? 'var(--bg)' : 'var(--ink-mute)',
+                fontSize: 9.5,
+                padding: '1px 5px',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-mono)',
+                lineHeight: 1.5,
+              }}
+            >
+              외부 제외
+            </button>
+          </div>
+
+          {!loading && !empty && (
+            <>
+              <ProgressBar height={6} plannedPct={plannedPct} donePct={donePct} />
+
+              {/* 태그 섹션 헤더: 주 예산 설명 */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                }}
+              >
+                <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)', flexShrink: 0 }}>
+                  주 예산
+                </Mono>
+                <div style={{ flex: 1, height: 1, background: 'var(--line-subtle)' }} />
+                <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)', flexShrink: 0 }}>
+                  {fmtMin(dailyBudgetMin)}/일 × 7 = {fmtMin(weekBudgetMin)}
+                </Mono>
+              </div>
+
+              {/* 라벨별 행 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {topLabels.map((l) => {
+                  const widthPct =
+                    maxLabelMin > 0 ? (l.plannedMin / maxLabelMin) * 100 : 0;
+                  const doneRatio =
+                    l.plannedMin > 0 ? Math.min(1, l.doneMin / l.plannedMin) : 0;
+                  return (
+                    <div
+                      key={l.labelId}
                       style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: 999,
-                        background: l.color,
-                        flex: '0 0 6px',
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 11.5,
-                        color: 'var(--ink-soft)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        display: 'grid',
+                        gridTemplateColumns: 'minmax(0, 1fr) 60px auto',
+                        gap: 6,
+                        alignItems: 'center',
                       }}
                     >
-                      {l.name}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      height: 4,
-                      borderRadius: 2,
-                      background: 'var(--bg-shade)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        height: '100%',
-                        width: `${widthPct}%`,
-                        background: l.color,
-                        opacity: 0.28,
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        height: '100%',
-                        width: `${widthPct * doneRatio}%`,
-                        background: l.color,
-                        opacity: 0.9,
-                      }}
-                    />
-                  </div>
-                  <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', whiteSpace: 'nowrap' }}>
-                    {fmtMin(l.plannedMin)}
-                  </Mono>
-                </div>
-              );
-            })}
-          </div>
-        </>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <span
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: 999,
+                            background: l.color,
+                            flex: '0 0 6px',
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: 11.5,
+                            color: 'var(--ink-soft)',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {l.name}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          height: 4,
+                          borderRadius: 2,
+                          background: 'var(--bg-shade)',
+                          position: 'relative',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            height: '100%',
+                            width: `${widthPct}%`,
+                            background: l.color,
+                            opacity: 0.28,
+                          }}
+                        />
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            height: '100%',
+                            width: `${widthPct * doneRatio}%`,
+                            background: l.color,
+                            opacity: 0.9,
+                          }}
+                        />
+                      </div>
+                      <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', whiteSpace: 'nowrap' }}>
+                        {fmtMin(l.plannedMin)}
+                      </Mono>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       )}
+    </div>
+  );
+}
+
+/** 3단계 바: 회색 배경 → 파란 계획 → 초록 완료 */
+function ProgressBar({
+  height,
+  plannedPct,
+  donePct,
+  style,
+}: {
+  height: number;
+  plannedPct: number;
+  donePct: number;
+  style?: CSSProperties;
+}) {
+  return (
+    <div
+      style={{
+        height,
+        borderRadius: height / 2,
+        background: 'var(--bg-shade)',
+        overflow: 'hidden',
+        position: 'relative',
+        ...style,
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: `${plannedPct}%`,
+          height: '100%',
+          background: 'var(--blue)',
+          opacity: 0.45,
+          transition: 'width 200ms',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: `${donePct}%`,
+          height: '100%',
+          background: 'var(--ok)',
+          transition: 'width 200ms',
+        }}
+      />
     </div>
   );
 }
