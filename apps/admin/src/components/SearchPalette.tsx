@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { DocSummary, GleanItem, Task } from '@vallista/content-core';
-import { listDocs, listGlean, listTasks } from '../lib/tauri';
+import type { DocSummary, GleanItem, Task, TaskFolder } from '@vallista/content-core';
+import { listDocs, listGlean, listTaskFolders, listTasks } from '../lib/tauri';
 import { Input, Mono } from './atoms/Atoms';
 import type { ScreenId } from '../shell/Shell';
 
@@ -9,6 +9,11 @@ type Hit =
   | { kind: 'task'; id: string; title: string; sub: string; task: Task }
   | { kind: 'glean'; id: string; title: string; sub: string; item: GleanItem }
   | { kind: 'screen'; id: ScreenId; title: string; sub: string };
+
+function taskSub(t: Task, folderName: string | undefined): string {
+  const base = t.due ? `due ${t.due.slice(0, 10)}` : '할 일';
+  return folderName ? `${folderName} · ${base}` : base;
+}
 
 const SCREEN_HITS: Hit[] = [
   { kind: 'screen', id: 'today', title: '오늘', sub: '하루 흐름·할 일·컨디션' },
@@ -32,6 +37,7 @@ export function SearchPalette({
   const [query, setQuery] = useState('');
   const [docs, setDocs] = useState<DocSummary[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [folders, setFolders] = useState<TaskFolder[]>([]);
   const [glean, setGlean] = useState<GleanItem[]>([]);
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -45,9 +51,11 @@ export function SearchPalette({
     Promise.all([
       listDocs().catch(() => [] as DocSummary[]),
       listTasks().catch(() => [] as Task[]),
-    ]).then(([d, t]) => {
+      listTaskFolders().catch(() => [] as TaskFolder[]),
+    ]).then(([d, t, f]) => {
       setDocs(d);
       setTasks(t);
+      setFolders(f);
     });
     const id = window.setTimeout(() => inputRef.current?.focus(), 30);
     return () => window.clearTimeout(id);
@@ -65,8 +73,11 @@ export function SearchPalette({
     return () => { cancelled = true; window.clearTimeout(id); };
   }, [query]);
 
+  const folderNames = useMemo(() => new Map(folders.map((f) => [f.id, f.name])), [folders]);
+
   const hits = useMemo<Hit[]>(() => {
     const q = query.trim().toLowerCase();
+    const folderOf = (t: Task) => (t.folderId ? folderNames.get(t.folderId) : undefined);
     const screenHits: Hit[] = SCREEN_HITS.filter(
       (h) => !q || h.title.toLowerCase().includes(q) || h.sub.toLowerCase().includes(q),
     );
@@ -80,7 +91,7 @@ export function SearchPalette({
             kind: 'task',
             id: t.id,
             title: t.title,
-            sub: t.due ? `due ${t.due.slice(0, 10)}` : '할 일',
+            sub: taskSub(t, folderOf(t)),
             task: t,
           })),
         ...docs
@@ -112,13 +123,13 @@ export function SearchPalette({
         doc: d,
       }));
     const taskHits: Hit[] = tasks
-      .filter((t) => t.title.toLowerCase().includes(q))
+      .filter((t) => `${t.title} ${folderOf(t) ?? ''}`.toLowerCase().includes(q))
       .slice(0, 8)
       .map((t) => ({
         kind: 'task',
         id: t.id,
         title: t.title,
-        sub: t.done ? '완료' : t.due ? `due ${t.due.slice(0, 10)}` : '할 일',
+        sub: t.done ? '완료' : taskSub(t, folderOf(t)),
         task: t,
       }));
     const gleanHits: Hit[] = glean
@@ -137,7 +148,7 @@ export function SearchPalette({
         item: g,
       }));
     return [...screenHits, ...docHits, ...taskHits, ...gleanHits];
-  }, [query, docs, tasks, glean]);
+  }, [query, docs, tasks, glean, folderNames]);
 
   useEffect(() => {
     if (active >= hits.length) setActive(0);

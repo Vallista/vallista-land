@@ -1,17 +1,21 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import type { Block, Task } from '@vallista/content-core';
+import type { Block, Task, TaskFolder } from '@vallista/content-core';
 import {
   addBlock,
   addTask,
+  addTaskFolder,
   deleteBlock,
   deleteTask,
+  deleteTaskFolder,
   listAllEventSubtaskCounts,
   listBlocksInRange,
   listEventSubtasks,
+  listTaskFolders,
   listTasks,
   macosCalImport,
   macosCalStatus,
   purgeStaleBlocks,
+  renameTaskFolder,
   syncIcalFeeds,
   toggleEventSubtask,
   updateBlock,
@@ -23,7 +27,14 @@ import {
 } from '../../lib/tauri';
 import { CalPermissionModal } from './CalPermissionModal';
 import { readMacosCalAutoConfig } from '../../lib/icalSync';
-import { Button, Eyebrow, IconBtn, Mono } from '../../components/atoms/Atoms';
+import { Button, Eyebrow, IconBtn, Input, Mono } from '../../components/atoms/Atoms';
+import {
+  buildTaskTree,
+  countTreeTasks,
+  loadCollapsedFolders,
+  saveCollapsedFolders,
+  type TaskTreeNode,
+} from './taskFolders';
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -87,6 +98,10 @@ export function Plan() {
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
   const [draggingBlock, setDraggingBlock] = useState<Block | null>(null);
   const [inboxDropOver, setInboxDropOver] = useState(false);
+  const [folders, setFolders] = useState<TaskFolder[]>([]);
+  const [creatingFolder, setCreatingFolder] = useState(false);
+  const [dropOverFolderId, setDropOverFolderId] = useState<string | null>(null);
+  const [taskDialogFolderId, setTaskDialogFolderId] = useState<string | undefined>(undefined);
   const [activeHours, setActiveHours] = useState<{ start: string; end: string }>(() => ({
     start: typeof window !== 'undefined' ? (window.localStorage.getItem(ACTIVE_START_KEY) ?? '09:00') : '09:00',
     end: typeof window !== 'undefined' ? (window.localStorage.getItem(ACTIVE_END_KEY) ?? '21:00') : '21:00',
@@ -241,6 +256,23 @@ export function Plan() {
     const refresh = () => listTasks().then(setTasks).catch(() => {});
     window.addEventListener('bento:tasks-changed', refresh);
     return () => window.removeEventListener('bento:tasks-changed', refresh);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = () => {
+      listTaskFolders()
+        .then((data) => {
+          if (!cancelled) setFolders(data);
+        })
+        .catch(() => {});
+    };
+    refresh();
+    window.addEventListener('bento:task-folders-changed', refresh);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('bento:task-folders-changed', refresh);
+    };
   }, []);
 
   const refreshSubtaskCounts = useCallback(() => {
@@ -442,8 +474,7 @@ export function Plan() {
         if (ad) return -1;
         if (bd) return 1;
         return a.createdAt < b.createdAt ? 1 : -1;
-      })
-      .slice(0, 8);
+      });
   }, [tasks]);
 
   const calendarNames = useMemo<string[]>(() => {
@@ -501,13 +532,18 @@ export function Plan() {
     return virtual.length === 0 ? real : [...real, ...virtual];
   }, [blocks, tasks, excludedCalendars]);
 
-  const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(() => new Set());
-  const taskTree = useMemo(() => buildTaskTree(taskInbox), [taskInbox]);
-  const toggleFolder = useCallback((path: string) => {
+  const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(() =>
+    loadCollapsedFolders(),
+  );
+  useEffect(() => {
+    saveCollapsedFolders(collapsedFolders);
+  }, [collapsedFolders]);
+  const taskTree = useMemo(() => buildTaskTree(taskInbox, folders), [taskInbox, folders]);
+  const toggleFolder = useCallback((id: string) => {
     setCollapsedFolders((prev) => {
       const next = new Set(prev);
-      if (next.has(path)) next.delete(path);
-      else next.add(path);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   }, []);
@@ -541,12 +577,19 @@ export function Plan() {
   );
 
   const saveEditingTask = useCallback(
-    async (patch: { title: string; done?: boolean; color?: string | null; kind?: string | null }) => {
+    async (patch: {
+      title: string;
+      done?: boolean;
+      color?: string | null;
+      kind?: string | null;
+      folderId?: string;
+    }) => {
       if (!editingTask) return;
       const updated = await updateTask(editingTask.id, {
         title: patch.title,
         color: patch.color,
         kind: patch.kind,
+        folderId: patch.folderId,
       });
       upsertTaskInState(updated);
       window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
@@ -560,6 +603,67 @@ export function Plan() {
     await deleteTask(id);
     setTasks((prev) => (prev ? prev.filter((t) => t.id !== id) : prev));
   }, [editingTask]);
+
+  const moveTaskToFolder = useCallback(
+    async (taskId: string, folderId: string) => {
+      const current = tasks?.find((t) => t.id === taskId);
+      if (!current || (current.folderId ?? '') === folderId) return;
+      try {
+        const updated = await updateTask(taskId, { folderId });
+        upsertTaskInState(updated);
+        window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
+      } catch (e) {
+        setError(String(e));
+      }
+    },
+    [tasks, upsertTaskInState],
+  );
+
+  const createFolder = useCallback(async (name: string) => {
+    try {
+      const created = await addTaskFolder({ id: newId(), name });
+      setFolders((prev) => [...prev, created]);
+      window.dispatchEvent(new CustomEvent('bento:task-folders-changed'));
+    } catch {
+      // 오류 토스트는 invoke 래퍼가 띄운다
+    }
+  }, []);
+
+  const renameFolder = useCallback(async (id: string, name: string) => {
+    try {
+      const updated = await renameTaskFolder(id, name);
+      setFolders((prev) => prev.map((f) => (f.id === id ? updated : f)));
+      window.dispatchEvent(new CustomEvent('bento:task-folders-changed'));
+    } catch {
+      // 오류 토스트는 invoke 래퍼가 띄운다
+    }
+  }, []);
+
+  const removeFolder = useCallback(async (id: string) => {
+    try {
+      await deleteTaskFolder(id);
+      // 하위 폴더와 소속 할 일이 상위로 옮겨지므로 둘 다 다시 읽는다
+      window.dispatchEvent(new CustomEvent('bento:task-folders-changed'));
+      window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
+    } catch {
+      // 오류 토스트는 invoke 래퍼가 띄운다
+    }
+  }, []);
+
+  const handleFolderDragOver = useCallback((id: string) => {
+    setDropOverFolderId(id);
+    setInboxDropOver(false);
+  }, []);
+
+  const handleFolderDragLeave = useCallback((id: string) => {
+    setDropOverFolderId((cur) => (cur === id ? null : cur));
+  }, []);
+
+  const handleTaskDragEnd = useCallback(() => {
+    setDraggingTask(null);
+    setDropOverFolderId(null);
+    setInboxDropOver(false);
+  }, []);
 
   const handleTaskDrop = useCallback(
     async (taskId: string, date: string, start: string, end: string) => {
@@ -749,7 +853,11 @@ export function Plan() {
           ref={inboxRef}
           onDragOver={(e) => {
             const types = Array.from(e.dataTransfer.types);
-            if (!types.includes('application/x-bento-block')) return;
+            const isBlock = types.includes('application/x-bento-block');
+            const isTask = types.includes('application/x-bento-task');
+            if (!isBlock && !isTask) return;
+            // 이미 루트에 있는 할 일은 루트에 떨궈도 바뀌는 게 없으니 받지 않는다
+            if (isTask && !isBlock && draggingTask && !draggingTask.folderId) return;
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             if (!inboxDropOver) setInboxDropOver(true);
@@ -760,11 +868,17 @@ export function Plan() {
             setInboxDropOver(false);
           }}
           onDrop={(e) => {
-            const blockId = e.dataTransfer.getData('application/x-bento-block');
             setInboxDropOver(false);
-            if (!blockId) return;
+            const blockId = e.dataTransfer.getData('application/x-bento-block');
+            if (blockId) {
+              e.preventDefault();
+              void handleBlockToInbox(blockId);
+              return;
+            }
+            const taskId = e.dataTransfer.getData('application/x-bento-task');
+            if (!taskId) return;
             e.preventDefault();
-            void handleBlockToInbox(blockId);
+            void moveTaskToFolder(taskId, '');
           }}
           style={{
             flex: '1 1 0',
@@ -795,13 +909,45 @@ export function Plan() {
             }}
           >
             <Eyebrow>TODO 인박스</Eyebrow>
-            <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
-              {taskInbox.length}
-            </Mono>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>
+                {taskInbox.length}
+              </Mono>
+              <button
+                type="button"
+                onClick={() => setCreatingFolder(true)}
+                title="폴더 만들기"
+                style={{
+                  padding: '2px 6px',
+                  fontSize: 10.5,
+                  border: '1px solid var(--line)',
+                  background: 'transparent',
+                  color: 'var(--ink-mute)',
+                  borderRadius: 4,
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                }}
+              >
+                + 폴더
+              </button>
+            </div>
           </div>
+          {creatingFolder && (
+            <div style={{ marginBottom: 8 }}>
+              <FolderNameInput
+                placeholder="새 폴더 이름"
+                onSubmit={(name) => {
+                  setCreatingFolder(false);
+                  void createFolder(name);
+                }}
+                onCancel={() => setCreatingFolder(false)}
+              />
+            </div>
+          )}
           <button
             onClick={() => {
               setTaskDialogDate(undefined);
+              setTaskDialogFolderId(undefined);
               setTaskDialogOpen(true);
             }}
             style={{
@@ -820,7 +966,7 @@ export function Plan() {
           >
             + 할 일 추가
           </button>
-          {taskInbox.length === 0 ? (
+          {taskInbox.length === 0 && taskTree.children.length === 0 ? (
             <SidebarEmpty
               text={
                 inboxDropOver
@@ -836,11 +982,10 @@ export function Plan() {
                 <TaskInboxRow
                   key={t.id}
                   task={t}
-                  displayTitle={t.leafTitle}
                   onDone={(done) => upsertTaskDone(t.id, done)}
                   onEdit={() => setEditingTask(t)}
                   onDragStartTask={(task) => setDraggingTask(task)}
-                  onDragEndTask={() => setDraggingTask(null)}
+                  onDragEndTask={handleTaskDragEnd}
                   onSchedule={() => {
                     setEditingBlock(null);
                     const startStr = timeOf(t.startAt) ?? timeOf(t.due) ?? '09:00';
@@ -860,11 +1005,22 @@ export function Plan() {
               ))}
               {taskTree.children.map((node) => (
                 <TaskInboxFolder
-                  key={node.path}
+                  key={node.id}
                   node={node}
                   collapsed={collapsedFolders}
                   onToggle={toggleFolder}
                   depth={0}
+                  dropOverId={dropOverFolderId}
+                  onDragOverFolder={handleFolderDragOver}
+                  onDragLeaveFolder={handleFolderDragLeave}
+                  onDropTask={(taskId, folderId) => void moveTaskToFolder(taskId, folderId)}
+                  onRename={(id, name) => void renameFolder(id, name)}
+                  onDelete={(id) => void removeFolder(id)}
+                  onAddTask={(id) => {
+                    setTaskDialogDate(undefined);
+                    setTaskDialogFolderId(id);
+                    setTaskDialogOpen(true);
+                  }}
                   rowProps={{
                     onDone: (id, done) => upsertTaskDone(id, done),
                     onEdit: (t) => setEditingTask(t),
@@ -884,7 +1040,7 @@ export function Plan() {
                       setDialogOpen(true);
                     },
                     onDragStartTask: (task) => setDraggingTask(task),
-                    onDragEndTask: () => setDraggingTask(null),
+                    onDragEndTask: handleTaskDragEnd,
                   }}
                 />
               ))}
@@ -1142,6 +1298,7 @@ export function Plan() {
       <TaskEditor
         open={!!editingTask}
         task={editingTask}
+        folders={folders}
         onClose={() => setEditingTask(null)}
         onSave={saveEditingTask}
         onDelete={removeEditingTask}
@@ -1151,6 +1308,7 @@ export function Plan() {
         open={taskDialogOpen}
         initialKind="task"
         initialStartDate={taskDialogDate}
+        initialFolderId={taskDialogFolderId}
         onClose={() => setTaskDialogOpen(false)}
       />
     </div>
@@ -1442,7 +1600,6 @@ function CalendarFilter({
 
 function TaskInboxRow({
   task,
-  displayTitle,
   onDone,
   onSchedule,
   onEdit,
@@ -1450,7 +1607,6 @@ function TaskInboxRow({
   onDragEndTask,
 }: {
   task: Task;
-  displayTitle?: string;
   onDone: (done: boolean) => void;
   onSchedule: () => void;
   onEdit: () => void;
@@ -1489,7 +1645,7 @@ function TaskInboxRow({
       onDragStart={(e) => {
         e.dataTransfer.setData('application/x-bento-task', task.id);
         e.dataTransfer.setData('text/plain', task.title);
-        e.dataTransfer.effectAllowed = 'copy';
+        e.dataTransfer.effectAllowed = 'copyMove';
         onDragStartTask?.(task);
       }}
       onDragEnd={() => onDragEndTask?.()}
@@ -1497,7 +1653,7 @@ function TaskInboxRow({
         if ((e.target as HTMLElement).closest('button')) return;
         onEdit();
       }}
-      title="클릭해서 편집 · 드래그해서 캘린더에 꽂기"
+      title="클릭해서 편집 · 드래그해서 캘린더에 꽂거나 폴더로 이동"
       style={{
         padding: '10px 12px',
         border: '1px solid var(--line)',
@@ -1520,7 +1676,7 @@ function TaskInboxRow({
           textOverflow: 'ellipsis',
         }}
       >
-        {displayTitle ?? task.title}
+        {task.title}
       </div>
       <div
         style={{
@@ -1688,54 +1844,6 @@ function TaskInboxRow({
   );
 }
 
-interface TaskTreeNode {
-  name: string;
-  path: string;
-  isSystem: boolean; // [Bracket] 으로 시작하는 시스템 그룹
-  children: TaskTreeNode[];
-  tasks: Array<Task & { leafTitle: string }>;
-}
-
-function isSystemSegment(seg: string): boolean {
-  return /^\[.+\]$/.test(seg.trim());
-}
-
-function buildTaskTree(tasks: Task[]): TaskTreeNode {
-  const root: TaskTreeNode = { name: '', path: '', isSystem: false, children: [], tasks: [] };
-  for (const task of tasks) {
-    const segments = task.title.split('/').map((s) => s.trim()).filter(Boolean);
-    if (segments.length <= 1) {
-      root.tasks.push({ ...task, leafTitle: task.title });
-      continue;
-    }
-    let node = root;
-    for (let i = 0; i < segments.length - 1; i++) {
-      const seg = segments[i]!;
-      const nodePath = segments.slice(0, i + 1).join('/');
-      let child = node.children.find((c) => c.name === seg);
-      if (!child) {
-        child = {
-          name: seg,
-          path: nodePath,
-          isSystem: i === 0 && isSystemSegment(seg),
-          children: [],
-          tasks: [],
-        };
-        node.children.push(child);
-      }
-      node = child;
-    }
-    node.tasks.push({ ...task, leafTitle: segments[segments.length - 1]! });
-  }
-  return root;
-}
-
-function countTreeTasks(node: TaskTreeNode): number {
-  let n = node.tasks.length;
-  for (const child of node.children) n += countTreeTasks(child);
-  return n;
-}
-
 interface TaskFolderRowProps {
   onDone: (id: string, done: boolean) => void;
   onEdit: (t: Task) => void;
@@ -1744,80 +1852,262 @@ interface TaskFolderRowProps {
   onDragEndTask: () => void;
 }
 
+function FolderNameInput({
+  initial = '',
+  placeholder,
+  onSubmit,
+  onCancel,
+}: {
+  initial?: string;
+  placeholder?: string;
+  onSubmit: (name: string) => void;
+  onCancel: () => void;
+}) {
+  const [value, setValue] = useState(initial);
+  const doneRef = useRef(false);
+  const finish = (commit: boolean) => {
+    if (doneRef.current) return;
+    doneRef.current = true;
+    const name = value.trim();
+    if (commit && name) onSubmit(name);
+    else onCancel();
+  };
+  return (
+    <Input
+      sm
+      autoFocus
+      value={value}
+      placeholder={placeholder}
+      onChange={(e) => setValue(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          finish(true);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          finish(false);
+        }
+      }}
+      onBlur={() => finish(true)}
+    />
+  );
+}
+
+const folderIconBtnStyle: CSSProperties = {
+  width: 22,
+  height: 22,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 0,
+  border: 'none',
+  background: 'transparent',
+  color: 'var(--ink-mute)',
+  borderRadius: 4,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  fontSize: 13,
+  lineHeight: 1,
+};
+
 function TaskInboxFolder({
   node,
   collapsed,
   onToggle,
   depth,
   rowProps,
+  dropOverId,
+  onDragOverFolder,
+  onDragLeaveFolder,
+  onDropTask,
+  onRename,
+  onDelete,
+  onAddTask,
 }: {
   node: TaskTreeNode;
   collapsed: Set<string>;
-  onToggle: (path: string) => void;
+  onToggle: (id: string) => void;
   depth: number;
   rowProps: TaskFolderRowProps;
+  dropOverId: string | null;
+  onDragOverFolder: (id: string) => void;
+  onDragLeaveFolder: (id: string) => void;
+  onDropTask: (taskId: string, folderId: string) => void;
+  onRename: (id: string, name: string) => void;
+  onDelete: (id: string) => void;
+  onAddTask: (id: string) => void;
 }) {
-  const isCollapsed = collapsed.has(node.path);
+  const isCollapsed = collapsed.has(node.id);
   const count = countTreeTasks(node);
-  const sys = node.isSystem;
+  const isDropOver = dropOverId === node.id;
+  const hasChildren = node.tasks.length > 0 || node.children.length > 0;
+  const [hover, setHover] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    if (!confirmDelete) return;
+    const id = window.setTimeout(() => setConfirmDelete(false), 4000);
+    return () => window.clearTimeout(id);
+  }, [confirmDelete]);
+
+  const showActions = hover || confirmDelete;
+
   return (
-    <div style={{ paddingLeft: depth > 0 ? 10 : 0 }}>
-      <button
-        onClick={() => onToggle(node.path)}
+    <div
+      style={{ paddingLeft: depth > 0 ? 10 : 0 }}
+      onDragOver={(e) => {
+        if (!Array.from(e.dataTransfer.types).includes('application/x-bento-task')) return;
+        e.preventDefault();
+        // 바깥 폴더·인박스 컨테이너가 이어받아 루트로 덮어쓰지 않도록 여기서 끊는다
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'move';
+        if (!isDropOver) onDragOverFolder(node.id);
+      }}
+      onDragLeave={(e) => {
+        const next = e.relatedTarget as Node | null;
+        if (next && e.currentTarget.contains(next)) return;
+        onDragLeaveFolder(node.id);
+      }}
+      onDrop={(e) => {
+        const taskId = e.dataTransfer.getData('application/x-bento-task');
+        if (!taskId) return;
+        e.preventDefault();
+        e.stopPropagation();
+        onDragLeaveFolder(node.id);
+        onDropTask(taskId, node.id);
+      }}
+    >
+      <div
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
         style={{
-          width: '100%',
           display: 'flex',
           alignItems: 'center',
-          gap: 5,
-          padding: '4px 6px',
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          fontFamily: 'inherit',
           borderRadius: 4,
-          opacity: sys ? 0.7 : 1,
+          outline: isDropOver ? '1.5px dashed var(--blue)' : undefined,
+          outlineOffset: -2,
+          background: isDropOver ? 'var(--bg-shade)' : undefined,
+          transition: 'background 120ms',
         }}
       >
-        <Mono style={{ fontSize: 9, color: 'var(--ink-mute)', width: 10 }}>
-          {isCollapsed ? '▶' : '▼'}
-        </Mono>
-        <span
-          style={{
-            flex: 1,
-            fontSize: sys ? 10 : 11,
-            fontWeight: sys ? 400 : 600,
-            color: sys ? 'var(--ink-mute)' : 'var(--ink-soft)',
-            letterSpacing: sys ? '0.04em' : '0.03em',
-            textAlign: 'left',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            fontFamily: sys ? 'var(--font-mono)' : 'inherit',
-          }}
-        >
-          {sys ? node.name.replace(/^\[(.+)\]$/, '$1') : node.name}
-        </span>
-        <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>{count}</Mono>
-      </button>
-      {!isCollapsed && (
+        {renaming ? (
+          <div style={{ flex: 1, padding: '2px 4px' }}>
+            <FolderNameInput
+              initial={node.name}
+              onSubmit={(name) => {
+                setRenaming(false);
+                if (name !== node.name) onRename(node.id, name);
+              }}
+              onCancel={() => setRenaming(false)}
+            />
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onToggle(node.id)}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              padding: '4px 6px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              borderRadius: 4,
+            }}
+          >
+            <Mono style={{ fontSize: 9, color: 'var(--ink-mute)', width: 10 }}>
+              {isCollapsed ? '▶' : '▼'}
+            </Mono>
+            <span
+              style={{
+                flex: 1,
+                fontSize: 11,
+                fontWeight: 600,
+                color: count === 0 ? 'var(--ink-mute)' : 'var(--ink-soft)',
+                letterSpacing: '0.03em',
+                textAlign: 'left',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {node.name}
+            </span>
+            <Mono style={{ fontSize: 9.5, color: 'var(--ink-mute)' }}>{count}</Mono>
+          </button>
+        )}
+        {!renaming && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              opacity: showActions ? 1 : 0,
+              pointerEvents: showActions ? 'auto' : 'none',
+              transition: 'opacity 120ms',
+            }}
+          >
+            <button
+              type="button"
+              title="이 폴더에 할 일 추가"
+              onClick={() => onAddTask(node.id)}
+              style={folderIconBtnStyle}
+            >
+              +
+            </button>
+            <button
+              type="button"
+              title="이름 변경"
+              onClick={() => setRenaming(true)}
+              style={folderIconBtnStyle}
+            >
+              ✎
+            </button>
+            <button
+              type="button"
+              title={confirmDelete ? '한 번 더 누르면 삭제 (할 일은 상위로 이동)' : '폴더 삭제'}
+              onClick={() => {
+                if (!confirmDelete) {
+                  setConfirmDelete(true);
+                  return;
+                }
+                setConfirmDelete(false);
+                onDelete(node.id);
+              }}
+              style={{
+                ...folderIconBtnStyle,
+                color: confirmDelete ? 'white' : 'var(--ink-mute)',
+                background: confirmDelete ? 'var(--err)' : 'transparent',
+              }}
+            >
+              ×
+            </button>
+          </div>
+        )}
+      </div>
+      {!isCollapsed && hasChildren && (
         <div
           style={{
             paddingLeft: 8,
-            borderLeft: `1px ${sys ? 'dashed' : 'solid'} var(--line)`,
+            borderLeft: '1px solid var(--line)',
             marginLeft: 4,
             display: 'flex',
             flexDirection: 'column',
             gap: 4,
             marginTop: 2,
             marginBottom: 2,
-            opacity: sys ? 0.85 : 1,
           }}
         >
           {node.tasks.map((t) => (
             <TaskInboxRow
               key={t.id}
               task={t}
-              displayTitle={t.leafTitle}
               onDone={(done) => rowProps.onDone(t.id, done)}
               onEdit={() => rowProps.onEdit(t)}
               onSchedule={() => rowProps.onSchedule(t)}
@@ -1827,12 +2117,19 @@ function TaskInboxFolder({
           ))}
           {node.children.map((child) => (
             <TaskInboxFolder
-              key={child.path}
+              key={child.id}
               node={child}
               collapsed={collapsed}
               onToggle={onToggle}
               depth={depth + 1}
               rowProps={rowProps}
+              dropOverId={dropOverId}
+              onDragOverFolder={onDragOverFolder}
+              onDragLeaveFolder={onDragLeaveFolder}
+              onDropTask={onDropTask}
+              onRename={onRename}
+              onDelete={onDelete}
+              onAddTask={onAddTask}
             />
           ))}
         </div>

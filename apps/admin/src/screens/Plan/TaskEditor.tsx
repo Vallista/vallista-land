@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Task } from '@vallista/content-core';
+import type { Task, TaskFolder } from '@vallista/content-core';
 import {
   addEventSubtask,
   deleteEventSubtask,
@@ -7,26 +7,30 @@ import {
   toggleEventSubtask,
   type EventSubtask,
 } from '../../lib/tauri';
-import { Eyebrow, Input, Mono } from '../../components/atoms/Atoms';
+import { Eyebrow, Input, Mono, Select } from '../../components/atoms/Atoms';
 import { CheckIcon } from '../../components/atoms/Icons';
 import { LabelPicker } from '../../components/LabelPicker';
 import { EventNotesPanel } from './EventNotesPanel';
+import { folderOptions } from './taskFolders';
 
 interface Props {
   open: boolean;
   task: Task | null;
+  folders: TaskFolder[];
   onClose: () => void;
   onSave: (patch: {
     title: string;
     done?: boolean;
     color?: string | null;
     kind?: string | null;
+    folderId?: string;
   }) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
-export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
+export function TaskEditor({ open, task, folders, onClose, onSave, onDelete }: Props) {
   const [title, setTitle] = useState('');
+  const [folderId, setFolderId] = useState('');
   const [eventSubtasks, setEventSubtasks] = useState<EventSubtask[]>([]);
   const [draftSub, setDraftSub] = useState('');
   const [color, setColor] = useState('');
@@ -37,6 +41,7 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
   useEffect(() => {
     if (!open || !task) return;
     setTitle(task.title);
+    setFolderId(task.folderId ?? '');
     setDraftSub('');
     setColor(task.color ?? '');
     setTaskKind(task.kind ?? 'write');
@@ -103,6 +108,7 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
         title: t,
         color: color || null,
         kind: taskKind,
+        folderId,
       });
       onClose();
     } finally {
@@ -192,6 +198,16 @@ export function TaskEditor({ open, task, onClose, onSave, onDelete }: Props) {
             background: 'var(--bg)',
           }}
         />
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>폴더</Mono>
+          <Select
+            value={folderId}
+            options={folderOptions(folders)}
+            placeholder="폴더 없음"
+            onChange={(v) => setFolderId(v ?? '')}
+          />
+        </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>종류 · 색상</Mono>

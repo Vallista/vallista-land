@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { emit } from '@tauri-apps/api/event';
 import CodeMirror from '@uiw/react-codemirror';
-import { Button, Input, Mono, Textarea } from './atoms/Atoms';
+import type { TaskFolder } from '@vallista/content-core';
+import { Button, Input, Mono, Select, Textarea } from './atoms/Atoms';
 import { TagInput } from './TagInput';
 import { LabelPicker } from './LabelPicker';
-import { addTask, upsertEventNote, startWindowDrag } from '../lib/tauri';
+import { addTask, listTaskFolders, upsertEventNote, startWindowDrag } from '../lib/tauri';
+import { folderOptions } from '../screens/Plan/taskFolders';
 import { notifyTagsChanged } from '../lib/tags';
 import { DialogLayout } from './DialogLayout';
 import {
@@ -74,6 +76,7 @@ interface Props {
   initialKind?: QuickKind;
   popup?: boolean;
   initialStartDate?: string;
+  initialFolderId?: string;
 }
 
 export function QuickEntry({
@@ -82,6 +85,7 @@ export function QuickEntry({
   initialKind = 'thought',
   popup = false,
   initialStartDate,
+  initialFolderId,
 }: Props) {
   const visibleKinds: QuickKind[] = KIND_ORDER;
   const safeInitial = visibleKinds.includes(initialKind) ? initialKind : 'thought';
@@ -97,6 +101,8 @@ export function QuickEntry({
   const [estMin, setEstMin] = useState<number | null>(null);
   const [color, setColor] = useState('');
   const [taskKind, setTaskKind] = useState('write');
+  const [folderId, setFolderId] = useState('');
+  const [folders, setFolders] = useState<TaskFolder[]>([]);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,11 +122,25 @@ export function QuickEntry({
     setEstMin(null);
     setColor('');
     setTaskKind('write');
+    setFolderId(initialFolderId ?? '');
     setNotes('');
     setError(null);
     const id = window.setTimeout(() => inputRef.current?.focus(), 30);
     return () => window.clearTimeout(id);
-  }, [open, initialKind, initialStartDate]);
+  }, [open, initialKind, initialStartDate, initialFolderId]);
+
+  useEffect(() => {
+    if (!open || kind !== 'task') return;
+    let cancelled = false;
+    listTaskFolders()
+      .then((items) => {
+        if (!cancelled) setFolders(items);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [open, kind]);
 
   useEffect(() => {
     if (!open) return;
@@ -162,6 +182,7 @@ export function QuickEntry({
           tags: tags.length > 0 ? tags : undefined,
           color: color || undefined,
           kind: taskKind,
+          folderId: folderId || undefined,
           notes: notes.trim() || undefined,
         });
         if (notes.trim()) {
@@ -306,6 +327,15 @@ export function QuickEntry({
 
             <Field label="태그 (쉼표로 구분, 선택)">
               <TagInput value={tags} onChange={setTags} size="sm" placeholder="태그" />
+            </Field>
+
+            <Field label="폴더 (선택)">
+              <Select
+                value={folderId}
+                options={folderOptions(folders)}
+                placeholder="폴더 없음"
+                onChange={(v) => setFolderId(v ?? '')}
+              />
             </Field>
 
             <div
