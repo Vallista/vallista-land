@@ -76,7 +76,7 @@ const PANES: { id: PaneId; label: string; icon: string; hint: string }[] = [
   { id: 'schedule', label: '일정', icon: '◷', hint: '주·자동 정리' },
   { id: 'clipboard', label: '클립보드', icon: '⎘', hint: '히스토리·수집' },
   { id: 'blog', label: '블로그', icon: '▤', hint: '폴더·Git' },
-  { id: 'integrations', label: '연동', icon: '◇', hint: '캘린더·LLM' },
+  { id: 'integrations', label: '연동', icon: '◇', hint: '캘린더·Claude' },
   { id: 'data', label: '데이터', icon: '⊟', hint: '이전·백업' },
   { id: 'keybindings', label: '단축키', icon: '⌘', hint: '키 바인딩' },
   { id: 'labels', label: '라벨', icon: '◉', hint: '종류·색 커스텀' },
@@ -1114,7 +1114,7 @@ function IntegrationsPane({ onOpenIcal }: { onOpenIcal?: () => void }) {
           </button>
         </Section>
       )}
-      <Section label="로컬 LLM" hint="ondevice 모델·서버">
+      <Section label="Claude API" hint="회고·요약·글쓰기 보조에 사용">
         <LLMSetupContent />
       </Section>
     </>

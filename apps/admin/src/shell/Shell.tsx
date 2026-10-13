@@ -8,12 +8,11 @@ import {
   gleanCounts,
   listDocs,
   listTasks,
-  llmStatus,
   mailUnreadCountAll,
   startWindowDrag,
   vaultInfo,
 } from '../lib/tauri';
-import type { LlmStatus, MemoryInfo } from '../lib/tauri';
+import type { MemoryInfo } from '../lib/tauri';
 import type { VaultInfo } from '@vallista/content-core';
 import type { QuickKind } from '../components/QuickEntry';
 import { CLIPBOARD_SETTINGS_EVENT } from '../components/Tweaks';
@@ -100,14 +99,12 @@ interface SidebarProps {
   active: ScreenId;
   onSelect: (id: ScreenId) => void;
   vault: VaultInfo | null;
-  llm: LlmStatus | null;
   counts: Counts;
   collapsed: boolean;
   blogEnabled: boolean;
-  onOpenLLMSetup: () => void;
 }
 
-function Sidebar({ active, onSelect, vault, llm, counts, collapsed, blogEnabled, onOpenLLMSetup }: SidebarProps) {
+function Sidebar({ active, onSelect, vault, counts, collapsed, blogEnabled }: SidebarProps) {
   const sections = buildSections(counts, blogEnabled);
   if (collapsed) {
     return (
@@ -160,7 +157,6 @@ function Sidebar({ active, onSelect, vault, llm, counts, collapsed, blogEnabled,
       </nav>
 
       <div style={{ marginTop: 'auto', padding: '0 var(--gap)', display: 'flex', flexDirection: 'column', gap: 'var(--gap)' }}>
-        <LlmCard llm={llm} onClick={onOpenLLMSetup} />
         {blogEnabled && <VaultCard vault={vault} />}
         <div style={{ marginTop: 4, fontSize: 10, color: 'var(--ink-mute)', fontFamily: 'var(--font-mono)' }}>
           Bento v0.0.1
@@ -341,56 +337,6 @@ function SidebarRow({
   );
 }
 
-function LlmCard({ llm, onClick }: { llm: LlmStatus | null; onClick?: () => void }) {
-  const ready = !!llm?.binPresent && (llm?.models.length ?? 0) > 0;
-  const running = !!llm?.running;
-  const tone = running ? 'ok' : ready ? 'mute' : 'warn';
-  const subline = !llm
-    ? '확인 중…'
-    : running
-      ? `${trimGguf(llm.currentModel ?? '')} · ondevice`
-      : ready
-        ? `${llm.models.length} model${llm.models.length === 1 ? '' : 's'} · idle`
-        : !llm.binPresent
-          ? '바이너리 미설치'
-          : '모델 없음';
-  return (
-    <button
-      onClick={onClick}
-      title="로컬 LLM 설정"
-      style={{
-        padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
-        background: 'var(--bg)',
-        border: '1px solid var(--line)',
-        borderRadius: 8,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
-        textAlign: 'left',
-        fontFamily: 'inherit',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'border-color 120ms, background 120ms',
-      }}
-      onMouseEnter={(e) => {
-        if (!onClick) return;
-        e.currentTarget.style.borderColor = 'var(--line-strong)';
-        e.currentTarget.style.background = 'var(--bg-shade)';
-      }}
-      onMouseLeave={(e) => {
-        if (!onClick) return;
-        e.currentTarget.style.borderColor = 'var(--line)';
-        e.currentTarget.style.background = 'var(--bg)';
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <StatusDot tone={tone} pulse={running} />
-        <Mono style={{ fontSize: 10.5, color: 'var(--ink-2)' }}>LOCAL LLM</Mono>
-      </div>
-      <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>{subline}</Mono>
-    </button>
-  );
-}
-
 function VaultCard({ vault }: { vault: VaultInfo | null }) {
   return (
     <div
@@ -413,10 +359,6 @@ function VaultCard({ vault }: { vault: VaultInfo | null }) {
       </Mono>
     </div>
   );
-}
-
-function trimGguf(name: string): string {
-  return name.replace(/\.gguf$/i, '');
 }
 
 function Topbar({
@@ -705,7 +647,6 @@ export function Shell({
   active,
   onSelect,
   children,
-  onOpenLLMSetup,
   onOpenSearch,
   onOpenQuick,
   onOpenTweaks,
@@ -715,7 +656,6 @@ export function Shell({
   active: ScreenId;
   onSelect: (id: ScreenId) => void;
   children: ReactNode;
-  onOpenLLMSetup: () => void;
   onOpenSearch: () => void;
   onOpenQuick: (kind: QuickKind) => void;
   onOpenTweaks: () => void;
@@ -723,7 +663,6 @@ export function Shell({
   blogEnabled: boolean;
 }) {
   const [vault, setVault] = useState<VaultInfo | null>(null);
-  const [llm, setLlm] = useState<LlmStatus | null>(null);
   const [memInfo, setMemInfo] = useState<MemoryInfo | null>(null);
   const [counts, setCounts] = useState<Counts>({});
   const [clipPanelOpen, setClipPanelOpen] = useState(false);
@@ -798,24 +737,6 @@ export function Shell({
       cancelled = true;
     };
   }, [blogEnabled]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const s = await llmStatus();
-        if (!cancelled) setLlm(s);
-      } catch {
-        if (!cancelled) setLlm(null);
-      }
-    };
-    tick();
-    const id = setInterval(tick, 5000);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -903,11 +824,9 @@ export function Shell({
           active={active}
           onSelect={onSelect}
           vault={vault}
-          llm={llm}
           counts={counts}
           collapsed={collapsed}
           blogEnabled={blogEnabled}
-          onOpenLLMSetup={onOpenLLMSetup}
         />
         <main style={{ flex: 1, minWidth: 0, overflow: 'auto' }}>{children}</main>
       </div>

@@ -172,7 +172,7 @@ export function SummaryReview({ kind }: { kind: SummaryKind }) {
           ? await generateWeeklySummary(now, ws, { force: true })
           : await generateMonthlySummary(now, ws, { force: true });
       if (result) setSummary(result);
-      else setError('LLM 미가용 또는 데이터 부족.');
+      else setError('Claude API 키가 없거나 데이터가 부족합니다.');
     } catch (e: unknown) {
       setError(String(e));
     } finally {
@@ -210,7 +210,7 @@ export function SummaryReview({ kind }: { kind: SummaryKind }) {
             letterSpacing: '0.06em',
           }}
         >
-          {TITLE[kind]} · LLM
+          {TITLE[kind]} · Claude
         </Mono>
         <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>{periodLabel}</Mono>
         <span style={{ flex: 1 }} />

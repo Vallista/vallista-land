@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import type { GleanItem, GleanStatus } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
-import { useLLMWake } from '../../components/LLMWakeModal';
 import {
   deleteGlean,
   fetchUrl,
@@ -537,7 +536,6 @@ function DigestCard({
   item: GleanItem;
   onChange: (item: GleanItem) => void;
 }) {
-  const wake = useLLMWake();
   const [busy, setBusy] = useState(false);
   const [busyMsg, setBusyMsg] = useState('생각 중…');
   const [error, setError] = useState<string | null>(null);
@@ -548,51 +546,49 @@ function DigestCard({
 
   const summarize = async () => {
     if (busy) return;
-    await wake.run(async () => {
-      setBusy(true);
-      setError(null);
-      try {
-        let source = (item.body || item.excerpt || '').trim();
-        if (!source && item.url) {
-          setBusyMsg('본문 가져오는 중…');
-          const fetched = await fetchUrl(item.url);
-          source = (fetched.body || fetched.excerpt || '').trim();
-        }
-        if (!source) throw new Error('요약할 본문이 없습니다');
-
-        setBusyMsg('요약 중…');
-        const trimmed = source.length > 6000 ? source.slice(0, 6000) : source;
-        const isYoutube =
-          item.source === 'youtube' ||
-          (item.url || '').includes('youtube.com') ||
-          (item.url || '').includes('youtu.be');
-        const contentLabel = isYoutube ? '영상 설명' : '본문';
-
-        const out = await llmChat({
-          messages: [
-            {
-              role: 'system',
-              content:
-                '한국어로 핵심을 정확히 3줄로 요약한다. 각 줄은 "- "로 시작하고 80자 이내. 부연·인사·메타발화 금지.',
-            },
-            {
-              role: 'user',
-              content: `제목: ${item.title || '(없음)'}\n${contentLabel}:\n${trimmed}`,
-            },
-          ],
-          temperature: 0.2,
-          maxTokens: 320,
-        });
-        const cleaned = cleanDigest(out);
-        const updated = await updateGleanDigest(item.id, cleaned);
-        onChange(updated);
-      } catch (e) {
-        setError(String(e));
-      } finally {
-        setBusy(false);
-        setBusyMsg('생각 중…');
+    setBusy(true);
+    setError(null);
+    try {
+      let source = (item.body || item.excerpt || '').trim();
+      if (!source && item.url) {
+        setBusyMsg('본문 가져오는 중…');
+        const fetched = await fetchUrl(item.url);
+        source = (fetched.body || fetched.excerpt || '').trim();
       }
-    });
+      if (!source) throw new Error('요약할 본문이 없습니다');
+
+      setBusyMsg('요약 중…');
+      const trimmed = source.length > 6000 ? source.slice(0, 6000) : source;
+      const isYoutube =
+        item.source === 'youtube' ||
+        (item.url || '').includes('youtube.com') ||
+        (item.url || '').includes('youtu.be');
+      const contentLabel = isYoutube ? '영상 설명' : '본문';
+
+      const out = await llmChat({
+        messages: [
+          {
+            role: 'system',
+            content:
+              '한국어로 핵심을 정확히 3줄로 요약한다. 각 줄은 "- "로 시작하고 80자 이내. 부연·인사·메타발화 금지.',
+          },
+          {
+            role: 'user',
+            content: `제목: ${item.title || '(없음)'}\n${contentLabel}:\n${trimmed}`,
+          },
+        ],
+        temperature: 0.2,
+        maxTokens: 320,
+      });
+      const cleaned = cleanDigest(out);
+      const updated = await updateGleanDigest(item.id, cleaned);
+      onChange(updated);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+      setBusyMsg('생각 중…');
+    }
   };
 
   const clear = async () => {
@@ -610,127 +606,124 @@ function DigestCard({
   };
 
   return (
-    <>
-      {wake.modal}
-      <section
+    <section
+      style={{
+        marginBottom: 20,
+        padding: '14px 16px',
+        border: '1px solid var(--line)',
+        borderRadius: 8,
+        background: 'var(--bg-soft)',
+      }}
+    >
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 8,
+      }}
+    >
+      <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', letterSpacing: '0.06em' }}>
+        3줄 요약
+      </Mono>
+      <span style={{ flex: 1 }} />
+      <button
+        onClick={summarize}
+        disabled={busy}
         style={{
-          marginBottom: 20,
-          padding: '14px 16px',
+          padding: '3px 9px',
           border: '1px solid var(--line)',
-          borderRadius: 8,
-          background: 'var(--bg-soft)',
+          background: 'var(--bg)',
+          color: 'var(--ink)',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 9.5,
+          letterSpacing: '0.06em',
+          borderRadius: 4,
+          cursor: busy ? 'wait' : 'pointer',
         }}
       >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          marginBottom: 8,
-        }}
-      >
-        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', letterSpacing: '0.06em' }}>
-          3줄 요약
-        </Mono>
-        <span style={{ flex: 1 }} />
+        {busy ? busyMsg : lines.length > 0 ? '다시' : '요약'}
+      </button>
+      {lines.length > 0 && !busy && (
         <button
-          onClick={summarize}
-          disabled={busy}
+          onClick={clear}
           style={{
             padding: '3px 9px',
             border: '1px solid var(--line)',
-            background: 'var(--bg)',
-            color: 'var(--ink)',
+            background: 'transparent',
+            color: 'var(--ink-mute)',
             fontFamily: 'var(--font-mono)',
             fontSize: 9.5,
             letterSpacing: '0.06em',
             borderRadius: 4,
-            cursor: busy ? 'wait' : 'pointer',
+            cursor: 'pointer',
           }}
         >
-          {busy ? busyMsg : lines.length > 0 ? '다시' : '요약'}
+          지우기
         </button>
-        {lines.length > 0 && !busy && (
-          <button
-            onClick={clear}
+      )}
+    </div>
+    {error && (
+      <Mono
+        style={{
+          display: 'block',
+          marginBottom: 6,
+          fontSize: 10.5,
+          color: 'var(--err)',
+        }}
+      >
+        {error}
+      </Mono>
+    )}
+    {busy ? (
+      <div>
+        {lines.length > 0 && (
+          <ul style={{ margin: '0 0 8px', padding: 0, listStyle: 'none', opacity: 0.25 }}>
+            {lines.slice(0, 3).map((l, i) => (
+              <li
+                key={i}
+                style={{
+                  fontSize: 13,
+                  lineHeight: 1.55,
+                  color: 'var(--ink)',
+                  padding: '4px 0',
+                  display: 'flex',
+                  gap: 8,
+                }}
+              >
+                <span style={{ color: 'var(--ink-mute)', flex: '0 0 auto' }}>—</span>
+                <span>{l}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>{busyMsg}</Mono>
+      </div>
+    ) : lines.length > 0 ? (
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {lines.slice(0, 3).map((l, i) => (
+          <li
+            key={i}
             style={{
-              padding: '3px 9px',
-              border: '1px solid var(--line)',
-              background: 'transparent',
-              color: 'var(--ink-mute)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 9.5,
-              letterSpacing: '0.06em',
-              borderRadius: 4,
-              cursor: 'pointer',
+              fontSize: 13,
+              lineHeight: 1.55,
+              color: 'var(--ink)',
+              padding: '4px 0',
+              display: 'flex',
+              gap: 8,
             }}
           >
-            지우기
-          </button>
-        )}
-      </div>
-      {error && (
-        <Mono
-          style={{
-            display: 'block',
-            marginBottom: 6,
-            fontSize: 10.5,
-            color: 'var(--err)',
-          }}
-        >
-          {error}
-        </Mono>
-      )}
-      {busy ? (
-        <div>
-          {lines.length > 0 && (
-            <ul style={{ margin: '0 0 8px', padding: 0, listStyle: 'none', opacity: 0.25 }}>
-              {lines.slice(0, 3).map((l, i) => (
-                <li
-                  key={i}
-                  style={{
-                    fontSize: 13,
-                    lineHeight: 1.55,
-                    color: 'var(--ink)',
-                    padding: '4px 0',
-                    display: 'flex',
-                    gap: 8,
-                  }}
-                >
-                  <span style={{ color: 'var(--ink-mute)', flex: '0 0 auto' }}>—</span>
-                  <span>{l}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <Mono style={{ fontSize: 11, color: 'var(--ink-mute)' }}>{busyMsg}</Mono>
-        </div>
-      ) : lines.length > 0 ? (
-        <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          {lines.slice(0, 3).map((l, i) => (
-            <li
-              key={i}
-              style={{
-                fontSize: 13,
-                lineHeight: 1.55,
-                color: 'var(--ink)',
-                padding: '4px 0',
-                display: 'flex',
-                gap: 8,
-              }}
-            >
-              <span style={{ color: 'var(--ink-mute)', flex: '0 0 auto' }}>—</span>
-              <span>{l}</span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', fontStyle: 'italic' }}>
-          아직 요약이 없습니다
-        </Mono>
-      )}
-    </section>
-    </>
+            <span style={{ color: 'var(--ink-mute)', flex: '0 0 auto' }}>—</span>
+            <span>{l}</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', fontStyle: 'italic' }}>
+        아직 요약이 없습니다
+      </Mono>
+    )}
+  </section>
   );
 }
 

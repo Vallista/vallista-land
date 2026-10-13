@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Button, Mono, StatusDot } from '../../components/atoms/Atoms';
-import { useLLMWake } from '../../components/LLMWakeModal';
 import {
   llmChat,
   mailDeleteMessage,
@@ -39,7 +38,6 @@ export function MailDetail({
   onPatch: (uid: number, changes: { seen?: boolean; flagged?: boolean }, folder: string, accountId: string) => void;
   onUnreadDelta?: (accountId: string, folder: string, delta: number) => void;
 }) {
-  const wake = useLLMWake();
   const [msg, setMsg] = useState<MailMessageFull | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -142,87 +140,81 @@ export function MailDetail({
     if (!msg || summarizing) return;
     setActivePanel('summary');
     if (summary) return;
-    await wake.run(async () => {
-      setSummarizing(true);
-      setSummaryErr(null);
-      try {
-        const result = await llmChat({
-          messages: [
-            {
-              role: 'system',
-              content:
-                '다음 이메일을 한국어로 3-5줄로 간결하게 요약하세요. 핵심 내용과 필요한 행동(action item)이 있으면 별도로 표시하세요.',
-            },
-            { role: 'user', content: `제목: ${msg.subject}\n\n${getBodyText(msg)}` },
-          ],
-          maxTokens: 512,
-        });
-        setSummary(result);
-      } catch (err) {
-        setSummaryErr(String(err));
-      } finally {
-        setSummarizing(false);
-      }
-    });
+    setSummarizing(true);
+    setSummaryErr(null);
+    try {
+      const result = await llmChat({
+        messages: [
+          {
+            role: 'system',
+            content:
+              '다음 이메일을 한국어로 3-5줄로 간결하게 요약하세요. 핵심 내용과 필요한 행동(action item)이 있으면 별도로 표시하세요.',
+          },
+          { role: 'user', content: `제목: ${msg.subject}\n\n${getBodyText(msg)}` },
+        ],
+        maxTokens: 512,
+      });
+      setSummary(result);
+    } catch (err) {
+      setSummaryErr(String(err));
+    } finally {
+      setSummarizing(false);
+    }
   };
 
   const handleExtractActions = async () => {
     if (!msg || extracting) return;
     setActivePanel('actions');
     if (actions) return;
-    await wake.run(async () => {
-      setExtracting(true);
-      setActionsErr(null);
-      try {
-        const result = await llmChat({
-          messages: [
-            {
-              role: 'system',
-              content:
-                '이메일에서 수신자가 해야 할 action item만 추출하세요. 번호 매긴 목록으로 작성하고, 없으면 "없음"이라고만 답하세요. 한국어로 답하세요.',
-            },
-            { role: 'user', content: `제목: ${msg.subject}\n\n${getBodyText(msg)}` },
-          ],
-          maxTokens: 400,
-        });
-        setActions(result);
-      } catch (err) {
-        setActionsErr(String(err));
-      } finally {
-        setExtracting(false);
-      }
-    });
+    setExtracting(true);
+    setActionsErr(null);
+    try {
+      const result = await llmChat({
+        messages: [
+          {
+            role: 'system',
+            content:
+              '이메일에서 수신자가 해야 할 action item만 추출하세요. 번호 매긴 목록으로 작성하고, 없으면 "없음"이라고만 답하세요. 한국어로 답하세요.',
+          },
+          { role: 'user', content: `제목: ${msg.subject}\n\n${getBodyText(msg)}` },
+        ],
+        maxTokens: 400,
+      });
+      setActions(result);
+    } catch (err) {
+      setActionsErr(String(err));
+    } finally {
+      setExtracting(false);
+    }
   };
 
   const handleDraftReply = async () => {
     if (!msg || drafting) return;
     setActivePanel('draft');
     if (draft) return;
-    await wake.run(async () => {
-      setDrafting(true);
-      setDraftErr(null);
-      try {
-        const result = await llmChat({
-          messages: [
-            {
-              role: 'system',
-              content:
-                '다음 이메일에 대한 간결하고 정중한 답장 초안을 한국어로 작성하세요. 인사말, 핵심 답변, 마무리 인사만 포함하세요. 서명란은 [서명] 으로 남겨두세요.',
-            },
-            {
-              role: 'user',
-              content: `보낸 사람: ${msg.from}\n제목: ${msg.subject}\n\n${getBodyText(msg)}`,
-            },
-          ],
-          maxTokens: 600,
-        });
-        setDraft(result);
-      } catch (err) {
-        setDraftErr(String(err));
-      } finally {
-        setDrafting(false);
-      }
-    });
+    setDrafting(true);
+    setDraftErr(null);
+    try {
+      const result = await llmChat({
+        messages: [
+          {
+            role: 'system',
+            content:
+              '다음 이메일에 대한 간결하고 정중한 답장 초안을 한국어로 작성하세요. 인사말, 핵심 답변, 마무리 인사만 포함하세요. 서명란은 [서명] 으로 남겨두세요.',
+          },
+          {
+            role: 'user',
+            content: `보낸 사람: ${msg.from}\n제목: ${msg.subject}\n\n${getBodyText(msg)}`,
+          },
+        ],
+        maxTokens: 600,
+      });
+      setDraft(result);
+    } catch (err) {
+      setDraftErr(String(err));
+    } finally {
+      setDrafting(false);
+    }
   };
 
   if (loading) {
@@ -251,129 +243,126 @@ export function MailDetail({
   if (!msg) return null;
 
   return (
-    <>
-      {wake.modal}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}
-      >
-        {/* 헤더 */}
-      <div
-        style={{
-          padding: '12px 28px 10px',
-          borderBottom: '1px solid var(--line)',
-          background: 'var(--bg-soft)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 16,
-              fontWeight: 600,
-              color: 'var(--ink)',
-              lineHeight: 1.35,
-              flex: 1,
-            }}
-          >
-            {msg.subject || '(제목 없음)'}
-          </h2>
-          <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-            <Button ghost sm onClick={handleToggleSeen} title={msg.seen ? '안읽음으로 표시' : '읽음으로 표시'}>
-              {msg.seen ? '◎' : '●'}
-            </Button>
-            <Button ghost sm onClick={handleToggleFlag} title={msg.flagged ? '중요 해제' : '중요 표시'}>
-              {msg.flagged ? '★' : '☆'}
-            </Button>
-            <Button danger sm onClick={handleDelete} disabled={deleting}>
-              {deleting ? '…' : '삭제'}
-            </Button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <MetaRow label="보낸 사람" value={msg.from} />
-          {msg.to && <MetaRow label="받는 사람" value={msg.to} />}
-          <MetaRow label="날짜" value={formatFullDate(msg.date)} mono />
-          {msg.attachments.length > 0 && (
-            <MetaRow label="첨부" value={msg.attachments.join(', ')} />
-          )}
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
+      {/* 헤더 */}
+    <div
+      style={{
+        padding: '12px 28px 10px',
+        borderBottom: '1px solid var(--line)',
+        background: 'var(--bg-soft)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 16,
+            fontWeight: 600,
+            color: 'var(--ink)',
+            lineHeight: 1.35,
+            flex: 1,
+          }}
+        >
+          {msg.subject || '(제목 없음)'}
+        </h2>
+        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          <Button ghost sm onClick={handleToggleSeen} title={msg.seen ? '안읽음으로 표시' : '읽음으로 표시'}>
+            {msg.seen ? '◎' : '●'}
+          </Button>
+          <Button ghost sm onClick={handleToggleFlag} title={msg.flagged ? '중요 해제' : '중요 표시'}>
+            {msg.flagged ? '★' : '☆'}
+          </Button>
+          <Button danger sm onClick={handleDelete} disabled={deleting}>
+            {deleting ? '…' : '삭제'}
+          </Button>
         </div>
       </div>
 
-      {/* AI 도우미 */}
-      <div
-        style={{
-          padding: '10px 28px',
-          borderBottom: '1px solid var(--line)',
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: activePanel ? 8 : 0 }}>
-          <AiTabButton
-            label="요약"
-            loading={summarizing}
-            active={activePanel === 'summary'}
-            onClick={handleSummarize}
-          />
-          <AiTabButton
-            label="할 일"
-            loading={extracting}
-            active={activePanel === 'actions'}
-            onClick={handleExtractActions}
-          />
-          <AiTabButton
-            label="답장 초안"
-            loading={drafting}
-            active={activePanel === 'draft'}
-            onClick={handleDraftReply}
-          />
-          {(summarizing || extracting || drafting) && <StatusDot tone="blue" pulse />}
-        </div>
-
-        {activePanel === 'summary' && (
-          <AiPanel content={summary} err={summaryErr} loading={summarizing} placeholder="요약 생성 중…" />
-        )}
-        {activePanel === 'actions' && (
-          <AiPanel content={actions} err={actionsErr} loading={extracting} placeholder="할 일 추출 중…" />
-        )}
-        {activePanel === 'draft' && (
-          <AiPanel content={draft} err={draftErr} loading={drafting} placeholder="답장 초안 작성 중…" copyable />
-        )}
-      </div>
-
-      {/* 본문 */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 36px', background: '#ffffff' }}>
-        {msg.bodyHtml ? (
-          <div
-            style={{ fontSize: 13, lineHeight: 1.7, color: '#333333' }}
-            dangerouslySetInnerHTML={{ __html: msg.bodyHtml }}
-          />
-        ) : (
-          <pre
-            style={{
-              margin: 0,
-              fontSize: 13,
-              lineHeight: 1.7,
-              color: '#333333',
-              fontFamily: 'inherit',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-            }}
-          >
-            {msg.bodyText || '(본문 없음)'}
-          </pre>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <MetaRow label="보낸 사람" value={msg.from} />
+        {msg.to && <MetaRow label="받는 사람" value={msg.to} />}
+        <MetaRow label="날짜" value={formatFullDate(msg.date)} mono />
+        {msg.attachments.length > 0 && (
+          <MetaRow label="첨부" value={msg.attachments.join(', ')} />
         )}
       </div>
     </div>
-    </>
+
+    {/* AI 도우미 */}
+    <div
+      style={{
+        padding: '10px 28px',
+        borderBottom: '1px solid var(--line)',
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: activePanel ? 8 : 0 }}>
+        <AiTabButton
+          label="요약"
+          loading={summarizing}
+          active={activePanel === 'summary'}
+          onClick={handleSummarize}
+        />
+        <AiTabButton
+          label="할 일"
+          loading={extracting}
+          active={activePanel === 'actions'}
+          onClick={handleExtractActions}
+        />
+        <AiTabButton
+          label="답장 초안"
+          loading={drafting}
+          active={activePanel === 'draft'}
+          onClick={handleDraftReply}
+        />
+        {(summarizing || extracting || drafting) && <StatusDot tone="blue" pulse />}
+      </div>
+
+      {activePanel === 'summary' && (
+        <AiPanel content={summary} err={summaryErr} loading={summarizing} placeholder="요약 생성 중…" />
+      )}
+      {activePanel === 'actions' && (
+        <AiPanel content={actions} err={actionsErr} loading={extracting} placeholder="할 일 추출 중…" />
+      )}
+      {activePanel === 'draft' && (
+        <AiPanel content={draft} err={draftErr} loading={drafting} placeholder="답장 초안 작성 중…" copyable />
+      )}
+    </div>
+
+    {/* 본문 */}
+    <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px 36px', background: '#ffffff' }}>
+      {msg.bodyHtml ? (
+        <div
+          style={{ fontSize: 13, lineHeight: 1.7, color: '#333333' }}
+          dangerouslySetInnerHTML={{ __html: msg.bodyHtml }}
+        />
+      ) : (
+        <pre
+          style={{
+            margin: 0,
+            fontSize: 13,
+            lineHeight: 1.7,
+            color: '#333333',
+            fontFamily: 'inherit',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+          }}
+        >
+          {msg.bodyText || '(본문 없음)'}
+        </pre>
+      )}
+    </div>
+  </div>
   );
 }
 

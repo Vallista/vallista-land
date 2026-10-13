@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import type { GleanSource } from '@vallista/content-core';
 import { Eyebrow, Mono } from '../../components/atoms/Atoms';
 import { llmChat, type GleanCounts } from '../../lib/tauri';
-import { useLLMWake } from '../../components/LLMWakeModal';
 
 export type SourceFilter = GleanSource | 'all';
 
@@ -29,7 +28,6 @@ export function SourcesRail({
   const todayRssCount = counts?.todayRssCount ?? 0;
   const todayRssTitles = counts?.todayRssTitles ?? [];
 
-  const wake = useLLMWake();
   const [digest, setDigest] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [llmError, setLlmError] = useState<string | null>(null);
@@ -38,37 +36,33 @@ export function SourcesRail({
     if (!todayRssTitles.length || busy) return;
     setDigest(null);
     setLlmError(null);
-    await wake.run(async () => {
-      setBusy(true);
-      try {
-        const titles = todayRssTitles.map((t) => `- ${t}`).join('\n');
-        const out = await llmChat({
-          messages: [
-            {
-              role: 'system',
-              content:
-                '오늘 수집된 RSS 헤드라인 목록을 읽고 오늘의 주요 이슈와 트렌드를 한국어로 3~5줄로 요약한다. 각 줄은 "- "로 시작. 부연·인사·메타발화 금지.',
-            },
-            {
-              role: 'user',
-              content: `오늘 RSS 헤드라인 (${todayRssTitles.length}개):\n${titles}`,
-            },
-          ],
-          temperature: 0.3,
-          maxTokens: 400,
-        });
-        setDigest(out.trim());
-      } catch (e: unknown) {
-        setLlmError(String(e));
-      } finally {
-        setBusy(false);
-      }
-    });
-  }, [todayRssTitles, busy, wake]);
+    setBusy(true);
+    try {
+      const titles = todayRssTitles.map((t) => `- ${t}`).join('\n');
+      const out = await llmChat({
+        messages: [
+          {
+            role: 'system',
+            content:
+              '오늘 수집된 RSS 헤드라인 목록을 읽고 오늘의 주요 이슈와 트렌드를 한국어로 3~5줄로 요약한다. 각 줄은 "- "로 시작. 부연·인사·메타발화 금지.',
+          },
+          {
+            role: 'user',
+            content: `오늘 RSS 헤드라인 (${todayRssTitles.length}개):\n${titles}`,
+          },
+        ],
+        temperature: 0.3,
+        maxTokens: 400,
+      });
+      setDigest(out.trim());
+    } catch (e: unknown) {
+      setLlmError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  }, [todayRssTitles, busy]);
 
   return (
-    <>
-    {wake.modal}
     <aside
       style={{
         flex: '0 0 200px',
@@ -228,7 +222,6 @@ export function SourcesRail({
         </div>
       )}
     </aside>
-    </>
   );
 }
 

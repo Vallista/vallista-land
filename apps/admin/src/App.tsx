@@ -15,7 +15,6 @@ import { Review } from './screens/Review';
 import { Publish } from './screens/Publish';
 import { Thoughts } from './screens/Thoughts';
 import { Mail } from './screens/Mail';
-import { LLMSetup } from './screens/LLMSetup';
 import type { PaneId } from './components/Tweaks';
 import { Onboarding, checkOnboardingDone } from './screens/Onboarding';
 import { SearchPalette } from './components/SearchPalette';
@@ -31,7 +30,6 @@ import { useCheckinReminder } from './lib/useCheckinReminder';
 import {
   applyGlobalShortcuts,
   appSetupStatus,
-  llmStatus,
   macosCalImport,
   macosCalList,
   macosCalStatus,
@@ -79,8 +77,6 @@ const SCREENS: Record<ScreenId, () => JSX.Element> = {
   thoughts: Thoughts,
   mail: Mail,
 };
-
-const LLM_SETUP_DISMISS_KEY = 'bento.llmSetup.dismissed';
 
 export function App() {
   const initialQuick = useMemo(readQuickKindFromHash, []);
@@ -144,7 +140,6 @@ function defaultStatus(): AppSetupStatus {
 
 function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
   const [active, setActive] = useState<ScreenId>('today');
-  const [showLLMSetup, setShowLLMSetup] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [showTweaks, setShowTweaks] = useState(false);
   const [tweaksInitialPane, setTweaksInitialPane] = useState<PaneId | undefined>();
@@ -266,18 +261,6 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
   useEffect(() => {
     readGlobalKeybindingsFromDisk()
       .then((kb) => applyGlobalShortcuts(kb))
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    llmStatus()
-      .then((s) => {
-        if (!s.binPresent || s.models.length === 0) {
-          if (sessionStorage.getItem(LLM_SETUP_DISMISS_KEY) !== '1') {
-            setShowLLMSetup(true);
-          }
-        }
-      })
       .catch(() => {});
   }, []);
 
@@ -409,21 +392,12 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const dismissLLMSetup = () => {
-    sessionStorage.setItem(LLM_SETUP_DISMISS_KEY, '1');
-    setShowLLMSetup(false);
-  };
-
   return (
     <NavContext.Provider value={setActive}>
       <BlogContext.Provider value={blogEnabled}>
       <Shell
         active={active}
         onSelect={setActive}
-        onOpenLLMSetup={() => {
-          setTweaksInitialPane('integrations');
-          setShowTweaks(true);
-        }}
         onOpenSearch={() => setShowSearch(true)}
         onOpenQuick={(kind) => void showQuick(kind)}
         onOpenTweaks={() => setShowTweaks(true)}
@@ -439,7 +413,6 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
           );
         })}
       </Shell>
-      {showLLMSetup && <LLMSetup onDismiss={dismissLLMSetup} />}
       <SearchPalette
         open={showSearch}
         onClose={() => setShowSearch(false)}

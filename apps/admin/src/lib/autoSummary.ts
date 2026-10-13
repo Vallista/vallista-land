@@ -6,9 +6,10 @@ import {
   listMoodInRange,
   listSummaries,
   llmChat,
-  llmStatus,
+  llmGetSettings,
   upsertSummary,
 } from './tauri';
+import { llmAvailable } from './llm';
 import { buildSummaryPrompt } from './summaryPrompt';
 import type { WeekStartDay } from './weekStart';
 
@@ -16,6 +17,14 @@ export type { WeekStartDay };
 
 const DEEP_KINDS = new Set(['deep', 'write', 'build']);
 const BACKOFF_MS = 24 * 60 * 60 * 1000;
+
+async function currentModel(): Promise<string | undefined> {
+  try {
+    return (await llmGetSettings()).claudeModel || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -218,8 +227,7 @@ export async function generateWeeklySummary(
     }
     if (isBackoffActive('weekly', range.key, Date.now())) return null;
   }
-  const status = await llmStatus();
-  if (!status.running) return null;
+  if (!(await llmAvailable())) return null;
 
   const startISO = formatISODate(range.start);
   const endISO = formatISODate(range.end);
@@ -260,7 +268,7 @@ export async function generateWeeklySummary(
         { role: 'user', content: prompt.user },
       ],
       temperature: 0.7,
-      maxTokens: 480,
+      maxTokens: 1024,
     });
     const summary = await upsertSummary({
       kind: 'weekly',
@@ -272,7 +280,7 @@ export async function generateWeeklySummary(
         moodCount: moods.length,
         publishedCount: publishedDocs.length,
       }),
-      model: status.currentModel ?? undefined,
+      model: await currentModel(),
     });
     clearAttempt('weekly', range.key);
     return summary;
@@ -300,8 +308,7 @@ export async function generateMonthlySummary(
     }
     if (isBackoffActive('monthly', range.key, Date.now())) return null;
   }
-  const status = await llmStatus();
-  if (!status.running) return null;
+  if (!(await llmAvailable())) return null;
 
   const startISO = formatISODate(range.start);
   const endISO = formatISODate(range.end);
@@ -360,7 +367,7 @@ export async function generateMonthlySummary(
         { role: 'user', content: prompt.user },
       ],
       temperature: 0.7,
-      maxTokens: 720,
+      maxTokens: 1536,
     });
     const summary = await upsertSummary({
       kind: 'monthly',
@@ -373,7 +380,7 @@ export async function generateMonthlySummary(
         publishedCount: publishedDocs.length,
         weeklyCount: weeklySummaries.length,
       }),
-      model: status.currentModel ?? undefined,
+      model: await currentModel(),
     });
     clearAttempt('monthly', range.key);
     return summary;

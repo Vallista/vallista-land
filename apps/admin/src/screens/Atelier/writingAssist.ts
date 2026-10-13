@@ -1,14 +1,6 @@
-import { llmChat, llmHealth } from '../../lib/tauri';
+import { llmChat } from '../../lib/tauri';
 
 const SYSTEM = `당신은 한국어 블로그 글쓰기를 돕는 편집 보조입니다. 요청에 대해 간결하고 정확하게 응답합니다.`;
-
-export async function checkLlmAvailable(): Promise<boolean> {
-  try {
-    return await llmHealth();
-  } catch {
-    return false;
-  }
-}
 
 export async function runSpellCheck(text: string): Promise<string> {
   return llmChat({

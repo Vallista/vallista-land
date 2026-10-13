@@ -86,7 +86,7 @@ export function SummaryModal({ summary, onClose, onRegenerate }: SummaryModalPro
                 letterSpacing: '0.06em',
               }}
             >
-              자동 정리 · LLM
+              자동 정리 · Claude
             </Mono>
             <span style={{ fontSize: 16, color: 'var(--ink)', fontWeight: 600 }}>
               {periodLabel(summary)}

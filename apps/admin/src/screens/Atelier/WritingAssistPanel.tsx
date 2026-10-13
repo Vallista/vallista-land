@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button, Mono } from '../../components/atoms/Atoms';
-import { useLLMWake } from '../../components/LLMWakeModal';
 import {
   continueWriting,
   improveText,
@@ -37,7 +36,6 @@ const JOB_DESC: Record<JobKind, string> = {
 };
 
 export function WritingAssistPanel({ body, selection, onApply, onClose }: Props) {
-  const wake = useLLMWake();
   const [activeJob, setActiveJob] = useState<JobKind | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -45,37 +43,35 @@ export function WritingAssistPanel({ body, selection, onApply, onClose }: Props)
   const [copied, setCopied] = useState(false);
 
   async function runJob(kind: JobKind) {
-    await wake.run(async () => {
-      setActiveJob(kind);
-      setResult(null);
-      setError(null);
-      setLoading(true);
-      try {
-        let res: string;
-        if (kind === 'spellcheck') {
-          res = await runSpellCheck(body);
-        } else if (kind === 'continue') {
-          res = await continueWriting(body);
-        } else if (kind === 'improve') {
-          if (!selection) {
-            setError('에디터에서 개선할 텍스트를 먼저 선택하세요.');
-            return;
-          }
-          const selStart = body.indexOf(selection);
-          const context = selStart > 0 ? body.slice(0, selStart) : body;
-          res = await improveText(selection, context);
-        } else if (kind === 'references') {
-          res = await suggestReferences(body);
-        } else {
-          res = await suggestMeta(body);
+    setActiveJob(kind);
+    setResult(null);
+    setError(null);
+    setLoading(true);
+    try {
+      let res: string;
+      if (kind === 'spellcheck') {
+        res = await runSpellCheck(body);
+      } else if (kind === 'continue') {
+        res = await continueWriting(body);
+      } else if (kind === 'improve') {
+        if (!selection) {
+          setError('에디터에서 개선할 텍스트를 먼저 선택하세요.');
+          return;
         }
-        setResult(res);
-      } catch (e: unknown) {
-        setError(String(e));
-      } finally {
-        setLoading(false);
+        const selStart = body.indexOf(selection);
+        const context = selStart > 0 ? body.slice(0, selStart) : body;
+        res = await improveText(selection, context);
+      } else if (kind === 'references') {
+        res = await suggestReferences(body);
+      } else {
+        res = await suggestMeta(body);
       }
-    });
+      setResult(res);
+    } catch (e: unknown) {
+      setError(String(e));
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleApply() {
@@ -95,12 +91,10 @@ export function WritingAssistPanel({ body, selection, onApply, onClose }: Props)
   }
 
   return (
-    <>
-      {wake.modal}
-      <div
-        style={{
-          width: 340,
-          borderLeft: '1px solid var(--line)',
+    <div
+      style={{
+        width: 340,
+        borderLeft: '1px solid var(--line)',
         background: 'var(--bg-soft)',
         display: 'flex',
         flexDirection: 'column',
@@ -287,6 +281,5 @@ export function WritingAssistPanel({ body, selection, onApply, onClose }: Props)
         )}
       </div>
     </div>
-    </>
   );
 }

@@ -1,4 +1,4 @@
-import { Channel, invoke as _invoke } from '@tauri-apps/api/core';
+import { invoke as _invoke } from '@tauri-apps/api/core';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { logError, logInfo } from './errorLog';
 import { dispatchToast } from '../components/NotifToast';
@@ -6,8 +6,6 @@ import { dispatchToast } from '../components/NotifToast';
 // 백그라운드 자동 실행 커맨드 — 에러 시 로그만 적재, 토스트 없음
 const SILENT_COMMANDS = new Set([
   'app_setup_status',
-  'llm_status',
-  'llm_health',
   'read_global_keybindings',
   'set_global_shortcuts',
   'migrate_task_notes_to_event_notes',
@@ -809,29 +807,6 @@ export async function setStatsExclusions(keys: string[]): Promise<void> {
   await invoke('set_stats_exclusions', { keys });
 }
 
-export interface LlmModelInfo {
-  name: string;
-  path: string;
-  size: number;
-}
-
-export interface LlmStatus {
-  dataDir: string;
-  binPath: string;
-  binPresent: boolean;
-  modelsDir: string;
-  models: LlmModelInfo[];
-  running: boolean;
-  port: number | null;
-  currentModel: string | null;
-}
-
-export interface LlmStartInput {
-  modelName: string;
-  contextSize?: number;
-  threads?: number;
-}
-
 export interface LlmChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -843,80 +818,12 @@ export interface LlmChatInput {
   maxTokens?: number;
 }
 
-export async function llmStatus(): Promise<LlmStatus> {
-  return invoke<LlmStatus>('llm_status');
-}
-
-export async function llmStart(input: LlmStartInput): Promise<number> {
-  return invoke<number>('llm_start', { input });
-}
-
-export async function llmStop(): Promise<void> {
-  await invoke('llm_stop');
-}
-
-export async function llmHealth(): Promise<boolean> {
-  return invoke<boolean>('llm_health');
-}
-
 export async function llmChat(input: LlmChatInput): Promise<string> {
-  for (let attempt = 0; attempt < 8; attempt++) {
-    try {
-      return await invoke<string>('llm_chat', { input });
-    } catch (e) {
-      const msg = String(e);
-      if (msg.includes('503') && msg.includes('Loading model') && attempt < 7) {
-        await new Promise<void>((r) => setTimeout(r, 2000));
-        continue;
-      }
-      throw e;
-    }
-  }
-  throw new Error('llm_chat failed after retries');
-}
-
-export type LlmDownloadEvent =
-  | { kind: 'started'; data: { total: number | null } }
-  | { kind: 'progress'; data: { downloaded: number; total: number | null } }
-  | { kind: 'finished'; data: { path: string } }
-  | { kind: 'failed'; data: { message: string } };
-
-export async function llmDownloadModel(
-  url: string,
-  fileName: string,
-  onEvent: (event: LlmDownloadEvent) => void,
-): Promise<string> {
-  const channel = new Channel<LlmDownloadEvent>();
-  channel.onmessage = onEvent;
-  return invoke<string>('llm_download_model', { url, fileName, onEvent: channel });
-}
-
-export async function llmDownloadServer(
-  onEvent: (event: LlmDownloadEvent) => void,
-): Promise<string> {
-  const channel = new Channel<LlmDownloadEvent>();
-  channel.onmessage = onEvent;
-  return invoke<string>('llm_download_server', { onEvent: channel });
-}
-
-export async function llmDeleteModel(fileName: string): Promise<void> {
-  await invoke('llm_delete_model', { fileName });
-}
-
-export async function llmInstallBinary(sourcePath: string): Promise<string> {
-  return invoke<string>('llm_install_binary', { sourcePath });
-}
-
-export async function llmOpenDataDir(): Promise<void> {
-  await invoke('llm_open_data_dir');
+  return invoke<string>('llm_chat', { input });
 }
 
 export interface LlmSettings {
-  provider: 'local' | 'claude' | 'openai' | 'gemini';
-  localModel: string | null;
-  claudeModel: string | null;
-  openaiModel: string | null;
-  geminiModel: string | null;
+  claudeModel: string;
 }
 
 export async function llmGetSettings(): Promise<LlmSettings> {
@@ -925,10 +832,6 @@ export async function llmGetSettings(): Promise<LlmSettings> {
 
 export async function llmSaveSettings(settings: LlmSettings): Promise<void> {
   await invoke('llm_save_settings', { settings });
-}
-
-export async function llmGetApiKey(provider: string): Promise<string | null> {
-  return invoke<string | null>('llm_get_api_key', { provider });
 }
 
 export async function openUrl(url: string): Promise<void> {
@@ -1522,16 +1425,7 @@ if (typeof window !== 'undefined') {
     markSummaryRead,
     listReports,
     readReport,
-    llmStatus,
-    llmStart,
-    llmStop,
-    llmHealth,
     llmChat,
-    llmDownloadModel,
-    llmDownloadServer,
-    llmDeleteModel,
-    llmInstallBinary,
-    llmOpenDataDir,
     gitStatus,
     gitLog,
     gitCommitPush,
