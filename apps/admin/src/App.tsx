@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { startNyanotionSync } from './lib/nyanotionSync';
 import { invoke } from '@tauri-apps/api/core';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
@@ -152,10 +153,13 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
 
   useEffect(() => {
     // 노트 마이그레이션이 tasks.json을 다시 쓰므로 구분 마이그레이션은 그 뒤에 순차 실행
+    let stopSync: (() => void) | undefined;
     void (async () => {
       await migrateTaskNotesToEventNotes().catch(() => 0);
       await migrateBlockNotesToEventNotes().catch(() => 0);
       const r = await migrateTaskGroups().catch(() => null);
+      // 냥노션 동기화는 tasks.json 을 다시 쓰는 마이그레이션들이 끝난 뒤에 시작한다.
+      stopSync = startNyanotionSync();
       if (r && (r.migrated > 0 || r.removedFolders > 0)) {
         addToast({
           id: 'task-groups-migrated',
@@ -167,6 +171,7 @@ function FullApp({ blogEnabled }: { blogEnabled: boolean }) {
         window.dispatchEvent(new CustomEvent('bento:task-folders-changed'));
       }
     })();
+    return () => stopSync?.();
   }, [addToast]);
 
   useEffect(() => {

@@ -35,6 +35,7 @@ import {
 } from '../lib/tauri';
 import { readWeekStartDay, writeWeekStartDay, type WeekStartDay } from '../lib/weekStart';
 import { LLMSetupContent } from '../screens/LLMSetup';
+import { SyncPane } from './SyncPane';
 import { useLabels } from '../screens/Plan/labelCatalog';
 import type { Label } from '../screens/Plan/labelCatalog';
 
@@ -69,7 +70,7 @@ const DENSITIES: { value: Density; label: string; hint: string }[] = [
   { value: 'spacious', label: 'Spacious', hint: '여백 위주' },
 ];
 
-export type PaneId = 'appearance' | 'schedule' | 'clipboard' | 'blog' | 'integrations' | 'data' | 'keybindings' | 'labels' | 'logs';
+export type PaneId = 'appearance' | 'schedule' | 'clipboard' | 'blog' | 'integrations' | 'sync' | 'data' | 'keybindings' | 'labels' | 'logs';
 
 const PANES: { id: PaneId; label: string; icon: string; hint: string }[] = [
   { id: 'appearance', label: '외관', icon: '◎', hint: '테마·밀도' },
@@ -77,6 +78,7 @@ const PANES: { id: PaneId; label: string; icon: string; hint: string }[] = [
   { id: 'clipboard', label: '클립보드', icon: '⎘', hint: '히스토리·수집' },
   { id: 'blog', label: '블로그', icon: '▤', hint: '폴더·Git' },
   { id: 'integrations', label: '연동', icon: '◇', hint: '캘린더·Claude' },
+  { id: 'sync', label: '냥노션', icon: '⇅', hint: '할 일 동기화' },
   { id: 'data', label: '데이터', icon: '⊟', hint: '이전·백업' },
   { id: 'keybindings', label: '단축키', icon: '⌘', hint: '키 바인딩' },
   { id: 'labels', label: '라벨', icon: '◉', hint: '종류·색 커스텀' },
@@ -131,7 +133,7 @@ function readClipRetainDays(): ClipRetainDays {
 function readLastPane(): PaneId {
   if (typeof window === 'undefined') return 'appearance';
   const v = window.localStorage.getItem(LAST_PANE_KEY);
-  if (v === 'appearance' || v === 'schedule' || v === 'clipboard' || v === 'blog' || v === 'integrations' || v === 'data' || v === 'keybindings' || v === 'labels' || v === 'logs') {
+  if (v === 'appearance' || v === 'schedule' || v === 'clipboard' || v === 'blog' || v === 'integrations' || v === 'sync' || v === 'data' || v === 'keybindings' || v === 'labels' || v === 'logs') {
     return v;
   }
   return 'appearance';
@@ -565,6 +567,11 @@ export function Tweaks({ open, onClose, onOpenIcal, initialPane }: Props) {
             )}
             {pane === 'integrations' && (
               <IntegrationsPane onOpenIcal={onOpenIcal} />
+            )}
+            {pane === 'sync' && (
+              <Section label="냥노션 동기화" hint="할 일 · 폴더 · 메모 · 하위 항목">
+                <SyncPane />
+              </Section>
             )}
             {pane === 'data' && (
               <DataPane

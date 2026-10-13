@@ -1,4 +1,11 @@
 import { invoke as _invoke } from '@tauri-apps/api/core';
+import {
+  markFolderChanged,
+  markFolderDeleted,
+  markTaskChanged,
+  markTaskDeleted,
+  taskIdFromEventKey,
+} from './syncOutbox';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { logError, logInfo } from './errorLog';
 import { dispatchToast } from '../components/NotifToast';
@@ -251,16 +258,23 @@ export async function listTasks(): Promise<Task[]> {
   return invoke<Task[]>('list_tasks');
 }
 
+// 할 일·폴더·메모·하위 항목을 고치는 래퍼는 냥노션 동기화의 "보낼 것"에 적는다 (lib/syncOutbox.ts).
+// IPC 가 전부 여기를 지나므로 화면 코드는 동기화를 몰라도 된다.
 export async function addTask(input: TaskInput): Promise<Task> {
-  return invoke<Task>('add_task', { input });
+  const task = await invoke<Task>('add_task', { input });
+  markTaskChanged(task.id);
+  return task;
 }
 
 export async function updateTask(id: string, patch: TaskPatch): Promise<Task> {
-  return invoke<Task>('update_task', { id, patch });
+  const task = await invoke<Task>('update_task', { id, patch });
+  markTaskChanged(id);
+  return task;
 }
 
 export async function deleteTask(id: string): Promise<void> {
   await invoke('delete_task', { id });
+  markTaskDeleted(id);
 }
 
 export interface TaskFolderInput {
@@ -281,15 +295,21 @@ export async function listTaskFolders(): Promise<TaskFolder[]> {
 }
 
 export async function addTaskFolder(input: TaskFolderInput): Promise<TaskFolder> {
-  return invoke<TaskFolder>('add_task_folder', { input });
+  const folder = await invoke<TaskFolder>('add_task_folder', { input });
+  markFolderChanged(folder.id);
+  return folder;
 }
 
 export async function renameTaskFolder(id: string, name: string): Promise<TaskFolder> {
-  return invoke<TaskFolder>('rename_task_folder', { id, name });
+  const folder = await invoke<TaskFolder>('rename_task_folder', { id, name });
+  markFolderChanged(id);
+  return folder;
 }
 
 export async function deleteTaskFolder(id: string): Promise<void> {
+  // 안의 할 일·하위 폴더는 Rust 가 위로 올린다. 서버도 같은 규칙이라 폴더 지우기만 보내면 맞는다.
   await invoke('delete_task_folder', { id });
+  markFolderDeleted(id);
 }
 
 export async function migrateTaskGroups(): Promise<TaskGroupMigration> {
@@ -449,7 +469,10 @@ export async function listEventNotesBySeries(seriesKey: string): Promise<EventNo
 }
 
 export async function upsertEventNote(input: EventNoteUpsertInput): Promise<EventNote> {
-  return invoke<EventNote>('upsert_event_note', { input });
+  const note = await invoke<EventNote>('upsert_event_note', { input });
+  const taskId = taskIdFromEventKey(input.eventKey);
+  if (taskId) markTaskChanged(taskId);
+  return note;
 }
 
 export async function deleteEventNote(id: string): Promise<void> {
@@ -490,15 +513,23 @@ export async function listEventSubtasks(eventKey: string): Promise<EventSubtask[
 }
 
 export async function addEventSubtask(input: AddEventSubtaskInput): Promise<EventSubtask> {
-  return invoke<EventSubtask>('add_event_subtask', { input });
+  const sub = await invoke<EventSubtask>('add_event_subtask', { input });
+  const taskId = taskIdFromEventKey(input.eventKey);
+  if (taskId) markTaskChanged(taskId);
+  return sub;
 }
 
 export async function toggleEventSubtask(eventKey: string, id: string, done: boolean): Promise<EventSubtask> {
-  return invoke<EventSubtask>('toggle_event_subtask', { eventKey, id, done });
+  const sub = await invoke<EventSubtask>('toggle_event_subtask', { eventKey, id, done });
+  const taskId = taskIdFromEventKey(eventKey);
+  if (taskId) markTaskChanged(taskId);
+  return sub;
 }
 
 export async function deleteEventSubtask(eventKey: string, id: string): Promise<void> {
   await invoke('delete_event_subtask', { eventKey, id });
+  const taskId = taskIdFromEventKey(eventKey);
+  if (taskId) markTaskChanged(taskId);
 }
 
 export async function listAllEventSubtaskCounts(): Promise<EventSubtaskCount[]> {
@@ -926,6 +957,14 @@ export async function keychainHasToken(remote: string): Promise<boolean> {
 
 export async function keychainDeleteToken(remote: string): Promise<void> {
   await invoke('keychain_delete_token', { remote });
+}
+
+/** 냥노션 동기화 토큰을 둔 키체인 자리 (Rust `SYNC_REMOTE` 와 같아야 한다). 저장·지우기는 위 래퍼로. */
+export const SYNC_KEYCHAIN_REMOTE = 'nyanotion-sync';
+
+/** 냥노션 동기화 토큰을 읽는다. 이 자리 하나만 웹뷰로 나온다. */
+export async function syncTokenGet(): Promise<string | null> {
+  return invoke<string | null>('sync_token_get');
 }
 
 export interface ClipboardEntry {

@@ -385,6 +385,7 @@ pub fn run() {
             commands::keychain::keychain_set_token,
             commands::keychain::keychain_has_token,
             commands::keychain::keychain_delete_token,
+            commands::keychain::sync_token_get,
             // === life: rss feeds ===
             commands::rss::list_rss_feeds,
             commands::rss::add_rss_feed,

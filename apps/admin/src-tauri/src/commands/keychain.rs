@@ -125,3 +125,13 @@ pub fn keychain_delete_token(remote: String, state: State<'_, AppState>) -> Resu
     let service = keychain_service(&state.data_root);
     delete_token_inner(r, &service)
 }
+
+/// 냥노션 동기화 토큰을 둔 키체인 자리. 저장은 기존 `keychain_set_token` 으로 한다.
+pub const SYNC_REMOTE: &str = "nyanotion-sync";
+
+/// 냥노션 동기화 토큰을 읽는다. **이 자리 하나만** 웹뷰로 돌려준다 — git·LLM 토큰은 여전히
+/// Rust 안에서만 쓰이고 웹뷰가 읽을 길이 없다.
+#[tauri::command]
+pub fn sync_token_get(state: State<'_, AppState>) -> Result<Option<String>, String> {
+    read_token(SYNC_REMOTE, &state.data_root)
+}
