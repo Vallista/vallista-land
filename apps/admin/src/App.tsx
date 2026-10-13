@@ -15,7 +15,6 @@ import { Review } from './screens/Review';
 import { Publish } from './screens/Publish';
 import { Thoughts } from './screens/Thoughts';
 import { Mail } from './screens/Mail';
-import { Health } from './screens/Health';
 import { LLMSetup } from './screens/LLMSetup';
 import type { PaneId } from './components/Tweaks';
 import { Onboarding, checkOnboardingDone } from './screens/Onboarding';
@@ -74,7 +73,6 @@ const SCREENS: Record<ScreenId, () => JSX.Element> = {
   glean: Glean,
   plan: Plan,
   radar: Radar,
-  health: Health,
   insights: Insights,
   review: Review,
   publish: Publish,

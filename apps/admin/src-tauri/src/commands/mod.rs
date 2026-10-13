@@ -1,5 +1,4 @@
 pub mod blocks;
-pub mod body_log;
 pub mod clipboard;
 pub mod docs;
 pub mod event_notes;

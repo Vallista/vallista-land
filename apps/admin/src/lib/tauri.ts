@@ -85,12 +85,8 @@ import type {
   Block,
   BlockKind,
   BlockSource,
-  BodyLog,
-  BodySpec,
   DocSummary,
   DocFile,
-  ExerciseEntry,
-  MealEntry,
   Mood,
   Report,
   ReportSummary,
@@ -104,8 +100,6 @@ import type {
   Task,
   TaskFolder,
 } from '@vallista/content-core';
-
-export type { BodyLog, BodySpec, ExerciseEntry, MealEntry };
 
 export interface AssetData {
   mime: string;
@@ -756,44 +750,6 @@ export async function setRetrospective(date: string, note: string): Promise<Mood
 
 export async function deleteMood(date: string): Promise<void> {
   await invoke('delete_mood', { date });
-}
-
-export interface BodyLogInput {
-  date: string;
-  weight?: number;
-  bodyFat?: number;
-  sleepAt?: string;
-  wakeAt?: string;
-  exercises?: ExerciseEntry[];
-  meals?: MealEntry[];
-}
-
-export async function listBodyLog(): Promise<BodyLog[]> {
-  return invoke<BodyLog[]>('list_body_log');
-}
-
-export async function listBodyLogInRange(startDate: string, endDate: string): Promise<BodyLog[]> {
-  return invoke<BodyLog[]>('list_body_log_in_range', { startDate, endDate });
-}
-
-export async function getBodyLog(date: string): Promise<BodyLog | null> {
-  return invoke<BodyLog | null>('get_body_log', { date });
-}
-
-export async function setBodyLog(input: BodyLogInput): Promise<BodyLog> {
-  return invoke<BodyLog>('set_body_log', { input });
-}
-
-export async function deleteBodyLog(date: string): Promise<void> {
-  await invoke('delete_body_log', { date });
-}
-
-export async function getBodySpec(): Promise<BodySpec | null> {
-  return invoke<BodySpec | null>('get_body_spec');
-}
-
-export async function setBodySpec(spec: BodySpec): Promise<BodySpec> {
-  return invoke<BodySpec>('set_body_spec', { spec });
 }
 
 export interface SummaryUpsertInput {

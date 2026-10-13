@@ -33,7 +33,6 @@ export type ScreenId =
   | 'plan'
   | 'radar'
   | 'glean'
-  | 'health'
   | 'atelier'
   | 'publish'
   | 'insights'
@@ -74,7 +73,6 @@ function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
         { id: 'plan', label: '할 일', icon: '☐', count: counts.plan, badge: counts.planBadge },
         { id: 'radar', label: '레이더', icon: '◎', badge: counts.radarAlerts ? String(counts.radarAlerts) : undefined },
         { id: 'glean', label: '줍기', icon: '⊞', count: counts.glean },
-        { id: 'health', label: '헬스', icon: '◉' },
         { id: 'mail', label: '메일', icon: '✉', count: counts.mailUnread },
       ],
     },

@@ -339,14 +339,6 @@ pub fn run() {
             commands::mood::set_mood,
             commands::mood::set_retrospective,
             commands::mood::delete_mood,
-            // === life: body log ===
-            commands::body_log::list_body_log,
-            commands::body_log::list_body_log_in_range,
-            commands::body_log::get_body_log,
-            commands::body_log::set_body_log,
-            commands::body_log::delete_body_log,
-            commands::body_log::get_body_spec,
-            commands::body_log::set_body_spec,
             // === life: glean (data_root 저장) ===
             commands::glean::list_glean,
             commands::glean::glean_counts,
