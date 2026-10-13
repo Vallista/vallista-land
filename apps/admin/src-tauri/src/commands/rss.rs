@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use std::sync::OnceLock;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use tauri::State;
+use tauri::{Emitter, Manager, State};
 use tokio::sync::Mutex;
 
 use crate::commands::glean::{self, GleanItem};
@@ -479,6 +479,7 @@ pub fn persist_feed_result(
 #[tauri::command]
 pub async fn sync_rss_feed(
     id: String,
+    app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<RssSyncResult, String> {
     let _guard = sync_lock().lock().await;
@@ -492,11 +493,14 @@ pub async fn sync_rss_feed(
     let dedup = build_dedup_set(&existing);
     let outcome = sync_one(&state.data_root, &feed, &cfg, &dedup).await;
     persist_feed_result(&state.data_root, &feed.id, &outcome)?;
+    let summaries = vec![(feed.id.clone(), outcome.summary.clone())];
+    let _ = app.emit("bento:rss-synced", &summaries);
     Ok(outcome.summary)
 }
 
 #[tauri::command]
 pub async fn sync_rss_feeds(
+    app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<Vec<(String, RssSyncResult)>, String> {
     let _guard = sync_lock().lock().await;
@@ -513,6 +517,7 @@ pub async fn sync_rss_feeds(
         persist_feed_result(&state.data_root, &feed.id, &outcome)?;
         summaries.push((feed.id.clone(), outcome.summary));
     }
+    let _ = app.emit("bento:rss-synced", &summaries);
     Ok(summaries)
 }
 
@@ -520,14 +525,16 @@ pub async fn sync_rss_feeds(
 // === Background poller (PR3) ================================
 // ============================================================
 
+/// 주기가 된 피드만 동기화한다. 대상이 없으면 이벤트를 내지 않고 `None`을 돌려준다.
 async fn run_due_sync(
+    app: &tauri::AppHandle,
     data_root: std::path::PathBuf,
     cfg: RssConfig,
-) -> Vec<(String, RssSyncResult)> {
+) -> Option<Vec<(String, RssSyncResult)>> {
     let _guard = sync_lock().lock().await;
     let feeds = match load_feeds(&data_root) {
         Ok(v) => v,
-        Err(_) => return Vec::new(),
+        Err(_) => return None,
     };
     let now_secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -551,8 +558,9 @@ async fn run_due_sync(
         })
         .collect();
     if due.is_empty() {
-        return Vec::new();
+        return None;
     }
+    let _ = app.emit("bento:rss-syncing", ());
     let max = cfg.max_concurrent.max(1) as usize;
     let semaphore = std::sync::Arc::new(tokio::sync::Semaphore::new(max));
     let existing = glean::list_items(&data_root).unwrap_or_default();
@@ -587,12 +595,10 @@ async fn run_due_sync(
             results.push(r);
         }
     }
-    results
+    Some(results)
 }
 
 pub async fn start_poller(app: tauri::AppHandle) {
-    use tauri::{Emitter, Manager};
-
     // first-run jitter (0~30s) to stagger startup
     let now_secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -619,9 +625,9 @@ pub async fn start_poller(app: tauri::AppHandle) {
             continue;
         }
 
-        let _ = app.emit("bento:rss-syncing", ());
-        let summaries = run_due_sync(data_root, cfg).await;
-        let _ = app.emit("bento:rss-synced", &summaries);
+        if let Some(summaries) = run_due_sync(&app, data_root, cfg).await {
+            let _ = app.emit("bento:rss-synced", &summaries);
+        }
     }
 }
 

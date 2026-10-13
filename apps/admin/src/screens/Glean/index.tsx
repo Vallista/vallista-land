@@ -8,6 +8,7 @@ import {
   syncRssFeeds,
   syncThreadsProfile,
   type GleanCounts,
+  type RssSyncResult,
   type ThreadsProfile,
 } from '../../lib/tauri';
 import { dispatchToast, dispatchRemoveToast } from '../../components/NotifToast';
@@ -20,6 +21,17 @@ import { SubscriptionsDialog, type SubsTab } from './SubscriptionsDialog';
 export type StatusFilter = GleanStatus | 'all';
 
 const GLEAN_LIMIT = 30;
+
+function sumSyncResults(payload: unknown): { added: number; updated: number } | null {
+  if (!Array.isArray(payload)) return null;
+  let added = 0;
+  let updated = 0;
+  for (const [, r] of payload as Array<[string, RssSyncResult]>) {
+    added += r?.added ?? 0;
+    updated += r?.updated ?? 0;
+  }
+  return { added, updated };
+}
 
 export function Glean() {
   const [items, setItems] = useState<GleanItem[]>([]);
@@ -39,6 +51,7 @@ export function Glean() {
   const [isLoading, setIsLoading] = useState(true);
   const manualRefreshRef = useRef(false);
   const loadVersionRef = useRef(0);
+  const itemCountRef = useRef(0);
 
   const refreshCounts = useCallback(() => {
     gleanCounts().then(setCounts).catch(() => {});
@@ -87,7 +100,29 @@ export function Glean() {
     } catch {
       // 더 불러오기 실패는 조용히
     } finally {
-      if (loadVersionRef.current === ver) setIsLoadingMore(false);
+      // 필터가 바뀌어 응답을 버리더라도 플래그는 풀어야 다음 더 불러오기가 막히지 않는다
+      setIsLoadingMore(false);
+    }
+  }, []);
+
+  // 백그라운드 갱신: 스켈레톤·스크롤·이미 불러온 페이지를 유지한 채 같은 범위를 다시 받는다
+  const reloadInPlace = useCallback(async (f: StatusFilter, s: SourceFilter) => {
+    const ver = loadVersionRef.current;
+    const loaded = itemCountRef.current;
+    const limit = Math.max(GLEAN_LIMIT, Math.ceil(loaded / GLEAN_LIMIT) * GLEAN_LIMIT);
+    try {
+      const page = await listGlean({
+        status: f === 'all' ? undefined : f,
+        source: s === 'all' ? undefined : s,
+        offset: 0,
+        limit,
+      });
+      if (loadVersionRef.current !== ver) return;
+      setItems(page.items);
+      setTotal(page.total);
+      setHasMore(page.total > page.items.length);
+    } catch {
+      // 백그라운드 갱신 실패는 보고 있던 목록을 유지한다
     }
   }, []);
 
@@ -96,9 +131,9 @@ export function Glean() {
   }, []);
 
   const refresh = useCallback(() => {
-    void loadFirstPage(filter, source);
+    void reloadInPlace(filter, source);
     refreshCounts();
-  }, [loadFirstPage, filter, source, refreshCounts]);
+  }, [reloadInPlace, filter, source, refreshCounts]);
 
   const handleRefresh = useCallback(() => {
     manualRefreshRef.current = true;
@@ -122,6 +157,10 @@ export function Glean() {
   }, [profiles, refresh, refreshProfiles]);
 
   useEffect(() => {
+    itemCountRef.current = items.length;
+  }, [items.length]);
+
+  useEffect(() => {
     void loadFirstPage(filter, source);
     refreshCounts();
     refreshProfiles();
@@ -139,13 +178,16 @@ export function Glean() {
   useEffect(() => {
     const unsubs: Array<() => void> = [];
     listen('bento:rss-syncing', () => setSyncingRss(true)).then((fn) => unsubs.push(fn));
-    listen('bento:rss-synced', () => {
+    listen<Array<[string, RssSyncResult]>>('bento:rss-synced', (ev) => {
       setSyncingRss(false);
-      refresh();
+      const sum = sumSyncResults(ev.payload);
+      if (!sum || sum.added + sum.updated > 0) refresh();
       if (manualRefreshRef.current) {
         manualRefreshRef.current = false;
         dispatchRemoveToast('glean-rss-refresh');
-        dispatchToast({ title: '피드 업데이트됨', duration: 3000 });
+        let title = '피드 업데이트됨';
+        if (sum) title += sum.added > 0 ? ` · 새 글 ${sum.added}개` : ' · 새 글 없음';
+        dispatchToast({ title, duration: 3000 });
       }
     }).then((fn) => unsubs.push(fn));
     return () => unsubs.forEach((fn) => fn());

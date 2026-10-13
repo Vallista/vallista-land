@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import type { GleanItem, GleanSource, GleanStatus } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
 import type { StatusFilter } from './index';
@@ -60,6 +60,28 @@ export function GleanList({
   const [addOpen, setAddOpen] = useState(false);
   const [previewItem, setPreviewItem] = useState<GleanItem | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<{ firstId: string | null; firstTop: number }>({ firstId: null, firstTop: 0 });
+
+  // 백그라운드 갱신으로 위쪽에 새 항목이 끼어들면 보던 위치가 밀리지 않도록 scrollTop을 보정한다
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    const first = items[0];
+    if (!el || !first) {
+      anchorRef.current = { firstId: null, firstTop: 0 };
+      return;
+    }
+    const contentTop = (node: Element) =>
+      node.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+    const prev = anchorRef.current;
+    const idx = prev.firstId ? items.findIndex((i) => i.id === prev.firstId) : -1;
+    if (idx > 0 && el.scrollTop > 0) {
+      const node = el.children[idx];
+      if (node) el.scrollTop += contentTop(node) - prev.firstTop;
+    }
+    const firstNode = el.children[0];
+    anchorRef.current = { firstId: first.id, firstTop: firstNode ? contentTop(firstNode) : 0 };
+  }, [items]);
 
   const stableLoadMore = useCallback(() => {
     if (hasMore && onLoadMore) onLoadMore();
@@ -106,25 +128,6 @@ export function GleanList({
         background: 'var(--bg-soft)',
       }}
     >
-      {syncingLabel && (
-        <div
-          style={{
-            padding: '6px 12px',
-            background: 'var(--blue)',
-            color: '#fff',
-            fontSize: 11,
-            fontFamily: 'var(--font-mono)',
-            letterSpacing: '0.04em',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 7,
-            flexShrink: 0,
-          }}
-        >
-          <SyncSpinner />
-          {syncingLabel} 동기화 중…
-        </div>
-      )}
       <div
         style={{
           padding: '10px 10px 8px',
@@ -135,8 +138,24 @@ export function GleanList({
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)', letterSpacing: '0.06em' }}>
-            줍기 · {totalCount}
+          <Mono
+            style={{
+              fontSize: 10.5,
+              color: syncingLabel ? 'var(--blue)' : 'var(--ink-mute)',
+              letterSpacing: '0.06em',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            {syncingLabel ? (
+              <>
+                <SyncSpinner />
+                {syncingLabel} 동기화 중…
+              </>
+            ) : (
+              <>줍기 · {totalCount}</>
+            )}
           </Mono>
           <div style={{ display: 'flex', gap: 4 }}>
             {onRefresh && (
@@ -192,7 +211,7 @@ export function GleanList({
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '4px 4px 12px' }}>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '4px 4px 12px' }}>
         {items.length === 0 ? (
           <div
             style={{
@@ -505,8 +524,8 @@ function SyncSpinner() {
           width: 10,
           height: 10,
           borderRadius: 999,
-          border: '1.5px solid rgba(255,255,255,0.35)',
-          borderTopColor: '#fff',
+          border: '1.5px solid var(--blue-soft)',
+          borderTopColor: 'var(--blue)',
           animation: 'glean-spin 0.7s linear infinite',
           flexShrink: 0,
         }}
