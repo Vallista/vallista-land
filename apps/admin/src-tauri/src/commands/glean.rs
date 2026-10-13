@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::{Mutex, MutexGuard, OnceLock};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 use crate::repo::{build_user_agent, ensure_inside, load_config, AppState};
@@ -12,6 +12,10 @@ use crate::repo::{build_user_agent, ensure_inside, load_config, AppState};
 const GLEAN_DIR: &str = "glean";
 const IMG_MARKER: &str = "[img]";
 const PREVIEW_CHARS: usize = 600;
+const INDEX_FILE: &str = "glean_index.json";
+const INDEX_VERSION: u32 = 1;
+/// 쓰기 직후마다 7천 건짜리 인덱스를 다시 쓰지 않도록 flush 사이에 두는 최소 간격.
+const INDEX_FLUSH_INTERVAL: Duration = Duration::from_secs(10);
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -47,7 +51,7 @@ pub struct GleanItem {
 }
 
 /// 목록·검색·카운트용 요약. 본문(`body`)과 하이라이트를 뺀 필드만 담고 메모리 인덱스에 상주한다.
-#[derive(Serialize, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GleanSummary {
     pub id: String,
@@ -73,12 +77,62 @@ pub struct GleanSummary {
     pub has_image: bool,
 }
 
-struct GleanIndex {
-    root: PathBuf,
-    items: Vec<GleanSummary>,
+/// 파일이 바뀌었는지 판별하는 스탬프. 길이와 수정 시각(ns)이 모두 같으면 재파싱 없이 요약을 재사용한다.
+#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+struct FileStamp {
+    len: u64,
+    mtime: u64,
 }
 
-/// 프로세스 전역 요약 인덱스. 첫 조회 때 glean/ 전체를 한 번 읽고, 이후 쓰기·삭제는 `write_item`·`delete_item`이 반영한다.
+fn stamp_of(meta: &fs::Metadata) -> FileStamp {
+    let mtime = meta
+        .modified()
+        .ok()
+        .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
+        .map(|d| d.as_nanos().min(u64::MAX as u128) as u64)
+        .unwrap_or(0);
+    FileStamp {
+        len: meta.len(),
+        mtime,
+    }
+}
+
+/// 인덱스 한 항목. `file`은 glean/ 안의 파일 stem(= 보통 id)이다.
+#[derive(Serialize, Deserialize, Clone)]
+struct IndexEntry {
+    file: String,
+    stamp: FileStamp,
+    summary: GleanSummary,
+}
+
+#[derive(Deserialize)]
+struct PersistedIndex {
+    version: u32,
+    entries: Vec<IndexEntry>,
+}
+
+#[derive(Serialize)]
+struct PersistedIndexRef<'a> {
+    version: u32,
+    entries: &'a [IndexEntry],
+}
+
+struct GleanIndex {
+    root: PathBuf,
+    entries: Vec<IndexEntry>,
+    dirty: bool,
+    last_flush: Instant,
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct LoadStats {
+    reused: usize,
+    parsed: usize,
+    dropped: usize,
+}
+
+/// 프로세스 전역 요약 인덱스. 첫 조회 때 `data_root/glean_index.json`을 읽고 glean/ 파일 스탬프와 대조해
+/// 바뀐 파일만 다시 파싱한다. 이후 쓰기·삭제는 `write_item`·`delete_item`이 반영하고, 변경분은 지연 flush된다.
 static GLEAN_INDEX: OnceLock<Mutex<Option<GleanIndex>>> = OnceLock::new();
 
 fn index_guard() -> MutexGuard<'static, Option<GleanIndex>> {
@@ -91,6 +145,10 @@ fn index_guard() -> MutexGuard<'static, Option<GleanIndex>> {
 
 fn glean_dir(root: &Path) -> std::path::PathBuf {
     root.join(GLEAN_DIR)
+}
+
+fn index_path(root: &Path) -> PathBuf {
+    root.join(INDEX_FILE)
 }
 
 fn item_path(root: &Path, id: &str) -> Result<std::path::PathBuf, String> {
@@ -180,77 +238,178 @@ fn sort_key(s: &GleanSummary) -> &str {
     s.published_at.as_deref().unwrap_or(s.fetched_at.as_str())
 }
 
-fn sort_summaries(items: &mut [GleanSummary]) {
-    items.sort_by(|a, b| sort_key(b).cmp(sort_key(a)));
+fn sort_entries(entries: &mut [IndexEntry]) {
+    entries.sort_by(|a, b| sort_key(&b.summary).cmp(sort_key(&a.summary)));
 }
 
-fn scan_summaries(root: &Path) -> Result<Vec<GleanSummary>, String> {
+fn parse_item(path: &Path) -> Option<GleanItem> {
+    let raw = fs::read_to_string(path).ok()?;
+    serde_json::from_str::<GleanItem>(&raw).ok()
+}
+
+/// 저장된 인덱스를 파일 stem 기준 맵으로 읽는다. 없거나 깨졌거나 버전이 다르면 None(전체 재파싱).
+fn read_persisted(root: &Path) -> Option<HashMap<String, IndexEntry>> {
+    let raw = fs::read_to_string(index_path(root)).ok()?;
+    let persisted = serde_json::from_str::<PersistedIndex>(&raw).ok()?;
+    if persisted.version != INDEX_VERSION {
+        return None;
+    }
+    Some(
+        persisted
+            .entries
+            .into_iter()
+            .map(|e| (e.file.clone(), e))
+            .collect(),
+    )
+}
+
+/// glean/ 디렉터리를 stat만으로 훑어 저장된 인덱스와 대조한다. 스탬프가 같은 파일은 요약을 재사용하고,
+/// 새 파일·바뀐 파일만 파싱하며, 사라진 파일은 버린다. 달라진 게 있으면 인덱스 파일을 바로 다시 쓴다.
+fn load_index(root: &Path) -> Result<(GleanIndex, LoadStats), String> {
+    let persisted = read_persisted(root);
+    let had_persisted = persisted.is_some();
+    let mut persisted = persisted.unwrap_or_default();
+    let mut stats = LoadStats::default();
+    let mut entries: Vec<IndexEntry> = Vec::new();
     let dir = glean_dir(root);
-    if !dir.is_dir() {
-        return Ok(Vec::new());
-    }
-    let mut items: Vec<GleanSummary> = Vec::new();
-    for entry in fs::read_dir(&dir).map_err(|e| e.to_string())? {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
-        let path = entry.path();
-        if path.extension().map_or(true, |e| e != "json") {
-            continue;
+    if dir.is_dir() {
+        for entry in fs::read_dir(&dir).map_err(|e| e.to_string())? {
+            let entry = match entry {
+                Ok(e) => e,
+                Err(_) => continue,
+            };
+            let path = entry.path();
+            if path.extension().map_or(true, |e| e != "json") {
+                continue;
+            }
+            let stem = match path.file_stem().and_then(|s| s.to_str()) {
+                Some(s) => s.to_string(),
+                None => continue,
+            };
+            let meta = match entry.metadata() {
+                Ok(m) if m.is_file() => m,
+                _ => continue,
+            };
+            let stamp = stamp_of(&meta);
+            let was_indexed = match persisted.remove(&stem) {
+                Some(prev) if prev.stamp == stamp => {
+                    entries.push(prev);
+                    stats.reused += 1;
+                    continue;
+                }
+                Some(_) => true,
+                None => false,
+            };
+            match parse_item(&path) {
+                Some(item) => {
+                    entries.push(IndexEntry {
+                        file: stem,
+                        stamp,
+                        summary: summarize(&item),
+                    });
+                    stats.parsed += 1;
+                }
+                None if was_indexed => stats.dropped += 1,
+                None => {}
+            }
         }
-        let raw = match fs::read_to_string(&path) {
-            Ok(s) => s,
-            Err(_) => continue,
-        };
-        match serde_json::from_str::<GleanItem>(&raw) {
-            Ok(item) => items.push(summarize(&item)),
-            Err(_) => continue,
+    }
+    stats.dropped += persisted.len();
+    sort_entries(&mut entries);
+    let changed = !had_persisted || stats.parsed > 0 || stats.dropped > 0;
+    let mut ix = GleanIndex {
+        root: root.to_path_buf(),
+        entries,
+        dirty: changed,
+        last_flush: Instant::now(),
+    };
+    if changed {
+        if let Err(err) = flush_now(&mut ix) {
+            eprintln!("glean: failed to persist index: {}", err);
         }
     }
-    sort_summaries(&mut items);
-    Ok(items)
+    Ok((ix, stats))
 }
 
-/// 인덱스를 보장한 뒤 클로저에 넘긴다. 첫 호출(또는 root가 바뀐 뒤)에만 전체 스캔이 일어난다.
-fn with_index<T>(root: &Path, f: impl FnOnce(&[GleanSummary]) -> T) -> Result<T, String> {
+/// 임시 파일에 쓴 뒤 rename해서 읽는 쪽이 반쯤 쓰인 인덱스를 보지 않게 한다.
+fn flush_now(ix: &mut GleanIndex) -> Result<(), String> {
+    let json = serde_json::to_vec(&PersistedIndexRef {
+        version: INDEX_VERSION,
+        entries: &ix.entries,
+    })
+    .map_err(|e| e.to_string())?;
+    ix.last_flush = Instant::now();
+    let path = index_path(&ix.root);
+    let tmp = ix.root.join(format!("{}.tmp", INDEX_FILE));
+    fs::write(&tmp, json).map_err(|e| e.to_string())?;
+    fs::rename(&tmp, &path).map_err(|e| e.to_string())?;
+    ix.dirty = false;
+    Ok(())
+}
+
+fn maybe_flush(ix: &mut GleanIndex, force: bool) {
+    if ix.dirty && (force || ix.last_flush.elapsed() >= INDEX_FLUSH_INTERVAL) {
+        if let Err(err) = flush_now(ix) {
+            eprintln!("glean: failed to persist index: {}", err);
+        }
+    }
+}
+
+/// 인덱스를 보장한 뒤 클로저에 넘긴다. 첫 호출(또는 root가 바뀐 뒤)에만 디렉터리 stat 대조가 일어난다.
+fn with_index<T>(root: &Path, f: impl FnOnce(&[IndexEntry]) -> T) -> Result<T, String> {
     let mut guard = index_guard();
     let stale = guard.as_ref().map_or(true, |ix| ix.root != root);
     if stale {
-        let items = scan_summaries(root)?;
-        *guard = Some(GleanIndex {
-            root: root.to_path_buf(),
-            items,
-        });
+        if let Some(old) = guard.as_mut() {
+            maybe_flush(old, true);
+        }
+        let (ix, _) = load_index(root)?;
+        *guard = Some(ix);
     }
-    match guard.as_ref() {
-        Some(ix) => Ok(f(&ix.items)),
+    match guard.as_mut() {
+        Some(ix) => {
+            maybe_flush(ix, false);
+            Ok(f(&ix.entries))
+        }
         None => Err("glean index unavailable".to_string()),
     }
 }
 
-fn index_upsert(root: &Path, item: &GleanItem) {
+fn index_upsert(root: &Path, item: &GleanItem, stamp: FileStamp) {
     let mut guard = index_guard();
     if let Some(ix) = guard.as_mut().filter(|ix| ix.root == root) {
-        let summary = summarize(item);
-        match ix.items.iter().position(|s| s.id == item.id) {
-            Some(pos) => ix.items[pos] = summary,
-            None => ix.items.push(summary),
+        let entry = IndexEntry {
+            file: item.id.clone(),
+            stamp,
+            summary: summarize(item),
+        };
+        match ix.entries.iter().position(|e| e.summary.id == item.id) {
+            Some(pos) => ix.entries[pos] = entry,
+            None => ix.entries.push(entry),
         }
-        sort_summaries(&mut ix.items);
+        sort_entries(&mut ix.entries);
+        ix.dirty = true;
+        maybe_flush(ix, false);
     }
 }
 
 fn index_remove(root: &Path, id: &str) {
     let mut guard = index_guard();
     if let Some(ix) = guard.as_mut().filter(|ix| ix.root == root) {
-        ix.items.retain(|s| s.id != id);
+        let before = ix.entries.len();
+        ix.entries.retain(|e| e.summary.id != id);
+        if ix.entries.len() != before {
+            ix.dirty = true;
+            maybe_flush(ix, false);
+        }
     }
 }
 
 /// 백그라운드 동기화의 중복 판별용. 요약 전체를 복사해 돌려준다.
 pub fn list_summaries(root: &Path) -> Result<Vec<GleanSummary>, String> {
-    with_index(root, |items| items.to_vec())
+    with_index(root, |entries| {
+        entries.iter().map(|e| e.summary.clone()).collect()
+    })
 }
 
 #[derive(Serialize)]
@@ -282,7 +441,7 @@ fn list_page(
     with_index(root, |all| {
         let mut total = 0usize;
         let mut items: Vec<GleanSummary> = Vec::new();
-        let matched = all.iter().filter(|it| {
+        let matched = all.iter().map(|e| &e.summary).filter(|it| {
             status.map_or(true, |s| it.status == s)
                 && source.map_or(true, |s| it.source == s)
                 && exclude_status.map_or(true, |s| it.status != s)
@@ -306,7 +465,7 @@ fn counts(root: &Path) -> Result<GleanCounts, String> {
         let mut by_feed_id: HashMap<String, usize> = HashMap::new();
         let mut today_rss_count = 0usize;
         let mut today_rss_titles: Vec<String> = Vec::new();
-        for it in all {
+        for it in all.iter().map(|e| &e.summary) {
             *by_source.entry(it.source.clone()).or_insert(0) += 1;
             *by_status.entry(it.status.clone()).or_insert(0) += 1;
             if let Some(fid) = &it.feed_id {
@@ -335,6 +494,7 @@ fn search(root: &Path, query: &str, limit: usize) -> Result<Vec<GleanSummary>, S
     }
     with_index(root, |all| {
         all.iter()
+            .map(|e| &e.summary)
             .filter(|it| {
                 it.title.to_lowercase().contains(&q)
                     || it.url.to_lowercase().contains(&q)
@@ -502,7 +662,10 @@ pub fn write_item(root: &Path, item: &GleanItem) -> Result<(), String> {
     }
     let json = serde_json::to_string_pretty(item).map_err(|e| e.to_string())?;
     fs::write(&safe, json).map_err(|e| e.to_string())?;
-    index_upsert(root, item);
+    let stamp = fs::metadata(&safe)
+        .map(|m| stamp_of(&m))
+        .unwrap_or(FileStamp { len: 0, mtime: 0 });
+    index_upsert(root, item, stamp);
     Ok(())
 }
 
@@ -687,9 +850,32 @@ fn first_attr(doc: &Html, selector: &Selector, attr: &str) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{counts, delete_item, first_image, list_page, search, write_item, GleanItem};
+    use super::{
+        counts, delete_item, first_image, index_guard, index_path, item_path, list_page,
+        load_index, search, write_item, GleanItem, LoadStats, INDEX_FILE,
+    };
     use std::fs;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
+    use std::sync::{Mutex, MutexGuard};
+
+    /// 인덱스는 프로세스 전역이라 테스트끼리 root를 바꿔치기하면 스탬프 재사용 횟수가 흔들린다. glean 테스트는 직렬로 돈다.
+    static SERIAL: Mutex<()> = Mutex::new(());
+
+    fn serial() -> MutexGuard<'static, ()> {
+        SERIAL.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// 앱 재시작처럼 메모리 인덱스를 버리고 디스크에서 다시 올린다.
+    fn stats_after_restart(root: &Path) -> LoadStats {
+        let mut guard = index_guard();
+        if let Some(ix) = guard.as_mut() {
+            super::maybe_flush(ix, true);
+        }
+        *guard = None;
+        let (ix, stats) = load_index(root).expect("load index");
+        *guard = Some(ix);
+        stats
+    }
 
     fn temp_root(tag: &str) -> PathBuf {
         let dir =
@@ -723,6 +909,7 @@ mod tests {
 
     #[test]
     fn index_follows_writes_updates_and_deletes() {
+        let _serial = serial();
         let root = temp_root("crud");
         write_item(
             &root,
@@ -782,6 +969,7 @@ mod tests {
 
     #[test]
     fn search_matches_title_url_and_excerpt_case_insensitively() {
+        let _serial = serial();
         let root = temp_root("search");
         write_item(
             &root,
@@ -809,7 +997,178 @@ mod tests {
     }
 
     #[test]
+    fn persisted_index_reuses_unchanged_files_and_reparses_the_rest() {
+        let _serial = serial();
+        let root = temp_root("persist");
+        for (id, title, at) in [
+            ("a", "Alpha", "2026-10-01T00:00:00Z"),
+            ("b", "Beta", "2026-10-02T00:00:00Z"),
+            ("c", "Gamma", "2026-10-03T00:00:00Z"),
+        ] {
+            write_item(&root, &item(id, "web", title, "", at)).expect(id);
+        }
+        // 첫 로드: 저장된 인덱스가 없으니 전부 파싱하고 바로 기록한다.
+        assert_eq!(
+            stats_after_restart(&root),
+            LoadStats {
+                reused: 0,
+                parsed: 3,
+                dropped: 0
+            }
+        );
+        assert!(index_path(&root).is_file());
+        assert!(!root.join(format!("{}.tmp", INDEX_FILE)).exists());
+
+        // 외부 편집 시뮬레이션: a는 내용 변경, b는 삭제, d는 새로 생김.
+        let mut a = item("a", "web", "Alpha renamed", "", "2026-10-01T00:00:00Z");
+        a.status = "read".to_string();
+        fs::write(
+            item_path(&root, "a").expect("path a"),
+            serde_json::to_string(&a).expect("json a"),
+        )
+        .expect("rewrite a");
+        fs::remove_file(item_path(&root, "b").expect("path b")).expect("remove b");
+        fs::write(
+            item_path(&root, "d").expect("path d"),
+            serde_json::to_string(&item("d", "rss", "Delta", "", "2026-10-04T00:00:00Z"))
+                .expect("json d"),
+        )
+        .expect("write d");
+
+        assert_eq!(
+            stats_after_restart(&root),
+            LoadStats {
+                reused: 1,
+                parsed: 2,
+                dropped: 1
+            }
+        );
+        let page = list_page(&root, None, None, None, 0, 10).expect("list");
+        assert_eq!(ids(&page.items), vec!["d", "c", "a"]);
+        assert_eq!(page.items[2].title, "Alpha renamed");
+        assert_eq!(page.items[2].status, "read");
+
+        // 두 번째 재시작: 아무것도 안 바뀌었으니 전부 재사용.
+        assert_eq!(
+            stats_after_restart(&root),
+            LoadStats {
+                reused: 3,
+                parsed: 0,
+                dropped: 0
+            }
+        );
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn in_app_writes_carry_fresh_stamps_into_the_persisted_index() {
+        let _serial = serial();
+        let root = temp_root("stamps");
+        write_item(
+            &root,
+            &item("s1", "web", "First", "", "2026-10-01T00:00:00Z"),
+        )
+        .expect("s1");
+        assert_eq!(stats_after_restart(&root).parsed, 1);
+        let _ = list_page(&root, None, None, None, 0, 10).expect("warm index");
+
+        // 같은 길이의 제목으로 덮어써도(len 동일) 쓰기 경로가 새 mtime 스탬프를 넣어야 재파싱이 없다.
+        write_item(
+            &root,
+            &item("s1", "web", "Firsx", "", "2026-10-01T00:00:00Z"),
+        )
+        .expect("s1 again");
+        write_item(
+            &root,
+            &item("s2", "web", "Second", "", "2026-10-02T00:00:00Z"),
+        )
+        .expect("s2");
+        delete_item(&root, "s2").expect("delete s2");
+
+        assert_eq!(
+            stats_after_restart(&root),
+            LoadStats {
+                reused: 1,
+                parsed: 0,
+                dropped: 0
+            }
+        );
+        let page = list_page(&root, None, None, None, 0, 10).expect("list");
+        assert_eq!(ids(&page.items), vec!["s1"]);
+        assert_eq!(page.items[0].title, "Firsx");
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn corrupt_or_foreign_index_file_falls_back_to_a_full_parse() {
+        let _serial = serial();
+        let root = temp_root("corrupt");
+        write_item(
+            &root,
+            &item("k1", "web", "Keep", "", "2026-10-01T00:00:00Z"),
+        )
+        .expect("k1");
+        assert_eq!(stats_after_restart(&root).parsed, 1);
+
+        fs::write(index_path(&root), "{not json").expect("corrupt");
+        assert_eq!(
+            stats_after_restart(&root),
+            LoadStats {
+                reused: 0,
+                parsed: 1,
+                dropped: 0
+            }
+        );
+
+        fs::write(index_path(&root), r#"{"version":999,"entries":[]}"#).expect("foreign");
+        assert_eq!(
+            stats_after_restart(&root),
+            LoadStats {
+                reused: 0,
+                parsed: 1,
+                dropped: 0
+            }
+        );
+        // 폴백 뒤에는 현재 버전으로 다시 써 둔다.
+        let raw = fs::read_to_string(index_path(&root)).expect("rewritten");
+        assert!(raw.starts_with(r#"{"version":1,"#));
+        assert_eq!(stats_after_restart(&root).reused, 1);
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    /// 실데이터 사본으로 기동 경로를 재어 본다(인덱스 파일을 그 root에 만든다).
+    /// `BENTO_GLEAN_ROOT=<root> cargo test -- --ignored real_root --nocapture`
+    #[test]
+    #[ignore]
+    fn real_root_load_timing() {
+        let root = match std::env::var("BENTO_GLEAN_ROOT") {
+            Ok(r) => PathBuf::from(r),
+            Err(_) => return,
+        };
+        let _serial = serial();
+        for pass in 1..=2 {
+            let started = std::time::Instant::now();
+            let (ix, stats) = load_index(&root).expect("load");
+            eprintln!(
+                "pass {}: {} entries, {:?} in {:?}",
+                pass,
+                ix.entries.len(),
+                stats,
+                started.elapsed()
+            );
+        }
+        let size = fs::metadata(index_path(&root))
+            .map(|m| m.len())
+            .unwrap_or(0);
+        eprintln!("index file: {} bytes", size);
+    }
+
+    #[test]
     fn thumb_is_the_first_image_marker_only() {
+        let _serial = serial();
         assert_eq!(
             first_image("text\n[img] data:a \n[img]data:b"),
             Some("data:a".to_string())

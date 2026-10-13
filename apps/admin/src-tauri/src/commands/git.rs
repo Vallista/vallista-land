@@ -47,7 +47,7 @@ pub struct CommitInput {
     pub push: bool,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn git_status(state: State<'_, AppState>) -> Result<GitState, String> {
     require_blog_enabled(&state.data_root)?;
     let root = state.content_root()?;
@@ -69,14 +69,14 @@ pub fn git_status(state: State<'_, AppState>) -> Result<GitState, String> {
     })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn git_log(state: State<'_, AppState>, limit: u32) -> Result<Vec<GitCommit>, String> {
     require_blog_enabled(&state.data_root)?;
     let root = state.content_root()?;
     log_commits(&root, limit.max(1).min(200))
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn git_commit_push(
     state: State<'_, AppState>,
     input: CommitInput,
@@ -468,7 +468,7 @@ fn configure_git_user(root: &Path, s: &BlogSettings) -> Result<(), String> {
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn blog_setup_workspace(state: State<'_, AppState>) -> Result<String, String> {
     require_blog_enabled(&state.data_root)?;
     let s = require_blog_settings(&state)?;
@@ -551,7 +551,7 @@ pub fn blog_setup_workspace(state: State<'_, AppState>) -> Result<String, String
     Ok("clone 완료".to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn blog_pull(state: State<'_, AppState>) -> Result<String, String> {
     require_blog_enabled(&state.data_root)?;
     let s = require_blog_settings(&state)?;
