@@ -730,7 +730,7 @@ async fn do_threads_sync(url: &str, max_scrolls: u32, data_root: &std::path::Pat
     // CDN 이미지를 data URI로 미리 다운로드 (최대 2장/포스트, 병렬 처리)
     let entries = replace_img_urls_with_b64(entries).await;
 
-    let existing = glean::list_items(data_root).unwrap_or_default();
+    let existing = glean::list_summaries(data_root).unwrap_or_default();
     let mut seen_ext: std::collections::HashSet<String> = existing
         .iter()
         .filter_map(|it| it.external_id.as_ref())

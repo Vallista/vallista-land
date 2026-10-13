@@ -337,8 +337,10 @@ pub fn run() {
             commands::mood::delete_mood,
             // === life: glean (data_root 저장) ===
             commands::glean::list_glean,
+            commands::glean::search_glean,
             commands::glean::glean_counts,
             commands::glean::read_glean,
+            commands::glean::read_glean_thumb,
             commands::glean::add_glean,
             commands::glean::update_glean_status,
             commands::glean::update_glean_highlights,

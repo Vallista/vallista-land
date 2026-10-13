@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Block, GleanItem, Mood, Task } from '@vallista/content-core';
+import type { Block, GleanItem, GleanSummary, Mood, Task } from '@vallista/content-core';
 import {
   getMood,
+  gleanCounts,
   listBlocksByDate,
   listBlocksInRange,
   listEventNotes,
@@ -14,6 +15,7 @@ import {
   setRetrospective,
   updateTask,
   type EventNote,
+  type GleanCounts,
   type MailMessage,
 } from '../../lib/tauri';
 import {
@@ -38,7 +40,8 @@ export function Today() {
   const [now, setNow] = useState<Date>(() => new Date());
   const [blocks, setBlocks] = useState<Block[] | null>(null);
   const [tasks, setTasks] = useState<Task[] | null>(null);
-  const [glean, setGlean] = useState<GleanItem[] | null>(null);
+  const [glean, setGlean] = useState<GleanSummary[] | null>(null);
+  const [gleanStats, setGleanStats] = useState<GleanCounts | null>(null);
   const [todayMood, setTodayMood] = useState<Mood | null | undefined>(undefined);
   const [moodRange, setMoodRange] = useState<Mood[] | null>(null);
   const [routineBlocks, setRoutineBlocks] = useState<Block[] | null>(null);
@@ -77,9 +80,12 @@ export function Today() {
     listTasks()
       .then(setTasks)
       .catch((e: unknown) => setError(String(e)));
-    listGlean({ offset: 0, limit: 10000 })
+    listGlean({ offset: 0, limit: 5, excludeStatus: 'archived' })
       .then((p) => setGlean(p.items))
       .catch((e: unknown) => setError(String(e)));
+    gleanCounts()
+      .then(setGleanStats)
+      .catch(() => setGleanStats(null));
     getMood(today)
       .then(setTodayMood)
       .catch(() => setTodayMood(null));
@@ -163,18 +169,9 @@ export function Today() {
     return { done, total: relevant.length, overdue };
   }, [tasks, today]);
 
-  const inboxRows = useMemo(() => {
-    if (!glean) return [];
-    return glean
-      .filter((g) => g.status !== 'archived')
-      .sort((a, b) => (a.fetchedAt < b.fetchedAt ? 1 : -1))
-      .slice(0, 5);
-  }, [glean]);
+  const inboxRows = useMemo(() => glean ?? [], [glean]);
 
-  const unreadGleanCount = useMemo(() => {
-    if (!glean) return 0;
-    return glean.filter((g) => g.status === 'unread').length;
-  }, [glean]);
+  const unreadGleanCount = gleanStats?.byStatus.unread ?? 0;
 
   const peopleRows = useMemo(() => extractPeople(sortedBlocks, now), [sortedBlocks, now]);
 
@@ -354,7 +351,7 @@ export function Today() {
           mailUnreadCount={mailUnreadCount}
           todayMood={todayMood}
           nextBlock={nextBlock}
-          glean={glean}
+          promotedCount={gleanStats ? gleanStats.byStatus.promoted ?? 0 : null}
         />
 
         {/* ATF: 일정 타임라인 + 사람 */}
@@ -611,7 +608,7 @@ function StatBar({
   mailUnreadCount,
   todayMood,
   nextBlock,
-  glean,
+  promotedCount,
 }: {
   blockStats: { total: number; done: number; remaining: number };
   taskCounts: { done: number; total: number; overdue: number };
@@ -619,7 +616,7 @@ function StatBar({
   mailUnreadCount: number | null;
   todayMood: Mood | null | undefined;
   nextBlock: Block | undefined;
-  glean: GleanItem[] | null;
+  promotedCount: number | null;
 }) {
   const moodRecorded = !!todayMood && todayMood.energy !== undefined && todayMood.mood !== undefined;
   const energyPct = moodRecorded ? Math.round((todayMood!.energy ?? 0) * 100) : null;
@@ -662,11 +659,7 @@ function StatBar({
       <StatPill
         label="줍기"
         value={`${unreadGleanCount} 미읽음`}
-        sub={
-          glean !== null
-            ? `${glean.filter((g) => g.status === 'promoted').length} 발행됨`
-            : undefined
-        }
+        sub={promotedCount !== null ? `${promotedCount} 발행됨` : undefined}
         tone="violet"
       />
       <StatPill
@@ -944,7 +937,7 @@ function InboxCard({
   loading,
   onAll,
 }: {
-  items: GleanItem[];
+  items: GleanSummary[];
   unread: number;
   loading: boolean;
   onAll: () => void;

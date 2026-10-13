@@ -11,6 +11,7 @@ const SILENT_COMMANDS = new Set([
   'migrate_task_notes_to_event_notes',
   'migrate_block_notes_to_event_notes',
   'migrate_task_groups',
+  'read_glean_thumb',
   'sync_ical_feeds',
   'macos_cal_status',
   'macos_cal_list',
@@ -95,6 +96,7 @@ import type {
   GleanHighlight,
   GleanSource,
   GleanStatus,
+  GleanSummary,
   Task,
   TaskFolder,
 } from '@vallista/content-core';
@@ -134,7 +136,7 @@ export async function writeAsset(path: string, base64: string): Promise<void> {
 }
 
 export interface GleanPage {
-  items: GleanItem[];
+  items: GleanSummary[];
   total: number;
 }
 
@@ -150,15 +152,21 @@ export interface GleanCounts {
 export async function listGlean(params: {
   status?: string;
   source?: string;
+  excludeStatus?: string;
   offset: number;
   limit: number;
 }): Promise<GleanPage> {
   return invoke<GleanPage>('list_glean', {
     status: params.status ?? null,
     source: params.source ?? null,
+    excludeStatus: params.excludeStatus ?? null,
     offset: params.offset,
     limit: params.limit,
   });
+}
+
+export async function searchGlean(query: string, limit: number): Promise<GleanSummary[]> {
+  return invoke<GleanSummary[]>('search_glean', { query, limit });
 }
 
 export async function gleanCounts(): Promise<GleanCounts> {
@@ -167,6 +175,10 @@ export async function gleanCounts(): Promise<GleanCounts> {
 
 export async function readGlean(id: string): Promise<GleanItem> {
   return invoke<GleanItem>('read_glean', { id });
+}
+
+export async function readGleanThumb(id: string): Promise<string | null> {
+  return invoke<string | null>('read_glean_thumb', { id });
 }
 
 export async function addGlean(input: GleanInput): Promise<GleanItem> {
@@ -1367,8 +1379,10 @@ if (typeof window !== 'undefined') {
     readAsset,
     writeAsset,
     listGlean,
+    searchGlean,
     gleanCounts,
     readGlean,
+    readGleanThumb,
     addGlean,
     updateGleanStatus,
     updateGleanHighlights,

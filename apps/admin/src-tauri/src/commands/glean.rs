@@ -2,13 +2,16 @@ use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::{Mutex, MutexGuard, OnceLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 use crate::repo::{build_user_agent, ensure_inside, load_config, AppState};
 
 const GLEAN_DIR: &str = "glean";
+const IMG_MARKER: &str = "[img]";
+const PREVIEW_CHARS: usize = 600;
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -41,6 +44,49 @@ pub struct GleanItem {
     /// 원본 콘텐츠의 발행일 (RSS pubDate, Atom published 등). 없으면 fetched_at 기준으로 정렬.
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub published_at: Option<String>,
+}
+
+/// 목록·검색·카운트용 요약. 본문(`body`)과 하이라이트를 뺀 필드만 담고 메모리 인덱스에 상주한다.
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GleanSummary {
+    pub id: String,
+    pub url: String,
+    pub source: String,
+    pub title: String,
+    pub excerpt: String,
+    pub fetched_at: String,
+    pub status: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub promoted_doc_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub digest: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub feed_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub published_at: Option<String>,
+    /// Threads 본문에서 이미지 마커를 뺀 앞부분 (목록 미리보기용)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub preview: Option<String>,
+    pub has_image: bool,
+}
+
+struct GleanIndex {
+    root: PathBuf,
+    items: Vec<GleanSummary>,
+}
+
+/// 프로세스 전역 요약 인덱스. 첫 조회 때 glean/ 전체를 한 번 읽고, 이후 쓰기·삭제는 `write_item`·`delete_item`이 반영한다.
+static GLEAN_INDEX: OnceLock<Mutex<Option<GleanIndex>>> = OnceLock::new();
+
+fn index_guard() -> MutexGuard<'static, Option<GleanIndex>> {
+    let cell = GLEAN_INDEX.get_or_init(|| Mutex::new(None));
+    match cell.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(),
+    }
 }
 
 fn glean_dir(root: &Path) -> std::path::PathBuf {
@@ -90,12 +136,60 @@ fn civil_from_days(days: i64) -> (i32, u32, u32) {
     (year as i32, m as u32, d as u32)
 }
 
-pub fn list_items(root: &Path) -> Result<Vec<GleanItem>, String> {
+fn is_img_line(line: &str) -> bool {
+    line.starts_with(IMG_MARKER)
+}
+
+fn threads_preview(body: &str) -> String {
+    let text: Vec<&str> = body.lines().filter(|l| !is_img_line(l)).collect();
+    text.join("\n").trim().chars().take(PREVIEW_CHARS).collect()
+}
+
+fn first_image(body: &str) -> Option<String> {
+    body.lines()
+        .find(|l| is_img_line(l))
+        .map(|l| l[IMG_MARKER.len()..].trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+pub fn summarize(item: &GleanItem) -> GleanSummary {
+    let preview = if item.source == "threads" {
+        Some(threads_preview(&item.body)).filter(|p| !p.is_empty())
+    } else {
+        None
+    };
+    GleanSummary {
+        id: item.id.clone(),
+        url: item.url.clone(),
+        source: item.source.clone(),
+        title: item.title.clone(),
+        excerpt: item.excerpt.clone(),
+        fetched_at: item.fetched_at.clone(),
+        status: item.status.clone(),
+        promoted_doc_id: item.promoted_doc_id.clone(),
+        digest: item.digest.clone(),
+        feed_id: item.feed_id.clone(),
+        external_id: item.external_id.clone(),
+        published_at: item.published_at.clone(),
+        preview,
+        has_image: item.body.lines().any(is_img_line),
+    }
+}
+
+fn sort_key(s: &GleanSummary) -> &str {
+    s.published_at.as_deref().unwrap_or(s.fetched_at.as_str())
+}
+
+fn sort_summaries(items: &mut [GleanSummary]) {
+    items.sort_by(|a, b| sort_key(b).cmp(sort_key(a)));
+}
+
+fn scan_summaries(root: &Path) -> Result<Vec<GleanSummary>, String> {
     let dir = glean_dir(root);
     if !dir.is_dir() {
         return Ok(Vec::new());
     }
-    let mut items: Vec<GleanItem> = Vec::new();
+    let mut items: Vec<GleanSummary> = Vec::new();
     for entry in fs::read_dir(&dir).map_err(|e| e.to_string())? {
         let entry = match entry {
             Ok(e) => e,
@@ -110,22 +204,59 @@ pub fn list_items(root: &Path) -> Result<Vec<GleanItem>, String> {
             Err(_) => continue,
         };
         match serde_json::from_str::<GleanItem>(&raw) {
-            Ok(item) => items.push(item),
+            Ok(item) => items.push(summarize(&item)),
             Err(_) => continue,
         }
     }
-    items.sort_by(|a, b| {
-        let ta = a.published_at.as_deref().unwrap_or(a.fetched_at.as_str());
-        let tb = b.published_at.as_deref().unwrap_or(b.fetched_at.as_str());
-        tb.cmp(ta)
-    });
+    sort_summaries(&mut items);
     Ok(items)
+}
+
+/// 인덱스를 보장한 뒤 클로저에 넘긴다. 첫 호출(또는 root가 바뀐 뒤)에만 전체 스캔이 일어난다.
+fn with_index<T>(root: &Path, f: impl FnOnce(&[GleanSummary]) -> T) -> Result<T, String> {
+    let mut guard = index_guard();
+    let stale = guard.as_ref().map_or(true, |ix| ix.root != root);
+    if stale {
+        let items = scan_summaries(root)?;
+        *guard = Some(GleanIndex {
+            root: root.to_path_buf(),
+            items,
+        });
+    }
+    match guard.as_ref() {
+        Some(ix) => Ok(f(&ix.items)),
+        None => Err("glean index unavailable".to_string()),
+    }
+}
+
+fn index_upsert(root: &Path, item: &GleanItem) {
+    let mut guard = index_guard();
+    if let Some(ix) = guard.as_mut().filter(|ix| ix.root == root) {
+        let summary = summarize(item);
+        match ix.items.iter().position(|s| s.id == item.id) {
+            Some(pos) => ix.items[pos] = summary,
+            None => ix.items.push(summary),
+        }
+        sort_summaries(&mut ix.items);
+    }
+}
+
+fn index_remove(root: &Path, id: &str) {
+    let mut guard = index_guard();
+    if let Some(ix) = guard.as_mut().filter(|ix| ix.root == root) {
+        ix.items.retain(|s| s.id != id);
+    }
+}
+
+/// 백그라운드 동기화의 중복 판별용. 요약 전체를 복사해 돌려준다.
+pub fn list_summaries(root: &Path) -> Result<Vec<GleanSummary>, String> {
+    with_index(root, |items| items.to_vec())
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GleanPage {
-    pub items: Vec<GleanItem>,
+    pub items: Vec<GleanSummary>,
     pub total: usize,
 }
 
@@ -140,50 +271,112 @@ pub struct GleanCounts {
     pub by_feed_id: HashMap<String, usize>,
 }
 
-#[tauri::command]
+fn list_page(
+    root: &Path,
+    status: Option<&str>,
+    source: Option<&str>,
+    exclude_status: Option<&str>,
+    offset: usize,
+    limit: usize,
+) -> Result<GleanPage, String> {
+    with_index(root, |all| {
+        let mut total = 0usize;
+        let mut items: Vec<GleanSummary> = Vec::new();
+        let matched = all.iter().filter(|it| {
+            status.map_or(true, |s| it.status == s)
+                && source.map_or(true, |s| it.source == s)
+                && exclude_status.map_or(true, |s| it.status != s)
+        });
+        for it in matched {
+            if total >= offset && items.len() < limit {
+                items.push(it.clone());
+            }
+            total += 1;
+        }
+        GleanPage { items, total }
+    })
+}
+
+fn counts(root: &Path) -> Result<GleanCounts, String> {
+    let today_prefix = now_iso();
+    let today = today_prefix[..10].to_string();
+    with_index(root, |all| {
+        let mut by_source: HashMap<String, usize> = HashMap::new();
+        let mut by_status: HashMap<String, usize> = HashMap::new();
+        let mut by_feed_id: HashMap<String, usize> = HashMap::new();
+        let mut today_rss_count = 0usize;
+        let mut today_rss_titles: Vec<String> = Vec::new();
+        for it in all {
+            *by_source.entry(it.source.clone()).or_insert(0) += 1;
+            *by_status.entry(it.status.clone()).or_insert(0) += 1;
+            if let Some(fid) = &it.feed_id {
+                *by_feed_id.entry(fid.clone()).or_insert(0) += 1;
+            }
+            if it.source == "rss" && it.fetched_at.starts_with(&today) {
+                today_rss_count += 1;
+                today_rss_titles.push(it.title.clone());
+            }
+        }
+        GleanCounts {
+            total: all.len(),
+            by_source,
+            by_status,
+            today_rss_count,
+            today_rss_titles,
+            by_feed_id,
+        }
+    })
+}
+
+fn search(root: &Path, query: &str, limit: usize) -> Result<Vec<GleanSummary>, String> {
+    let q = query.trim().to_lowercase();
+    if q.is_empty() {
+        return Ok(Vec::new());
+    }
+    with_index(root, |all| {
+        all.iter()
+            .filter(|it| {
+                it.title.to_lowercase().contains(&q)
+                    || it.url.to_lowercase().contains(&q)
+                    || it.excerpt.to_lowercase().contains(&q)
+            })
+            .take(limit)
+            .cloned()
+            .collect()
+    })
+}
+
+#[tauri::command(async)]
 pub fn list_glean(
     status: Option<String>,
     source: Option<String>,
+    exclude_status: Option<String>,
     offset: usize,
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<GleanPage, String> {
-    let all = list_items(&state.data_root)?;
-    let filtered: Vec<GleanItem> = all
-        .into_iter()
-        .filter(|it| {
-            status.as_deref().map_or(true, |s| it.status == s)
-                && source.as_deref().map_or(true, |s| it.source == s)
-        })
-        .collect();
-    let total = filtered.len();
-    let items = filtered.into_iter().skip(offset).take(limit).collect();
-    Ok(GleanPage { items, total })
+    list_page(
+        &state.data_root,
+        status.as_deref(),
+        source.as_deref(),
+        exclude_status.as_deref(),
+        offset,
+        limit,
+    )
 }
 
-#[tauri::command]
+#[tauri::command(async)]
+pub fn search_glean(
+    query: String,
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<GleanSummary>, String> {
+    search(&state.data_root, &query, limit)
+}
+
+#[tauri::command(async)]
 pub fn glean_counts(state: State<'_, AppState>) -> Result<GleanCounts, String> {
-    let all = list_items(&state.data_root)?;
-    let total = all.len();
-    let today_prefix = now_iso();
-    let today = &today_prefix[..10];
-    let mut by_source: HashMap<String, usize> = HashMap::new();
-    let mut by_status: HashMap<String, usize> = HashMap::new();
-    let mut by_feed_id: HashMap<String, usize> = HashMap::new();
-    let mut today_rss_count = 0usize;
-    let mut today_rss_titles: Vec<String> = Vec::new();
-    for it in &all {
-        *by_source.entry(it.source.clone()).or_insert(0) += 1;
-        *by_status.entry(it.status.clone()).or_insert(0) += 1;
-        if let Some(fid) = &it.feed_id {
-            *by_feed_id.entry(fid.clone()).or_insert(0) += 1;
-        }
-        if it.source == "rss" && it.fetched_at.starts_with(today) {
-            today_rss_count += 1;
-            today_rss_titles.push(it.title.clone());
-        }
-    }
-    Ok(GleanCounts { total, by_source, by_status, today_rss_count, today_rss_titles, by_feed_id })
+    counts(&state.data_root)
 }
 
 fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
@@ -193,9 +386,16 @@ fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
     serde_json::from_str::<GleanItem>(&raw).map_err(|e| e.to_string())
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn read_glean(id: String, state: State<'_, AppState>) -> Result<GleanItem, String> {
     read_item(&state.data_root, &id)
+}
+
+/// 목록 썸네일용. 본문의 첫 이미지 마커(data URI)만 돌려준다.
+#[tauri::command(async)]
+pub fn read_glean_thumb(id: String, state: State<'_, AppState>) -> Result<Option<String>, String> {
+    let item = read_item(&state.data_root, &id)?;
+    Ok(first_image(&item.body))
 }
 
 #[derive(Deserialize)]
@@ -213,7 +413,7 @@ pub struct GleanInput {
     pub external_id: Option<String>,
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanItem, String> {
     let dir = glean_dir(&state.data_root);
     if !dir.is_dir() {
@@ -239,7 +439,7 @@ pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanI
     Ok(item)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_glean_status(
     id: String,
     status: String,
@@ -255,7 +455,7 @@ pub fn update_glean_status(
     Ok(item)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_glean_highlights(
     id: String,
     highlights: Vec<GleanHighlight>,
@@ -267,7 +467,7 @@ pub fn update_glean_highlights(
     Ok(item)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn update_glean_digest(
     id: String,
     digest: Option<String>,
@@ -279,13 +479,18 @@ pub fn update_glean_digest(
     Ok(item)
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn delete_glean(id: String, state: State<'_, AppState>) -> Result<(), String> {
-    let p = item_path(&state.data_root, &id)?;
-    let safe = ensure_inside(&state.data_root, &p)?;
+    delete_item(&state.data_root, &id)
+}
+
+fn delete_item(root: &Path, id: &str) -> Result<(), String> {
+    let p = item_path(root, id)?;
+    let safe = ensure_inside(root, &p)?;
     if safe.is_file() {
         fs::remove_file(&safe).map_err(|e| e.to_string())?;
     }
+    index_remove(root, id);
     Ok(())
 }
 
@@ -297,6 +502,7 @@ pub fn write_item(root: &Path, item: &GleanItem) -> Result<(), String> {
     }
     let json = serde_json::to_string_pretty(item).map_err(|e| e.to_string())?;
     fs::write(&safe, json).map_err(|e| e.to_string())?;
+    index_upsert(root, item);
     Ok(())
 }
 
@@ -477,4 +683,138 @@ fn sel(s: &str) -> Selector {
 
 fn first_attr(doc: &Html, selector: &Selector, attr: &str) -> Option<String> {
     doc.select(selector).next().and_then(|n| n.value().attr(attr).map(|v| v.to_string()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{counts, delete_item, first_image, list_page, search, write_item, GleanItem};
+    use std::fs;
+    use std::path::PathBuf;
+
+    fn temp_root(tag: &str) -> PathBuf {
+        let dir =
+            std::env::temp_dir().join(format!("bento_glean_{}_{}", tag, uuid::Uuid::new_v4()));
+        fs::create_dir_all(&dir).expect("temp root");
+        dir
+    }
+
+    fn item(id: &str, source: &str, title: &str, body: &str, fetched_at: &str) -> GleanItem {
+        GleanItem {
+            id: id.to_string(),
+            url: format!("https://example.com/{}", id),
+            source: source.to_string(),
+            title: title.to_string(),
+            excerpt: format!("{} excerpt", title),
+            body: body.to_string(),
+            fetched_at: fetched_at.to_string(),
+            status: "unread".to_string(),
+            promoted_doc_id: None,
+            highlights: Vec::new(),
+            digest: None,
+            feed_id: None,
+            external_id: None,
+            published_at: None,
+        }
+    }
+
+    fn ids(items: &[super::GleanSummary]) -> Vec<&str> {
+        items.iter().map(|s| s.id.as_str()).collect()
+    }
+
+    #[test]
+    fn index_follows_writes_updates_and_deletes() {
+        let root = temp_root("crud");
+        write_item(
+            &root,
+            &item("a", "rss", "First", "plain text", "2026-10-01T00:00:00Z"),
+        )
+        .expect("write a");
+        let threads_body = "hello\n[img]data:image/png;base64,AAAA\nworld";
+        write_item(
+            &root,
+            &item(
+                "b",
+                "threads",
+                "Second",
+                threads_body,
+                "2026-10-02T00:00:00Z",
+            ),
+        )
+        .expect("write b");
+
+        let page = list_page(&root, None, None, None, 0, 10).expect("list");
+        assert_eq!(page.total, 2);
+        assert_eq!(ids(&page.items), vec!["b", "a"]);
+        assert_eq!(page.items[0].preview.as_deref(), Some("hello\nworld"));
+        assert!(page.items[0].has_image);
+        assert!(page.items[1].preview.is_none());
+        assert!(!page.items[1].has_image);
+
+        let paged = list_page(&root, None, None, None, 1, 10).expect("offset");
+        assert_eq!(paged.total, 2);
+        assert_eq!(ids(&paged.items), vec!["a"]);
+
+        let mut b = item(
+            "b",
+            "threads",
+            "Second",
+            threads_body,
+            "2026-10-02T00:00:00Z",
+        );
+        b.status = "read".to_string();
+        write_item(&root, &b).expect("update b");
+        let unread = list_page(&root, Some("unread"), None, None, 0, 10).expect("unread");
+        assert_eq!(ids(&unread.items), vec!["a"]);
+        let not_read = list_page(&root, None, None, Some("read"), 0, 10).expect("exclude");
+        assert_eq!(ids(&not_read.items), vec!["a"]);
+        let threads_only = list_page(&root, None, Some("threads"), None, 0, 10).expect("source");
+        assert_eq!(ids(&threads_only.items), vec!["b"]);
+
+        delete_item(&root, "a").expect("delete a");
+        let c = counts(&root).expect("counts");
+        assert_eq!(c.total, 1);
+        assert_eq!(c.by_status.get("read"), Some(&1));
+        assert_eq!(c.by_status.get("unread"), None);
+        assert_eq!(c.by_source.get("threads"), Some(&1));
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn search_matches_title_url_and_excerpt_case_insensitively() {
+        let root = temp_root("search");
+        write_item(
+            &root,
+            &item("x1", "web", "Rust Async", "", "2026-10-01T00:00:00Z"),
+        )
+        .expect("x1");
+        write_item(
+            &root,
+            &item("x2", "web", "Other", "", "2026-10-02T00:00:00Z"),
+        )
+        .expect("x2");
+        let mut by_url = item("x3", "web", "Nothing", "", "2026-10-03T00:00:00Z");
+        by_url.url = "https://blog.rust-lang.org/post".to_string();
+        write_item(&root, &by_url).expect("x3");
+
+        let hits = search(&root, "RUST", 10).expect("search");
+        assert_eq!(ids(&hits), vec!["x3", "x1"]);
+        let limited = search(&root, "rust", 1).expect("limit");
+        assert_eq!(ids(&limited), vec!["x3"]);
+        assert!(search(&root, "   ", 10).expect("blank").is_empty());
+        let by_excerpt = search(&root, "other excerpt", 10).expect("excerpt");
+        assert_eq!(ids(&by_excerpt), vec!["x2"]);
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn thumb_is_the_first_image_marker_only() {
+        assert_eq!(
+            first_image("text\n[img] data:a \n[img]data:b"),
+            Some("data:a".to_string())
+        );
+        assert_eq!(first_image("no images"), None);
+        assert_eq!(first_image("[img]   "), None);
+    }
 }

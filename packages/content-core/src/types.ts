@@ -63,6 +63,23 @@ export interface GleanItem {
   publishedAt?: string;
 }
 
+export interface GleanSummary {
+  id: string;
+  url: string;
+  source: GleanSource;
+  title: string;
+  excerpt: string;
+  fetchedAt: string;
+  status: GleanStatus;
+  promotedDocId?: string;
+  digest?: string;
+  feedId?: string;
+  externalId?: string;
+  publishedAt?: string;
+  preview?: string;
+  hasImage: boolean;
+}
+
 export interface Subtask {
   id: string;
   title: string;

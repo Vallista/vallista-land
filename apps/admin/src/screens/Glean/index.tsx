@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { emit, listen } from '@tauri-apps/api/event';
-import type { GleanItem, GleanStatus } from '@vallista/content-core';
+import type { GleanItem, GleanStatus, GleanSummary } from '@vallista/content-core';
 import {
   gleanCounts,
   listGlean,
   listThreadsProfiles,
+  readGlean,
   syncRssFeeds,
   syncThreadsProfile,
   type GleanCounts,
@@ -17,6 +18,7 @@ import { GleanList } from './GleanList';
 import { GleanDetail } from './GleanDetail';
 import { SourcesRail, type SourceFilter } from './SourcesRail';
 import { SubscriptionsDialog, type SubsTab } from './SubscriptionsDialog';
+import { toSummary } from './summary';
 
 export type StatusFilter = GleanStatus | 'all';
 
@@ -34,7 +36,7 @@ function sumSyncResults(payload: unknown): { added: number; updated: number } | 
 }
 
 export function Glean() {
-  const [items, setItems] = useState<GleanItem[]>([]);
+  const [items, setItems] = useState<GleanSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -43,6 +45,7 @@ export function Glean() {
   const [filter, setFilter] = useState<StatusFilter>('all');
   const [source, setSource] = useState<SourceFilter>('all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [detail, setDetail] = useState<GleanItem | null>(null);
   const [subsOpen, setSubsOpen] = useState(false);
   const [subsTab, setSubsTab] = useState<SubsTab>('rss');
   const [profiles, setProfiles] = useState<ThreadsProfile[]>([]);
@@ -52,6 +55,7 @@ export function Glean() {
   const manualRefreshRef = useRef(false);
   const loadVersionRef = useRef(0);
   const itemCountRef = useRef(0);
+  const detailRef = useRef<GleanItem | null>(null);
 
   const refreshCounts = useCallback(() => {
     gleanCounts().then(setCounts).catch(() => {});
@@ -75,6 +79,8 @@ export function Glean() {
       setItems(page.items);
       setTotal(page.total);
       setHasMore(page.total > page.items.length);
+      // 필터가 바뀌어 첫 페이지에 없는 항목은 선택을 푼다 (목록 하이라이트와 상세가 어긋나지 않게)
+      setSelectedId((prev) => (prev && page.items.some((i) => i.id === prev) ? prev : null));
     } catch (e: unknown) {
       if (loadVersionRef.current !== ver) return;
       setError(String(e));
@@ -204,24 +210,40 @@ export function Glean() {
     return () => unsubs.forEach((fn) => fn());
   }, [refresh, refreshProfiles]);
 
-  const selected = useMemo(
-    () => items.find((i) => i.id === selectedId) ?? null,
-    [items, selectedId],
-  );
+  useEffect(() => {
+    detailRef.current = detail;
+  }, [detail]);
+
+  // 목록은 요약만 들고 있으므로 선택된 항목의 본문은 따로 읽는다. 읽는 동안은 직전 상세를 유지한다
+  useEffect(() => {
+    if (!selectedId) {
+      setDetail(null);
+      return;
+    }
+    if (detailRef.current?.id === selectedId) return;
+    let cancelled = false;
+    readGlean(selectedId)
+      .then((item) => { if (!cancelled) setDetail(item); })
+      .catch(() => { if (!cancelled) setDetail(null); });
+    return () => { cancelled = true; };
+  }, [selectedId]);
 
   const upsertItem = useCallback((item: GleanItem) => {
+    const summary = toSummary(item);
     setItems((prev) => {
       const idx = prev.findIndex((i) => i.id === item.id);
-      if (idx === -1) return [item, ...prev];
+      if (idx === -1) return [summary, ...prev];
       const next = prev.slice();
-      next[idx] = item;
+      next[idx] = summary;
       return next;
     });
+    setDetail((prev) => (prev && prev.id === item.id ? item : prev));
     void emit('bento:glean-changed', null);
   }, []);
 
   const removeItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
+    setDetail((prev) => (prev && prev.id === id ? null : prev));
     setTotal((prev) => Math.max(0, prev - 1));
     setSelectedId((prev) => (prev === id ? null : prev));
     void emit('bento:glean-changed', null);
@@ -285,6 +307,7 @@ export function Glean() {
         syncingLabel={[syncingRss && 'RSS', syncingThreads && 'Threads'].filter(Boolean).join(' · ') || null}
         onAdded={(item) => {
           upsertItem(item);
+          setDetail(item);
           setSelectedId(item.id);
         }}
         onRefresh={handleRefresh}
@@ -292,13 +315,15 @@ export function Glean() {
         onLoadMore={handleLoadMore}
         isLoadingMore={isLoadingMore}
       />
-      {selected ? (
+      {detail ? (
         <GleanDetail
-          key={selected.id}
-          item={selected}
+          key={detail.id}
+          item={detail}
           onChange={upsertItem}
-          onDelete={() => removeItem(selected.id)}
+          onDelete={() => removeItem(detail.id)}
         />
+      ) : selectedId ? (
+        <div />
       ) : (
         <EmptyDetail count={total} />
       )}
