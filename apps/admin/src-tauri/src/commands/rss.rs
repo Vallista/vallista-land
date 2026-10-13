@@ -424,8 +424,8 @@ pub async fn sync_one(
                     skipped += 1;
                     continue;
                 }
-                let item = entry_to_glean_item(feed, entry, i as u64);
-                if let Err(e) = glean::write_item(data_root, &item) {
+                let mut item = entry_to_glean_item(feed, entry, i as u64);
+                if let Err(e) = glean::write_item(data_root, &mut item) {
                     eprintln!("rss: failed to save glean item {}: {}", item.id, e);
                     continue;
                 }

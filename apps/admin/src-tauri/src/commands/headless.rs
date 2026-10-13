@@ -761,7 +761,7 @@ async fn do_threads_sync(url: &str, max_scrolls: u32, data_root: &std::path::Pat
             continue;
         }
         seen_ext.insert(entry.id.clone());
-        let item = GleanItem {
+        let mut item = GleanItem {
             id: format!("threads_{}_{}", base_ms, i),
             url: entry.url.clone(),
             source: "threads".into(),
@@ -777,7 +777,7 @@ async fn do_threads_sync(url: &str, max_scrolls: u32, data_root: &std::path::Pat
             external_id: Some(entry.id.clone()),
             published_at: entry.published_at.clone(),
         };
-        match glean::write_item(data_root, &item) {
+        match glean::write_item(data_root, &mut item) {
             Ok(()) => added += 1,
             Err(e) => {
                 if first_error.is_none() {

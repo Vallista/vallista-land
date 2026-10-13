@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { readGleanThumb } from '../../lib/tauri';
+import { resolveGleanImage } from './imageSrc';
 
-// Threads 썸네일은 평균 200KB가 넘는 data URI라 목록 페이로드에 싣지 않고 행이 보일 때 하나씩 읽는다
+// 썸네일은 목록 페이로드에 싣지 않고 행이 보일 때 하나씩 읽는다. 분리된 이미지는 glean:// URL 문자열만 캐시된다
 const MAX_CACHED = 200;
 const cache = new Map<string, string | null>();
 const inflight = new Map<string, Promise<string | null>>();
@@ -18,6 +19,7 @@ function fetchThumb(id: string): Promise<string | null> {
   const pending = inflight.get(id);
   if (pending) return pending;
   const p = readGleanThumb(id)
+    .then((ref) => (ref ? resolveGleanImage(id, ref) : null))
     .catch(() => null)
     .then((thumb) => {
       inflight.delete(id);

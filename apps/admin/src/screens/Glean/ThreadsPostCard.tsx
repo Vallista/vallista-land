@@ -2,13 +2,15 @@ import { useState } from 'react';
 import type { GleanItem } from '@vallista/content-core';
 import { openUrl } from '../../lib/tauri';
 import { Mono } from '../../components/atoms/Atoms';
+import { resolveGleanImage } from './imageSrc';
 
 type Props = {
   item: GleanItem;
 };
 
 export function ThreadsPostCard({ item }: Props) {
-  const { text, images } = parseBody(item.body);
+  const { text, images: refs } = parseBody(item.body);
+  const images = refs.map((ref) => resolveGleanImage(item.id, ref));
   const username = extractUsername(item.url);
 
   return (

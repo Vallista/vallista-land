@@ -10,7 +10,7 @@ use tauri::State;
 use crate::repo::{build_user_agent, ensure_inside, load_config, AppState};
 
 const GLEAN_DIR: &str = "glean";
-const IMG_MARKER: &str = "[img]";
+pub const IMG_MARKER: &str = "[img]";
 const PREVIEW_CHARS: usize = 600;
 const INDEX_FILE: &str = "glean_index.json";
 const INDEX_VERSION: u32 = 1;
@@ -143,7 +143,7 @@ fn index_guard() -> MutexGuard<'static, Option<GleanIndex>> {
     }
 }
 
-fn glean_dir(root: &Path) -> std::path::PathBuf {
+pub(crate) fn glean_dir(root: &Path) -> std::path::PathBuf {
     root.join(GLEAN_DIR)
 }
 
@@ -151,14 +151,19 @@ fn index_path(root: &Path) -> PathBuf {
     root.join(INDEX_FILE)
 }
 
-fn item_path(root: &Path, id: &str) -> Result<std::path::PathBuf, String> {
+pub(crate) fn validate_id(id: &str) -> Result<(), String> {
     if id.is_empty() || id.contains('/') || id.contains('\\') || id.contains("..") {
         return Err(format!("invalid id: {}", id));
     }
+    Ok(())
+}
+
+pub(crate) fn item_path(root: &Path, id: &str) -> Result<std::path::PathBuf, String> {
+    validate_id(id)?;
     Ok(glean_dir(root).join(format!("{}.json", id)))
 }
 
-fn now_iso() -> String {
+pub(crate) fn now_iso() -> String {
     let secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
@@ -539,7 +544,7 @@ pub fn glean_counts(state: State<'_, AppState>) -> Result<GleanCounts, String> {
     counts(&state.data_root)
 }
 
-fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
+pub(crate) fn read_item(root: &Path, id: &str) -> Result<GleanItem, String> {
     let p = item_path(root, id)?;
     let safe = ensure_inside(root, &p)?;
     let raw = fs::read_to_string(&safe).map_err(|e| e.to_string())?;
@@ -579,7 +584,7 @@ pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanI
     if !dir.is_dir() {
         fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     }
-    let item = GleanItem {
+    let mut item = GleanItem {
         id: input.id,
         url: input.url,
         source: input.source,
@@ -595,7 +600,7 @@ pub fn add_glean(input: GleanInput, state: State<'_, AppState>) -> Result<GleanI
         external_id: input.external_id,
         published_at: None,
     };
-    write_item(&state.data_root, &item)?;
+    write_item(&state.data_root, &mut item)?;
     Ok(item)
 }
 
@@ -611,7 +616,7 @@ pub fn update_glean_status(
     if let Some(pdid) = promoted_doc_id {
         item.promoted_doc_id = Some(pdid);
     }
-    write_item(&state.data_root, &item)?;
+    write_item(&state.data_root, &mut item)?;
     Ok(item)
 }
 
@@ -623,7 +628,7 @@ pub fn update_glean_highlights(
 ) -> Result<GleanItem, String> {
     let mut item = read_item(&state.data_root, &id)?;
     item.highlights = highlights;
-    write_item(&state.data_root, &item)?;
+    write_item(&state.data_root, &mut item)?;
     Ok(item)
 }
 
@@ -635,7 +640,7 @@ pub fn update_glean_digest(
 ) -> Result<GleanItem, String> {
     let mut item = read_item(&state.data_root, &id)?;
     item.digest = digest.filter(|s| !s.trim().is_empty());
-    write_item(&state.data_root, &item)?;
+    write_item(&state.data_root, &mut item)?;
     Ok(item)
 }
 
@@ -651,17 +656,25 @@ fn delete_item(root: &Path, id: &str) -> Result<(), String> {
         fs::remove_file(&safe).map_err(|e| e.to_string())?;
     }
     index_remove(root, id);
-    Ok(())
+    super::glean_assets::remove_assets(root, id)
 }
 
-pub fn write_item(root: &Path, item: &GleanItem) -> Result<(), String> {
+/// 본문의 인라인 이미지는 파일로 분리된 뒤 저장되므로 호출자가 받은 `item.body`도 `asset:` 참조로 바뀐다.
+/// JSON은 임시 파일에 쓴 뒤 rename해서 중간에 죽어도 원본이 반쯤 잘린 채 남지 않는다.
+pub fn write_item(root: &Path, item: &mut GleanItem) -> Result<(), String> {
     let p = item_path(root, &item.id)?;
     let safe = ensure_inside(root, &p)?;
     if let Some(parent) = safe.parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
-    let json = serde_json::to_string_pretty(item).map_err(|e| e.to_string())?;
-    fs::write(&safe, json).map_err(|e| e.to_string())?;
+    super::glean_assets::externalize(root, item)?;
+    let json = serde_json::to_string_pretty(&*item).map_err(|e| e.to_string())?;
+    let tmp = safe.with_file_name(format!("{}.json.{}.tmp", item.id, uuid::Uuid::new_v4()));
+    fs::write(&tmp, json).map_err(|e| e.to_string())?;
+    if let Err(e) = fs::rename(&tmp, &safe) {
+        let _ = fs::remove_file(&tmp);
+        return Err(e.to_string());
+    }
     let stamp = fs::metadata(&safe)
         .map(|m| stamp_of(&m))
         .unwrap_or(FileStamp { len: 0, mtime: 0 });
@@ -852,7 +865,7 @@ fn first_attr(doc: &Html, selector: &Selector, attr: &str) -> Option<String> {
 mod tests {
     use super::{
         counts, delete_item, first_image, index_guard, index_path, item_path, list_page,
-        load_index, search, write_item, GleanItem, LoadStats, INDEX_FILE,
+        load_index, read_item, search, write_item, GleanItem, LoadStats, INDEX_FILE,
     };
     use std::fs;
     use std::path::{Path, PathBuf};
@@ -913,13 +926,13 @@ mod tests {
         let root = temp_root("crud");
         write_item(
             &root,
-            &item("a", "rss", "First", "plain text", "2026-10-01T00:00:00Z"),
+            &mut item("a", "rss", "First", "plain text", "2026-10-01T00:00:00Z"),
         )
         .expect("write a");
         let threads_body = "hello\n[img]data:image/png;base64,AAAA\nworld";
         write_item(
             &root,
-            &item(
+            &mut item(
                 "b",
                 "threads",
                 "Second",
@@ -949,7 +962,7 @@ mod tests {
             "2026-10-02T00:00:00Z",
         );
         b.status = "read".to_string();
-        write_item(&root, &b).expect("update b");
+        write_item(&root, &mut b).expect("update b");
         let unread = list_page(&root, Some("unread"), None, None, 0, 10).expect("unread");
         assert_eq!(ids(&unread.items), vec!["a"]);
         let not_read = list_page(&root, None, None, Some("read"), 0, 10).expect("exclude");
@@ -973,17 +986,17 @@ mod tests {
         let root = temp_root("search");
         write_item(
             &root,
-            &item("x1", "web", "Rust Async", "", "2026-10-01T00:00:00Z"),
+            &mut item("x1", "web", "Rust Async", "", "2026-10-01T00:00:00Z"),
         )
         .expect("x1");
         write_item(
             &root,
-            &item("x2", "web", "Other", "", "2026-10-02T00:00:00Z"),
+            &mut item("x2", "web", "Other", "", "2026-10-02T00:00:00Z"),
         )
         .expect("x2");
         let mut by_url = item("x3", "web", "Nothing", "", "2026-10-03T00:00:00Z");
         by_url.url = "https://blog.rust-lang.org/post".to_string();
-        write_item(&root, &by_url).expect("x3");
+        write_item(&root, &mut by_url).expect("x3");
 
         let hits = search(&root, "RUST", 10).expect("search");
         assert_eq!(ids(&hits), vec!["x3", "x1"]);
@@ -1005,7 +1018,7 @@ mod tests {
             ("b", "Beta", "2026-10-02T00:00:00Z"),
             ("c", "Gamma", "2026-10-03T00:00:00Z"),
         ] {
-            write_item(&root, &item(id, "web", title, "", at)).expect(id);
+            write_item(&root, &mut item(id, "web", title, "", at)).expect(id);
         }
         // 첫 로드: 저장된 인덱스가 없으니 전부 파싱하고 바로 기록한다.
         assert_eq!(
@@ -1067,7 +1080,7 @@ mod tests {
         let root = temp_root("stamps");
         write_item(
             &root,
-            &item("s1", "web", "First", "", "2026-10-01T00:00:00Z"),
+            &mut item("s1", "web", "First", "", "2026-10-01T00:00:00Z"),
         )
         .expect("s1");
         assert_eq!(stats_after_restart(&root).parsed, 1);
@@ -1076,12 +1089,12 @@ mod tests {
         // 같은 길이의 제목으로 덮어써도(len 동일) 쓰기 경로가 새 mtime 스탬프를 넣어야 재파싱이 없다.
         write_item(
             &root,
-            &item("s1", "web", "Firsx", "", "2026-10-01T00:00:00Z"),
+            &mut item("s1", "web", "Firsx", "", "2026-10-01T00:00:00Z"),
         )
         .expect("s1 again");
         write_item(
             &root,
-            &item("s2", "web", "Second", "", "2026-10-02T00:00:00Z"),
+            &mut item("s2", "web", "Second", "", "2026-10-02T00:00:00Z"),
         )
         .expect("s2");
         delete_item(&root, "s2").expect("delete s2");
@@ -1107,7 +1120,7 @@ mod tests {
         let root = temp_root("corrupt");
         write_item(
             &root,
-            &item("k1", "web", "Keep", "", "2026-10-01T00:00:00Z"),
+            &mut item("k1", "web", "Keep", "", "2026-10-01T00:00:00Z"),
         )
         .expect("k1");
         assert_eq!(stats_after_restart(&root).parsed, 1);
@@ -1175,5 +1188,114 @@ mod tests {
         );
         assert_eq!(first_image("no images"), None);
         assert_eq!(first_image("[img]   "), None);
+    }
+
+    fn write_raw(root: &Path, it: &GleanItem) -> String {
+        let p = item_path(root, &it.id).expect("path");
+        fs::create_dir_all(p.parent().expect("parent")).expect("dir");
+        let raw = serde_json::to_string_pretty(it).expect("json");
+        fs::write(&p, &raw).expect("write raw");
+        raw
+    }
+
+    #[test]
+    fn inline_images_are_externalized_on_write_and_removed_on_delete() {
+        let _serial = serial();
+        let root = temp_root("assets");
+        let body = "hello\n[img]data:image/png;base64,AQID\n[img]https://example.com/x.jpg\n[img]data:image/jpeg;base64,!!!\nbye";
+        let mut it = item("t1", "threads", "T", body, "2026-10-01T00:00:00Z");
+        write_item(&root, &mut it).expect("write");
+        assert_eq!(
+            it.body,
+            "hello\n[img]asset:0.png\n[img]https://example.com/x.jpg\n[img]data:image/jpeg;base64,!!!\nbye"
+        );
+        let assets = root.join("glean").join("assets").join("t1");
+        assert_eq!(
+            fs::read(assets.join("0.png")).expect("asset"),
+            vec![1, 2, 3]
+        );
+        let mut stored = read_item(&root, "t1").expect("read");
+        assert_eq!(stored.body, it.body);
+        assert_eq!(first_image(&stored.body).as_deref(), Some("asset:0.png"));
+        let raw = fs::read_to_string(item_path(&root, "t1").expect("path")).expect("raw");
+        assert!(!raw.contains("AQID"));
+
+        stored.body.push_str("\n[img]data:image/webp;base64,BAUG");
+        write_item(&root, &mut stored).expect("write 2");
+        assert!(stored.body.ends_with("[img]asset:1.webp"));
+        assert_eq!(
+            fs::read(assets.join("1.webp")).expect("asset 2"),
+            vec![4, 5, 6]
+        );
+
+        let leftovers = fs::read_dir(root.join("glean"))
+            .expect("glean dir")
+            .filter_map(|e| e.ok())
+            .filter(|e| e.path().extension().map_or(false, |x| x == "tmp"))
+            .count();
+        assert_eq!(leftovers, 0);
+
+        delete_item(&root, "t1").expect("delete");
+        assert!(!assets.exists());
+        assert!(!item_path(&root, "t1").expect("path").exists());
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn externalize_all_backs_up_then_converts_and_is_idempotent() {
+        let _serial = serial();
+        let root = temp_root("migrate");
+        let legacy_raw = write_raw(
+            &root,
+            &item(
+                "m1",
+                "threads",
+                "M",
+                "x\n[img]data:image/png;base64,AQID",
+                "2026-10-01T00:00:00Z",
+            ),
+        );
+        write_raw(
+            &root,
+            &item("m2", "threads", "P", "no images", "2026-10-02T00:00:00Z"),
+        );
+        write_raw(
+            &root,
+            &item(
+                "m3",
+                "threads",
+                "H",
+                "[img]https://e/x.jpg",
+                "2026-10-03T00:00:00Z",
+            ),
+        );
+
+        let report = super::super::glean_assets::externalize_all(&root).expect("migrate");
+        assert_eq!((report.items, report.markers, report.failed), (1, 1, 0));
+        assert_eq!(report.bytes_before, legacy_raw.len() as u64);
+        assert!(report.bytes_after < report.bytes_before);
+        let backup = PathBuf::from(report.backup_path.expect("backup path"));
+        assert_eq!(
+            fs::read_to_string(backup.join("m1.json")).expect("backup"),
+            legacy_raw
+        );
+        assert!(!backup.join("m2.json").exists());
+        assert!(!backup.join("m3.json").exists());
+        assert_eq!(
+            read_item(&root, "m1").expect("m1").body,
+            "x\n[img]asset:0.png"
+        );
+        assert_eq!(
+            fs::read(root.join("glean").join("assets").join("m1").join("0.png")).expect("file"),
+            vec![1, 2, 3]
+        );
+        let page = list_page(&root, None, None, None, 0, 10).expect("list");
+        assert!(ids(&page.items).contains(&"m1"));
+        assert!(page.items.iter().any(|s| s.id == "m1" && s.has_image));
+
+        let again = super::super::glean_assets::externalize_all(&root).expect("again");
+        assert_eq!((again.items, again.markers, again.failed), (0, 0, 0));
+        assert!(again.backup_path.is_none());
+        let _ = fs::remove_dir_all(&root);
     }
 }
