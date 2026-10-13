@@ -35,6 +35,8 @@ const STATUS_DOT: Record<GleanStatus, string> = {
   promoted: 'var(--ok)',
 };
 
+const PREFETCH_AHEAD = 3;
+
 const SOURCE_GLYPH: Record<GleanSource, string> = {
   web: '◐',
   rss: '⌬',
@@ -62,6 +64,7 @@ export function GleanList({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<{ firstId: string | null; firstTop: number }>({ firstId: null, firstTop: 0 });
+  const pendingAdvanceRef = useRef<string | null>(null);
 
   // 백그라운드 갱신으로 위쪽에 새 항목이 끼어들면 보던 위치가 밀리지 않도록 scrollTop을 보정한다
   useLayoutEffect(() => {
@@ -108,14 +111,42 @@ export function GleanList({
       e.preventDefault();
       const idx = items.findIndex((i) => i.id === selectedId);
       let next = idx;
-      if (e.key === 'ArrowDown') next = idx < 0 ? 0 : Math.min(items.length - 1, idx + 1);
+      if (e.key === 'ArrowDown') {
+        if (idx >= 0 && idx === items.length - 1) {
+          if (hasMore) {
+            pendingAdvanceRef.current = selectedId;
+            stableLoadMore();
+          }
+          return;
+        }
+        next = idx < 0 ? 0 : idx + 1;
+        if (hasMore && next >= items.length - PREFETCH_AHEAD) stableLoadMore();
+      }
       if (e.key === 'ArrowUp') next = idx < 0 ? items.length - 1 : Math.max(0, idx - 1);
       const picked = items[next];
       if (picked) onSelect(picked.id);
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [items, selectedId, onSelect]);
+  }, [items, selectedId, onSelect, hasMore, stableLoadMore]);
+
+  // 마지막 항목에서 ↓로 다음 페이지를 요청했으면, 도착한 첫 항목으로 선택을 이어간다
+  useEffect(() => {
+    const fromId = pendingAdvanceRef.current;
+    if (!fromId) return;
+    if (selectedId !== fromId) {
+      pendingAdvanceRef.current = null;
+      return;
+    }
+    const idx = items.findIndex((i) => i.id === fromId);
+    const next = idx >= 0 ? items[idx + 1] : undefined;
+    if (next) {
+      pendingAdvanceRef.current = null;
+      onSelect(next.id);
+      return;
+    }
+    if (!isLoadingMore) pendingAdvanceRef.current = null;
+  }, [items, selectedId, isLoadingMore, onSelect]);
 
   return (
     <div
