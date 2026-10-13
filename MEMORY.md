@@ -31,6 +31,6 @@
 - Claude 연동은 설정 › 연동에서 Console API 키(`console.anthropic.com/settings/keys`, 선불 크레딧 필요)를 등록해야 동작. 키가 없으면 자동 회고는 조용히 건너뛰고 수동 기능은 '키가 설정되지 않았습니다' 오류. 데이터 디렉터리의 로컬 LLM 잔재(`models/` 6.2GB, `llama-server`, `lib*.dylib`, `llama-server.log`)와 `body_log.json`·`body_spec.json`은 앱이 더 이상 읽지 않으며 삭제는 사용자 몫.
 - `TaskEditor.tsx`의 `color: color || null`은 serde `Option<Option>` 규약상 색상 해제가 no-op인 잠복 버그(`''`로 보내고 Rust에서 filter해야 함). 폴더 작업에서는 손대지 않음.
 
-- 2026-10-13 냥노션 동기화(브랜치 `feat/nyanotion-sync`): Rust 커맨드 `sync_token_get` 이 늘었으므로 앱 재빌드(`npx -y pnpm@9 build:bento`) 후 dmg 설치 필요. 2단계(계획 블록·기분/회고·건강·요약·Radar·Thoughts·Glean·라벨·피드·설정 이전)는 미착수 — 클립보드·메일 계정은 옮기지 않기로.
+- 2026-10-13 냥노션 동기화(브랜치 `feat/nyanotion-sync`): Rust 커맨드 `sync_token_get` 이 늘었으므로 앱 재빌드(`npx -y pnpm@9 build:bento`) 후 dmg 설치 필요. 2단계(계획 블록·기분/회고·요약·Radar·Thoughts·Glean·라벨·피드·설정 이전)는 미착수 — 클립보드·메일 계정은 옮기지 않기로. 헬스(`body_log`)와 로컬 LLM 은 같은 날 앱에서 제거됐으므로 이전 대상이 아니다(데이터 디렉터리의 잔재는 정리 대상).
 
 <!-- 현재 브랜치/작업의 큰 그림 -->
