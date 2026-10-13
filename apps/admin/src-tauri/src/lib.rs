@@ -9,8 +9,6 @@ use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 #[cfg(target_os = "macos")]
 use tauri_nspanel::{ManagerExt, WebviewWindowExt};
 
-use commands::llm::LlmState;
-
 #[cfg(target_os = "macos")]
 const NS_WINDOW_STYLE_MASK_NONACTIVATING_PANEL: i32 = 1 << 7;
 
@@ -153,14 +151,12 @@ pub fn run() {
                 }
             };
             let _ = fs::create_dir_all(&data_dir);
-            let _ = fs::create_dir_all(data_dir.join("models"));
 
             let initial_content_root = repo::resolve_content_root(&data_dir);
             app.manage(repo::AppState::new(
                 data_dir.clone(),
                 initial_content_root,
             ));
-            app.manage(LlmState::new(data_dir.clone()));
 
             let open_item = MenuItemBuilder::with_id("tray.open", "Bento 열기").build(app)?;
             let quit_item = MenuItemBuilder::with_id("tray.quit", "종료").build(app)?;
@@ -358,20 +354,10 @@ pub fn run() {
             commands::summaries::latest_unread_summary,
             commands::summaries::upsert_summary,
             commands::summaries::mark_summary_read,
-            // === life: LLM ===
-            commands::llm::llm_status,
-            commands::llm::llm_start,
-            commands::llm::llm_stop,
-            commands::llm::llm_health,
+            // === life: LLM (Claude Messages API) ===
             commands::llm::llm_chat,
-            commands::llm::llm_download_model,
-            commands::llm::llm_download_server,
-            commands::llm::llm_delete_model,
-            commands::llm::llm_install_binary,
-            commands::llm::llm_open_data_dir,
             commands::llm::llm_get_settings,
             commands::llm::llm_save_settings,
-            commands::llm::llm_get_api_key,
             // === blog: docs (vault 콘텐츠) ===
             commands::docs::list_docs,
             commands::docs::read_doc,
