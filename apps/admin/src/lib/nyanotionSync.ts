@@ -26,6 +26,7 @@ import {
   listTasks,
   renameTaskFolderRaw,
   setEventSubtasks,
+  syncBackup,
   syncTokenGet,
   updateTaskRaw,
   upsertEventNoteRaw,
@@ -46,6 +47,10 @@ export interface SyncConfig {
   cursor: number;
   /** 처음 연결 때 로컬 전부를 올릴 것으로 적었는가 (한 체크리스트당 한 번). */
   linked: boolean;
+  /** 처음 올리기를 사용자가 확인한 체크리스트 — checklistId 와 같아야 처음 연결을 한다. */
+  confirmedFor: string | null;
+  /** 처음 연결 직전에 만든 백업 폴더. */
+  firstLinkBackup: string | null;
   lastSyncAt: string | null;
   lastError: string | null;
   /** 마지막 한 바퀴에서 올리고 받은 수 — 화면에 보여 준다. */
@@ -58,6 +63,8 @@ const DEFAULTS: SyncConfig = {
   checklistId: null,
   cursor: 0,
   linked: false,
+  confirmedFor: null,
+  firstLinkBackup: null,
   lastSyncAt: null,
   lastError: null,
   lastResult: null,
@@ -83,10 +90,12 @@ export function writeSyncConfig(patch: Partial<SyncConfig>): SyncConfig {
   return next;
 }
 
-/** 체크리스트를 바꾸면 처음부터 다시 맞춘다. */
+/** 체크리스트를 바꾸면 동기화를 끄고 처음부터 다시 맞춘다 — 다시 켤 때 확인을 받는다. */
 export function chooseChecklist(checklistId: string): SyncConfig {
   return writeSyncConfig({
     checklistId,
+    enabled: false,
+    confirmedFor: null,
     cursor: 0,
     linked: false,
     lastError: null,
@@ -522,13 +531,30 @@ export function syncNow(): Promise<void> {
     try {
       const t = await token();
       if (!cfg.linked) {
-        // 처음 붙을 때 — 로컬의 할 일·폴더 전부를 올릴 것으로 적는다 (서버로 옮기기).
+        // 처음 붙을 때 — 설정 화면의 확인창(어느 체크리스트에 몇 건을 올리는지)을 거쳤어야 한다.
+        if (cfg.confirmedFor !== cfg.checklistId) {
+          writeSyncConfig({
+            enabled: false,
+            lastError: '처음 올리기 전에 확인이 필요합니다. 동기화 켜기를 다시 눌러 주세요.',
+          });
+          return;
+        }
+        // 서버 것이 로컬을 덮기 전에 백업한다. 실패하면 붙지 않고 끈다(1분마다 반쪽 백업이 쌓이지 않게).
+        const backup = await syncBackup().catch((error: unknown) => {
+          writeSyncConfig({
+            enabled: false,
+            lastError: `처음 연결 전 백업에 실패해 멈췄습니다: ${error instanceof Error ? error.message : String(error)}`,
+          });
+          return null;
+        });
+        if (!backup) return;
+        // 로컬의 할 일·폴더 전부를 올릴 것으로 적는다 (서버로 옮기기).
         const [tasks, folders] = await Promise.all([listTasks(), listTaskFolders()]);
         markEverything(
           tasks.map((x) => x.id),
           folders.map((x) => x.id),
         );
-        writeSyncConfig({ linked: true });
+        writeSyncConfig({ linked: true, firstLinkBackup: backup.path });
       }
       const pushed = await push(readSyncConfig(), t);
       const { pulled } = await pull(readSyncConfig(), t);

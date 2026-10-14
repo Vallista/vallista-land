@@ -50,10 +50,12 @@ export interface Store {
   notes: Note[];
   subs: Record<string, Sub[]>;
   token: string | null;
+  /** 첫 연결 직전 백업(sync_backup)이 불린 횟수. */
+  backups: number;
 }
 
 export function emptyStore(token: string | null): Store {
-  return { tasks: [], folders: [], notes: [], subs: {}, token };
+  return { tasks: [], folders: [], notes: [], subs: {}, token, backups: 0 };
 }
 
 let store: Store = emptyStore(null);
@@ -79,6 +81,12 @@ async function afterRaw(id: string): Promise<void> {
 
 export async function syncTokenGet(): Promise<string | null> {
   return store.token;
+}
+
+/** Rust sync_backup 대신 — 몇 번 불렸는지만 센다. */
+export async function syncBackup(): Promise<{ path: string; files: number; bytes: number }> {
+  store.backups += 1;
+  return { path: `/mock/backups/nyanotion-${store.backups}`, files: 0, bytes: 0 };
 }
 
 export async function listTasks(): Promise<Task[]> {

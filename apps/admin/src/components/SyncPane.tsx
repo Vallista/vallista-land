@@ -21,6 +21,8 @@ import {
   keychainDeleteToken,
   keychainHasToken,
   keychainSetToken,
+  listTaskFolders,
+  listTasks,
 } from '../lib/tauri';
 
 const inputStyle: React.CSSProperties = {
@@ -115,10 +117,10 @@ export function SyncPane() {
       setCfg(writeSyncConfig({ serverUrl: url }));
       const result = await fetchSyncMe(url);
       setMe(result);
-      if (!readSyncConfig().checklistId && result.primaryChecklistId) {
-        setCfg(chooseChecklist(result.primaryChecklistId));
-      }
-      setMessage(`${result.user.name} (${result.user.email}) 으로 연결됐어요.`);
+      setMessage(
+        `${result.user.name} (${result.user.email}) 으로 연결됐어요.` +
+          (readSyncConfig().checklistId ? '' : ' 맞출 체크리스트를 고르거나 새로 만드세요.'),
+      );
     });
 
   const makeChecklist = () =>
@@ -130,11 +132,47 @@ export function SyncPane() {
       setMe(await fetchSyncMe(cfg.serverUrl));
     });
 
+  // 처음 켤 때 — 어느 체크리스트에 무엇을 올리는지 보여 주고 확인받는다.
+  async function confirmFirstLink(checklistId: string): Promise<boolean> {
+    const info = await fetchSyncMe(cfg.serverUrl);
+    setMe(info);
+    const list = info.checklists.find((c) => c.id === checklistId);
+    if (!list)
+      throw new Error('고른 체크리스트를 서버에서 찾지 못했습니다. 연결 확인 후 다시 고르세요.');
+    const [tasks, folders] = await Promise.all([listTasks(), listTaskFolders()]);
+    const done = tasks.filter((t) => t.done).length;
+    const lines = [
+      `'${list.title || '제목 없음'}'에 할 일 ${tasks.length}건(완료 ${done}건 포함)·폴더 ${folders.length}개를 올립니다.`,
+      '',
+    ];
+    if (list.spaceKind === 'org')
+      lines.push(`· 👪 ${list.spaceName} 공간의 체크리스트라 그 공간 사람들도 보게 됩니다.`);
+    if (list.open > 0)
+      lines.push(
+        `· 서버에 이미 안 끝난 할 일 ${list.open}건이 있습니다. 같은 할 일은 서버 쪽이 이기고, 서버에만 있는 할 일은 이 Mac 으로 들어옵니다.`,
+      );
+    lines.push(
+      '· 올리기 직전에 지금의 할 일·폴더·메모·하위 항목을 데이터 폴더의 backups/nyanotion-<시각>/ 에 백업합니다.',
+      '',
+      '계속할까요?',
+    );
+    return window.confirm(lines.join('\n'));
+  }
+
   const toggle = () =>
     run(async () => {
-      const next = writeSyncConfig({ enabled: !cfg.enabled });
-      setCfg(next);
-      if (next.enabled) await syncNow();
+      if (cfg.enabled) {
+        setCfg(writeSyncConfig({ enabled: false }));
+        return;
+      }
+      const current = readSyncConfig();
+      if (!current.linked && current.checklistId) {
+        if (!(await confirmFirstLink(current.checklistId))) return;
+        setCfg(writeSyncConfig({ enabled: true, confirmedFor: current.checklistId }));
+      } else {
+        setCfg(writeSyncConfig({ enabled: true }));
+      }
+      await syncNow();
     });
 
   const forget = () =>
@@ -152,8 +190,8 @@ export function SyncPane() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', lineHeight: 1.6 }}>
         할 일·폴더·메모·하위 항목을 냥노션 체크리스트 하나와 맞춥니다. 냥노션이 원본이고, 여기엔
-        오프라인 사본이 남습니다. 처음 켜면 이 Mac 의 할 일을 전부 올립니다(서버에 이미 같은 할 일이
-        있으면 서버 쪽이 이깁니다).
+        오프라인 사본이 남습니다. 처음 켜면 확인을 받은 뒤 지금 데이터를 백업하고 이 Mac 의 할 일을
+        전부 올립니다(서버에 이미 같은 할 일이 있으면 서버 쪽이 이깁니다).
       </Mono>
 
       <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -206,7 +244,9 @@ export function SyncPane() {
                 if (!e.target.value) return;
                 if (
                   cfg.checklistId &&
-                  !window.confirm('맞출 체크리스트를 바꾸면 처음부터 다시 맞춥니다. 바꿀까요?')
+                  !window.confirm(
+                    '맞출 체크리스트를 바꾸면 동기화가 꺼지고, 다시 켤 때 확인을 거쳐 처음부터 다시 맞춥니다. 바꿀까요?',
+                  )
                 )
                   return;
                 setCfg(chooseChecklist(e.target.value));
@@ -221,7 +261,15 @@ export function SyncPane() {
                 </option>
               ))}
             </select>
-            <button style={buttonStyle} disabled={busy} onClick={makeChecklist}>
+            <button
+              style={
+                cfg.checklistId
+                  ? buttonStyle
+                  : { ...buttonStyle, background: 'var(--accent)', color: 'var(--bg)' }
+              }
+              disabled={busy}
+              onClick={makeChecklist}
+            >
               새로 만들기
             </button>
           </>
@@ -255,6 +303,12 @@ export function SyncPane() {
               (cfg.lastResult.rejected > 0 ? ` · 거절 ${cfg.lastResult.rejected}` : '')}
         </Mono>
       </div>
+
+      {cfg.linked && cfg.firstLinkBackup && (
+        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', wordBreak: 'break-all' }}>
+          처음 연결 직전 백업 · {cfg.firstLinkBackup}
+        </Mono>
+      )}
 
       {(message || cfg.lastError) && (
         <Mono

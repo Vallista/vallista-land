@@ -146,9 +146,27 @@ await mock.toggleEventSubtask(`task:${T1}`, s1.id, true);
 
 console.log('\n연결 — 냥노션에 체크리스트 만들고 처음 동기화 (로컬 전부 올리기)');
 const listId = await sync.createServerChecklist(BASE, `시험 Bento ${stamp}`);
-sync.writeSyncConfig({ serverUrl: BASE, enabled: true });
 sync.chooseChecklist(listId);
+sync.writeSyncConfig({ serverUrl: BASE, enabled: true }); // 확인창을 거치지 않고 켠 경우
+await sync.syncNow();
+const guarded = sync.readSyncConfig();
+const untouched = await api(`/api/sync/checklists/${listId}/changes?since=0`);
+check(
+  '**확인 없이 켜면 백업도 올리기도 하지 않고 끈다**',
+  !guarded.enabled &&
+    !guarded.linked &&
+    guarded.lastError !== null &&
+    A.store.backups === 0 &&
+    untouched.items?.length === 0,
+  { guarded, items: untouched.items?.length, backups: A.store.backups },
+);
+sync.writeSyncConfig({ enabled: true, confirmedFor: listId, lastError: null }); // 확인창에서 '확인'
 await run(A);
+check(
+  '처음 붙기 직전에 한 번 백업한다',
+  A.store.backups === 1 && sync.readSyncConfig().firstLinkBackup !== null,
+  { backups: A.store.backups, path: sync.readSyncConfig().firstLinkBackup },
+);
 const server0 = await api(`/api/sync/checklists/${listId}/changes?since=0`);
 const s = (id: string) => server0.items.find((i: any) => i.id === id);
 check(
@@ -183,8 +201,8 @@ check('보낼 것이 비었다', sync.outboxSize() === 0, sync.outboxSize());
 
 console.log('\n맥 B — 빈 기기에서 같은 체크리스트에 연결');
 use(B);
-sync.writeSyncConfig({ serverUrl: BASE, enabled: true });
 sync.chooseChecklist(listId);
+sync.writeSyncConfig({ serverUrl: BASE, enabled: true, confirmedFor: listId });
 await run(B);
 check(
   '**B 에 할 일 셋이 생긴다 (같은 id)**',
@@ -487,6 +505,10 @@ const shape = (d: Device) =>
 check('**할 일 전부가 같다**', JSON.stringify(shape(A)) === JSON.stringify(shape(B)), {
   A: shape(A),
   B: shape(B),
+});
+check('백업은 처음 붙을 때 한 번씩만', A.store.backups === 1 && B.store.backups === 1, {
+  A: A.store.backups,
+  B: B.store.backups,
 });
 
 console.log(`\n${pass}개 통과, ${fail}개 실패`);
