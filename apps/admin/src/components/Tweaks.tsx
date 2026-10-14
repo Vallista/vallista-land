@@ -22,6 +22,8 @@ import {
   appSetupStatus,
   blogPull,
   blogSetupWorkspace,
+  externalizeGleanImages,
+  gleanImageStats,
   keychainDeleteToken,
   keychainHasToken,
   keychainSetToken,
@@ -31,6 +33,7 @@ import {
   readGlobalKeybindingsFromDisk,
   setBlogConfig,
   writeGlobalKeybindingsToDisk,
+  type GleanImageStats,
   type MigrateReportsReport,
 } from '../lib/tauri';
 import { readWeekStartDay, writeWeekStartDay, type WeekStartDay } from '../lib/weekStart';
@@ -1144,52 +1147,162 @@ function DataPane({
   onMigrate: () => void;
 }) {
   return (
-    <Section label="Reports 데이터 이전" hint="블로그(contents) → 앱(data_root)">
+    <>
+      <Section label="Reports 데이터 이전" hint="블로그(contents) → 앱(data_root)">
+        <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', lineHeight: 1.6 }}>
+          보고서를 블로그(contents)에서 앱 데이터(data_root)로 이전합니다. 한 번만 실행되며,
+          원본은 백업 폴더로 이동합니다.
+        </Mono>
+        <button
+          onClick={onMigrate}
+          disabled={migrateStatus === 'busy' || reportsMigrated || !contentPath}
+          style={{
+            ...rowButtonStyle,
+            justifyContent: 'center',
+            marginTop: 4,
+            opacity:
+              migrateStatus === 'busy' || reportsMigrated || !contentPath ? 0.5 : 1,
+          }}
+        >
+          <span>
+            {reportsMigrated
+              ? '이미 이전됨'
+              : migrateStatus === 'busy'
+                ? '이전 중…'
+                : confirmMigrate
+                  ? '한번 더 눌러 확정'
+                  : 'Reports 데이터 이전'}
+          </span>
+        </button>
+        {!contentPath && !reportsMigrated && (
+          <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
+            블로그 콘텐츠 폴더를 먼저 설정하세요.
+          </Mono>
+        )}
+        {migrateMessage && (
+          <Mono
+            style={{
+              fontSize: 10,
+              color:
+                migrateStatus === 'error' ? 'var(--err, var(--ink-mute))' : 'var(--ink-mute)',
+              whiteSpace: 'pre-wrap',
+              lineHeight: 1.5,
+            }}
+          >
+            {migrateMessage}
+          </Mono>
+        )}
+      </Section>
+      <GleanImagesSection />
+    </>
+  );
+
+function formatMB(bytes: number): string {
+  return `${(bytes / 1048576).toFixed(1)}MB`;
+}
+
+function GleanImagesSection() {
+  const [stats, setStats] = useState<GleanImageStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [status, setStatus] = useState<'idle' | 'busy' | 'ok' | 'error'>('idle');
+  const [message, setMessage] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    gleanImageStats()
+      .then((s) => {
+        if (cancelled) return;
+        setStats(s);
+        setStatsError(null);
+      })
+      .catch((e) => {
+        if (!cancelled) setStatsError(e instanceof Error ? e.message : String(e));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshKey]);
+
+  const busy = status === 'busy';
+  const pending = stats !== null && stats.items > 0;
+
+  const handleRun = async () => {
+    if (!stats || !pending || busy) return;
+    if (!confirm) {
+      setConfirm(true);
+      setStatus('idle');
+      setMessage(
+        `${stats.items}개 항목의 JSON 원본(${formatMB(stats.bytes)})을 data_root/backups/glean-images-<ts>/에 먼저 복사한 뒤, 본문의 base64 이미지 ${stats.markers}장을 data_root/glean/assets/<항목 id>/ 파일로 옮깁니다. 디스크 여유 공간이 ${formatMB(stats.bytes * 2)} 이상 필요합니다. 변환 중에는 줍기 화면을 닫아 두세요. 다시 누르면 실행됩니다.`,
+      );
+      return;
+    }
+    setStatus('busy');
+    setMessage(null);
+    try {
+      const res = await externalizeGleanImages();
+      setStatus(res.failed > 0 ? 'error' : 'ok');
+      const lines = [
+        `분리 완료 — 항목 ${res.items}건 · 이미지 ${res.markers}장 · ${formatMB(res.bytesBefore)} → ${formatMB(res.bytesAfter)}`,
+      ];
+      if (res.failed > 0) lines.push(`실패 ${res.failed}건 (해당 항목은 원본 그대로, 로그 확인)`);
+      if (res.backupPath) lines.push(`백업: ${res.backupPath}`);
+      lines.push('되돌리기: 백업 폴더의 .json을 data_root/glean/에 복사하고 glean/assets/를 지운 뒤 재시작');
+      setMessage(lines.join('\n'));
+    } catch (e) {
+      setStatus('error');
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setConfirm(false);
+      setRefreshKey((k) => k + 1);
+    }
+  };
+
+  let label: string;
+  if (busy) label = '분리 중…';
+  else if (!stats) label = statsError ? '상태 확인 실패' : '확인 중…';
+  else if (stats.items === 0) label = '분리할 이미지 없음';
+  else if (confirm) label = '한번 더 눌러 확정';
+  else label = `줍기 이미지 분리 · ${stats.items}건 · ${formatMB(stats.bytes)}`;
+
+  return (
+    <Section label="줍기 이미지 분리" hint="본문 base64 → glean/assets 파일">
       <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', lineHeight: 1.6 }}>
-        보고서를 블로그(contents)에서 앱 데이터(data_root)로 이전합니다. 한 번만 실행되며,
-        원본은 백업 폴더로 이동합니다.
+        Threads 줍기 본문에 base64로 들어 있는 이미지를 data_root/glean/assets/ 파일로 옮깁니다.
+        항목을 열 때 전송되는 데이터가 줄고, 목록 썸네일은 파일을 직접 읽습니다. 실행 전 대상
+        JSON 원본을 백업 폴더에 복사하며, 변환한 항목의 이미지는 이 버전 이후의 앱에서만 보입니다.
       </Mono>
       <button
-        onClick={onMigrate}
-        disabled={migrateStatus === 'busy' || reportsMigrated || !contentPath}
+        onClick={handleRun}
+        disabled={busy || !pending}
         style={{
           ...rowButtonStyle,
           justifyContent: 'center',
           marginTop: 4,
-          opacity:
-            migrateStatus === 'busy' || reportsMigrated || !contentPath ? 0.5 : 1,
+          opacity: busy || !pending ? 0.5 : 1,
         }}
       >
-        <span>
-          {reportsMigrated
-            ? '이미 이전됨'
-            : migrateStatus === 'busy'
-              ? '이전 중…'
-              : confirmMigrate
-                ? '한번 더 눌러 확정'
-                : 'Reports 데이터 이전'}
-        </span>
+        <span>{label}</span>
       </button>
-      {!contentPath && !reportsMigrated && (
-        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)' }}>
-          블로그 콘텐츠 폴더를 먼저 설정하세요.
-        </Mono>
+      {statsError && (
+        <Mono style={{ fontSize: 10, color: 'var(--err, var(--ink-mute))' }}>{statsError}</Mono>
       )}
-      {migrateMessage && (
+      {message && (
         <Mono
           style={{
             fontSize: 10,
-            color:
-              migrateStatus === 'error' ? 'var(--err, var(--ink-mute))' : 'var(--ink-mute)',
+            color: status === 'error' ? 'var(--err, var(--ink-mute))' : 'var(--ink-mute)',
             whiteSpace: 'pre-wrap',
             lineHeight: 1.5,
           }}
         >
-          {migrateMessage}
+          {message}
         </Mono>
       )}
     </Section>
   );
+}
 }
 
 const LABEL_QUICK_COLORS = [

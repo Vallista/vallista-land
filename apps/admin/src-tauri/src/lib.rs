@@ -133,7 +133,16 @@ fn show_quick(app: &tauri::AppHandle, kind: &str) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let builder = tauri::Builder::default();
+    let builder = tauri::Builder::default().register_asynchronous_uri_scheme_protocol(
+        "glean",
+        |ctx, request, responder| {
+            let app = ctx.app_handle().clone();
+            let uri = request.uri().clone();
+            let _ = tauri::async_runtime::spawn_blocking(move || {
+                responder.respond(commands::glean_assets::serve(&app, &uri));
+            });
+        },
+    );
 
     #[cfg(target_os = "macos")]
     let builder = builder.plugin(tauri_nspanel::init());
@@ -337,14 +346,19 @@ pub fn run() {
             commands::mood::delete_mood,
             // === life: glean (data_root 저장) ===
             commands::glean::list_glean,
+            commands::glean::search_glean,
             commands::glean::glean_counts,
             commands::glean::read_glean,
+            commands::glean::read_glean_thumb,
             commands::glean::add_glean,
             commands::glean::update_glean_status,
             commands::glean::update_glean_highlights,
             commands::glean::update_glean_digest,
             commands::glean::delete_glean,
             commands::glean::fetch_url,
+            commands::glean_assets::read_glean_asset,
+            commands::glean_assets::glean_image_stats,
+            commands::glean_assets::externalize_glean_images,
             // === life: reports / summaries ===
             commands::reports::list_reports,
             commands::reports::read_report,

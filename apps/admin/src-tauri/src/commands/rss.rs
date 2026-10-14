@@ -7,7 +7,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::{Emitter, Manager, State};
 use tokio::sync::Mutex;
 
-use crate::commands::glean::{self, GleanItem};
+use crate::commands::glean::{self, GleanItem, GleanSummary};
 use crate::repo::{build_user_agent, ensure_inside, load_config, save_config, AppState, RssConfig};
 
 const RSS_FEEDS_FILE: &str = "rss_feeds.json";
@@ -224,7 +224,7 @@ pub fn sync_lock() -> &'static Mutex<()> {
     RSS_SYNC_LOCK.get_or_init(|| Mutex::new(()))
 }
 
-pub fn build_dedup_set(items: &[GleanItem]) -> HashSet<(String, String)> {
+pub fn build_dedup_set(items: &[GleanSummary]) -> HashSet<(String, String)> {
     let mut set = HashSet::new();
     for item in items {
         if let (Some(fid), Some(eid)) = (item.feed_id.as_ref(), item.external_id.as_ref()) {
@@ -424,8 +424,8 @@ pub async fn sync_one(
                     skipped += 1;
                     continue;
                 }
-                let item = entry_to_glean_item(feed, entry, i as u64);
-                if let Err(e) = glean::write_item(data_root, &item) {
+                let mut item = entry_to_glean_item(feed, entry, i as u64);
+                if let Err(e) = glean::write_item(data_root, &mut item) {
                     eprintln!("rss: failed to save glean item {}: {}", item.id, e);
                     continue;
                 }
@@ -489,7 +489,7 @@ pub async fn sync_rss_feed(
         .into_iter()
         .find(|f| f.id == id)
         .ok_or_else(|| format!("feed not found: {}", id))?;
-    let existing = glean::list_items(&state.data_root)?;
+    let existing = glean::list_summaries(&state.data_root)?;
     let dedup = build_dedup_set(&existing);
     let outcome = sync_one(&state.data_root, &feed, &cfg, &dedup).await;
     persist_feed_result(&state.data_root, &feed.id, &outcome)?;
@@ -506,7 +506,7 @@ pub async fn sync_rss_feeds(
     let _guard = sync_lock().lock().await;
     let cfg = load_config(&state.data_root).rss;
     let feeds = load_feeds(&state.data_root)?;
-    let existing = glean::list_items(&state.data_root)?;
+    let existing = glean::list_summaries(&state.data_root)?;
     let mut dedup = build_dedup_set(&existing);
     let mut summaries: Vec<(String, RssSyncResult)> = Vec::new();
     for feed in feeds.iter().filter(|f| f.enabled) {
@@ -563,7 +563,7 @@ async fn run_due_sync(
     let _ = app.emit("bento:rss-syncing", ());
     let max = cfg.max_concurrent.max(1) as usize;
     let semaphore = std::sync::Arc::new(tokio::sync::Semaphore::new(max));
-    let existing = glean::list_items(&data_root).unwrap_or_default();
+    let existing = glean::list_summaries(&data_root).unwrap_or_default();
     let dedup = std::sync::Arc::new(Mutex::new(build_dedup_set(&existing)));
     let mut handles = Vec::new();
     for feed in due {

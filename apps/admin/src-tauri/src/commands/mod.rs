@@ -5,6 +5,7 @@ pub mod event_notes;
 pub mod event_subtasks;
 pub mod git;
 pub mod glean;
+pub mod glean_assets;
 pub mod headless;
 pub mod insights;
 pub mod keychain;

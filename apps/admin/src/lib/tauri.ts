@@ -1,4 +1,4 @@
-import { invoke as _invoke } from '@tauri-apps/api/core';
+import { convertFileSrc, invoke as _invoke } from '@tauri-apps/api/core';
 import {
   markFolderChanged,
   markFolderDeleted,
@@ -18,6 +18,7 @@ const SILENT_COMMANDS = new Set([
   'migrate_task_notes_to_event_notes',
   'migrate_block_notes_to_event_notes',
   'migrate_task_groups',
+  'read_glean_thumb',
   'sync_ical_feeds',
   'macos_cal_status',
   'macos_cal_list',
@@ -102,6 +103,7 @@ import type {
   GleanHighlight,
   GleanSource,
   GleanStatus,
+  GleanSummary,
   Task,
   TaskFolder,
 } from '@vallista/content-core';
@@ -141,7 +143,7 @@ export async function writeAsset(path: string, base64: string): Promise<void> {
 }
 
 export interface GleanPage {
-  items: GleanItem[];
+  items: GleanSummary[];
   total: number;
 }
 
@@ -157,15 +159,21 @@ export interface GleanCounts {
 export async function listGlean(params: {
   status?: string;
   source?: string;
+  excludeStatus?: string;
   offset: number;
   limit: number;
 }): Promise<GleanPage> {
   return invoke<GleanPage>('list_glean', {
     status: params.status ?? null,
     source: params.source ?? null,
+    excludeStatus: params.excludeStatus ?? null,
     offset: params.offset,
     limit: params.limit,
   });
+}
+
+export async function searchGlean(query: string, limit: number): Promise<GleanSummary[]> {
+  return invoke<GleanSummary[]>('search_glean', { query, limit });
 }
 
 export async function gleanCounts(): Promise<GleanCounts> {
@@ -174,6 +182,20 @@ export async function gleanCounts(): Promise<GleanCounts> {
 
 export async function readGlean(id: string): Promise<GleanItem> {
   return invoke<GleanItem>('read_glean', { id });
+}
+
+export async function readGleanThumb(id: string): Promise<string | null> {
+  return invoke<string | null>('read_glean_thumb', { id });
+}
+
+/** 분리 저장된 줍기 이미지 바이트. 승격처럼 파일로 다시 써야 할 때만 쓴다. */
+export async function readGleanAsset(id: string, file: string): Promise<AssetData> {
+  return invoke<AssetData>('read_glean_asset', { id, file });
+}
+
+/** 분리 저장된 줍기 이미지는 glean:// 커스텀 프로토콜로 Rust가 직접 서빙한다(IPC 페이로드 없음). */
+export function gleanAssetUrl(itemId: string, file: string): string {
+  return convertFileSrc(`${itemId}/${file}`, 'glean');
 }
 
 export async function addGlean(input: GleanInput): Promise<GleanItem> {
@@ -830,6 +852,31 @@ export async function migrateReports(): Promise<MigrateReportsReport> {
   return invoke<MigrateReportsReport>('migrate_reports');
 }
 
+export interface GleanImageStats {
+  items: number;
+  markers: number;
+  bytes: number;
+}
+
+export interface ExternalizeGleanImagesReport {
+  items: number;
+  markers: number;
+  bytesBefore: number;
+  bytesAfter: number;
+  failed: number;
+  backupPath?: string;
+}
+
+/** 아직 본문에 base64로 남아 있는 줍기 이미지 통계(항목 수·장 수·JSON 바이트). */
+export async function gleanImageStats(): Promise<GleanImageStats> {
+  return invoke<GleanImageStats>('glean_image_stats');
+}
+
+/** 설정 › 데이터에서 2클릭 확인 뒤에만 호출. Rust가 항목별 JSON을 backups/glean-images-<ts>/에 복사한 뒤 변환한다. */
+export async function externalizeGleanImages(): Promise<ExternalizeGleanImagesReport> {
+  return invoke<ExternalizeGleanImagesReport>('externalize_glean_images');
+}
+
 export async function listStatsExcluded(): Promise<string[]> {
   return invoke<string[]>('list_stats_excluded');
 }
@@ -1406,8 +1453,12 @@ if (typeof window !== 'undefined') {
     readAsset,
     writeAsset,
     listGlean,
+    searchGlean,
     gleanCounts,
     readGlean,
+    readGleanThumb,
+    readGleanAsset,
+    gleanImageStats,
     addGlean,
     updateGleanStatus,
     updateGleanHighlights,

@@ -281,6 +281,7 @@ dependencies = [
  "objc2-foundation",
  "once_cell",
  "pbkdf2",
+ "percent-encoding",
  "rand 0.8.6",
  "regex",
  "reqwest 0.12.28",

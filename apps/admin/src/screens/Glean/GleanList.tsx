@@ -1,12 +1,13 @@
-import { forwardRef, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
-import type { GleanItem, GleanSource, GleanStatus } from '@vallista/content-core';
+import { forwardRef, memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
+import type { GleanItem, GleanSource, GleanStatus, GleanSummary } from '@vallista/content-core';
 import { Mono } from '../../components/atoms/Atoms';
 import type { StatusFilter } from './index';
 import { AddDialog } from './AddDialog';
 import { cleanThreadsText } from './ThreadsPostCard';
+import { useGleanThumb } from './useGleanThumb';
 
 type Props = {
-  items: GleanItem[];
+  items: GleanSummary[];
   totalCount: number;
   filter: StatusFilter;
   onFilterChange: (f: StatusFilter) => void;
@@ -45,6 +46,15 @@ const SOURCE_GLYPH: Record<GleanSource, string> = {
   threads: '@',
 };
 
+const THUMB_STYLE: CSSProperties = {
+  width: 52,
+  height: 52,
+  borderRadius: 6,
+  flex: '0 0 52px',
+  background: 'var(--bg-shade)',
+  border: '1px solid var(--line)',
+};
+
 export function GleanList({
   items,
   totalCount,
@@ -60,7 +70,7 @@ export function GleanList({
   isLoadingMore,
 }: Props) {
   const [addOpen, setAddOpen] = useState(false);
-  const [previewItem, setPreviewItem] = useState<GleanItem | null>(null);
+  const [previewItem, setPreviewItem] = useState<GleanSummary | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const anchorRef = useRef<{ firstId: string | null; firstTop: number }>({ firstId: null, firstTop: 0 });
@@ -261,8 +271,8 @@ export function GleanList({
               key={it.id}
               item={it}
               active={it.id === selectedId}
-              onClick={() => onSelect(it.id)}
-              onDigestClick={it.digest ? () => setPreviewItem(it) : undefined}
+              onSelect={onSelect}
+              onDigest={setPreviewItem}
             />
           ))
         )}
@@ -288,7 +298,36 @@ export function GleanList({
   );
 }
 
-function Row({ item, active, onClick, onDigestClick }: { item: GleanItem; active: boolean; onClick: () => void; onDigestClick?: () => void }) {
+type RowProps = {
+  item: GleanSummary;
+  active: boolean;
+  onSelect: (id: string) => void;
+  onDigest: (item: GleanSummary) => void;
+};
+
+// 백그라운드 갱신은 같은 내용의 새 객체를 내려주므로 필드 비교로 불필요한 행 재렌더를 막는다
+function rowPropsEqual(prev: RowProps, next: RowProps): boolean {
+  const a = prev.item;
+  const b = next.item;
+  return (
+    prev.active === next.active &&
+    prev.onSelect === next.onSelect &&
+    prev.onDigest === next.onDigest &&
+    a.id === b.id &&
+    a.status === b.status &&
+    a.title === b.title &&
+    a.url === b.url &&
+    a.source === b.source &&
+    a.excerpt === b.excerpt &&
+    a.digest === b.digest &&
+    a.preview === b.preview &&
+    a.hasImage === b.hasImage &&
+    a.fetchedAt === b.fetchedAt &&
+    a.publishedAt === b.publishedAt
+  );
+}
+
+const Row = memo(function Row({ item, active, onSelect, onDigest }: RowProps) {
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (active) ref.current?.scrollIntoView({ block: 'nearest' });
@@ -297,6 +336,8 @@ function Row({ item, active, onClick, onDigestClick }: { item: GleanItem; active
   const dot = STATUS_DOT[item.status] ?? 'var(--ink-mute)';
   const glyph = SOURCE_GLYPH[item.source] ?? '?';
   const time = formatRel(item.publishedAt ?? item.fetchedAt);
+  const onClick = () => onSelect(item.id);
+  const onDigestClick = item.digest ? () => onDigest(item) : undefined;
 
   if (item.source === 'threads') {
     return <ThreadsRow ref={ref} item={item} active={active} dot={dot} time={time} onClick={onClick} />;
@@ -388,13 +429,14 @@ function Row({ item, active, onClick, onDigestClick }: { item: GleanItem; active
       </Mono>
     </button>
   );
-}
+}, rowPropsEqual);
 
 const ThreadsRow = forwardRef<
   HTMLButtonElement,
-  { item: GleanItem; active: boolean; dot: string; time: string; onClick: () => void }
+  { item: GleanSummary; active: boolean; dot: string; time: string; onClick: () => void }
 >(function ThreadsRow({ item, active, dot, time, onClick }, ref) {
-  const { text, thumb } = parseThreadsPreview(item.body);
+  const text = cleanThreadsText(item.preview ?? '');
+  const thumb = useGleanThumb(item.id, item.hasImage);
   const username = extractThreadsUsername(item.url) || item.title;
 
   return (
@@ -438,7 +480,7 @@ const ThreadsRow = forwardRef<
         <Mono style={{ fontSize: 9, color: 'var(--ink-faint)' }}>{time}</Mono>
       </div>
 
-      {(text || thumb) && (
+      {(text || item.hasImage) && (
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', paddingLeft: 13 }}>
           {text && (
             <div
@@ -458,21 +500,18 @@ const ThreadsRow = forwardRef<
               {text}
             </div>
           )}
-          {thumb && (
-            <img
-              src={thumb}
-              alt=""
-              style={{
-                width: 52,
-                height: 52,
-                borderRadius: 6,
-                objectFit: 'cover',
-                flex: '0 0 52px',
-                background: 'var(--bg-shade)',
-                border: '1px solid var(--line)',
-              }}
-            />
-          )}
+          {item.hasImage &&
+            (thumb ? (
+              <img
+                src={thumb}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                style={{ ...THUMB_STYLE, objectFit: 'cover' }}
+              />
+            ) : (
+              <span style={THUMB_STYLE} />
+            ))}
         </div>
       )}
     </button>
@@ -515,22 +554,6 @@ function hostname(url: string): string {
   } catch {
     return '';
   }
-}
-
-function parseThreadsPreview(body: string): { text: string; thumb: string | null } {
-  if (!body) return { text: '', thumb: null };
-  const lines = body.split('\n');
-  let thumb: string | null = null;
-  const textLines: string[] = [];
-  for (const line of lines) {
-    if (line.startsWith('[img]')) {
-      if (!thumb) thumb = line.slice(5).trim();
-    } else {
-      textLines.push(line);
-    }
-  }
-  const raw = textLines.join('\n').trim();
-  return { text: cleanThreadsText(raw), thumb };
 }
 
 function extractThreadsUsername(url: string): string {
@@ -581,7 +604,7 @@ function formatRel(iso: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function DigestModal({ item, onClose }: { item: GleanItem; onClose: () => void }) {
+function DigestModal({ item, onClose }: { item: GleanSummary; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);

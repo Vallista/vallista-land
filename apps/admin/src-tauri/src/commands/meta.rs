@@ -240,8 +240,9 @@ pub struct MemoryInfo {
     pub other_bytes: u64,
 }
 
-#[tauri::command]
-pub fn get_memory_info(state: State<'_, AppState>) -> MemoryInfo {
+/// 데이터 루트 전체를 walk하므로(줍기 7천 파일 포함) IPC 스레드가 아니라 워커에서 돈다.
+#[tauri::command(async)]
+pub fn get_memory_info(state: State<'_, AppState>) -> Result<MemoryInfo, String> {
     let root = &state.data_root;
     let blocks_bytes = file_bytes(&root.join("blocks.json"));
     let tasks_bytes = dir_bytes(&root.join("tasks"));
@@ -249,14 +250,14 @@ pub fn get_memory_info(state: State<'_, AppState>) -> MemoryInfo {
     let glean_bytes = dir_bytes(&root.join("glean"));
     let total_data = dir_bytes(root);
     let other_bytes = total_data.saturating_sub(blocks_bytes + tasks_bytes + event_notes_bytes + glean_bytes);
-    MemoryInfo {
+    Ok(MemoryInfo {
         process_rss_bytes: process_rss(),
         blocks_bytes,
         tasks_bytes,
         event_notes_bytes,
         glean_bytes,
         other_bytes,
-    }
+    })
 }
 
 fn file_bytes(path: &PathBuf) -> u64 {

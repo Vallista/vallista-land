@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { GleanItem } from '@vallista/content-core';
-import { readDoc, updateGleanStatus, writeAsset, writeDoc } from '../../lib/tauri';
+import { readDoc, readGleanAsset, updateGleanStatus, writeAsset, writeDoc } from '../../lib/tauri';
 import { serializeDoc } from '../Atelier/save';
 import { Input, Mono } from '../../components/atoms/Atoms';
 import { cleanThreadsText } from './ThreadsPostCard';
+import { assetFileName, isAssetRef } from './imageSrc';
 
 type Props = {
   item: GleanItem;
@@ -56,7 +57,7 @@ export function PromoteDialog({ item, onClose, onPromoted }: Props) {
       }
       const docId = `note_${cleanSlug}`;
       const { text, images } = splitBodyImages(item.body);
-      const imageRefs = await saveImages(dir, images);
+      const imageRefs = await saveImages(item.id, dir, images);
       const body = item.source === 'threads' ? cleanThreadsText(text) : text;
       const md = buildSeedMarkdown(item, docId, body, imageRefs);
       await writeDoc(path, md);
@@ -283,12 +284,12 @@ function splitBodyImages(body: string): { text: string; images: string[] } {
   return { text: textLines.join('\n').trim(), images };
 }
 
-/** data URI 이미지는 `<dir>/assets/N.<ext>` 파일로 쓰고, 외부 URL은 그대로 참조한다. */
-async function saveImages(dir: string, images: string[]): Promise<string[]> {
+/** 분리 저장된 이미지와 data URI 이미지는 `<dir>/assets/N.<ext>` 파일로 쓰고, 외부 URL은 그대로 참조한다. */
+async function saveImages(itemId: string, dir: string, images: string[]): Promise<string[]> {
   const refs: string[] = [];
   let n = 0;
   for (const src of images) {
-    const data = parseDataUri(src);
+    const data = isAssetRef(src) ? await readAssetImage(itemId, src) : parseDataUri(src);
     if (!data) {
       if (/^https?:\/\//i.test(src)) refs.push(src);
       continue;
@@ -299,6 +300,16 @@ async function saveImages(dir: string, images: string[]): Promise<string[]> {
     n += 1;
   }
   return refs;
+}
+
+async function readAssetImage(
+  itemId: string,
+  ref: string,
+): Promise<{ ext: string; base64: string }> {
+  const file = assetFileName(ref);
+  const asset = await readGleanAsset(itemId, file);
+  const dot = file.lastIndexOf('.');
+  return { ext: dot >= 0 ? file.slice(dot + 1) : 'bin', base64: asset.base64 };
 }
 
 function parseDataUri(src: string): { ext: string; base64: string } | null {

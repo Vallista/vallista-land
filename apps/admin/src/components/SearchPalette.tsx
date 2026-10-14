@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { DocSummary, GleanItem, Task, TaskFolder } from '@vallista/content-core';
-import { listDocs, listGlean, listTaskFolders, listTasks } from '../lib/tauri';
+import type { DocSummary, GleanSummary, Task, TaskFolder } from '@vallista/content-core';
+import { listDocs, listTaskFolders, listTasks, searchGlean } from '../lib/tauri';
 import { Input, Mono } from './atoms/Atoms';
 import type { ScreenId } from '../shell/Shell';
 
 type Hit =
   | { kind: 'doc'; id: string; title: string; sub: string; tags: string[]; doc: DocSummary }
   | { kind: 'task'; id: string; title: string; sub: string; task: Task }
-  | { kind: 'glean'; id: string; title: string; sub: string; item: GleanItem }
+  | { kind: 'glean'; id: string; title: string; sub: string; item: GleanSummary }
   | { kind: 'screen'; id: ScreenId; title: string; sub: string };
 
 function taskSub(t: Task, folderName: string | undefined): string {
@@ -38,7 +38,7 @@ export function SearchPalette({
   const [docs, setDocs] = useState<DocSummary[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [folders, setFolders] = useState<TaskFolder[]>([]);
-  const [glean, setGlean] = useState<GleanItem[]>([]);
+  const [glean, setGlean] = useState<GleanSummary[]>([]);
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLUListElement | null>(null);
@@ -66,8 +66,8 @@ export function SearchPalette({
     if (!q) { setGlean([]); return; }
     let cancelled = false;
     const id = window.setTimeout(() => {
-      listGlean({ offset: 0, limit: 500 })
-        .then((p) => { if (!cancelled) setGlean(p.items); })
+      searchGlean(q, 8)
+        .then((hits) => { if (!cancelled) setGlean(hits); })
         .catch(() => { if (!cancelled) setGlean([]); });
     }, 200);
     return () => { cancelled = true; window.clearTimeout(id); };

@@ -549,7 +549,7 @@ function DigestCard({
     setBusy(true);
     setError(null);
     try {
-      let source = (item.body || item.excerpt || '').trim();
+      let source = stripImageMarkers(item.body || item.excerpt || '');
       if (!source && item.url) {
         setBusyMsg('본문 가져오는 중…');
         const fetched = await fetchUrl(item.url);
@@ -748,4 +748,13 @@ function formatTime(iso: string): string {
     minute: '2-digit',
     hour12: false,
   });
+}
+
+/** `[img]` 마커 줄(base64·asset 참조)은 요약 입력에서 뺀다. 토큰만 쓰고 내용은 없다. */
+function stripImageMarkers(body: string): string {
+  return body
+    .split('\n')
+    .filter((line) => !line.startsWith('[img]'))
+    .join('\n')
+    .trim();
 }
