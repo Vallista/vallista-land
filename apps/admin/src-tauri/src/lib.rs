@@ -336,6 +336,7 @@ pub fn run() {
             commands::event_subtasks::add_event_subtask,
             commands::event_subtasks::toggle_event_subtask,
             commands::event_subtasks::delete_event_subtask,
+            commands::event_subtasks::set_event_subtasks,
             commands::event_subtasks::list_all_event_subtask_counts,
             // === life: mood ===
             commands::mood::list_mood,
@@ -400,6 +401,7 @@ pub fn run() {
             commands::keychain::keychain_has_token,
             commands::keychain::keychain_delete_token,
             commands::keychain::sync_token_get,
+            commands::sync_backup::sync_backup,
             // === life: rss feeds ===
             commands::rss::list_rss_feeds,
             commands::rss::add_rss_feed,

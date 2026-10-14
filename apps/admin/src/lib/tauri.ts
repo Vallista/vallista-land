@@ -554,6 +554,19 @@ export async function deleteEventSubtask(eventKey: string, id: string): Promise<
   if (taskId) markTaskChanged(taskId);
 }
 
+export interface SetEventSubtasksInput {
+  eventKey: string;
+  seriesKey: string;
+  eventTitleSnapshot: string;
+  eventDateSnapshot: string;
+  items: { id: string; title: string; done: boolean }[];
+}
+
+/** 하위 항목 목록을 id 그대로 통째로 맞춘다. 냥노션 동기화 엔진 전용 — 받은 것이므로 보낼 것에 적지 않는다. */
+export async function setEventSubtasks(input: SetEventSubtasksInput): Promise<EventSubtask[]> {
+  return invoke<EventSubtask[]>('set_event_subtasks', { input });
+}
+
 export async function listAllEventSubtaskCounts(): Promise<EventSubtaskCount[]> {
   return invoke<EventSubtaskCount[]>('list_all_event_subtask_counts');
 }
@@ -1012,6 +1025,17 @@ export const SYNC_KEYCHAIN_REMOTE = 'nyanotion-sync';
 /** 냥노션 동기화 토큰을 읽는다. 이 자리 하나만 웹뷰로 나온다. */
 export async function syncTokenGet(): Promise<string | null> {
   return invoke<string | null>('sync_token_get');
+}
+
+export interface SyncBackup {
+  path: string;
+  files: number;
+  bytes: number;
+}
+
+/** 첫 연결 직전 백업: tasks.json·task_folders.json·event_notes/·event_subtasks/ → backups/nyanotion-<ts>/ */
+export async function syncBackup(): Promise<SyncBackup> {
+  return invoke<SyncBackup>('sync_backup');
 }
 
 export interface ClipboardEntry {

@@ -19,6 +19,7 @@ pub mod rss;
 pub mod settings;
 pub mod stats_exclusions;
 pub mod summaries;
+pub mod sync_backup;
 pub mod tasks;
 pub mod task_folders;
 pub mod radar;
