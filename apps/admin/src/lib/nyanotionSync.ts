@@ -6,37 +6,32 @@
 //   - 나중에 고친 쪽이 이긴다. 서버 것이 더 새로우면 올린 것은 버려지고(stale), 받기에서 서버 값으로 맞춰진다.
 //   - 받기는 변경 번호(cursor) 다음에 바뀐 것만. 지운 것도 "지웠다"로 온다.
 //   - Bento 의 할 일 id 를 서버도 그대로 쓴다 — 블록·메모·하위 항목이 그 id 로 가리키므로.
+//   - 받은 것을 쓸 때는 보낼 것에 안 적는 `…Raw` 래퍼만 쓴다. 이 기기에서 받은 것보다 나중에 고쳤고 아직
+//     안 올린 할 일·폴더는 덮지 않고 건너뛴다 — 다음 올리기가 서버를 이긴다. 확인한 뒤 실제로 쓰기까지의
+//     몇 ms 사이에 고친 것은 여전히 덮일 수 있다(완전히 막으려면 Rust 쪽에서 비교 후 쓰기가 필요).
+//   - 하위 항목은 서버가 준 id 그대로 목록째 맞춘다(set_event_subtasks).
 //
 // 1단계에서 안 되는 것: 폴더를 **다른 폴더 아래로 옮기기**는 Bento 에 그 명령이 없어 서버 쪽 이동이
-// 여기 반영되지 않는다(이름 바꾸기·지우기는 된다). 하위 항목은 Bento 가 id 를 정하므로 목록째 맞춘다.
+// 여기 반영되지 않는다(이름 바꾸기·지우기는 된다).
 
 import type { Task, TaskFolder } from '@vallista/content-core';
 import {
-  addEventSubtask,
-  addTask,
-  addTaskFolder,
-  deleteEventSubtask,
-  deleteTask,
-  deleteTaskFolder,
+  addTaskFolderRaw,
+  addTaskRaw,
+  deleteTaskFolderRaw,
+  deleteTaskRaw,
   listEventNotesByEvent,
   listEventSubtasks,
   listTaskFolders,
   listTasks,
-  renameTaskFolder,
+  renameTaskFolderRaw,
+  setEventSubtasks,
   syncTokenGet,
-  toggleEventSubtask,
-  updateTask,
-  upsertEventNote,
+  updateTaskRaw,
+  upsertEventNoteRaw,
   type TaskPatch,
 } from './tauri';
-import {
-  clearSent,
-  markEverything,
-  outboxSize,
-  quietly,
-  readOutbox,
-  type Outbox,
-} from './syncOutbox';
+import { clearSent, markEverything, outboxSize, readOutbox, type Outbox } from './syncOutbox';
 
 const CONFIG_KEY = 'bento.sync.v1';
 export const SYNC_STATUS_EVENT = 'bento:sync-status';
@@ -310,11 +305,8 @@ async function push(
     // 서버 것이 더 새로워 버려진 것 — 서버가 지금 값을 같이 준다. 곧바로 덮어써야 이 기기에 옛 값이 안 남는다
     // (받기 커서는 이미 그 변경을 지나갔을 수 있다).
     if (res.current && res.current.folders.length + res.current.items.length > 0) {
-      const current = res.current;
-      await quietly(async () => {
-        await applyFolders(current.folders);
-        await applyItems(current.items);
-      });
+      await applyFolders(res.current.folders);
+      await applyItems(res.current.items);
     }
   }
   clearSent(snapshot);
@@ -322,6 +314,19 @@ async function push(
 }
 
 /* ------------------------------------------------------------------ 받기 */
+
+/**
+ * 이 기기에서 받은 것보다 나중에 고쳤거나 지웠고 아직 안 올렸는가 — 그러면 받은 값으로 덮지 않는다.
+ * 쓰기 직전마다 다시 본다(엔진이 쓰는 사이에도 사용자가 고칠 수 있다).
+ */
+function newerHere(kind: 'task' | 'folder', id: string, serverAt: string): boolean {
+  const box = readOutbox();
+  const at =
+    kind === 'task'
+      ? (box.tasks[id] ?? box.deletedTasks[id])
+      : (box.folders[id] ?? box.deletedFolders[id]);
+  return at !== undefined && Date.parse(at) > Date.parse(serverAt);
+}
 
 async function applyFolders(incoming: ServerFolder[]): Promise<void> {
   let local = await listTaskFolders();
@@ -331,23 +336,27 @@ async function applyFolders(incoming: ServerFolder[]): Promise<void> {
   for (let round = 0; round < 5 && pending.length > 0; round += 1) {
     const later: ServerFolder[] = [];
     for (const f of pending) {
+      if (newerHere('folder', f.id, f.updatedAt)) continue;
       const mine = local.find((x) => x.id === f.id);
       if (mine) {
         if (mine.name !== f.name)
-          await renameTaskFolder(f.id, f.name).catch((e) =>
+          await renameTaskFolderRaw(f.id, f.name).catch((e) =>
             console.warn('[냥노션 동기화] 폴더 이름', e),
           );
         continue;
       }
+      // 부모가 이번에 같이 오면 기다린다. 이 기기에서 더 나중에 고친 부모라 건너뛸 것이면 기다리지 않는다.
       if (
         f.parentId &&
         !has(f.parentId) &&
-        incoming.some((x) => x.id === f.parentId && !x.deleted)
+        incoming.some(
+          (x) => x.id === f.parentId && !x.deleted && !newerHere('folder', x.id, x.updatedAt),
+        )
       ) {
         later.push(f);
         continue;
       }
-      await addTaskFolder({
+      await addTaskFolderRaw({
         id: f.id,
         name: f.name,
         parentId: f.parentId && has(f.parentId) ? f.parentId : undefined,
@@ -357,15 +366,28 @@ async function applyFolders(incoming: ServerFolder[]): Promise<void> {
     pending = later;
   }
   for (const f of incoming.filter((x) => x.deleted)) {
-    if (has(f.id))
-      await deleteTaskFolder(f.id).catch((e) => console.warn('[냥노션 동기화] 폴더 지우기', e));
+    if (has(f.id) && !newerHere('folder', f.id, f.updatedAt))
+      await deleteTaskFolderRaw(f.id).catch((e) => console.warn('[냥노션 동기화] 폴더 지우기', e));
   }
 }
 
+/** 서버의 하위 항목 목록으로 통째로 맞춘다. id 는 서버가 준 그대로(처음 만든 기기의 id). */
 async function applySubtasks(
   task: { id: string; title: string; due?: string },
-  wanted: ServerSubtask[],
+  incoming: ServerSubtask[] | undefined,
 ): Promise<void> {
+  // 목록이 아예 없으면 지우라는 뜻이 아니다 — 건드리지 않는다.
+  if (!Array.isArray(incoming)) return;
+  // 빈 id·공백뿐인 제목은 버린다(서버도 버리지만 한 번 더). 같은 id 가 또 오면 처음 것만.
+  const seen = new Set<string>();
+  const wanted: ServerSubtask[] = [];
+  for (const s of incoming) {
+    const id = typeof s?.id === 'string' ? s.id : '';
+    const title = typeof s?.title === 'string' ? s.title.trim() : '';
+    if (!id.trim() || !title || seen.has(id)) continue;
+    seen.add(id);
+    wanted.push({ id, title, done: s.done === true });
+  }
   const key = taskKey(task.id);
   const have = await listEventSubtasks(key).catch(() => []);
   const same =
@@ -375,25 +397,13 @@ async function applySubtasks(
       return w !== undefined && h.id === w.id && h.title === w.title && h.done === w.done;
     });
   if (same) return;
-  for (const h of have) {
-    if (!wanted.some((w) => w.id === h.id)) await deleteEventSubtask(key, h.id);
-  }
-  for (const w of wanted) {
-    const mine = have.find((h) => h.id === w.id);
-    if (mine) {
-      if (mine.done !== w.done) await toggleEventSubtask(key, w.id, w.done);
-      continue;
-    }
-    // Bento 가 id 를 정하므로 새로 만든 것은 id 가 바뀐다. 다음 올리기에서 서버도 그 id 로 맞춰진다.
-    const made = await addEventSubtask({
-      eventKey: key,
-      seriesKey: key,
-      eventTitleSnapshot: task.title,
-      eventDateSnapshot: task.due ?? '',
-      title: w.title,
-    });
-    if (w.done) await toggleEventSubtask(key, made.id, true);
-  }
+  await setEventSubtasks({
+    eventKey: key,
+    seriesKey: key,
+    eventTitleSnapshot: task.title,
+    eventDateSnapshot: task.due ?? '',
+    items: wanted,
+  });
 }
 
 async function applyItems(incoming: ServerItem[]): Promise<void> {
@@ -402,15 +412,17 @@ async function applyItems(incoming: ServerItem[]): Promise<void> {
   const folderIds = new Set((await listTaskFolders()).map((f) => f.id));
 
   for (const it of incoming) {
+    const newer = () => newerHere('task', it.id, it.updatedAt);
+    if (newer()) continue;
     const mine = byId.get(it.id);
     if (it.deleted) {
-      if (mine) await deleteTask(it.id).catch((e) => console.warn('[냥노션 동기화] 지우기', e));
+      if (mine) await deleteTaskRaw(it.id).catch((e) => console.warn('[냥노션 동기화] 지우기', e));
       continue;
     }
     const due = joinDue(it.dueOn, it.dueTime);
     const folderId = it.folderId && folderIds.has(it.folderId) ? it.folderId : '';
     if (!mine) {
-      await addTask({
+      await addTaskRaw({
         id: it.id,
         title: it.title,
         due: due || undefined,
@@ -422,7 +434,7 @@ async function applyItems(incoming: ServerItem[]): Promise<void> {
         folderId: folderId || undefined,
         group: it.groupName ?? undefined,
       }).catch((e) => console.warn('[냥노션 동기화] 만들기', it.title, e));
-      if (it.done) await updateTask(it.id, { done: true }).catch(() => undefined);
+      if (it.done) await updateTaskRaw(it.id, { done: true }).catch(() => undefined);
     } else {
       // TaskPatch 규칙: null 은 "그대로", '' 는 "지우기" (serde Option<Option>).
       const patch: TaskPatch = {};
@@ -430,25 +442,29 @@ async function applyItems(incoming: ServerItem[]): Promise<void> {
       if (mine.done !== it.done) patch.done = it.done;
       if ((mine.due ?? '') !== due) patch.due = due;
       if ((mine.startAt ?? '') !== (it.startAt ?? '')) patch.startAt = it.startAt ?? '';
-      if (it.estMin !== null && mine.estMin !== it.estMin) patch.estMin = it.estMin;
+      // 서버의 null 은 "없음". Rust 는 estMin 0 이하를 지우기로 받는다.
+      if (it.estMin === null) {
+        if (mine.estMin != null) patch.estMin = 0;
+      } else if (mine.estMin !== it.estMin) patch.estMin = it.estMin;
       if (JSON.stringify(mine.tags ?? []) !== JSON.stringify(it.tags)) patch.tags = it.tags;
       if ((mine.color ?? '') !== (it.color ?? '')) patch.color = it.color ?? '';
       if ((mine.kind ?? '') !== (it.kind ?? '')) patch.kind = it.kind ?? '';
       if ((mine.folderId ?? '') !== folderId) patch.folderId = folderId;
       if ((mine.group ?? '') !== (it.groupName ?? '')) patch.group = it.groupName ?? '';
       if (Object.keys(patch).length > 0) {
-        await updateTask(it.id, patch).catch((e) =>
+        await updateTaskRaw(it.id, patch).catch((e) =>
           console.warn('[냥노션 동기화] 고치기', it.title, e),
         );
       }
     }
 
     // 메모 (EventNote task:<id>)
+    if (newer()) continue;
     const key = taskKey(it.id);
     const notes = await listEventNotesByEvent(key).catch(() => []);
     const current = notes[0];
     if ((current?.body ?? '') !== it.notes && (it.notes !== '' || current !== undefined)) {
-      await upsertEventNote({
+      await upsertEventNoteRaw({
         id: current?.id,
         eventKey: key,
         seriesKey: key,
@@ -458,6 +474,7 @@ async function applyItems(incoming: ServerItem[]): Promise<void> {
         tags: current?.tags ?? [],
       }).catch((e) => console.warn('[냥노션 동기화] 메모', e));
     }
+    if (newer()) continue;
     await applySubtasks({ id: it.id, title: it.title, due }, it.subtasks).catch((e) =>
       console.warn('[냥노션 동기화] 하위 항목', e),
     );
@@ -475,10 +492,8 @@ async function pull(cfg: SyncConfig, t: string): Promise<{ pulled: number; curso
       more: boolean;
     }>(cfg.serverUrl, t, `/api/sync/checklists/${cfg.checklistId}/changes?since=${cursor}`);
     if (res.folders.length + res.items.length > 0) {
-      await quietly(async () => {
-        await applyFolders(res.folders);
-        await applyItems(res.items);
-      });
+      await applyFolders(res.folders);
+      await applyItems(res.items);
       pulled += res.folders.length + res.items.length;
     }
     cursor = res.cursor;

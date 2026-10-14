@@ -282,20 +282,34 @@ export async function listTasks(): Promise<Task[]> {
 
 // 할 일·폴더·메모·하위 항목을 고치는 래퍼는 냥노션 동기화의 "보낼 것"에 적는다 (lib/syncOutbox.ts).
 // IPC 가 전부 여기를 지나므로 화면 코드는 동기화를 몰라도 된다.
+// `…Raw` 는 적지 않는 변형으로, 서버에서 받은 것을 쓰는 동기화 엔진(lib/nyanotionSync.ts) 전용이다.
+// 화면에서 부르면 그 수정은 서버로 가지 않는다.
+export async function addTaskRaw(input: TaskInput): Promise<Task> {
+  return invoke<Task>('add_task', { input });
+}
+
 export async function addTask(input: TaskInput): Promise<Task> {
-  const task = await invoke<Task>('add_task', { input });
+  const task = await addTaskRaw(input);
   markTaskChanged(task.id);
   return task;
 }
 
+export async function updateTaskRaw(id: string, patch: TaskPatch): Promise<Task> {
+  return invoke<Task>('update_task', { id, patch });
+}
+
 export async function updateTask(id: string, patch: TaskPatch): Promise<Task> {
-  const task = await invoke<Task>('update_task', { id, patch });
+  const task = await updateTaskRaw(id, patch);
   markTaskChanged(id);
   return task;
 }
 
-export async function deleteTask(id: string): Promise<void> {
+export async function deleteTaskRaw(id: string): Promise<void> {
   await invoke('delete_task', { id });
+}
+
+export async function deleteTask(id: string): Promise<void> {
+  await deleteTaskRaw(id);
   markTaskDeleted(id);
 }
 
@@ -316,21 +330,33 @@ export async function listTaskFolders(): Promise<TaskFolder[]> {
   return invoke<TaskFolder[]>('list_task_folders');
 }
 
+export async function addTaskFolderRaw(input: TaskFolderInput): Promise<TaskFolder> {
+  return invoke<TaskFolder>('add_task_folder', { input });
+}
+
 export async function addTaskFolder(input: TaskFolderInput): Promise<TaskFolder> {
-  const folder = await invoke<TaskFolder>('add_task_folder', { input });
+  const folder = await addTaskFolderRaw(input);
   markFolderChanged(folder.id);
   return folder;
 }
 
+export async function renameTaskFolderRaw(id: string, name: string): Promise<TaskFolder> {
+  return invoke<TaskFolder>('rename_task_folder', { id, name });
+}
+
 export async function renameTaskFolder(id: string, name: string): Promise<TaskFolder> {
-  const folder = await invoke<TaskFolder>('rename_task_folder', { id, name });
+  const folder = await renameTaskFolderRaw(id, name);
   markFolderChanged(id);
   return folder;
 }
 
-export async function deleteTaskFolder(id: string): Promise<void> {
+export async function deleteTaskFolderRaw(id: string): Promise<void> {
   // 안의 할 일·하위 폴더는 Rust 가 위로 올린다. 서버도 같은 규칙이라 폴더 지우기만 보내면 맞는다.
   await invoke('delete_task_folder', { id });
+}
+
+export async function deleteTaskFolder(id: string): Promise<void> {
+  await deleteTaskFolderRaw(id);
   markFolderDeleted(id);
 }
 
@@ -490,8 +516,12 @@ export async function listEventNotesBySeries(seriesKey: string): Promise<EventNo
   return invoke<EventNote[]>('list_event_notes_by_series', { seriesKey });
 }
 
+export async function upsertEventNoteRaw(input: EventNoteUpsertInput): Promise<EventNote> {
+  return invoke<EventNote>('upsert_event_note', { input });
+}
+
 export async function upsertEventNote(input: EventNoteUpsertInput): Promise<EventNote> {
-  const note = await invoke<EventNote>('upsert_event_note', { input });
+  const note = await upsertEventNoteRaw(input);
   const taskId = taskIdFromEventKey(input.eventKey);
   if (taskId) markTaskChanged(taskId);
   return note;

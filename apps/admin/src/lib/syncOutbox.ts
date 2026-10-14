@@ -4,8 +4,8 @@
 // 서버에 "언제 고쳤는가"로 보낸다(나중에 고친 쪽이 이긴다). 적는 자리는 lib/tauri.ts 의 래퍼들이다 —
 // 모든 IPC 가 거기를 지나므로 화면 코드를 하나도 고치지 않아도 빠짐없이 잡힌다.
 //
-// 동기화 엔진이 서버에서 받은 것을 로컬에 쓰는 동안은 `quietly()` 로 감싸서 적지 않는다 — 안 그러면
-// 받은 것을 다시 올리는 메아리가 생긴다(해롭진 않지만 쓸데없다).
+// 동기화 엔진이 서버에서 받은 것을 쓸 때는 적지 않는 `…Raw` 래퍼를 부른다 — 안 그러면 받은 것을 다시
+// 올리는 메아리가 생긴다. 전역 플래그로 막으면 엔진이 쓰는 사이 사용자가 고친 것까지 안 적혀 사라진다.
 
 const OUTBOX_KEY = 'bento.sync.outbox.v1';
 
@@ -19,8 +19,6 @@ export interface Outbox {
 }
 
 const EMPTY: Outbox = { tasks: {}, deletedTasks: {}, folders: {}, deletedFolders: {} };
-
-let quiet = 0;
 
 export function readOutbox(): Outbox {
   try {
@@ -49,7 +47,7 @@ function write(box: Outbox): void {
 
 function mark(kind: keyof Outbox, id: string, opposite?: keyof Outbox): void {
   // 동기화가 꺼져 있어도 적는다 — 잠시 꺼 둔 사이에 고친 것을 다시 켰을 때 잃지 않게.
-  if (quiet > 0 || !id) return;
+  if (!id) return;
   const box = readOutbox();
   box[kind][id] = new Date().toISOString();
   if (opposite) delete box[opposite][id];
@@ -64,16 +62,6 @@ export const markFolderDeleted = (id: string) => mark('deletedFolders', id, 'fol
 /** 메모·하위 항목의 키(`task:<id>`)에서 할 일 id 를 꺼낸다. 블록 메모 등은 1단계 동기화 대상이 아니다. */
 export function taskIdFromEventKey(eventKey: string): string | null {
   return eventKey.startsWith('task:') ? eventKey.slice(5) : null;
-}
-
-/** 서버에서 받은 것을 쓰는 동안은 적지 않는다. */
-export async function quietly<T>(work: () => Promise<T>): Promise<T> {
-  quiet += 1;
-  try {
-    return await work();
-  } finally {
-    quiet -= 1;
-  }
 }
 
 /** 보낸 것을 지운다 — **보낸 뒤에 다시 고친 것은 남긴다** (시각이 다르면). */
