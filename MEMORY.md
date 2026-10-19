@@ -20,6 +20,7 @@
 - 2026-10-13: 헬스 화면(`screens/Health`, `body_log` 커맨드 7종, content-core `BodyLog`·`BodySpec` 타입)과 로컬 LLM(llama-server 다운로드·기동·헬스체크·모델 관리 커맨드 10종, `LlmState`, 첫 기동 설정 모달, 사이드바 LOCAL LLM 카드, `useLLMWake` 대기 모달, OpenAI·Gemini 탭)을 제거하고 `llm_chat`을 Rust에서 Anthropic Messages API(`claude-sonnet-5` 기본, 429/5xx/529 3회 재시도)를 직접 호출하도록 전환. 호출부 7곳(주·월 회고, 메일 요약·액션·답장, 줍기 소스 요약·오늘 다이제스트, Atelier 글쓰기 보조, 차주 브리핑)은 시그니처가 같아 그대로 둠. API 키는 키체인 `llm-apikey-claude`에만 저장하고 Rust가 읽으며 WebView로 반환하지 않음(`llm_get_api_key` 삭제). `LlmSettings`는 `claudeModel` 하나이며 기존 `llm_settings.json`의 `provider`·`localModel` 등은 serde가 무시. 자동 회고 가드는 '서버 실행 중' 대신 '키 존재'(`llmAvailable`)이고 maxTokens를 주간 1024·월간 1536으로 올림. `BlockKind 'health'`와 실데이터 `body_log.json`·`body_spec.json`·`models/`(6.2GB)·`llama-server`·`lib*.dylib`는 삭제하지 않음(사용자 수동 정리). 버린 대안: Pro/Max 구독 토큰 재사용(구독은 claude.ai·Claude Code 전용, 타 앱 OAuth 재사용은 약관 위반), `claude -p` 서브프로세스(헤드리스 허용 여부·약관 확인 필요, CLI 설치 의존), WebView `fetch`로 직접 호출(CORS·키 노출).
 
 <!-- 기술 선택 이유, 대안을 버린 근거 등 -->
+- 2026-10-19: `/resume`(`apps/blog/configs/resume.json`)를 PDF 이력서(`마광휘_이력서.pdf`, 11쪽) 구조 그대로 재편. 스키마는 `config`(이름·영문명·역할·github·email·`updated`), `profile.paragraphs`, `careers.current.roles[]`(`concurrent`=겸직, `endDate: null`=현재, `note`)와 `careers.previous.list[]`, `highlights[3]{title, intro?, items[{title, paragraphs}]}`, `ongoing.paragraphs`, `launches.list[]`, `activities.list[{title, url?, linkLabel?}]`, `awards.list[]`. 본문은 PDF 문장을 그대로 싣고(99개 문자열 대조 일치), 그림 캡션과 전화번호는 싣지 않음(공개 페이지). 컴포넌트는 `AboutResume.astro` 이력서 패널만 재작성(About 탭 문구·13yr 지표는 그대로, Positions는 현재 직책 8 + 이전 경력 3), 스타일은 `about-resume.css.ts` 끝에 `subHead`·`noteText`·`introText`·`proseCompact`·`itemTitle`·`tTag`·`colLink` 추가. 다음 갱신도 PDF를 원본으로 `resume.json`만 고치면 된다. 버린 대안: 기존 `careers.list[].projects[].which` 스키마 유지(서술형 하이라이트·겸직·출시 표를 담을 수 없음), 취미·이전 회사 프로젝트 상세·발표/강의 분리 유지(PDF에 없음), 링크가 여러 개인 발표 항목을 한 줄에 두기(항목당 링크 하나로 분리).
 
 ## 시도했다가 버린 접근
 
@@ -35,3 +36,5 @@
 - `TaskEditor.tsx`의 `color: color || null`은 serde `Option<Option>` 규약상 색상 해제가 no-op인 잠복 버그(`''`로 보내고 Rust에서 filter해야 함). 폴더 작업에서는 손대지 않음.
 
 <!-- 현재 브랜치/작업의 큰 그림 -->
+
+- 2026-10-19: `/resume` 재편 커밋 9140a34는 `feat/resume-pdf-sync`에서 main에 ff 머지됐고 미push(push 시 Actions 배포). 검증은 `build:blog` + `astro check`(기존 16개 오류 그대로, 편집 파일 오류 없음) + 헤드리스 Chrome 스크린샷(데스크톱 1280, 폰 390).
