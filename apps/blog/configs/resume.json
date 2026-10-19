@@ -303,7 +303,9 @@
         "linkLabel": "영상"
       },
       {
-        "title": "Vuetiful Korea 발표 (2020) · Vue.js를 이용한 백오피스 구현기"
+        "title": "Vuetiful Korea 발표 (2020) · Vue.js를 이용한 백오피스 구현기",
+        "url": "https://vuejs-kr.github.io/meetup/#/",
+        "linkLabel": "소개"
       },
       {
         "title": "프로그래머스 프론트엔드 연사 (2021 ~ 2023)"
