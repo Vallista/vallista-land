@@ -661,3 +661,74 @@ export const workFoot = style({
   marginTop: 'auto',
   paddingTop: '8px'
 })
+
+// ── Resume detail (PDF 이력서 구조) ──────────────────────────
+export const subHead = style({
+  display: 'flex',
+  alignItems: 'baseline',
+  flexWrap: 'wrap',
+  gap: '10px',
+  fontSize: '17px',
+  fontWeight: 600,
+  letterSpacing: '-0.2px',
+  lineHeight: 1.3,
+  color: vars.color.ink,
+  margin: '40px 0 4px',
+  selectors: {
+    '&:first-of-type': { marginTop: 0 }
+  }
+})
+
+export const noteText = style({
+  fontSize: '13.5px',
+  lineHeight: 1.7,
+  color: vars.color.ink3,
+  margin: '16px 0 0',
+  maxWidth: '720px'
+})
+
+export const introText = style({
+  fontSize: '15.5px',
+  lineHeight: 1.8,
+  color: vars.color.ink3,
+  margin: '0 0 24px',
+  maxWidth: '720px'
+})
+
+export const proseCompact = style({ maxWidth: '720px' })
+
+globalStyle(`.${proseCompact} p`, {
+  fontSize: '15.5px',
+  lineHeight: 1.8,
+  letterSpacing: '-0.005em',
+  margin: '0 0 16px',
+  color: vars.color.ink2
+})
+
+export const itemTitle = style({
+  fontSize: '19px',
+  fontWeight: 600,
+  letterSpacing: '-0.25px',
+  lineHeight: 1.3,
+  color: vars.color.ink,
+  margin: '40px 0 14px',
+  selectors: {
+    '&:first-child': { marginTop: 0 }
+  }
+})
+
+export const tTag = style({
+  marginLeft: '8px',
+  verticalAlign: 'middle'
+})
+
+export const colLink = style({
+  fontFamily: vars.font.mono,
+  fontSize: '11px',
+  color: vars.color.accent,
+  letterSpacing: '0.04em',
+  whiteSpace: 'nowrap',
+  selectors: {
+    '&:hover': { textDecoration: 'underline' }
+  }
+})
