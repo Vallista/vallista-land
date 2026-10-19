@@ -35,9 +35,22 @@ export function Publish() {
   const [host, setHost] = useState<string>('');
 
   useEffect(() => {
-    listDocs()
-      .then(setDocs)
-      .catch((e: unknown) => setError(String(e)));
+    let cancelled = false;
+    const load = () => {
+      listDocs()
+        .then((d) => {
+          if (!cancelled) setDocs(d);
+        })
+        .catch((e: unknown) => {
+          if (!cancelled) setError(String(e));
+        });
+    };
+    load();
+    window.addEventListener('bento:docs-changed', load);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('bento:docs-changed', load);
+    };
   }, []);
 
   useEffect(() => {

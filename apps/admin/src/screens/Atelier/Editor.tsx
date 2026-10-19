@@ -19,6 +19,7 @@ interface EditorProps {
   focusMode?: boolean;
   leftForced?: boolean;
   rightForced?: boolean;
+  onDelete?: () => void;
 }
 
 export function Editor({
@@ -30,6 +31,7 @@ export function Editor({
   focusMode,
   leftForced,
   rightForced,
+  onDelete,
 }: EditorProps) {
   const { path, status, error, savedAt, body, frontmatter, setBody, flush } = useDoc();
   const [mode, setMode] = useState<Mode>('edit');
@@ -168,6 +170,7 @@ export function Editor({
         focusMode={focusMode}
         leftForced={leftForced}
         rightForced={rightForced}
+        onDelete={onDelete}
       />
       <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex' }}>
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
@@ -233,6 +236,7 @@ function Header({
   focusMode,
   leftForced,
   rightForced,
+  onDelete,
 }: {
   path: string;
   title: string;
@@ -251,6 +255,7 @@ function Header({
   focusMode?: boolean;
   leftForced?: boolean;
   rightForced?: boolean;
+  onDelete?: () => void;
 }) {
   return (
     <div
@@ -294,6 +299,11 @@ function Header({
             <AiSparkIcon />
           </PaneButton>
         )}
+        {onDelete && (
+          <PaneButton title="이 글 삭제" onClick={onDelete}>
+            <TrashIcon />
+          </PaneButton>
+        )}
         <PaneToggles
           onToggleLeft={onToggleLeft}
           onToggleRight={onToggleRight}
@@ -318,7 +328,8 @@ function Header({
         {title}
       </h1>
       <Mono style={{ fontSize: 9.5, color: 'var(--ink-faint)' }}>
-        ⌘S · 1.5s 디바운스 자동 저장 · ⌘P 미리보기 토글 · ⌘⇧A AI 보조 · 복구 = git 만 (백업 없음)
+        ⌘S · 1.5s 디바운스 자동 저장 · ⌘P 미리보기 토글 · ⌘⇧A AI 보조 · 편집 복구 = git 만 · 삭제 =
+        앱 백업 후 제거
       </Mono>
     </div>
   );
@@ -540,6 +551,19 @@ function AiSparkIcon() {
         stroke="currentColor"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5"
+        stroke="currentColor"
+        strokeLinejoin="round"
+      />
+      <path d="M6.8 7v4M9.2 7v4" stroke="currentColor" strokeLinecap="round" />
     </svg>
   );
 }

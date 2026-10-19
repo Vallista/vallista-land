@@ -18,8 +18,12 @@ const SILENT_COMMANDS = new Set([
   'macos_cal_import',
 ]);
 
-async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
-  const silent = SILENT_COMMANDS.has(cmd);
+async function invoke<T>(
+  cmd: string,
+  args?: Record<string, unknown>,
+  opts?: { silent?: boolean },
+): Promise<T> {
+  const silent = opts?.silent ?? SILENT_COMMANDS.has(cmd);
   if (!silent) void logInfo(`→ ${cmd}`, { source: cmd });
   try {
     const result = await _invoke<T>(cmd, args);
@@ -125,6 +129,17 @@ export async function readDoc(path: string): Promise<DocFile> {
 
 export async function writeDoc(path: string, content: string): Promise<void> {
   await invoke('write_doc', { path, content });
+}
+
+export interface DeletedDoc {
+  removed: string;
+  unit: 'folder' | 'file';
+  files: number;
+  backupPath: string;
+}
+
+export async function deleteDoc(path: string): Promise<DeletedDoc> {
+  return invoke<DeletedDoc>('delete_doc', { path });
 }
 
 export async function readAsset(path: string): Promise<AssetData> {
@@ -1043,8 +1058,8 @@ export interface CommitInput {
   push: boolean;
 }
 
-export async function gitStatus(): Promise<GitState> {
-  return invoke<GitState>('git_status');
+export async function gitStatus(opts?: { silent?: boolean }): Promise<GitState> {
+  return invoke<GitState>('git_status', undefined, opts);
 }
 
 export async function gitLog(limit: number): Promise<GitCommit[]> {
@@ -1411,6 +1426,7 @@ if (typeof window !== 'undefined') {
     listDocs,
     readDoc,
     writeDoc,
+    deleteDoc,
     readAsset,
     writeAsset,
     listGlean,

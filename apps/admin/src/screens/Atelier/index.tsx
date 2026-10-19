@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DocSummary } from '@vallista/content-core';
-import { listDocs } from '../../lib/tauri';
+import { listDocs, type DeletedDoc } from '../../lib/tauri';
 import { PageHead } from '../../components/atoms/Atoms';
+import { dispatchToast } from '../../components/NotifToast';
+import { notifyTagsChanged } from '../../lib/tags';
+import { DeleteDocDialog } from './DeleteDocDialog';
 import { DocList } from './DocList';
 import { Editor } from './Editor';
 import { RightPane } from './RightPane';
@@ -21,6 +24,7 @@ export function Atelier() {
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
   const [folder, setFolder] = useState<string | null>(null);
   const [tag, setTag] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [leftCollapsed, setLeftCollapsed] = useState<boolean>(() => readLs(LS_LEFT));
   const [rightCollapsed, setRightCollapsed] = useState<boolean>(() => readLs(LS_RIGHT));
   const wrapperRef = useRef<HTMLDivElement | null>(null);
@@ -131,6 +135,21 @@ export function Atelier() {
     setRightCollapsed(next);
   };
 
+  const handleDeleted = (path: string, result: DeletedDoc) => {
+    setDeleting(null);
+    const remaining = docs.filter((d) => d.path !== path);
+    setDocs(remaining);
+    setSelectedPath((p) => (p === path ? null : p));
+    if (folder && !remaining.some((d) => d.path.split('/')[1] === folder)) setFolder(null);
+    if (tag && !remaining.some((d) => d.tags.includes(tag))) setTag(null);
+    notifyTagsChanged('docs');
+    dispatchToast({
+      title: '글을 삭제했습니다',
+      body: `${result.removed}\n백업 ${result.backupPath}`,
+      duration: 0,
+    });
+  };
+
   return (
     <div ref={wrapperRef} style={{ height: '100%', minHeight: 0, overflow: 'hidden' }}>
       <div
@@ -173,8 +192,16 @@ export function Atelier() {
               focusMode={focusMode}
               rightForced={forceCollapseRight && !rightCollapsed}
               leftForced={forceCollapseLeft && !leftCollapsed}
+              onDelete={() => setDeleting(selectedPath)}
             />
             {!effectiveRightCollapsed && <RightPane collection={collection} />}
+            {deleting === selectedPath && (
+              <DeleteDocDialog
+                docs={docs}
+                onCancel={() => setDeleting(null)}
+                onDeleted={handleDeleted}
+              />
+            )}
           </DocProvider>
         ) : (
           <>

@@ -733,8 +733,10 @@ export function Shell({
       }
     };
     refreshCounts();
+    window.addEventListener('bento:docs-changed', refreshCounts);
     return () => {
       cancelled = true;
+      window.removeEventListener('bento:docs-changed', refreshCounts);
     };
   }, [blogEnabled]);
 

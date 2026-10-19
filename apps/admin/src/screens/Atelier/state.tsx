@@ -17,6 +17,8 @@ interface DocCtx {
   setBody: (body: string) => void;
   setFrontmatter: (fm: Record<string, unknown>) => void;
   flush: () => Promise<void>;
+  pauseAutosave: () => Promise<void>;
+  resumeAutosave: () => void;
 }
 
 const Ctx = createContext<DocCtx | null>(null);
@@ -38,6 +40,8 @@ export function DocProvider({ path, children }: { path: string; children: ReactN
   const lastFmRef = useRef<string | null>(null);
   const timerRef = useRef<number | null>(null);
   const flushRef = useRef<() => Promise<void>>(async () => {});
+  const pausedRef = useRef(false);
+  const inFlightRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     setStatus('loading');
@@ -71,12 +75,19 @@ export function DocProvider({ path, children }: { path: string; children: ReactN
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    if (pausedRef.current) return;
     if (lastBodyRef.current === null) return;
     const fmJson = JSON.stringify(frontmatter);
     if (lastBodyRef.current === body && lastFmRef.current === fmJson) return;
     setStatus('saving');
     try {
-      await persistDoc(path, frontmatter, body);
+      const saving = persistDoc(path, frontmatter, body);
+      inFlightRef.current = saving;
+      try {
+        await saving;
+      } finally {
+        if (inFlightRef.current === saving) inFlightRef.current = null;
+      }
       lastBodyRef.current = body;
       lastFmRef.current = fmJson;
       setSavedAt(new Date());
@@ -86,6 +97,21 @@ export function DocProvider({ path, children }: { path: string; children: ReactN
       setStatus('error');
       setError(String(e));
     }
+  };
+
+  const pauseAutosave = async () => {
+    pausedRef.current = true;
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const inFlight = inFlightRef.current;
+    if (inFlight) await inFlight.catch(() => undefined);
+  };
+
+  const resumeAutosave = () => {
+    pausedRef.current = false;
+    void flushRef.current();
   };
 
   useEffect(() => {
@@ -98,6 +124,7 @@ export function DocProvider({ path, children }: { path: string; children: ReactN
     const fmJson = JSON.stringify(frontmatter);
     if (lastBodyRef.current === body && lastFmRef.current === fmJson) return;
     setStatus('dirty');
+    if (pausedRef.current) return;
     if (timerRef.current !== null) clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
       flushRef.current();
@@ -131,6 +158,8 @@ export function DocProvider({ path, children }: { path: string; children: ReactN
     setBody,
     setFrontmatter,
     flush: () => flushRef.current(),
+    pauseAutosave,
+    resumeAutosave,
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

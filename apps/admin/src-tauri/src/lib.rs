@@ -378,6 +378,7 @@ pub fn run() {
             commands::docs::write_doc,
             commands::docs::read_asset,
             commands::docs::write_asset,
+            commands::docs::delete_doc,
             commands::insights::compute_insights,
             // === blog: git 워크스페이스 (require_blog_enabled 가드) ===
             commands::git::git_status,
