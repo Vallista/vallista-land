@@ -102,12 +102,49 @@ export interface Task {
   folderId?: string;
   group?: string;
   createdAt: string;
+  /** done이 true로 바뀐 시각. 반복 규칙이 같은 날 새 회차를 만들지 않는 기준 */
+  doneAt?: string;
+  /** 이 할 일을 만든 반복 규칙 id */
+  repeatId?: string;
+  /** 반복 회차 날짜 (YYYY-MM-DD) */
+  repeatKey?: string;
 }
 
 export interface TaskFolder {
   id: string;
   name: string;
   parentId?: string;
+  createdAt: string;
+}
+
+export type TaskRepeatFreq = 'daily' | 'weekly' | 'monthly';
+
+export interface TaskRepeatRule {
+  freq: TaskRepeatFreq;
+  /** daily: N일마다, weekly: N주마다 (monthly는 1) */
+  interval: number;
+  /** weekly 전용. 0=일 … 6=토 (Date#getDay) */
+  weekdays: number[];
+  /** monthly 전용. 1..31, 그 달에 없는 날은 말일 */
+  monthDay: number;
+}
+
+export interface TaskRepeat {
+  id: string;
+  title: string;
+  rule: TaskRepeatRule;
+  /** HH:MM. 있으면 생성된 할 일의 due에 시간이 붙는다 */
+  time?: string;
+  estMin?: number;
+  folderId?: string;
+  group?: string;
+  kind?: string;
+  color?: string;
+  enabled: boolean;
+  /** YYYY-MM-DD. 반복 기준일이자 첫 회차 가능일 */
+  startDate: string;
+  /** 마지막으로 만든(또는 건너뛴) 회차 날짜 */
+  lastKey?: string;
   createdAt: string;
 }
 

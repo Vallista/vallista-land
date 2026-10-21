@@ -274,6 +274,10 @@ pub fn run() {
                 let app_handle = app.handle().clone();
                 tauri::async_runtime::spawn(commands::radar_poller::start_poller(app_handle));
             }
+            {
+                let app_handle = app.handle().clone();
+                tauri::async_runtime::spawn(commands::task_repeats::start_poller(app_handle));
+            }
 
             Ok(())
         })
@@ -289,6 +293,11 @@ pub fn run() {
             commands::task_folders::rename_task_folder,
             commands::task_folders::delete_task_folder,
             commands::task_folders::migrate_task_groups,
+            // === life: task repeats ===
+            commands::task_repeats::list_task_repeats,
+            commands::task_repeats::add_task_repeat,
+            commands::task_repeats::update_task_repeat,
+            commands::task_repeats::delete_task_repeat,
             // === radar ===
             commands::radar::list_goals,
             commands::radar::add_goal,

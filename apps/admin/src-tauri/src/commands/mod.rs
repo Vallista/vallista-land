@@ -21,5 +21,6 @@ pub mod stats_exclusions;
 pub mod summaries;
 pub mod tasks;
 pub mod task_folders;
+pub mod task_repeats;
 pub mod radar;
 pub mod radar_poller;

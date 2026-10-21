@@ -103,6 +103,7 @@ import type {
   GleanSummary,
   Task,
   TaskFolder,
+  TaskRepeat,
 } from '@vallista/content-core';
 
 export interface AssetData {
@@ -331,6 +332,33 @@ export async function deleteTaskFolder(id: string): Promise<void> {
 
 export async function migrateTaskGroups(): Promise<TaskGroupMigration> {
   return invoke<TaskGroupMigration>('migrate_task_groups');
+}
+
+export type TaskRepeatInput = Omit<TaskRepeat, 'id' | 'lastKey' | 'createdAt' | 'enabled'> & {
+  enabled?: boolean;
+};
+
+export interface TaskRepeatView extends TaskRepeat {
+  /** 다음 회차 날짜. 비활성이거나 미완료 회차가 있으면 없음 */
+  nextKey?: string;
+  /** 아직 완료하지 않은 생성 할 일 id */
+  pendingTaskId?: string;
+}
+
+export async function listTaskRepeats(): Promise<TaskRepeatView[]> {
+  return invoke<TaskRepeatView[]>('list_task_repeats');
+}
+
+export async function addTaskRepeat(input: TaskRepeatInput): Promise<TaskRepeat> {
+  return invoke<TaskRepeat>('add_task_repeat', { input });
+}
+
+export async function updateTaskRepeat(id: string, input: TaskRepeatInput): Promise<TaskRepeat> {
+  return invoke<TaskRepeat>('update_task_repeat', { id, input });
+}
+
+export async function deleteTaskRepeat(id: string): Promise<void> {
+  await invoke('delete_task_repeat', { id });
 }
 
 export interface BlockInput {

@@ -46,6 +46,12 @@ pub struct Task {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub group: Option<String>,
     pub created_at: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub done_at: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub repeat_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub repeat_key: Option<String>,
 }
 
 pub fn tasks_path(root: &Path) -> std::path::PathBuf {
@@ -169,6 +175,9 @@ pub fn add_task(input: TaskInput, state: State<'_, AppState>) -> Result<Task, St
         folder_id: input.folder_id.filter(|s| !s.is_empty()),
         group: input.group.filter(|s| !s.is_empty()),
         created_at: now_iso(),
+        done_at: None,
+        repeat_id: None,
+        repeat_key: None,
     };
     all.push(task.clone());
     save_all(&state.data_root, &all)?;
@@ -221,6 +230,9 @@ pub fn update_task(
         all[idx].title = t;
     }
     if let Some(d) = patch.done {
+        if d != all[idx].done {
+            all[idx].done_at = if d { Some(now_iso()) } else { None };
+        }
         all[idx].done = d;
     }
     if let Some(due) = patch.due {

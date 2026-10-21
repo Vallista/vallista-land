@@ -393,6 +393,9 @@ mod tests {
             folder_id: folder_id.map(|s| s.to_string()),
             group: None,
             created_at: "2026-10-12T00:00:00Z".to_string(),
+            done_at: None,
+            repeat_id: None,
+            repeat_key: None,
         }
     }
 
