@@ -734,9 +734,15 @@ export function Shell({
     };
     refreshCounts();
     window.addEventListener('bento:docs-changed', refreshCounts);
+    const unsubs: Array<() => void> = [];
+    listen('bento:tasks-generated', () => {
+      void refreshCounts();
+      window.dispatchEvent(new CustomEvent('bento:tasks-changed'));
+    }).then((fn) => unsubs.push(fn));
     return () => {
       cancelled = true;
       window.removeEventListener('bento:docs-changed', refreshCounts);
+      unsubs.forEach((fn) => fn());
     };
   }, [blogEnabled]);
 

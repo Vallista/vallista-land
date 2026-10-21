@@ -48,6 +48,7 @@ import { AddBlockDialog, blockToDraft, type AddBlockDraft } from './AddBlockDial
 import { MonthGrid } from './MonthGrid';
 import { TicketPlannerView } from './TicketPlannerView';
 import { TaskEditor } from './TaskEditor';
+import { TaskRepeatDialog } from './TaskRepeatDialog';
 import { WeekProgress } from './WeekProgress';
 import { NextWeekBriefing } from './NextWeekBriefing';
 import { resolveLabel } from './labelCatalog';
@@ -101,6 +102,7 @@ export function Plan() {
   const [inboxDropOver, setInboxDropOver] = useState(false);
   const [folders, setFolders] = useState<TaskFolder[]>([]);
   const [creatingFolder, setCreatingFolder] = useState(false);
+  const [repeatDialogOpen, setRepeatDialogOpen] = useState(false);
   const [dropOverFolderId, setDropOverFolderId] = useState<string | null>(null);
   const [taskDialogFolderId, setTaskDialogFolderId] = useState<string | undefined>(undefined);
   const [activeHours, setActiveHours] = useState<{ start: string; end: string }>(() => ({
@@ -920,6 +922,23 @@ export function Plan() {
               </Mono>
               <button
                 type="button"
+                onClick={() => setRepeatDialogOpen(true)}
+                title="반복 규칙"
+                style={{
+                  padding: '4px 8px',
+                  fontSize: 11.5,
+                  border: '1px solid var(--line)',
+                  background: 'transparent',
+                  color: 'var(--ink-mute)',
+                  borderRadius: 4,
+                  fontFamily: 'inherit',
+                  cursor: 'pointer',
+                }}
+              >
+                + 반복
+              </button>
+              <button
+                type="button"
                 onClick={() => setCreatingFolder(true)}
                 title="폴더 만들기"
                 style={{
@@ -1309,6 +1328,13 @@ export function Plan() {
         onDelete={removeEditingTask}
       />
 
+      <TaskRepeatDialog
+        open={repeatDialogOpen}
+        folders={folders}
+        groupSuggestions={groupSuggestions}
+        onClose={() => setRepeatDialogOpen(false)}
+      />
+
       <QuickEntry
         open={taskDialogOpen}
         initialKind="task"
@@ -1672,6 +1698,11 @@ function TaskInboxRow({
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+        {task.repeatId && (
+          <Mono title="반복 생성" style={{ fontSize: 10, color: 'var(--ink-mute)', flexShrink: 0 }}>
+            ↻
+          </Mono>
+        )}
         {task.group && <GroupChip group={task.group} />}
         <span
           style={{
