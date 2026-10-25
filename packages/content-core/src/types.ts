@@ -148,6 +148,70 @@ export interface TaskRepeat {
   createdAt: string;
 }
 
+/** 루틴(습관) 색상 키. 화면에서는 `var(--routine-<key>)`로 칠한다 */
+export type RoutineColor = 'blue' | 'orange' | 'aqua' | 'yellow' | 'magenta' | 'violet';
+
+export type RoutineSlot = 'morning' | 'afternoon' | 'evening' | 'anytime';
+
+export type RoutineFreq = 'daily' | 'weekly';
+
+export interface RoutineSchedule {
+  freq: RoutineFreq;
+  /** weekly 전용. 0=일 … 6=토 (Date#getDay) */
+  weekdays: number[];
+}
+
+/** 보관했다가 다시 꺼낸 구간(양 끝 포함). 이 날들은 예정일로 치지 않는다 */
+export interface RoutinePause {
+  from: string;
+  to: string;
+}
+
+export interface Routine {
+  id: string;
+  title: string;
+  color: RoutineColor;
+  slot: RoutineSlot;
+  schedule: RoutineSchedule;
+  /** 하루 목표 시간(분). 채우면 자동 완료 */
+  goalMin?: number;
+  /** YYYY-MM-DD. 이날부터 예정일을 센다 */
+  startDate: string;
+  /** YYYY-MM-DD. 보관한 날. 이날부터 예정일이 아니다 */
+  archivedAt?: string;
+  pauses?: RoutinePause[];
+  order: number;
+  createdAt: string;
+}
+
+export interface RoutineSession {
+  start: string;
+  end: string;
+  secs: number;
+}
+
+/** 루틴 × 날짜 기록 */
+export interface RoutineLog {
+  routineId: string;
+  /** YYYY-MM-DD (로컬 날짜) */
+  date: string;
+  done: boolean;
+  doneAt?: string;
+  /** 그날 기록한 시간(초) */
+  secs: number;
+  sessions?: RoutineSession[];
+  updatedAt: string;
+}
+
+/** 지금 돌아가는 타이머. 한 번에 하나 */
+export interface RoutineTimer {
+  routineId: string;
+  /** 시작한 로컬 날짜. 자정을 넘겨도 이 날짜에 기록 */
+  date: string;
+  /** RFC 3339 UTC */
+  startedAt: string;
+}
+
 export interface DocSummary {
   id: string;
   state: DocState;

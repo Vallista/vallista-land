@@ -15,6 +15,7 @@ import { Review } from './screens/Review';
 import { Publish } from './screens/Publish';
 import { Thoughts } from './screens/Thoughts';
 import { Mail } from './screens/Mail';
+import { Routine } from './screens/Routine';
 import type { PaneId } from './components/Tweaks';
 import { Onboarding, checkOnboardingDone } from './screens/Onboarding';
 import { SearchPalette } from './components/SearchPalette';
@@ -67,6 +68,7 @@ function readQuickKindFromHash(): QuickWindowKind | null {
 
 const SCREENS: Record<ScreenId, () => JSX.Element> = {
   today: Today,
+  routine: Routine,
   atelier: Atelier,
   glean: Glean,
   plan: Plan,

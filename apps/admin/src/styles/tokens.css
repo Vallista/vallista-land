@@ -68,6 +68,22 @@
   --cal-inactive-stripe: rgba(255,255,255,0.07);
   --cal-inactive-fill: rgba(255,255,255,0.025);
 
+  /* 루틴 식별 색 — 이 순서로 색각 이상 대비 검증함 (dataviz validate_palette, dark #18181b).
+     항상 이름 텍스트 옆 점/링으로만 쓴다 */
+  --routine-blue: #3987e5;
+  --routine-orange: #d95926;
+  --routine-aqua: #199e70;
+  --routine-yellow: #c98500;
+  --routine-magenta: #d55181;
+  --routine-violet: #9085e9;
+
+  /* 루틴 달성률 히트맵 — 완료(ok) 한 색의 단계 */
+  --heat-0: var(--bg-shade);
+  --heat-1: rgba(74, 222, 128, 0.22);
+  --heat-2: rgba(74, 222, 128, 0.42);
+  --heat-3: rgba(74, 222, 128, 0.66);
+  --heat-4: rgba(74, 222, 128, 0.92);
+
   --sidebar-w: 222px;
   --topbar-h: 44px;
 
@@ -152,6 +168,20 @@
 
   --cal-inactive-stripe: rgba(0,0,0,0.07);
   --cal-inactive-fill: rgba(0,0,0,0.025);
+
+  /* light #fbfaf6 기준 검증. aqua·yellow·magenta는 3:1 미만이라 텍스트 라벨과 함께만 쓴다 */
+  --routine-blue: #2a78d6;
+  --routine-orange: #eb6834;
+  --routine-aqua: #1baf7a;
+  --routine-yellow: #eda100;
+  --routine-magenta: #e87ba4;
+  --routine-violet: #6250d6;
+
+  --heat-0: var(--bg-shade);
+  --heat-1: rgba(63, 125, 63, 0.20);
+  --heat-2: rgba(63, 125, 63, 0.40);
+  --heat-3: rgba(63, 125, 63, 0.64);
+  --heat-4: rgba(63, 125, 63, 0.90);
 
   --shadow-1: 0 1px 0 rgba(60, 50, 30, 0.04);
   --shadow-2: 0 2px 8px rgba(60, 50, 30, 0.06);

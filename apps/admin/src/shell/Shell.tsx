@@ -5,13 +5,18 @@ import { ClipboardHistoryPanel } from '../components/ClipboardHistoryPanel';
 import {
   clipboardHistoryPruneByDays,
   getMemoryInfo,
+  getRoutineTimer,
   gleanCounts,
   listDocs,
+  listRoutineLogs,
+  listRoutines,
   listTasks,
   mailUnreadCountAll,
+  ROUTINES_CHANGED_EVENT,
   startWindowDrag,
   vaultInfo,
 } from '../lib/tauri';
+import { isScheduled } from '../lib/routineStats';
 import type { MemoryInfo } from '../lib/tauri';
 import type { VaultInfo } from '@vallista/content-core';
 import type { QuickKind } from '../components/QuickEntry';
@@ -28,6 +33,7 @@ function readClipboardSettings() {
 
 export type ScreenId =
   | 'today'
+  | 'routine'
   | 'thoughts'
   | 'plan'
   | 'radar'
@@ -53,6 +59,8 @@ interface SidebarSection {
 }
 
 interface Counts {
+  routine?: number;
+  routineBadge?: string;
   plan?: number;
   planBadge?: string;
   glean?: number;
@@ -68,6 +76,7 @@ function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
       label: '생활',
       items: [
         { id: 'today', label: '오늘', icon: '⊙' },
+        { id: 'routine', label: '루틴', icon: '◐', count: counts.routine, badge: counts.routineBadge },
         { id: 'thoughts', label: '생각', icon: '⌇', count: counts.thoughts },
         { id: 'plan', label: '할 일', icon: '☐', count: counts.plan, badge: counts.planBadge },
         { id: 'radar', label: '레이더', icon: '◎', badge: counts.radarAlerts ? String(counts.radarAlerts) : undefined },
@@ -745,6 +754,40 @@ export function Shell({
       unsubs.forEach((fn) => fn());
     };
   }, [blogEnabled]);
+
+  useEffect(() => {
+    let cancelled = false;
+    // 오늘 남은 루틴 수 + 타이머가 돌면 ▶ 뱃지
+    const refresh = async () => {
+      try {
+        const today = todayKey();
+        const [routines, logs, timer] = await Promise.all([
+          listRoutines(),
+          listRoutineLogs({ startDate: today, endDate: today }),
+          getRoutineTimer(),
+        ]);
+        if (cancelled) return;
+        const doneIds = new Set(logs.filter((l) => l.done).map((l) => l.routineId));
+        const left = routines.filter((r) => isScheduled(r, today) && !doneIds.has(r.id)).length;
+        setCounts((prev) => ({
+          ...prev,
+          routine: left || undefined,
+          routineBadge: timer ? '▶' : undefined,
+        }));
+      } catch {
+        // 커맨드가 없는 이전 빌드 등 — 사이드바는 조용히 비운다
+      }
+    };
+    void refresh();
+    const onChanged = () => void refresh();
+    window.addEventListener(ROUTINES_CHANGED_EVENT, onChanged);
+    const id = setInterval(onChanged, 60_000);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(ROUTINES_CHANGED_EVENT, onChanged);
+      clearInterval(id);
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

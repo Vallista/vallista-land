@@ -16,6 +16,10 @@ const SILENT_COMMANDS = new Set([
   'macos_cal_status',
   'macos_cal_list',
   'macos_cal_import',
+  // 사이드바가 1분마다 부르는 루틴 카운트
+  'list_routines',
+  'list_routine_logs',
+  'get_routine_timer',
 ]);
 
 async function invoke<T>(
@@ -101,6 +105,12 @@ import type {
   GleanSource,
   GleanStatus,
   GleanSummary,
+  Routine,
+  RoutineColor,
+  RoutineLog,
+  RoutineSchedule,
+  RoutineSlot,
+  RoutineTimer,
   Task,
   TaskFolder,
   TaskRepeat,
@@ -359,6 +369,114 @@ export async function updateTaskRepeat(id: string, input: TaskRepeatInput): Prom
 
 export async function deleteTaskRepeat(id: string): Promise<void> {
   await invoke('delete_task_repeat', { id });
+}
+
+// === routines (습관 트래커) ===
+
+/** 루틴 데이터가 바뀌면 화면끼리(루틴·사이드바) 알리는 창 이벤트 */
+export const ROUTINES_CHANGED_EVENT = 'bento:routines-changed';
+
+export function notifyRoutinesChanged(): void {
+  window.dispatchEvent(new CustomEvent(ROUTINES_CHANGED_EVENT));
+}
+
+export interface RoutineInput {
+  title: string;
+  color?: RoutineColor;
+  slot?: RoutineSlot;
+  schedule: RoutineSchedule;
+  goalMin?: number;
+  startDate: string;
+}
+
+export interface RoutineTimerCommit {
+  log: RoutineLog;
+  addedSecs: number;
+  /** 12시간 상한에 걸려 잘렸는지 */
+  capped: boolean;
+  /** 이번 기록으로 목표 시간을 채워 자동 완료됐는지 */
+  reachedGoal: boolean;
+}
+
+export interface RoutineTimerStart {
+  timer: RoutineTimer;
+  /** 다른 루틴 타이머가 돌고 있었다면 그 기록 */
+  committed?: RoutineTimerCommit;
+}
+
+export interface RoutineLogUpdate {
+  log: RoutineLog;
+  reachedGoal: boolean;
+}
+
+export interface DeletedRoutine {
+  removedLogs: number;
+  backupPath: string;
+}
+
+export async function listRoutines(): Promise<Routine[]> {
+  return invoke<Routine[]>('list_routines');
+}
+
+export async function addRoutine(input: RoutineInput): Promise<Routine> {
+  return invoke<Routine>('add_routine', { input });
+}
+
+export async function updateRoutine(id: string, input: RoutineInput): Promise<Routine> {
+  return invoke<Routine>('update_routine', { id, input });
+}
+
+export async function setRoutineArchived(id: string, archived: boolean): Promise<Routine> {
+  return invoke<Routine>('set_routine_archived', { id, archived });
+}
+
+export async function deleteRoutine(id: string): Promise<DeletedRoutine> {
+  return invoke<DeletedRoutine>('delete_routine', { id });
+}
+
+export async function reorderRoutines(ids: string[]): Promise<Routine[]> {
+  return invoke<Routine[]>('reorder_routines', { ids });
+}
+
+export async function listRoutineLogs(
+  range: { startDate?: string; endDate?: string } = {},
+): Promise<RoutineLog[]> {
+  return invoke<RoutineLog[]>('list_routine_logs', {
+    startDate: range.startDate ?? null,
+    endDate: range.endDate ?? null,
+  });
+}
+
+export async function setRoutineCheck(
+  routineId: string,
+  date: string,
+  done: boolean,
+): Promise<RoutineLog> {
+  return invoke<RoutineLog>('set_routine_check', { routineId, date, done });
+}
+
+export async function setRoutineMinutes(
+  routineId: string,
+  date: string,
+  minutes: number,
+): Promise<RoutineLogUpdate> {
+  return invoke<RoutineLogUpdate>('set_routine_minutes', {
+    routineId,
+    date,
+    minutes: Math.max(0, Math.round(minutes)),
+  });
+}
+
+export async function getRoutineTimer(): Promise<RoutineTimer | null> {
+  return invoke<RoutineTimer | null>('get_routine_timer', undefined, { silent: true });
+}
+
+export async function startRoutineTimer(routineId: string): Promise<RoutineTimerStart> {
+  return invoke<RoutineTimerStart>('start_routine_timer', { routineId });
+}
+
+export async function stopRoutineTimer(discard = false): Promise<RoutineTimerCommit | null> {
+  return invoke<RoutineTimerCommit | null>('stop_routine_timer', { discard });
 }
 
 export interface BlockInput {

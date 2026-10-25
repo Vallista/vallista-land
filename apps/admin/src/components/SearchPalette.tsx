@@ -17,6 +17,7 @@ function taskSub(t: Task, folderName: string | undefined): string {
 
 const SCREEN_HITS: Hit[] = [
   { kind: 'screen', id: 'today', title: '오늘', sub: '하루 흐름·할 일·컨디션' },
+  { kind: 'screen', id: 'routine', title: '루틴', sub: '습관 체크·스트릭·분석' },
   { kind: 'screen', id: 'thoughts', title: '생각', sub: '짧게 끄적이는 것들' },
   { kind: 'screen', id: 'plan', title: '할 일', sub: '캘린더·인박스' },
   { kind: 'screen', id: 'glean', title: '줍기', sub: '캡처한 글들' },

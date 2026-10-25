@@ -15,6 +15,7 @@ pub mod mail;
 pub mod meta;
 pub mod mood;
 pub mod reports;
+pub mod routines;
 pub mod rss;
 pub mod settings;
 pub mod stats_exclusions;
