@@ -1,0 +1,16 @@
+# XcodeGen 이 project.yml 로 만드는 것
+BentoRoutine.xcodeproj/
+App/Info.plist
+App/BentoRoutine.entitlements
+Widget/Info.plist
+Widget/BentoRoutineWidget.entitlements
+
+# Xcode · SwiftPM
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.build/
+.swiftpm/
+Packages/RoutineKit/.build/
+Packages/RoutineKit/.swiftpm/
+Packages/RoutineKit/Package.resolved

@@ -19,7 +19,12 @@ public struct RoutineFileStore: Sendable {
 
     public func load() -> RoutineDB {
         guard let data = try? Data(contentsOf: url) else { return RoutineDB() }
-        return (try? JSONDecoder().decode(RoutineDB.self, from: data)) ?? RoutineDB()
+        if let db = try? JSONDecoder().decode(RoutineDB.self, from: data) { return db }
+        // 읽지 못한 파일은 다음 저장이 덮어쓰기 전에 옆으로 옮겨 둔다.
+        let aside = url.deletingPathExtension()
+            .appendingPathExtension("unreadable-\(Int(Date().timeIntervalSince1970)).json")
+        try? FileManager.default.moveItem(at: url, to: aside)
+        return RoutineDB()
     }
 
     public func save(_ db: RoutineDB) throws {

@@ -1,0 +1,103 @@
+# 루틴 iOS 앱 — XcodeGen 이 BentoRoutine.xcodeproj 를 만든다(`xcodegen generate`).
+# 만들어진 .xcodeproj · Info.plist · entitlements 는 커밋하지 않는다(이 파일이 원본).
+#
+# 내 계정에 맞출 곳은 아래 settings.base 의 세 줄뿐:
+#   DEVELOPMENT_TEAM      Xcode › Settings › Accounts 의 팀 ID (비워 두면 Xcode 에서 직접 고른다)
+#   BENTO_BUNDLE_PREFIX   번들 ID 앞부분 (전 세계에서 겹치면 안 된다)
+#   BENTO_APP_GROUP       앱 ↔ 위젯이 같이 쓰는 저장 폴더 (group. 으로 시작)
+name: BentoRoutine
+
+options:
+  bundleIdPrefix: com.vallista.bento
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: ko
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: ""
+    BENTO_BUNDLE_PREFIX: com.vallista.bento
+    BENTO_APP_GROUP: group.com.vallista.bento
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    TARGETED_DEVICE_FAMILY: "1"
+    ENABLE_PREVIEWS: YES
+
+packages:
+  RoutineKit:
+    path: Packages/RoutineKit
+
+targets:
+  BentoRoutine:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Shared
+    dependencies:
+      - package: RoutineKit
+      - target: BentoRoutineWidget
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: 루틴
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        BentoAppGroup: $(BENTO_APP_GROUP)
+        NSSupportsLiveActivities: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: App/BentoRoutine.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - $(BENTO_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BENTO_BUNDLE_PREFIX).routine
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  BentoRoutineWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Widget
+      - Shared
+    dependencies:
+      - package: RoutineKit
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: 루틴
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        BentoAppGroup: $(BENTO_APP_GROUP)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Widget/BentoRoutineWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - $(BENTO_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(BENTO_BUNDLE_PREFIX).routine.widget
+
+schemes:
+  BentoRoutine:
+    build:
+      targets:
+        BentoRoutine: all
+        BentoRoutineWidget: all
+    run:
+      config: Debug
+    archive:
+      config: Release

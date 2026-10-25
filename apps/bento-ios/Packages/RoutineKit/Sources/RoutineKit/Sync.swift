@@ -296,6 +296,13 @@ public enum RoutineSync {
         db.sync.linked = true
     }
 
+    /// 토큰을 지웠다 — 다음 연결은 처음 연결처럼(로컬 전부 올리고, 겹치면 서버가 이김, 처음부터 받기).
+    public static func unlink(_ db: inout RoutineDB) {
+        db.sync.linked = false
+        db.sync.cursor = 0
+        db.sync.lastError = nil
+    }
+
     public static func outgoing(_ db: RoutineDB, limit: Int = batchLimit) -> Outgoing {
         var out = Outgoing(body: PushBody(routines: [], logs: [], timer: nil))
         var room = limit
