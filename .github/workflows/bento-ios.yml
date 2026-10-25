@@ -26,19 +26,28 @@ jobs:
           sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
           xcodebuild -version
 
+      # 파일마다 형 검사 — 첫 오류에서 멈추지 않고 모듈 전체의 오류를 한 번에 모은다.
+      - name: RoutineKit 형 검사
+        working-directory: apps/bento-ios/Packages/RoutineKit
+        run: >
+          ../../ci/run.sh "RoutineKit 형 검사" xcrun swiftc -typecheck
+          -sdk "$(xcrun --show-sdk-path --sdk macosx)" -target arm64-apple-macosx14.0
+          Sources/RoutineKit/*.swift
+
       - name: RoutineKit 시험
+        if: always()
         working-directory: apps/bento-ios/Packages/RoutineKit
         run: ../../ci/run.sh "RoutineKit 시험" swift test
 
       - name: 프로젝트 만들기 (XcodeGen)
-        if: hashFiles('apps/bento-ios/project.yml') != ''
+        if: always() && hashFiles('apps/bento-ios/project.yml') != ''
         working-directory: apps/bento-ios
         run: |
           brew install xcodegen
           xcodegen generate
 
       - name: 앱 빌드 (시뮬레이터, 서명 없음)
-        if: hashFiles('apps/bento-ios/project.yml') != ''
+        if: always() && hashFiles('apps/bento-ios/project.yml') != ''
         working-directory: apps/bento-ios
         run: >
           ci/run.sh "앱 빌드" xcodebuild -project BentoRoutine.xcodeproj -scheme BentoRoutine

@@ -13,20 +13,22 @@ public enum DayKey {
         return String(format: "%04d-%02d-%02d", parts.year ?? 1970, parts.month ?? 1, parts.day ?? 1)
     }
 
-    static func parts(_ key: String) -> (Int, Int, Int)? {
+    struct YMD { var y: Int; var m: Int; var d: Int }
+
+    static func parts(_ key: String) -> YMD? {
         let bits = key.split(separator: "-")
         guard bits.count == 3, bits[0].count == 4, bits[1].count == 2, bits[2].count == 2,
               let y = Int(bits[0]), let m = Int(bits[1]), let d = Int(bits[2]) else { return nil }
-        return (y, m, d)
+        return YMD(y: y, m: m, d: d)
     }
 
     /// 그날 로컬 정오.
     public static func date(_ key: String, timeZone: TimeZone = .current) -> Date? {
-        guard let (y, m, d) = parts(key) else { return nil }
+        guard let p = parts(key) else { return nil }
         var comps = DateComponents()
-        comps.year = y
-        comps.month = m
-        comps.day = d
+        comps.year = p.y
+        comps.month = p.m
+        comps.day = p.d
         comps.hour = 12
         let cal = calendar(timeZone)
         guard let noon = cal.date(from: comps) else { return nil }
@@ -80,17 +82,17 @@ public enum DayKey {
     public static func monthStart(_ key: String) -> String { "\(key.prefix(7))-01" }
 
     public static func monthEnd(_ key: String) -> String {
-        guard let (y, m, _) = parts(key) else { return key }
-        let ny = m == 12 ? y + 1 : y
-        let nm = m == 12 ? 1 : m + 1
+        guard let p = parts(key) else { return key }
+        let ny = p.m == 12 ? p.y + 1 : p.y
+        let nm = p.m == 12 ? 1 : p.m + 1
         return add(String(format: "%04d-%02d-01", ny, nm), -1)
     }
 
     /// "10월 25일 (일)"
     public static func label(_ key: String) -> String {
-        guard let (_, m, d) = parts(key) else { return key }
+        guard let p = parts(key) else { return key }
         let dows = ["일", "월", "화", "수", "목", "금", "토"]
-        return "\(m)월 \(d)일 (\(dows[weekday(key)]))"
+        return "\(p.m)월 \(p.d)일 (\(dows[weekday(key)]))"
     }
 }
 

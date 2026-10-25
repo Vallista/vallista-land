@@ -237,6 +237,8 @@ public struct HTTPRoutineTransport: RoutineTransport {
         return try await send(req)
     }
 
+    private struct ErrorBody: Decodable { var error: String? }
+
     func send<T: Decodable>(_ req: URLRequest) async throws -> T {
         let pair: (Data, URLResponse)
         do {
@@ -247,8 +249,7 @@ public struct HTTPRoutineTransport: RoutineTransport {
         let (data, response) = pair
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0
         guard (200..<300).contains(status) else {
-            struct Body: Decodable { var error: String? }
-            let message = (try? JSONDecoder().decode(Body.self, from: data))?.error ?? ""
+            let message = (try? JSONDecoder().decode(ErrorBody.self, from: data))?.error ?? ""
             throw status == 401 ? SyncError.unauthorized(message) : SyncError.http(status, message)
         }
         return try JSONDecoder().decode(T.self, from: data)
