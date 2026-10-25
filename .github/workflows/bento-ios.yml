@@ -1,5 +1,6 @@
 # 루틴 iOS 앱(apps/bento-ios) — RoutineKit 단위 시험 + 앱·위젯 빌드(서명 없이 시뮬레이터용).
 # 블로그 배포(node.js.yml)와 따로 돈다. apps/bento-ios 가 바뀐 push 에서만.
+# 실패하면 오류 줄이 실행 화면의 Annotations 에 모인다 (apps/bento-ios/ci/run.sh).
 name: Bento iOS
 
 on:
@@ -22,12 +23,12 @@ jobs:
 
       - name: Xcode
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.4.app 2>/dev/null || sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$(ls -d /Applications/Xcode_16*.app | sort -V | tail -1)"
           xcodebuild -version
 
       - name: RoutineKit 시험
         working-directory: apps/bento-ios/Packages/RoutineKit
-        run: swift test 2>&1 | tail -80
+        run: ../../ci/run.sh "RoutineKit 시험" swift test
 
       - name: 프로젝트 만들기 (XcodeGen)
         if: hashFiles('apps/bento-ios/project.yml') != ''
@@ -39,9 +40,7 @@ jobs:
       - name: 앱 빌드 (시뮬레이터, 서명 없음)
         if: hashFiles('apps/bento-ios/project.yml') != ''
         working-directory: apps/bento-ios
-        run: |
-          set -o pipefail
-          xcodebuild -project BentoRoutine.xcodeproj -scheme BentoRoutine \
-            -destination 'generic/platform=iOS Simulator' -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build 2>&1 \
-            | grep -E "error:|warning: .*(deprecated|never)|BUILD (SUCCEEDED|FAILED)|\*\* " | head -200
+        run: >
+          ci/run.sh "앱 빌드" xcodebuild -project BentoRoutine.xcodeproj -scheme BentoRoutine
+          -destination 'generic/platform=iOS Simulator' -configuration Debug
+          CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build
