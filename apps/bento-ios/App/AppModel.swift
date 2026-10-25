@@ -46,6 +46,14 @@ final class AppModel: ObservableObject, RoutineDBHolder {
         serverURL = AppConfig.serverURL
         syncEnabled = AppConfig.syncEnabled
         hasToken = TokenStore.read() != nil
+        #if DEBUG
+        if DemoData.isOn {
+            db = DemoData.make(today: now)
+            syncEnabled = false
+            if let t = DemoData.tab { tab = t }
+            try? store.save(db)
+        }
+        #endif
         observer = NotificationCenter.default.addObserver(forName: .routineStoreChanged, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.reload() }
         }

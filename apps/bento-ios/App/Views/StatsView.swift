@@ -15,6 +15,7 @@ struct StatsView: View {
 
     var body: some View {
         NavigationStack {
+            ScrollViewReader { proxy in
             ScrollView {
                 if model.db.routines.isEmpty {
                     ContentUnavailableView("기록할 루틴이 없어요", systemImage: "chart.bar", description: Text("루틴을 만들고 체크하면 연속 기록과 패턴이 여기에 쌓여요."))
@@ -23,17 +24,26 @@ struct StatsView: View {
                     VStack(spacing: 14) {
                         KPIGrid()
                         FilterChips(selection: $filter)
-                        Card(title: "1년") { HeatmapView(routines: routines) }
-                        Card(title: nil) { PeriodPanel(routines: routines) }
-                        Card(title: "요일 · 시간대별 달성률", note: "최근 8주") { PatternPanel(routines: routines) }
-                        InsightsCard(routines: routines)
+                        Card(title: "1년") { HeatmapView(routines: routines) }.id("heatmap")
+                        Card(title: nil) { PeriodPanel(routines: routines) }.id("period")
+                        Card(title: "요일 · 시간대별 달성률", note: "최근 8주") { PatternPanel(routines: routines) }.id("pattern")
+                        InsightsCard(routines: routines).id("insights")
                         Card(title: "루틴별", note: "30일") {
                             RoutineRowsView(routines: routines.isEmpty ? model.db.routines : routines, filter: $filter)
                         }
+                        .id("rows")
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 24)
                 }
+            }
+            .onAppear {
+                #if DEBUG
+                if let target = DemoData.scroll {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { proxy.scrollTo(target, anchor: .top) }
+                }
+                #endif
+            }
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("기록")

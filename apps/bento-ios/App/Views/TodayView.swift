@@ -67,6 +67,12 @@ struct TodayView: View {
                 }
             }
             .refreshable { await model.syncNow() }
+            .onAppear {
+                #if DEBUG
+                if DemoData.sheet == "edit" { editing = model.db.sortedRoutines.first }
+                if DemoData.sheet == "new" { adding = .blank }
+                #endif
+            }
             .sheet(item: $editing) { r in RoutineEditorView(routine: r, template: nil) }
             .sheet(item: $adding) { t in RoutineEditorView(routine: nil, template: t) }
             .alert("기록 시간", isPresented: Binding(get: { minutesFor != nil }, set: { if !$0 { minutesFor = nil } })) {
