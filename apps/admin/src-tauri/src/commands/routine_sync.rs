@@ -125,7 +125,9 @@ pub fn now_millis() -> String {
 }
 
 fn parse_time(s: &str) -> Option<DateTime<Utc>> {
-    DateTime::parse_from_rfc3339(s).ok().map(|t| t.with_timezone(&Utc))
+    DateTime::parse_from_rfc3339(s)
+        .ok()
+        .map(|t| t.with_timezone(&Utc))
 }
 
 /// a 가 b 보다 나중인가. 읽지 못하면 글자 비교.
@@ -421,7 +423,9 @@ pub fn prepare_first_link(s: &mut SyncState, local: &Local) {
         return;
     }
     for r in &local.routines {
-        s.dirty_routines.entry(r.id.clone()).or_insert_with(|| EPOCH.to_string());
+        s.dirty_routines
+            .entry(r.id.clone())
+            .or_insert_with(|| EPOCH.to_string());
     }
     for l in &local.logs {
         s.dirty_logs
@@ -502,7 +506,9 @@ pub fn outgoing(s: &SyncState, local: &Local, limit: usize) -> Outgoing {
                     "secs": l.secs,
                     "sessions": l.sessions,
                 }),
-                None => json!({ "routineId": routine_id, "date": date, "updatedAt": at, "deleted": true }),
+                None => {
+                    json!({ "routineId": routine_id, "date": date, "updatedAt": at, "deleted": true })
+                }
             };
             logs_out.push(item);
             out.sent_logs.insert(id.clone(), at.clone());
@@ -512,13 +518,16 @@ pub fn outgoing(s: &SyncState, local: &Local, limit: usize) -> Outgoing {
     let mut body = json!({ "routines": routines_out, "logs": logs_out });
     if let Some(at) = &s.dirty_timer {
         let timer = match &local.timer {
-            Some(t) => json!({ "routineId": t.routine_id, "date": t.date, "startedAt": t.started_at, "updatedAt": at }),
+            Some(t) => {
+                json!({ "routineId": t.routine_id, "date": t.date, "startedAt": t.started_at, "updatedAt": at })
+            }
             None => json!({ "routineId": Value::Null, "updatedAt": at }),
         };
         body["timer"] = timer;
         out.sent_timer = Some(at.clone());
     }
-    out.count = out.sent_routines.len() + out.sent_logs.len() + usize::from(out.sent_timer.is_some());
+    out.count =
+        out.sent_routines.len() + out.sent_logs.len() + usize::from(out.sent_timer.is_some());
     out.body = body;
     out
 }
@@ -670,7 +679,8 @@ impl Exec for AppExec<'_> {
     }
 
     async fn token(&self) -> Result<Option<String>, String> {
-        self.main(|root| keychain::read_token(TOKEN_SLOT, root)).await?
+        self.main(|root| keychain::read_token(TOKEN_SLOT, root))
+            .await?
     }
 }
 
@@ -684,7 +694,10 @@ fn endpoint(server: &str) -> Result<String, String> {
 
 async fn read_body<T: for<'de> Deserialize<'de>>(res: reqwest::Response) -> Result<T, String> {
     let status = res.status();
-    let text = res.text().await.map_err(|e| format!("서버 응답을 읽지 못했어요 — {e}"))?;
+    let text = res
+        .text()
+        .await
+        .map_err(|e| format!("서버 응답을 읽지 못했어요 — {e}"))?;
     if !status.is_success() {
         let msg = serde_json::from_str::<Value>(&text)
             .ok()
@@ -730,7 +743,9 @@ fn backup_before_link(root: &Path) -> Result<String, String> {
         let expected = fs::metadata(&src).map_err(|e| e.to_string())?.len();
         let copied = fs::copy(&src, dir.join(name)).map_err(|e| format!("backup {name}: {e}"))?;
         if copied != expected {
-            return Err(format!("backup {name}: size mismatch ({copied} != {expected})"));
+            return Err(format!(
+                "backup {name}: size mismatch ({copied} != {expected})"
+            ));
         }
     }
     Ok(dir.display().to_string())
@@ -738,7 +753,11 @@ fn backup_before_link(root: &Path) -> Result<String, String> {
 
 enum Prep {
     Skip,
-    Go { url: String, token: String, out: Outgoing },
+    Go {
+        url: String,
+        token: String,
+        out: Outgoing,
+    },
 }
 
 fn prepare(root: &Path, manual: bool, token: Option<String>) -> Result<Prep, String> {
@@ -797,8 +816,15 @@ pub(crate) async fn round<E: Exec>(
     manual: bool,
 ) -> Result<Option<(SyncResult, bool)>, String> {
     let token = exec.token().await?;
-    let prep = exec.main(move |root| prepare(root, manual, token)).await??;
-    let Prep::Go { url, token, mut out } = prep else {
+    let prep = exec
+        .main(move |root| prepare(root, manual, token))
+        .await??;
+    let Prep::Go {
+        url,
+        token,
+        mut out,
+    } = prep
+    else {
         return Ok(None);
     };
     let client = reqwest::Client::builder()
@@ -846,8 +872,9 @@ pub(crate) async fn round<E: Exec>(
             .map_err(|e| format!("서버에 닿지 못했어요 — {e}"))?;
         let ch: Changes = read_body(res).await?;
         let more = ch.more;
-        result.pulled += u32::try_from(ch.routines.len() + ch.logs.len() + usize::from(ch.timer.is_some()))
-            .unwrap_or(u32::MAX);
+        result.pulled +=
+            u32::try_from(ch.routines.len() + ch.logs.len() + usize::from(ch.timer.is_some()))
+                .unwrap_or(u32::MAX);
         local_changed |= exec.main(move |root| after_pull(root, ch)).await??;
         if !more {
             break;
@@ -871,20 +898,21 @@ pub async fn run(app: &AppHandle, manual: bool) -> Result<Option<SyncResult>, St
         Err(e) => (Err(e.clone()), false),
     };
     let record = outcome.clone();
-    let _ = exec.main(move |root| {
-        let mut s = load_state(root);
-        match record {
-            Ok(Some((r, _))) => {
-                s.last_sync_at = Some(now_millis());
-                s.last_error = None;
-                s.last_result = Some(r);
+    let _ = exec
+        .main(move |root| {
+            let mut s = load_state(root);
+            match record {
+                Ok(Some((r, _))) => {
+                    s.last_sync_at = Some(now_millis());
+                    s.last_error = None;
+                    s.last_result = Some(r);
+                }
+                Ok(None) => return,
+                Err(e) => s.last_error = Some(e),
             }
-            Ok(None) => return,
-            Err(e) => s.last_error = Some(e),
-        }
-        let _ = save_state(root, &s);
-    })
-    .await;
+            let _ = save_state(root, &s);
+        })
+        .await;
     if changed {
         let _ = app.emit(SYNCED_EVENT, ());
     }
@@ -1087,7 +1115,10 @@ mod tests {
     }
 
     fn temp_root(name: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("bento-routine-sync-{name}-{}", uuid::Uuid::new_v4().simple()));
+        let dir = std::env::temp_dir().join(format!(
+            "bento-routine-sync-{name}-{}",
+            uuid::Uuid::new_v4().simple()
+        ));
         fs::create_dir_all(&dir).unwrap();
         dir
     }
@@ -1107,7 +1138,10 @@ mod tests {
         prepare_first_link(&mut s, &local);
         assert!(s.linked);
         assert_eq!(s.dirty_routines.get("a").map(String::as_str), Some(EPOCH));
-        assert_eq!(s.dirty_logs.get("a:2026-10-02").map(String::as_str), Some(EPOCH));
+        assert_eq!(
+            s.dirty_logs.get("a:2026-10-02").map(String::as_str),
+            Some(EPOCH)
+        );
         assert_eq!(s.dirty_timer.as_deref(), Some(EPOCH));
         // 두 번째는 아무것도 안 한다
         s.dirty_routines.clear();
@@ -1118,10 +1152,14 @@ mod tests {
     #[test]
     fn outgoing_encodes_nulls_and_tombstones() {
         let mut s = SyncState::default();
-        s.dirty_routines.insert("a".into(), "2026-10-05T00:00:00.000Z".into());
-        s.dirty_routines.insert("gone".into(), "2026-10-05T00:00:01.000Z".into());
-        s.dirty_logs.insert("a:2026-10-02".into(), "2026-10-05T00:00:02.000Z".into());
-        s.dirty_logs.insert("a:2026-10-03".into(), "2026-10-05T00:00:03.000Z".into());
+        s.dirty_routines
+            .insert("a".into(), "2026-10-05T00:00:00.000Z".into());
+        s.dirty_routines
+            .insert("gone".into(), "2026-10-05T00:00:01.000Z".into());
+        s.dirty_logs
+            .insert("a:2026-10-02".into(), "2026-10-05T00:00:02.000Z".into());
+        s.dirty_logs
+            .insert("a:2026-10-03".into(), "2026-10-05T00:00:03.000Z".into());
         s.dirty_timer = Some("2026-10-05T00:00:04.000Z".into());
         let mut r = routine("a");
         r.goal_min = None;
@@ -1138,7 +1176,10 @@ mod tests {
         assert!(b["routines"][0]["archivedAt"].is_null());
         assert_eq!(b["routines"][0]["schedule"]["freq"], "daily");
         assert_eq!(b["routines"][0]["slot"], "morning");
-        assert_eq!(b["routines"][1], json!({"id": "gone", "updatedAt": "2026-10-05T00:00:01.000Z", "deleted": true}));
+        assert_eq!(
+            b["routines"][1],
+            json!({"id": "gone", "updatedAt": "2026-10-05T00:00:01.000Z", "deleted": true})
+        );
         assert!(b["logs"][0]["doneAt"].is_null());
         assert_eq!(b["logs"][1]["deleted"], true);
         assert!(b["timer"]["routineId"].is_null());
@@ -1151,8 +1192,10 @@ mod tests {
     #[test]
     fn push_result_keeps_edits_made_while_sending() {
         let mut s = SyncState::default();
-        s.dirty_routines.insert("a".into(), "2026-10-05T00:00:00.000Z".into());
-        s.dirty_logs.insert("a:2026-10-02".into(), "2026-10-05T00:00:00.000Z".into());
+        s.dirty_routines
+            .insert("a".into(), "2026-10-05T00:00:00.000Z".into());
+        s.dirty_logs
+            .insert("a:2026-10-02".into(), "2026-10-05T00:00:00.000Z".into());
         let mut local = Local {
             routines: vec![routine("a")],
             logs: vec![log("a", "2026-10-02", true)],
@@ -1160,8 +1203,17 @@ mod tests {
         };
         let sent = outgoing(&s, &local, 100);
         // 보내는 사이 기록을 또 고쳤다
-        s.dirty_logs.insert("a:2026-10-02".into(), "2026-10-05T00:00:09.000Z".into());
-        apply_push_result(&mut s, &mut local, &PushResult { applied: 2, ..Default::default() }, &sent);
+        s.dirty_logs
+            .insert("a:2026-10-02".into(), "2026-10-05T00:00:09.000Z".into());
+        apply_push_result(
+            &mut s,
+            &mut local,
+            &PushResult {
+                applied: 2,
+                ..Default::default()
+            },
+            &sent,
+        );
         assert!(s.dirty_routines.is_empty());
         assert_eq!(s.dirty_logs.len(), 1);
     }
@@ -1169,7 +1221,8 @@ mod tests {
     #[test]
     fn stale_push_takes_server_current() {
         let mut s = SyncState::default();
-        s.dirty_routines.insert("a".into(), "2026-10-05T00:00:00.000Z".into());
+        s.dirty_routines
+            .insert("a".into(), "2026-10-05T00:00:00.000Z".into());
         let mut local = Local {
             routines: vec![routine("a")],
             ..Default::default()
@@ -1194,8 +1247,10 @@ mod tests {
     #[test]
     fn pull_skips_newer_local_edits_and_cascades_deletes() {
         let mut s = SyncState::default();
-        s.dirty_logs.insert("a:2026-10-02".into(), "2026-10-07T00:00:00.000Z".into());
-        s.dirty_logs.insert("b:2026-10-02".into(), "2026-10-01T00:00:00.000Z".into());
+        s.dirty_logs
+            .insert("a:2026-10-02".into(), "2026-10-07T00:00:00.000Z".into());
+        s.dirty_logs
+            .insert("b:2026-10-02".into(), "2026-10-01T00:00:00.000Z".into());
         let mut local = Local {
             routines: vec![routine("a"), routine("b")],
             logs: vec![log("a", "2026-10-02", true), log("b", "2026-10-02", true)],
@@ -1206,8 +1261,16 @@ mod tests {
             }),
         };
         let ch = Changes {
-            routines: vec![server_routine(&routine("b"), "2026-10-06T00:00:00.000Z", true)],
-            logs: vec![server_log(&log("a", "2026-10-02", false), "2026-10-06T00:00:00.000Z", false)],
+            routines: vec![server_routine(
+                &routine("b"),
+                "2026-10-06T00:00:00.000Z",
+                true,
+            )],
+            logs: vec![server_log(
+                &log("a", "2026-10-02", false),
+                "2026-10-06T00:00:00.000Z",
+                false,
+            )],
             timer: None,
             cursor: 42,
             more: false,
@@ -1234,7 +1297,11 @@ mod tests {
         };
         let ch = Changes {
             routines: vec![],
-            logs: vec![server_log(&log("a", "2026-10-02", true), "2026-10-06T00:00:00.000Z", true)],
+            logs: vec![server_log(
+                &log("a", "2026-10-02", true),
+                "2026-10-06T00:00:00.000Z",
+                true,
+            )],
             timer: Some(ServerTimer {
                 routine_id: Some("a".into()),
                 date: Some("2026-10-06".into()),
@@ -1246,7 +1313,10 @@ mod tests {
         };
         apply_pull(&mut s, &mut local, &ch);
         assert!(local.logs.is_empty());
-        assert_eq!(local.timer.as_ref().map(|t| t.routine_id.as_str()), Some("a"));
+        assert_eq!(
+            local.timer.as_ref().map(|t| t.routine_id.as_str()),
+            Some("a")
+        );
     }
 
     #[test]
@@ -1270,7 +1340,10 @@ mod tests {
         routines::save_logs(&root, &[]).unwrap();
         assert!(load_state(&root).dirty_logs.contains_key("a:2026-10-02"));
         routines::save_timer(&root, None).unwrap();
-        assert!(load_state(&root).dirty_timer.is_none(), "없던 타이머를 없애는 건 변경 아님");
+        assert!(
+            load_state(&root).dirty_timer.is_none(),
+            "없던 타이머를 없애는 건 변경 아님"
+        );
         // 받은 것을 쓰는 길은 적지 않는다
         let mut s = load_state(&root);
         s.dirty_routines.clear();
@@ -1301,8 +1374,14 @@ mod tests {
     #[test]
     fn time_compare_reads_both_precisions() {
         assert!(is_after("2026-10-05T00:00:00.500Z", "2026-10-05T00:00:00Z"));
-        assert!(!is_after("2026-10-05T00:00:00Z", "2026-10-05T00:00:00.000Z"));
-        assert!(is_after("2026-10-05T09:00:01+09:00", "2026-10-05T00:00:00Z"));
+        assert!(!is_after(
+            "2026-10-05T00:00:00Z",
+            "2026-10-05T00:00:00.000Z"
+        ));
+        assert!(is_after(
+            "2026-10-05T09:00:01+09:00",
+            "2026-10-05T00:00:00Z"
+        ));
     }
 
     struct DirectExec {
@@ -1330,10 +1409,20 @@ mod tests {
     async fn real_server_two_devices() {
         let url = std::env::var("BENTO_SYNC_URL").expect("BENTO_SYNC_URL");
         let token = std::env::var("BENTO_SYNC_TOKEN").expect("BENTO_SYNC_TOKEN");
-        let a = DirectExec { root: temp_root("dev-a"), token: token.clone() };
-        let b = DirectExec { root: temp_root("dev-b"), token };
+        let a = DirectExec {
+            root: temp_root("dev-a"),
+            token: token.clone(),
+        };
+        let b = DirectExec {
+            root: temp_root("dev-b"),
+            token,
+        };
         for e in [&a, &b] {
-            let s = SyncState { enabled: true, server_url: url.clone(), ..Default::default() };
+            let s = SyncState {
+                enabled: true,
+                server_url: url.clone(),
+                ..Default::default()
+            };
             save_state(&e.root, &s).unwrap();
         }
         let pause = || tokio::time::sleep(Duration::from_millis(15));
@@ -1355,23 +1444,42 @@ mod tests {
         assert!(changed);
         let lb = Local::load(&b.root).unwrap();
         assert!(lb.routines.iter().any(|r| r.id == rid));
-        assert!(lb.logs.iter().any(|l| l.routine_id == rid && l.date == day && l.done));
+        assert!(lb
+            .logs
+            .iter()
+            .any(|l| l.routine_id == rid && l.date == day && l.done));
 
         // B 에서 체크 해제 → A 로
         pause().await;
-        let logs: Vec<RoutineLog> = lb.logs.iter().filter(|l| l.routine_id != rid).cloned().collect();
+        let logs: Vec<RoutineLog> = lb
+            .logs
+            .iter()
+            .filter(|l| l.routine_id != rid)
+            .cloned()
+            .collect();
         routines::save_logs(&b.root, &logs).unwrap();
         round(&b, false).await.unwrap().unwrap();
         round(&a, false).await.unwrap().unwrap();
-        assert!(!Local::load(&a.root).unwrap().logs.iter().any(|l| l.routine_id == rid));
+        assert!(!Local::load(&a.root)
+            .unwrap()
+            .logs
+            .iter()
+            .any(|l| l.routine_id == rid));
 
         // A 에서 타이머 → B 로, 멈춤 → B 로
         pause().await;
-        let t = RoutineTimer { routine_id: rid.clone(), date: day.into(), started_at: "2026-10-02T01:00:00Z".into() };
+        let t = RoutineTimer {
+            routine_id: rid.clone(),
+            date: day.into(),
+            started_at: "2026-10-02T01:00:00Z".into(),
+        };
         routines::save_timer(&a.root, Some(&t)).unwrap();
         round(&a, false).await.unwrap().unwrap();
         round(&b, false).await.unwrap().unwrap();
-        assert_eq!(Local::load(&b.root).unwrap().timer.map(|t| t.routine_id), Some(rid.clone()));
+        assert_eq!(
+            Local::load(&b.root).unwrap().timer.map(|t| t.routine_id),
+            Some(rid.clone())
+        );
         pause().await;
         routines::save_timer(&a.root, None).unwrap();
         round(&a, false).await.unwrap().unwrap();
@@ -1393,7 +1501,13 @@ mod tests {
         println!("B rename round: {rb2:?}");
         for e in [&a, &b] {
             let l = Local::load(&e.root).unwrap();
-            assert_eq!(l.routines.iter().find(|r| r.id == rid).map(|r| r.title.as_str()), Some("B 가 고침"));
+            assert_eq!(
+                l.routines
+                    .iter()
+                    .find(|r| r.id == rid)
+                    .map(|r| r.title.as_str()),
+                Some("B 가 고침")
+            );
         }
 
         // 반대 순서: B 가 먼저 고치고 A 가 나중에 고쳤는데 B 가 먼저 올림 → A 가 올릴 때 A 가 이긴다
@@ -1410,7 +1524,13 @@ mod tests {
         round(&b, false).await.unwrap().unwrap();
         for e in [&a, &b] {
             let l = Local::load(&e.root).unwrap();
-            assert_eq!(l.routines.iter().find(|r| r.id == rid).map(|r| r.title.as_str()), Some("A 나중"));
+            assert_eq!(
+                l.routines
+                    .iter()
+                    .find(|r| r.id == rid)
+                    .map(|r| r.title.as_str()),
+                Some("A 나중")
+            );
         }
 
         // A 에서 삭제 → B 에서도 루틴·기록이 사라진다
@@ -1418,7 +1538,11 @@ mod tests {
         routines::save_logs(&a.root, &[log(&rid, "2026-10-03", true)]).unwrap();
         round(&a, false).await.unwrap().unwrap();
         round(&b, false).await.unwrap().unwrap();
-        assert!(Local::load(&b.root).unwrap().logs.iter().any(|l| l.routine_id == rid));
+        assert!(Local::load(&b.root)
+            .unwrap()
+            .logs
+            .iter()
+            .any(|l| l.routine_id == rid));
         pause().await;
         routines::delete_in(&a.root, &rid).unwrap();
         round(&a, false).await.unwrap().unwrap();

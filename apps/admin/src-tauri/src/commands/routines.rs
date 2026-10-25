@@ -213,7 +213,10 @@ pub fn load_routines(root: &Path) -> Result<Vec<Routine>, String> {
 // 적는다(`routine_sync`, 연결 뒤에만). 서버에서 받은 것을 쓰는 길은 `save_*_raw` — 적지 않는다.
 
 pub fn save_routines(root: &Path, routines: &[Routine]) -> Result<(), String> {
-    let old: Vec<Routine> = read_json(&root.join(ROUTINES_FILE)).ok().flatten().unwrap_or_default();
+    let old: Vec<Routine> = read_json(&root.join(ROUTINES_FILE))
+        .ok()
+        .flatten()
+        .unwrap_or_default();
     save_routines_raw(root, routines)?;
     routine_sync::mark_routines(root, &old, routines);
     Ok(())
@@ -228,7 +231,10 @@ pub fn load_logs(root: &Path) -> Result<Vec<RoutineLog>, String> {
 }
 
 pub fn save_logs(root: &Path, logs: &[RoutineLog]) -> Result<(), String> {
-    let old: Vec<RoutineLog> = read_json(&root.join(LOGS_FILE)).ok().flatten().unwrap_or_default();
+    let old: Vec<RoutineLog> = read_json(&root.join(LOGS_FILE))
+        .ok()
+        .flatten()
+        .unwrap_or_default();
     save_logs_raw(root, logs)?;
     routine_sync::mark_logs(root, &old, logs);
     Ok(())
