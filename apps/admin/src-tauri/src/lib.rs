@@ -278,6 +278,10 @@ pub fn run() {
                 let app_handle = app.handle().clone();
                 tauri::async_runtime::spawn(commands::task_repeats::start_poller(app_handle));
             }
+            {
+                let app_handle = app.handle().clone();
+                tauri::async_runtime::spawn(commands::routine_sync::start_poller(app_handle));
+            }
 
             Ok(())
         })
@@ -311,6 +315,10 @@ pub fn run() {
             commands::routines::get_routine_timer,
             commands::routines::start_routine_timer,
             commands::routines::stop_routine_timer,
+            commands::routine_sync::routine_sync_status,
+            commands::routine_sync::routine_sync_configure,
+            commands::routine_sync::routine_sync_set_token,
+            commands::routine_sync::routine_sync_now,
             // === radar ===
             commands::radar::list_goals,
             commands::radar::add_goal,

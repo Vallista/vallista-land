@@ -12,7 +12,9 @@ import {
   listRoutines,
   listTasks,
   mailUnreadCountAll,
+  notifyRoutinesChanged,
   ROUTINES_CHANGED_EVENT,
+  ROUTINES_SYNCED_EVENT,
   startWindowDrag,
   vaultInfo,
 } from '../lib/tauri';
@@ -782,10 +784,17 @@ export function Shell({
     const onChanged = () => void refresh();
     window.addEventListener(ROUTINES_CHANGED_EVENT, onChanged);
     const id = setInterval(onChanged, 60_000);
+    // 냥노션에서 받은 것(아이폰에서 체크 등)으로 바뀌면 루틴 화면까지 다시 읽게 창 이벤트로 넘긴다
+    let unlisten: (() => void) | null = null;
+    listen(ROUTINES_SYNCED_EVENT, () => notifyRoutinesChanged()).then((fn) => {
+      if (cancelled) fn();
+      else unlisten = fn;
+    });
     return () => {
       cancelled = true;
       window.removeEventListener(ROUTINES_CHANGED_EVENT, onChanged);
       clearInterval(id);
+      unlisten?.();
     };
   }, []);
 

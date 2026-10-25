@@ -31,6 +31,7 @@ import { DayList } from './DayList';
 import { Heatmap } from './Heatmap';
 import { PeriodPanel } from './PeriodPanel';
 import { RoutineDialog, type DialogInit } from './RoutineDialog';
+import { RoutineSyncDialog, SyncButton, useRoutineSyncStatus } from './RoutineSyncDialog';
 import { RoutineTable } from './RoutineTable';
 import { routineColor } from './meta';
 import { useRoutineData, useTimerElapsed, useTodayKey } from './useRoutineData';
@@ -44,6 +45,8 @@ export function Routine() {
   const [selected, setSelected] = useState<DayKey>(today);
   const [focusId, setFocusId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogInit | null>(null);
+  const [syncOpen, setSyncOpen] = useState(false);
+  const [syncStatus, setSyncStatus] = useRoutineSyncStatus();
   const [busyId, setBusyId] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const dayRef = useRef<HTMLDivElement>(null);
@@ -209,16 +212,19 @@ export function Routine() {
           title="루틴"
           sub={sub}
           right={
-            routines.length > 0 && (
-              <>
-                <button onClick={() => setDialog({ mode: 'list' })} style={ghostBtn}>
-                  루틴 관리
-                </button>
-                <button onClick={() => setDialog({ mode: 'new' })} style={primaryBtn}>
-                  + 루틴
-                </button>
-              </>
-            )
+            <>
+              <SyncButton status={syncStatus} onClick={() => setSyncOpen(true)} style={ghostBtn} />
+              {routines.length > 0 && (
+                <>
+                  <button onClick={() => setDialog({ mode: 'list' })} style={ghostBtn}>
+                    루틴 관리
+                  </button>
+                  <button onClick={() => setDialog({ mode: 'new' })} style={primaryBtn}>
+                    + 루틴
+                  </button>
+                </>
+              )}
+            </>
           }
         />
 
@@ -375,6 +381,12 @@ export function Routine() {
           await data.reload();
           notifyRoutinesChanged();
         }}
+      />
+      <RoutineSyncDialog
+        open={syncOpen}
+        status={syncStatus}
+        onStatus={setSyncStatus}
+        onClose={() => setSyncOpen(false)}
       />
     </div>
   );

@@ -89,6 +89,15 @@ fn delete_token_inner(_remote: &str, _service: &str) -> Result<(), String> {
     Ok(())
 }
 
+/// Rust 안에서 쓰는 토큰 저장(웹뷰로 값을 돌려주지 않는 동기화 커맨드용).
+pub fn write_token(remote: &str, token: &str, data_root: &Path) -> Result<(), String> {
+    write_token_inner(remote.trim(), token.trim(), &keychain_service(data_root))
+}
+
+pub fn delete_token(remote: &str, data_root: &Path) -> Result<(), String> {
+    delete_token_inner(remote.trim(), &keychain_service(data_root))
+}
+
 #[tauri::command]
 pub fn keychain_set_token(
     remote: String,

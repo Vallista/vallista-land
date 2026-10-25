@@ -479,6 +479,55 @@ export async function stopRoutineTimer(discard = false): Promise<RoutineTimerCom
   return invoke<RoutineTimerCommit | null>('stop_routine_timer', { discard });
 }
 
+// === routine sync (냥노션 · iOS 루틴 앱과 맞추기) ===
+
+/** 받은 것으로 로컬 루틴이 바뀌었다 (Rust emit) */
+export const ROUTINES_SYNCED_EVENT = 'bento:routines-synced';
+/** 동기화 시작·끝·설정 변경 (Rust emit, payload = 지금 도는 중인지) */
+export const ROUTINE_SYNC_STATUS_EVENT = 'bento:routine-sync-status';
+
+export interface RoutineSyncResult {
+  pushed: number;
+  stale: number;
+  rejected: number;
+  pulled: number;
+}
+
+export interface RoutineSyncStatus {
+  enabled: boolean;
+  serverUrl: string;
+  hasToken: boolean;
+  linked: boolean;
+  /** 아직 올리지 못한 변경 수 */
+  pending: number;
+  running: boolean;
+  lastSyncAt: string | null;
+  lastError: string | null;
+  lastResult: RoutineSyncResult | null;
+  firstLinkBackup: string | null;
+}
+
+export async function routineSyncStatus(): Promise<RoutineSyncStatus> {
+  return invoke<RoutineSyncStatus>('routine_sync_status', undefined, { silent: true });
+}
+
+export async function routineSyncConfigure(patch: {
+  enabled?: boolean;
+  serverUrl?: string;
+}): Promise<RoutineSyncStatus> {
+  return invoke<RoutineSyncStatus>('routine_sync_configure', { patch });
+}
+
+/** 키체인 `nyanotion-sync` 자리에 저장. 빈 문자열이면 지우고 다음 연결을 처음부터. */
+export async function routineSyncSetToken(token: string): Promise<RoutineSyncStatus> {
+  return invoke<RoutineSyncStatus>('routine_sync_set_token', { token });
+}
+
+/** 한 바퀴(올리기 → 받기). 이미 돌고 있으면 null. */
+export async function routineSyncNow(): Promise<RoutineSyncResult | null> {
+  return invoke<RoutineSyncResult | null>('routine_sync_now', undefined, { silent: true });
+}
+
 export interface BlockInput {
   id: string;
   date: string;

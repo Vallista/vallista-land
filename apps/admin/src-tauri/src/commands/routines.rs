@@ -13,7 +13,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use tauri::State;
 
-use crate::commands::tasks;
+use crate::commands::{routine_sync, tasks};
 use crate::repo::{ensure_inside, AppState};
 
 const ROUTINES_FILE: &str = "routines.json";
@@ -209,7 +209,17 @@ pub fn load_routines(root: &Path) -> Result<Vec<Routine>, String> {
     Ok(all)
 }
 
+// 이 기기에서 고친 것을 저장하는 길(`save_*`)은 디스크의 이전 값과 비교해 바뀐 것을 동기화 dirty 표에
+// 적는다(`routine_sync`, 연결 뒤에만). 서버에서 받은 것을 쓰는 길은 `save_*_raw` — 적지 않는다.
+
 pub fn save_routines(root: &Path, routines: &[Routine]) -> Result<(), String> {
+    let old: Vec<Routine> = read_json(&root.join(ROUTINES_FILE)).ok().flatten().unwrap_or_default();
+    save_routines_raw(root, routines)?;
+    routine_sync::mark_routines(root, &old, routines);
+    Ok(())
+}
+
+pub fn save_routines_raw(root: &Path, routines: &[Routine]) -> Result<(), String> {
     write_json(root, ROUTINES_FILE, routines)
 }
 
@@ -218,6 +228,13 @@ pub fn load_logs(root: &Path) -> Result<Vec<RoutineLog>, String> {
 }
 
 pub fn save_logs(root: &Path, logs: &[RoutineLog]) -> Result<(), String> {
+    let old: Vec<RoutineLog> = read_json(&root.join(LOGS_FILE)).ok().flatten().unwrap_or_default();
+    save_logs_raw(root, logs)?;
+    routine_sync::mark_logs(root, &old, logs);
+    Ok(())
+}
+
+pub fn save_logs_raw(root: &Path, logs: &[RoutineLog]) -> Result<(), String> {
     write_json(root, LOGS_FILE, logs)
 }
 
@@ -226,6 +243,13 @@ pub fn load_timer(root: &Path) -> Result<Option<RoutineTimer>, String> {
 }
 
 pub fn save_timer(root: &Path, timer: Option<&RoutineTimer>) -> Result<(), String> {
+    let old: Option<RoutineTimer> = read_json(&root.join(TIMER_FILE)).ok().flatten();
+    save_timer_raw(root, timer)?;
+    routine_sync::mark_timer(root, old.as_ref(), timer);
+    Ok(())
+}
+
+pub fn save_timer_raw(root: &Path, timer: Option<&RoutineTimer>) -> Result<(), String> {
     match timer {
         Some(t) => write_json(root, TIMER_FILE, t),
         None => {
