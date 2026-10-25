@@ -117,11 +117,7 @@ struct ManageRow: View {
                 Text(detail).font(.caption).foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
-            if !routine.isArchived && streak.current > 0 {
-                Label("\(streak.current)일", systemImage: "flame.fill")
-                    .font(.caption)
-                    .foregroundStyle(Theme.ok)
-            }
+            if !routine.isArchived && streak.current > 0 { StreakBadge(days: streak.current) }
             Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
         }
         .contentShape(Rectangle())

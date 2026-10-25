@@ -194,10 +194,7 @@ struct RoutineRowView: View {
                     .foregroundStyle(done ? .secondary : .primary)
                 HStack(spacing: 6) {
                     Text(RoutineStats.describe(routine.schedule) + (routine.goalMin.map { " · 목표 \($0)분" } ?? ""))
-                    if streak.current > 0 {
-                        Label("\(streak.current)일", systemImage: "flame.fill")
-                            .foregroundStyle(Theme.ok)
-                    }
+                    if streak.current > 0 { StreakBadge(days: streak.current) }
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -278,6 +275,22 @@ struct TimerBanner: View {
                 .controlSize(.small)
         }
         .listRowBackground(Theme.time.opacity(0.12))
+    }
+}
+
+/// 🔥 n일 — 아이콘과 숫자를 붙여서 작게
+struct StreakBadge: View {
+    let days: Int
+
+    var body: some View {
+        HStack(spacing: 2) {
+            Image(systemName: "flame.fill").imageScale(.small)
+            Text("\(days)일").monospacedDigit()
+        }
+        .font(.caption)
+        .foregroundStyle(Theme.ok)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(days)일 연속")
     }
 }
 

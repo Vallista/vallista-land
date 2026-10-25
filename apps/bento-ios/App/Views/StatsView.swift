@@ -101,7 +101,7 @@ struct KPIGrid: View {
                 sub: todayStat.scheduled == 0 ? "예정 없음" : todayStat.done == todayStat.scheduled ? "모두 끝냄" : "\(todayStat.scheduled - todayStat.done)개 남음",
                 tone: todayStat.scheduled > 0 && todayStat.done == todayStat.scheduled ? .good : .plain
             )
-            KPITile(label: "모두 끝낸 날", value: "\(perfect.current)일 연속", sub: "최고 \(perfect.best)일", tone: perfect.current > 0 ? .good : .plain)
+            KPITile(label: "모두 끝낸 날 연속", value: "\(perfect.current)일", sub: "최고 \(perfect.best)일", tone: perfect.current > 0 ? .good : .plain)
             KPITile(label: "30일 달성률", value: RoutineStats.pct(r30.rate), sub: diffText(r30.rate, p30.rate, "앞 30일"), tone: .plain)
             KPITile(
                 label: "이번 주 시간",
@@ -640,7 +640,8 @@ struct StatRow: View {
                 VStack(alignment: .trailing, spacing: 1) {
                     Text(row.streak.current > 0 ? "\(row.streak.current)일 연속" : "연속 없음")
                         .foregroundStyle(row.streak.current > 0 ? Theme.ok : .secondary)
-                    Text("최고 \(row.streak.best)일 · 7일 \(RoutineStats.formatSecs(row.secs7))").foregroundStyle(.secondary)
+                    Text(row.secs7 > 0 ? "최고 \(row.streak.best)일 · 7일 \(RoutineStats.formatSecs(row.secs7))" : "최고 \(row.streak.best)일")
+                        .foregroundStyle(.secondary)
                 }
                 .font(.caption2.monospacedDigit())
             }
