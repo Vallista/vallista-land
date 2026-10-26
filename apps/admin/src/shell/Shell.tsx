@@ -11,7 +11,6 @@ import {
   listRoutineLogs,
   listRoutines,
   listTasks,
-  mailUnreadCountAll,
   notifyRoutinesChanged,
   ROUTINES_CHANGED_EVENT,
   ROUTINES_SYNCED_EVENT,
@@ -38,13 +37,11 @@ export type ScreenId =
   | 'routine'
   | 'thoughts'
   | 'plan'
-  | 'radar'
   | 'glean'
   | 'atelier'
   | 'publish'
   | 'insights'
-  | 'review'
-  | 'mail';
+  | 'review';
 
 interface SidebarItem {
   id: ScreenId;
@@ -68,8 +65,6 @@ interface Counts {
   glean?: number;
   atelier?: number;
   thoughts?: number;
-  mailUnread?: number;
-  radarAlerts?: number;
 }
 
 function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
@@ -81,9 +76,7 @@ function buildSections(counts: Counts, blogEnabled: boolean): SidebarSection[] {
         { id: 'routine', label: '루틴', icon: '◐', count: counts.routine, badge: counts.routineBadge },
         { id: 'thoughts', label: '생각', icon: '⌇', count: counts.thoughts },
         { id: 'plan', label: '할 일', icon: '☐', count: counts.plan, badge: counts.planBadge },
-        { id: 'radar', label: '레이더', icon: '◎', badge: counts.radarAlerts ? String(counts.radarAlerts) : undefined },
         { id: 'glean', label: '줍기', icon: '⊞', count: counts.glean },
-        { id: 'mail', label: '메일', icon: '✉', count: counts.mailUnread },
       ],
     },
   ];
@@ -813,35 +806,6 @@ export function Shell({
     return () => {
       cancelled = true;
       clearInterval(id);
-    };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const tick = async () => {
-      try {
-        const n = await mailUnreadCountAll();
-        if (!cancelled) setCounts((prev) => ({ ...prev, mailUnread: n || undefined }));
-      } catch {
-        // 계정 미설정 등 실패 시 조용히 무시
-      }
-    };
-    tick();
-    const id = setInterval(tick, 300_000);
-
-    const onDelta = (e: Event) => {
-      const { delta } = (e as CustomEvent<{ delta: number }>).detail;
-      setCounts((prev) => ({
-        ...prev,
-        mailUnread: Math.max(0, (prev.mailUnread ?? 0) + delta) || undefined,
-      }));
-    };
-    window.addEventListener('bento:mail-unread-delta', onDelta);
-
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-      window.removeEventListener('bento:mail-unread-delta', onDelta);
     };
   }, []);
 

@@ -9,12 +9,10 @@ import { Today } from './screens/Today';
 import { Atelier } from './screens/Atelier';
 import { Glean } from './screens/Glean';
 import { Plan } from './screens/Plan';
-import { Radar } from './screens/Radar';
 import { Insights } from './screens/Insights';
 import { Review } from './screens/Review';
 import { Publish } from './screens/Publish';
 import { Thoughts } from './screens/Thoughts';
-import { Mail } from './screens/Mail';
 import { Routine } from './screens/Routine';
 import type { PaneId } from './components/Tweaks';
 import { Onboarding, checkOnboardingDone } from './screens/Onboarding';
@@ -72,12 +70,10 @@ const SCREENS: Record<ScreenId, () => JSX.Element> = {
   atelier: Atelier,
   glean: Glean,
   plan: Plan,
-  radar: Radar,
   insights: Insights,
   review: Review,
   publish: Publish,
   thoughts: Thoughts,
-  mail: Mail,
 };
 
 export function App() {

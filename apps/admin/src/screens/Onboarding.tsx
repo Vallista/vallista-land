@@ -1,15 +1,12 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { Button, Eyebrow, Input, Mono, StatusDot } from '../components/atoms/Atoms';
+import { Button, Eyebrow, Input, Mono } from '../components/atoms/Atoms';
 import {
   macosCalRequestAccess,
-  mailAddAccount,
   openPrivacySecurity,
   pickContentRoot,
   setBlogConfig,
   setAppPersonalization,
-  type MailAccount,
-  type MailAccountInput,
 } from '../lib/tauri';
 
 const ONBOARDING_KEY = 'bento.onboarding.done';
@@ -30,14 +27,13 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   const [calStatus, setCalStatus] = useState<'idle' | 'requesting' | 'done' | 'denied'>('idle');
   const [privacyOpened, setPrivacyOpened] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [mailAccounts, setMailAccounts] = useState<MailAccount[]>([]);
 
-  const TOTAL_STEPS = 6;
+  const TOTAL_STEPS = 5;
 
-  // 순서: 1=권한, 2=앱이름, 3=폴더, 4=경로(선택), 5=메일, 6=완료
+  // 순서: 1=권한, 2=앱이름, 3=폴더, 4=경로(선택), 5=완료
   const goNext = () => {
     if (step === 3 && !hasContentFolder) {
-      setStep(5); // 4(경로) 스킵 → 5(메일)
+      setStep(5); // 4(경로) 스킵 → 5(완료)
     } else {
       setStep((s) => s + 1);
     }
@@ -161,12 +157,6 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
             />
           )}
           {step === 5 && (
-            <StepMailAccounts
-              accounts={mailAccounts}
-              onAdd={(acc) => setMailAccounts((prev) => [...prev, acc])}
-            />
-          )}
-          {step === 6 && (
             <StepSummary
               appName={appName || 'Bento'}
               appUrl={appUrl}
@@ -175,7 +165,6 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
               articlesDir={articlesDir}
               notesDir={notesDir}
               calStatus={calStatus}
-              mailAccountCount={mailAccounts.length}
             />
           )}
         </div>
@@ -491,188 +480,6 @@ function StepCollectionPaths({
   );
 }
 
-function StepMailAccounts({
-  accounts,
-  onAdd,
-}: {
-  accounts: MailAccount[];
-  onAdd: (acc: MailAccount) => void;
-}) {
-  const [label, setLabel] = useState('');
-  const [host, setHost] = useState('imap.gmail.com');
-  const [port, setPort] = useState(993);
-  const [tls, setTls] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [testState, setTestState] = useState<'idle' | 'ok' | 'fail'>('idle');
-
-  const canAdd = label.trim() && host.trim() && username.trim() && password.length > 0 && !busy;
-
-  const handleAdd = async () => {
-    if (!canAdd) return;
-    setBusy(true);
-    setError(null);
-    setTestState('idle');
-    try {
-      const input: MailAccountInput = {
-        label: label.trim(),
-        host: host.trim(),
-        port,
-        tls,
-        username: username.trim(),
-        password,
-      };
-      const saved = await mailAddAccount(input);
-      onAdd(saved);
-      setLabel('');
-      setUsername('');
-      setPassword('');
-      setTestState('ok');
-    } catch (err) {
-      setError(String(err));
-      setTestState('fail');
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-      <div style={{ textAlign: 'center' }}>
-        <div
-          style={{
-            fontSize: 28,
-            margin: '0 auto 12px',
-            fontFamily: 'var(--font-mono)',
-          }}
-        >
-          ✉
-        </div>
-        <h2
-          style={{
-            margin: '0 0 6px',
-            fontSize: 22,
-            fontWeight: 700,
-            color: 'var(--ink)',
-            letterSpacing: '-0.4px',
-          }}
-        >
-          메일 계정 연결
-        </h2>
-        <Mono style={{ fontSize: 12, color: 'var(--ink-mute)' }}>
-          IMAP 계정을 추가하면 앱 안에서 메일을 바로 확인할 수 있어요
-        </Mono>
-      </div>
-
-      {accounts.length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <Eyebrow>추가된 계정</Eyebrow>
-          {accounts.map((acc, i) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '8px 10px',
-                border: '1px solid var(--line)',
-                borderRadius: 6,
-                background: 'var(--bg-soft)',
-              }}
-            >
-              <StatusDot tone="ok" />
-              <span style={{ fontSize: 13, color: 'var(--ink)', flex: 1 }}>{acc.label}</span>
-              <Mono style={{ fontSize: 10.5, color: 'var(--ink-mute)' }}>{acc.username}</Mono>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <Field label="표시 이름">
-          <Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="개인 메일" />
-        </Field>
-        <Field label="호스트">
-          <Input
-            value={host}
-            onChange={(e) => setHost(e.target.value)}
-            placeholder="imap.gmail.com"
-            mono
-          />
-        </Field>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-          <div style={{ flex: '0 0 90px' }}>
-            <Field label="포트">
-              <Input
-                type="number"
-                value={port}
-                onChange={(e) => setPort(parseInt(e.target.value, 10) || 993)}
-                mono
-              />
-            </Field>
-          </div>
-          <label
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              fontSize: 12,
-              color: 'var(--ink)',
-              cursor: 'pointer',
-              padding: '8px 0',
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={tls}
-              onChange={(e) => {
-                setTls(e.target.checked);
-                setPort(e.target.checked ? 993 : 143);
-              }}
-              style={{ accentColor: 'var(--ink)', margin: 0 }}
-            />
-            TLS / SSL
-          </label>
-        </div>
-        <Field label="사용자 이름">
-          <Input
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="me@example.com"
-            mono
-          />
-        </Field>
-        <Field label="비밀번호">
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            mono
-          />
-        </Field>
-      </div>
-
-      {error && (
-        <Mono style={{ fontSize: 11, color: 'var(--err)', lineHeight: 1.4 }}>{error}</Mono>
-      )}
-
-      {testState === 'ok' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <StatusDot tone="ok" />
-          <Mono style={{ fontSize: 11, color: 'var(--ink-2)' }}>계정이 추가됐습니다</Mono>
-        </div>
-      )}
-
-      <Button sm onClick={handleAdd} disabled={!canAdd}>
-        {busy ? '추가 중…' : '+ 계정 추가'}
-      </Button>
-    </div>
-  );
-}
-
 function StepSummary({
   appName,
   appUrl,
@@ -681,7 +488,6 @@ function StepSummary({
   articlesDir,
   notesDir,
   calStatus,
-  mailAccountCount,
 }: {
   appName: string;
   appUrl: string;
@@ -690,7 +496,6 @@ function StepSummary({
   articlesDir: string;
   notesDir: string;
   calStatus: string;
-  mailAccountCount: number;
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -744,10 +549,6 @@ function StepSummary({
         <SummaryRow
           label="캘린더 권한"
           value={calStatus === 'done' ? '허용됨' : calStatus === 'denied' ? '거부됨' : '미요청'}
-        />
-        <SummaryRow
-          label="메일 계정"
-          value={mailAccountCount > 0 ? `${mailAccountCount}개 연결됨` : '연결 안 함'}
           last
         />
       </div>

@@ -9,14 +9,11 @@ import {
   listGlean,
   listMoodInRange,
   listTasks,
-  mailListAllAccountsMessages,
-  mailUnreadCountAll,
   setMood,
   setRetrospective,
   updateTask,
   type EventNote,
   type GleanCounts,
-  type MailMessage,
 } from '../../lib/tauri';
 import {
   Button,
@@ -46,9 +43,6 @@ export function Today() {
   const [moodRange, setMoodRange] = useState<Mood[] | null>(null);
   const [routineBlocks, setRoutineBlocks] = useState<Block[] | null>(null);
   const [eventNotes, setEventNotes] = useState<EventNote[] | null>(null);
-  const [mailUnreadCount, setMailUnreadCount] = useState<number | null>(null);
-  const [mailMessages, setMailMessages] = useState<MailMessage[] | null>(null);
-  const [mailKey, setMailKey] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [ritualFabOpen, setRitualFabOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<EventNote | null>(null);
@@ -61,7 +55,6 @@ export function Today() {
     const onVis = () => {
       if (document.visibilityState === 'visible') {
         tick();
-        setMailKey((k) => k + 1);
       }
     };
     document.addEventListener('visibilitychange', onVis);
@@ -108,20 +101,6 @@ export function Today() {
     window.addEventListener('bento:tasks-changed', onTasksChanged);
     return () => window.removeEventListener('bento:tasks-changed', onTasksChanged);
   }, []);
-
-  // 메일은 별도 effect — 앱 포커스/가시성 회복 시 항상 null→로딩→결과 흐름
-  useEffect(() => {
-    let cancelled = false;
-    setMailMessages(null);
-    setMailUnreadCount(null);
-    mailUnreadCountAll()
-      .then((n) => { if (!cancelled) setMailUnreadCount(n); })
-      .catch(() => { if (!cancelled) setMailUnreadCount(0); });
-    mailListAllAccountsMessages(0)
-      .then((msgs) => { if (!cancelled) setMailMessages(msgs); })
-      .catch(() => { if (!cancelled) setMailMessages([]); });
-    return () => { cancelled = true; };
-  }, [mailKey]);
 
   const sortedBlocks = useMemo(() => {
     if (!blocks) return [];
@@ -348,7 +327,6 @@ export function Today() {
           blockStats={blockStats}
           taskCounts={taskCounts}
           unreadGleanCount={unreadGleanCount}
-          mailUnreadCount={mailUnreadCount}
           todayMood={todayMood}
           nextBlock={nextBlock}
           promotedCount={gleanStats ? gleanStats.byStatus.promoted ?? 0 : null}
@@ -486,24 +464,12 @@ export function Today() {
           </Card>
         )}
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 'var(--gap-lg)',
-            marginBottom: 'var(--gap-lg)',
-          }}
-        >
+        <div style={{ marginBottom: 'var(--gap-lg)' }}>
           <InboxCard
             items={inboxRows}
             unread={unreadGleanCount}
             loading={glean === null}
             onAll={() => navigate('glean')}
-          />
-          <MailInboxCard
-            messages={mailMessages}
-            unread={mailUnreadCount ?? 0}
-            onAll={() => navigate('mail')}
           />
         </div>
 
@@ -605,7 +571,6 @@ function StatBar({
   blockStats,
   taskCounts,
   unreadGleanCount,
-  mailUnreadCount,
   todayMood,
   nextBlock,
   promotedCount,
@@ -613,7 +578,6 @@ function StatBar({
   blockStats: { total: number; done: number; remaining: number };
   taskCounts: { done: number; total: number; overdue: number };
   unreadGleanCount: number;
-  mailUnreadCount: number | null;
   todayMood: Mood | null | undefined;
   nextBlock: Block | undefined;
   promotedCount: number | null;
@@ -652,11 +616,6 @@ function StatBar({
         warn={taskCounts.overdue > 0}
       />
       <StatPill
-        label="수신함"
-        value={mailUnreadCount === null ? <DotLoader color="var(--hl-rose)" /> : `새 메일 ${mailUnreadCount}개`}
-        tone="rose"
-      />
-      <StatPill
         label="줍기"
         value={`${unreadGleanCount} 미읽음`}
         sub={promotedCount !== null ? `${promotedCount} 발행됨` : undefined}
@@ -675,25 +634,6 @@ function StatBar({
         tone="ok"
       />
     </div>
-  );
-}
-
-function DotLoader({ color }: { color: string }) {
-  return (
-    <span style={{ display: 'inline-flex', gap: 3, alignItems: 'center' }}>
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          style={{
-            width: 4,
-            height: 4,
-            borderRadius: '50%',
-            background: color,
-            animation: `psm-pulse 1.1s ease-in-out ${i * 0.2}s infinite`,
-          }}
-        />
-      ))}
-    </span>
   );
 }
 
@@ -1040,181 +980,6 @@ function InboxCard({
         </Mono>
         <Button sm ghost onClick={onAll}>
           전부 보기
-        </Button>
-      </div>
-    </Card>
-  );
-}
-
-function parseSender(from: string): string {
-  const m = /^(.+?)\s*</.exec(from);
-  if (m?.[1]) return m[1].trim().replace(/^["']|["']$/g, '');
-  return from.split('@')[0] ?? from;
-}
-
-function MailInboxCard({
-  messages,
-  unread,
-  onAll,
-}: {
-  messages: MailMessage[] | null;
-  unread: number;
-  onAll: () => void;
-}) {
-  const loading = messages === null;
-  const items = messages ? messages.slice(0, 7) : [];
-  const hasAccounts = messages !== null;
-
-  return (
-    <Card padded={false}>
-      <div
-        style={{
-          padding: 'calc(var(--card-pad) - 2px) var(--card-pad)',
-          borderBottom: '1px solid var(--line)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <CardTitle>수신함 · 이메일</CardTitle>
-        <Mono style={{ fontSize: 11, color: unread > 0 ? 'var(--hl-rose)' : 'var(--ink-mute)' }}>
-          {loading ? '…' : unread > 0 ? `새 메일 ${unread}개` : '모두 읽음'}
-        </Mono>
-      </div>
-
-      {loading ? (
-        <div style={{ padding: '6px 0' }}>
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '9px 18px',
-              }}
-            >
-              <div
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 999,
-                  background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
-                  flexShrink: 0,
-                }}
-              />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <div
-                  style={{
-                    height: 12,
-                    borderRadius: 4,
-                    width: `${55 + (i % 3) * 15}%`,
-                    background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
-                  }}
-                />
-                <div
-                  style={{
-                    height: 10,
-                    borderRadius: 4,
-                    width: `${35 + (i % 4) * 10}%`,
-                    background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  height: 10,
-                  width: 36,
-                  borderRadius: 4,
-                  background: 'linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%)',
-                  backgroundSize: '200% 100%',
-                  animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
-                  flexShrink: 0,
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      ) : !hasAccounts || items.length === 0 ? (
-        <EmptyState text={hasAccounts ? '새 메일이 없습니다' : '메일 계정을 추가하면 여기에 표시됩니다'} />
-      ) : (
-        <ul style={{ listStyle: 'none', margin: 0, padding: 6 }}>
-          {items.map((msg) => (
-            <li
-              key={`${msg.accountId}-${msg.uid}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '7px 12px',
-                borderRadius: 6,
-                background: !msg.seen ? 'rgba(96,165,250,0.04)' : 'transparent',
-              }}
-            >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: 999,
-                  background: !msg.seen ? 'var(--blue)' : 'transparent',
-                  flexShrink: 0,
-                }}
-              />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: !msg.seen ? 'var(--ink)' : 'var(--ink-2)',
-                    fontWeight: !msg.seen ? 500 : 400,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {msg.subject || '(제목 없음)'}
-                </div>
-                <Mono
-                  style={{
-                    fontSize: 10.5,
-                    color: 'var(--ink-mute)',
-                    marginTop: 2,
-                    display: 'block',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {parseSender(msg.from)}
-                </Mono>
-              </div>
-              <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                {formatRel(msg.date)}
-              </Mono>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div
-        style={{
-          padding: 'var(--gap) var(--gap-lg) var(--gap-lg)',
-          borderTop: '1px solid var(--line)',
-          display: 'flex',
-          gap: 'var(--gap)',
-          alignItems: 'center',
-        }}
-      >
-        <Mono style={{ fontSize: 10, color: 'var(--ink-mute)', flex: 1 }}>
-          메일 · 모든 계정 통합
-        </Mono>
-        <Button sm ghost onClick={onAll}>
-          메일함으로
         </Button>
       </div>
     </Card>

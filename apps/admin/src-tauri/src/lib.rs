@@ -272,10 +272,6 @@ pub fn run() {
             }
             {
                 let app_handle = app.handle().clone();
-                tauri::async_runtime::spawn(commands::radar_poller::start_poller(app_handle));
-            }
-            {
-                let app_handle = app.handle().clone();
                 tauri::async_runtime::spawn(commands::task_repeats::start_poller(app_handle));
             }
             {
@@ -319,21 +315,6 @@ pub fn run() {
             commands::routine_sync::routine_sync_configure,
             commands::routine_sync::routine_sync_set_token,
             commands::routine_sync::routine_sync_now,
-            // === radar ===
-            commands::radar::list_goals,
-            commands::radar::add_goal,
-            commands::radar::update_goal,
-            commands::radar::delete_goal,
-            commands::radar::list_radar_tasks,
-            commands::radar::add_radar_task,
-            commands::radar::update_radar_task,
-            commands::radar::delete_radar_task,
-            commands::radar::list_radar_activities,
-            commands::radar::add_radar_activity,
-            commands::radar::dismiss_radar_alert,
-            commands::radar::radar_save_token,
-            commands::radar::radar_has_token,
-            commands::radar::trigger_radar_poll_goal,
             // === life: blocks (calendar) ===
             commands::blocks::list_blocks,
             commands::blocks::list_blocks_by_date,
@@ -455,28 +436,6 @@ pub fn run() {
             commands::clipboard::clipboard_history_clear,
             commands::clipboard::clipboard_history_prune_by_days,
             commands::clipboard::clipboard_history_delete_within_hours,
-            // === mail (IMAP) ===
-            commands::mail::mail_list_accounts,
-            commands::mail::mail_add_account,
-            commands::mail::mail_update_account,
-            commands::mail::mail_delete_account,
-            commands::mail::mail_test_connection,
-            commands::mail::mail_list_folders,
-            commands::mail::mail_list_messages,
-            commands::mail::mail_get_message,
-            commands::mail::mail_set_seen,
-            commands::mail::mail_set_seen_bulk,
-            commands::mail::mail_set_flagged,
-            commands::mail::mail_delete_message,
-            commands::mail::mail_oauth_start,
-            commands::mail::mail_list_all_messages,
-            commands::mail::mail_list_all_accounts_messages,
-            commands::mail::mail_fetch_all_accounts_full,
-            commands::mail::mail_list_unread_messages,
-            commands::mail::mail_list_all_accounts_unread_messages,
-            commands::mail::mail_check_new,
-            commands::mail::mail_unread_count_all,
-            commands::mail::mail_folder_unread_counts,
             // === stats exclusions ===
             commands::stats_exclusions::list_stats_excluded,
             commands::stats_exclusions::set_stats_exclusions,
