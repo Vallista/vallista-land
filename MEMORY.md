@@ -36,6 +36,8 @@
 - 2026-10-26: 메일(IMAP)·레이더(업무 목표 수집) 제거(`feat/bento-blog-studio`, 25b0487) — 커맨드·폴러·화면·사이드바·오늘 카드·온보딩 메일 단계, 메일 전용 크레이트(async-imap·async-native-tls·mailparse·rand). 데이터 파일(`goals.json` 등)과 키체인 항목은 지우지 않음(사용자 몫).
 - 2026-10-26: 생활 기록을 도란으로 한 번 옮기기 — Rust `doran_import(thoughts)`(`commands/doran_import.rs`, async)가 `blocks.json`·`mood.json`·`summaries.json` 을 **그대로** 읽고(메인 스레드에서, `routine_sync::on_main`) 화면 저장소의 생각(종류 '생각'만)과 함께 `POST <서버>/api/sync/import/bento` 로 보낸다. 서버·토큰은 루틴 동기화와 같은 자리(`routine_sync::server_and_token`). 모양 바꾸기는 도란 `planBentoImport` 가 한다(외부 캘린더 사본·할 일 블록·루틴/건강 블록·시간 없는 블록 제외, 기분 0~1 → 1~5, 요약 → 회고 `source=import`) — 규칙을 고쳐도 dmg 재빌드가 필요 없게. 서버는 새것만 더하고(id `bk_<사람>_<Bento id>`) 하루 기록은 빈칸만 채워 여러 번 눌러도 같다. UI 는 설정 › 데이터 '생활 기록 → 도란'(2클릭). 이 기기의 파일은 지우지 않음. 버린 대안: Bento 가 모양을 바꿔 보내기(시험을 맥에서만 돌릴 수 있음), 지속 동기화(Bento 가 이 기능들을 걷어낼 예정이라 한 번이면 됨).
 
+- 2026-10-26: 맥 dmg 는 GitHub Actions 맥 러너에서 만든다(`.github/workflows/bento-mac.yml`, 공개 저장소라 무료). main 에 `apps/admin/**`·`packages/{content-core,markdown,ui}/**`·`pnpm-lock.yaml` 이 바뀐 push 와 수동 실행(workflow_dispatch)에서 돈다. `tauri build --bundles dmg` 에 `--config '{"bundle":{"macOS":{"signingIdentity":"-"}}}'` 로 ad-hoc 서명만 하고(개발자 인증서 없음), 결과는 그 실행의 Artifacts `Bento-dmg-<sha>`(zip, 14일 보관). 받은 앱은 격리 표시 때문에 "손상됨"으로 뜨므로 설치 뒤 `xattr -dr com.apple.quarantine /Applications/Bento.app` 한 번. 서명이 빌드마다 달라 키체인 항목(`llm-apikey-claude`·`nyanotion-sync`)은 처음 읽을 때 "항상 허용"을 물을 수 있다. 오류는 `apps/bento-ios/ci/run.sh` 가 Annotations 로 남긴다(클라우드 세션은 로그·아티팩트 본문에 못 닿고 REST 로 실행 상태·주석·아티팩트 목록만 본다). 버린 대안: 클라우드 세션에서 크로스 빌드(맥 SDK·코드사인 도구 없음), 릴리스에 dmg 첨부(공개 저장소라 누구나 받음), 브랜치에 dmg 커밋(바이너리가 git 기록에 남음).
+
 ## 시도했다가 버린 접근
 
 <!-- 해봤는데 안 됐던 것 + 이유 -->
@@ -62,5 +64,5 @@
 
 - 2026-10-26: 맥 루틴 동기화(`feat/routine-sync-mac`, `feat/bento-ios` 위에 쌓음)는 main에 ff 머지·push. 새 Rust 커맨드 4종·폴러라 dmg 재빌드 후 설치해야 동작(클라우드 세션이라 dmg 없음, 로컬 원본은 `git pull --ff-only`). 서버가 배포돼야 실제로 맞춰진다. 맥 수동 확인: 루틴 화면 '동기화' → 토큰 저장 → 켜기 → `~/Library/Application Support/<bento>/routine_sync.json`의 `linked: true`·`backups/routine-sync-<ts>/` 확인 → 아이폰에서 체크 → 1분 안에 맥 화면 반영.
 
-- 2026-10-26: Bento 블로그 스튜디오 전환(`feat/bento-blog-studio`)은 미push. 메일·레이더 제거 + 도란 옮기기 + 화면 문구 냥노션→도란. 새 Rust 커맨드(`doran_import`)라 dmg 재빌드 후 설치해야 동작. 순서: 도란 서버 배포(마이그레이션 0024, beta 먼저) → Bento 설정 › 데이터 '생활 기록 → 도란' → 도란에서 확인 → 그다음 Bento 의 생활 화면(Today·Plan·할 일·루틴·회고·생각)을 숨기거나 걷기. 그 뒤 블로그 조회수(GA4 Data API, 서비스 계정 키는 키체인)를 붙일 차례.
+- 2026-10-26: Bento 블로그 스튜디오 전환(`feat/bento-blog-studio`)은 main 에 ff 머지·push(메일·레이더 제거 + 도란 옮기기 + 화면 문구 냥노션→도란). 검증: `cargo test --lib` 78개 · `type-check:bento` · bento vite 빌드 · `build:blog`. 새 Rust 커맨드(`doran_import`)라 새 dmg 를 설치해야 동작 — dmg 는 이 push 의 Bento Mac 실행 Artifacts 에서 받는다(위 결정). 도란 쪽(`feat/doran` + `feat/doran-mac-theme`)도 nyanotion main 에 ff 머지·push 했고, 집 PC 에서 `git pull` → `pnpm deploy:beta`(마이그레이션 0024) → 확인 → `pnpm deploy:prod` 가 남았다. 순서: 도란 서버 배포(마이그레이션 0024, beta 먼저) → Bento 설정 › 데이터 '생활 기록 → 도란' → 도란에서 확인 → 그다음 Bento 의 생활 화면(Today·Plan·할 일·루틴·회고·생각)을 숨기거나 걷기. 그 뒤 블로그 조회수(GA4 Data API, 서비스 계정 키는 키체인)를 붙일 차례.
 

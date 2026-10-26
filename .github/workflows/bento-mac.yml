@@ -1,0 +1,72 @@
+# 맥 Bento(apps/admin) dmg 를 GitHub 의 맥 러너에서 만든다 — 클라우드 세션은 맥이 없어 dmg 를 못 만든다.
+# 결과는 실행 화면 아래 Artifacts 의 "Bento-dmg-<커밋>" (zip 안에 dmg). 14일 뒤 지워진다.
+#
+# 서명: 개발자 인증서 없이 ad-hoc("-") 서명만 한다. 받은 dmg 는 격리 표시가 붙어 "손상됨"으로 나오므로
+# 설치 뒤 한 번 `xattr -dr com.apple.quarantine /Applications/Bento.app` 을 돌린다.
+# 실패하면 오류 줄이 Annotations 에 모인다 (apps/bento-ios/ci/run.sh 를 같이 쓴다).
+name: Bento Mac
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/admin/**"
+      - "packages/content-core/**"
+      - "packages/markdown/**"
+      - "packages/ui/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/bento-mac.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: bento-mac-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dmg:
+    runs-on: macos-15
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      # release 프로필이 lto + codegen-units=1 이라 처음엔 오래 걸린다. 의존성 빌드를 다음 실행에 넘긴다.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/admin/src-tauri
+
+      - name: dmg 빌드 (ad-hoc 서명)
+        working-directory: apps/admin
+        env:
+          CI: "true"
+        run: >
+          ../bento-ios/ci/run.sh "dmg 빌드"
+          pnpm tauri build --bundles dmg
+          --config '{"bundle":{"macOS":{"signingIdentity":"-"}}}'
+
+      - name: 이름 붙이기
+        id: name
+        run: |
+          dmg="$(ls apps/admin/src-tauri/target/release/bundle/dmg/*.dmg | head -1)"
+          echo "path=$dmg" >> "$GITHUB_OUTPUT"
+          echo "::notice title=dmg::$(basename "$dmg") $(du -h "$dmg" | cut -f1) — 실행 화면 아래 Artifacts 의 Bento-dmg-${GITHUB_SHA}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Bento-dmg-${{ github.sha }}
+          path: ${{ steps.name.outputs.path }}
+          if-no-files-found: error
+          retention-days: 14
