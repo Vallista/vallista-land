@@ -1,6 +1,7 @@
 pub mod blocks;
 pub mod clipboard;
 pub mod docs;
+pub mod doran_import;
 pub mod event_notes;
 pub mod event_subtasks;
 pub mod git;

@@ -479,7 +479,7 @@ export async function stopRoutineTimer(discard = false): Promise<RoutineTimerCom
   return invoke<RoutineTimerCommit | null>('stop_routine_timer', { discard });
 }
 
-// === routine sync (냥노션 · iOS 루틴 앱과 맞추기) ===
+// === routine sync (도란 · iOS 루틴 앱과 맞추기) ===
 
 /** 받은 것으로 로컬 루틴이 바뀌었다 (Rust emit) */
 export const ROUTINES_SYNCED_EVENT = 'bento:routines-synced';
@@ -526,6 +526,38 @@ export async function routineSyncSetToken(token: string): Promise<RoutineSyncSta
 /** 한 바퀴(올리기 → 받기). 이미 돌고 있으면 null. */
 export async function routineSyncNow(): Promise<RoutineSyncResult | null> {
   return invoke<RoutineSyncResult | null>('routine_sync_now', undefined, { silent: true });
+}
+
+// === 도란으로 생활 기록 옮기기 (한 번) ===
+
+export interface DoranImportCount {
+  added: number;
+  existing: number;
+}
+
+export interface DoranImportResult {
+  events: DoranImportCount;
+  memos: DoranImportCount;
+  days: { added: number; filled: number };
+  reviews: DoranImportCount;
+  skipped: {
+    external: number;
+    task: number;
+    routine: number;
+    unscheduled: number;
+    invalid: number;
+    thoughts: number;
+    days: number;
+    reviews: number;
+  };
+}
+
+/**
+ * 계획 블록 · 기분/회고 · 주간·월간 요약(Rust 가 파일을 그대로 읽는다)과 생각(화면 저장소 — 여기서 넘긴다)을
+ * 도란 서버로 보낸다. 주소·토큰은 루틴 동기화와 같은 자리. 서버가 새것만 더하므로 다시 눌러도 겹치지 않는다.
+ */
+export async function doranImport(thoughts: unknown[]): Promise<DoranImportResult> {
+  return invoke<DoranImportResult>('doran_import', { thoughts });
 }
 
 export interface BlockInput {

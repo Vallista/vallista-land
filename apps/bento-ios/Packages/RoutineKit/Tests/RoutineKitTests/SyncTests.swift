@@ -1,7 +1,7 @@
 import XCTest
 @testable import RoutineKit
 
-/// 냥노션 서버의 루틴 규칙을 흉내 낸다 (packages/db/src/queries/routines.ts 와 같은 판정).
+/// 도란 서버의 루틴 규칙을 흉내 낸다 (packages/db/src/queries/routines.ts 와 같은 판정).
 actor FakeServer: RoutineTransport {
     var routines: [String: ServerRoutine] = [:]
     var logs: [String: ServerLog] = [:]

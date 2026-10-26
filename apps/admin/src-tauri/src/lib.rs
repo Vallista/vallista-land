@@ -315,6 +315,7 @@ pub fn run() {
             commands::routine_sync::routine_sync_configure,
             commands::routine_sync::routine_sync_set_token,
             commands::routine_sync::routine_sync_now,
+            commands::doran_import::doran_import,
             // === life: blocks (calendar) ===
             commands::blocks::list_blocks,
             commands::blocks::list_blocks_by_date,

@@ -1,4 +1,4 @@
-//! 루틴을 냥노션 서버와 맞춘다 — iOS 루틴 앱(`apps/bento-ios`)과 같은 서버 길
+//! 루틴을 도란 서버와 맞춘다 — iOS 루틴 앱(`apps/bento-ios`)과 같은 서버 길
 //! `/api/sync/routines/changes`. 서버 규칙은 Nyanotion 저장소 `docs/13-sync.md` §루틴.
 //!
 //! - 한 바퀴 = **올리기 → 받기.** 올릴 것은 `routine_sync.json` 의 dirty 표(고친 시각)다.
@@ -684,15 +684,44 @@ impl Exec for AppExec<'_> {
     }
 }
 
-fn endpoint(server: &str) -> Result<String, String> {
+/// 서버 주소의 뿌리 — 끝의 `/` 를 떼고 https:// (개발 중엔 http://) 인지 본다.
+pub(crate) fn base_url(server: &str) -> Result<String, String> {
     let base = server.trim().trim_end_matches('/');
     if !(base.starts_with("https://") || base.starts_with("http://")) {
         return Err("서버 주소는 https:// 로 시작해야 해요".to_string());
     }
-    Ok(format!("{}/api/sync/routines/changes", base))
+    Ok(base.to_string())
 }
 
-async fn read_body<T: for<'de> Deserialize<'de>>(res: reqwest::Response) -> Result<T, String> {
+fn endpoint(server: &str) -> Result<String, String> {
+    Ok(format!("{}/api/sync/routines/changes", base_url(server)?))
+}
+
+/// 도란 서버 주소와 개인 토큰 — 루틴 동기화와 같은 자리를 쓴다(생활 기록 옮기기가 같이 부른다).
+pub(crate) async fn server_and_token(app: &AppHandle) -> Result<(String, String), String> {
+    let exec = AppExec(app);
+    let server = exec.main(|root| load_state(root).server_url).await?;
+    let token = exec
+        .token()
+        .await?
+        .filter(|t| !t.trim().is_empty())
+        .ok_or_else(|| {
+            "도란 개인 토큰이 없어요 — 루틴 › 동기화에서 먼저 저장해 주세요".to_string()
+        })?;
+    Ok((base_url(&server)?, token))
+}
+
+/// 파일 단계를 메인 스레드에서 — 동기 커맨드들과 같은 줄에 선다.
+pub(crate) async fn on_main<T: Send + 'static>(
+    app: &AppHandle,
+    f: impl FnOnce(&Path) -> T + Send + 'static,
+) -> Result<T, String> {
+    AppExec(app).main(f).await
+}
+
+pub(crate) async fn read_body<T: for<'de> Deserialize<'de>>(
+    res: reqwest::Response,
+) -> Result<T, String> {
     let status = res.status();
     let text = res
         .text()
@@ -706,7 +735,7 @@ async fn read_body<T: for<'de> Deserialize<'de>>(res: reqwest::Response) -> Resu
         return Err(match status.as_u16() {
             401 => {
                 if msg.is_empty() {
-                    "토큰이 맞지 않아요 — 냥노션 계정 › 개인 토큰을 다시 확인해 주세요".to_string()
+                    "토큰이 맞지 않아요 — 도란 계정 › 개인 토큰을 다시 확인해 주세요".to_string()
                 } else {
                     msg
                 }
@@ -1033,7 +1062,7 @@ pub fn routine_sync_set_token(
         save_state(root, &s)?;
     } else {
         if !t.starts_with("nyt_") {
-            return Err("냥노션 개인 토큰은 nyt_ 로 시작해요".to_string());
+            return Err("도란 개인 토큰은 nyt_ 로 시작해요".to_string());
         }
         keychain::write_token(TOKEN_SLOT, t, root)?;
         notifier().notify_one();

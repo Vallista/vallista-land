@@ -1,6 +1,6 @@
 import Foundation
 
-// 맥 Bento(`apps/admin`)·냥노션 서버(`/api/sync/routines`)와 같은 모양.
+// 맥 Bento(`apps/admin`)·도란 서버(`/api/sync/routines`)와 같은 모양.
 // JSON 칸 이름은 서버와 같다(camelCase).
 
 public enum RoutineColor: String, Codable, CaseIterable, Sendable {

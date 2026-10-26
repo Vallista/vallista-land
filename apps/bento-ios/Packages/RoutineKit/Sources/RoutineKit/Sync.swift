@@ -1,6 +1,6 @@
 import Foundation
 
-// 냥노션 서버(`/api/sync/routines/changes`)와 맞추기. 규칙은 서버 `docs/13-sync.md` §루틴.
+// 도란 서버(`/api/sync/routines/changes`)와 맞추기. 규칙은 서버 `docs/13-sync.md` §루틴.
 //   한 바퀴 = 올리기 → 받기. 올릴 것은 `SyncState` 의 dirty 표(고친 시각).
 //   나중에 고친 쪽이 이긴다. 서버 것이 더 새로워 버려진 것은 응답의 `current` 로 곧바로 덮는다.
 //   받은 것보다 이 기기에서 나중에 고쳤고 아직 안 올린 것은 덮지 않고 건너뛴다 — 다음 올리기가 이긴다.

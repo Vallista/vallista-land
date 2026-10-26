@@ -145,13 +145,13 @@ export function RoutineSyncDialog({ open, status, onStatus, onClose }: Props) {
     >
       <div role="dialog" aria-modal="true" aria-label="루틴 동기화" style={panel}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Eyebrow>루틴 동기화 · 냥노션</Eyebrow>
+          <Eyebrow>루틴 동기화 · 도란</Eyebrow>
           <button onClick={onClose} title="닫기 (ESC)" style={closeBtn}>
             ×
           </button>
         </div>
         <p style={lead}>
-          아이폰 루틴 앱과 같은 냥노션 계정으로 루틴 · 기록 · 타이머를 맞춰요. 고친 지 2초 뒤와
+          아이폰 루틴 앱과 같은 도란 계정으로 루틴 · 기록 · 타이머를 맞춰요. 고친 지 2초 뒤와
           1분마다 올리고 받으며, 같은 것을 양쪽에서 고쳤으면 나중에 고친 쪽이 남아요.
         </p>
 
@@ -209,7 +209,7 @@ export function RoutineSyncDialog({ open, status, onStatus, onClose }: Props) {
             </div>
           )}
           <Hint>
-            냥노션 웹 › 계정 › 개인 토큰에서 만들어요. 체크리스트 동기화와 같은 자리를 써서 한 번만
+            도란 웹 › 계정 › 개인 토큰에서 만들어요. 체크리스트 동기화와 같은 자리를 써서 한 번만
             넣으면 돼요. 토큰은 웹뷰로 돌아오지 않아요.
           </Hint>
         </Field>
@@ -333,7 +333,7 @@ export function SyncButton({
         ? 'var(--warn)'
         : 'var(--ok)';
   const title = !status.enabled
-    ? '냥노션 동기화 꺼짐'
+    ? '도란 동기화 꺼짐'
     : status.lastError
       ? `동기화 오류: ${status.lastError}`
       : status.pending > 0

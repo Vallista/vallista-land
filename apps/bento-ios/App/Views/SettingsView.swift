@@ -13,7 +13,7 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Toggle("냥노션과 동기화", isOn: $model.syncEnabled)
+                    Toggle("도란과 동기화", isOn: $model.syncEnabled)
                     if model.syncEnabled {
                         LabeledContent("서버") {
                             TextField("https://", text: $model.serverURL)
@@ -48,7 +48,7 @@ struct SettingsView: View {
                 } header: {
                     Text("동기화")
                 } footer: {
-                    Text("맥 Bento 와 같은 냥노션 계정의 개인 토큰을 넣으면 루틴·기록·타이머가 서로 맞춰져요. 토큰은 냥노션 웹 › 계정 › 개인 토큰에서 만들고, 이 기기의 키체인에만 저장돼요.")
+                    Text("맥 Bento 와 같은 도란 계정의 개인 토큰을 넣으면 루틴·기록·타이머가 서로 맞춰져요. 토큰은 도란 웹 › 계정 › 개인 토큰에서 만들고, 이 기기의 키체인에만 저장돼요.")
                 }
 
                 if model.syncEnabled {

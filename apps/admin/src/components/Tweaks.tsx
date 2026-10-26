@@ -22,6 +22,7 @@ import {
   appSetupStatus,
   blogPull,
   blogSetupWorkspace,
+  doranImport,
   externalizeGleanImages,
   gleanImageStats,
   keychainDeleteToken,
@@ -31,11 +32,14 @@ import {
   pickContentRoot,
   applyGlobalShortcuts,
   readGlobalKeybindingsFromDisk,
+  routineSyncStatus,
   setBlogConfig,
   writeGlobalKeybindingsToDisk,
   type GleanImageStats,
   type MigrateReportsReport,
+  type RoutineSyncStatus,
 } from '../lib/tauri';
+import { loadThoughts } from '../lib/thoughts';
 import { readWeekStartDay, writeWeekStartDay, type WeekStartDay } from '../lib/weekStart';
 import { LLMSetupContent } from '../screens/LLMSetup';
 import { useLabels } from '../screens/Plan/labelCatalog';
@@ -1187,11 +1191,113 @@ function DataPane({
         )}
       </Section>
       <GleanImagesSection />
+      <DoranImportSection />
     </>
   );
 
 function formatMB(bytes: number): string {
   return `${(bytes / 1048576).toFixed(1)}MB`;
+}
+
+/**
+ * 생활 기록을 도란으로 한 번 옮긴다 — 계획 블록(내가 만든 것만) · 기분/하루 회고 · 주간·월간 요약 · 생각.
+ * 이 기기의 파일은 지우지 않는다. 서버가 새것만 더하므로 다시 눌러도 겹치지 않는다.
+ */
+function DoranImportSection() {
+  const [sync, setSync] = useState<RoutineSyncStatus | null>(null);
+  const [status, setStatus] = useState<'idle' | 'busy' | 'ok' | 'error'>('idle');
+  const [message, setMessage] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    routineSyncStatus()
+      .then((s) => {
+        if (!cancelled) setSync(s);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const ready = sync !== null && sync.hasToken;
+  const busy = status === 'busy';
+  const thoughts = loadThoughts().filter((t) => t.type === 'thought');
+
+  const handleRun = async () => {
+    if (!ready || busy) return;
+    if (!confirm) {
+      setConfirm(true);
+      setStatus('idle');
+      setMessage(
+        `${sync.serverUrl} 로 계획 블록(내가 만든 것 — 외부 캘린더 사본·할 일 블록·루틴 블록 제외) · 기분과 하루 회고 · 주간·월간 요약 · 생각 ${thoughts.length}개를 보냅니다. 이 기기의 파일은 그대로 둡니다. 다시 누르면 실행됩니다.`,
+      );
+      return;
+    }
+    setStatus('busy');
+    setMessage(null);
+    try {
+      const r = await doranImport(thoughts);
+      const skipped =
+        r.skipped.external + r.skipped.task + r.skipped.routine + r.skipped.unscheduled + r.skipped.invalid;
+      setStatus('ok');
+      setMessage(
+        [
+          `옮김 — 일정 ${r.events.added} · 메모 ${r.memos.added} · 하루 기록 ${r.days.added}(+빈칸 ${r.days.filled}) · 회고 ${r.reviews.added}`,
+          r.events.existing + r.memos.existing + r.reviews.existing > 0
+            ? `이미 있던 것 ${r.events.existing + r.memos.existing + r.reviews.existing}개는 건드리지 않았어요`
+            : null,
+          skipped > 0
+            ? `블록 ${skipped}개 제외 (외부 ${r.skipped.external} · 할 일 ${r.skipped.task} · 루틴/건강 ${r.skipped.routine} · 시간 없음 ${r.skipped.unscheduled} · 모양 틀림 ${r.skipped.invalid})`
+            : null,
+          '도란 › 오늘 · 메모함 · 기록에서 확인하세요.',
+        ]
+          .filter(Boolean)
+          .join('\n'),
+      );
+    } catch (e) {
+      setStatus('error');
+      setMessage(e instanceof Error ? e.message : String(e));
+    } finally {
+      setConfirm(false);
+    }
+  };
+
+  let label: string;
+  if (busy) label = '옮기는 중…';
+  else if (sync === null) label = '확인 중…';
+  else if (!ready) label = '토큰이 없어요 — 루틴 › 동기화에서 먼저';
+  else if (confirm) label = '한번 더 눌러 확정';
+  else label = '도란으로 옮기기';
+
+  return (
+    <Section label="생활 기록 → 도란" hint="블록 · 기분/회고 · 요약 · 생각">
+      <Mono style={{ fontSize: 11, color: 'var(--ink-mute)', lineHeight: 1.6 }}>
+        Bento 는 블로그 관리만 남고, 일정 · 메모 · 기분/회고는 도란에서 이어 씁니다. 루틴 동기화와 같은
+        서버 · 개인 토큰을 씁니다. 도란은 새것만 더하므로 여러 번 눌러도 겹치지 않아요.
+      </Mono>
+      <button
+        onClick={handleRun}
+        disabled={busy || !ready}
+        style={{ ...rowButtonStyle, justifyContent: 'center', marginTop: 4, opacity: busy || !ready ? 0.5 : 1 }}
+      >
+        <span>{label}</span>
+      </button>
+      {message && (
+        <Mono
+          style={{
+            fontSize: 10,
+            color: status === 'error' ? 'var(--err, var(--ink-mute))' : 'var(--ink-mute)',
+            whiteSpace: 'pre-wrap',
+            lineHeight: 1.5,
+          }}
+        >
+          {message}
+        </Mono>
+      )}
+    </Section>
+  );
 }
 
 function GleanImagesSection() {
